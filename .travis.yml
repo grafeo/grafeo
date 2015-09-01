@@ -1,5 +1,5 @@
 language: c
-compiler: cmake
+compiler: gcc
 script:
   - mkdir build
   - cd build
