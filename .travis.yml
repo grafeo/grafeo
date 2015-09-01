@@ -1,0 +1,3 @@
+language: c
+compiler: cmake
+script: cmake . && make
