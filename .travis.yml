@@ -1,0 +1,26 @@
+language: c
+compiler: gcc
+before_install:
+  - sudo apt-get update
+  - sudo pip install cpp-coveralls
+script:
+  - mkdir build
+  - cd build
+  - cmake .. -DBUILD_TESTS=OFF
+  - make
+
+env:
+  global:
+     # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+     #   via the "travis encrypt" command using the project repo's public key
+        - secure: "ZZ5699lciqGQ9sDvsOwdjhBcTQxUYM8fFKPJiaB6EdnoFIcWMVpS3AqjmQO40fyFpR8Yxwx85EuKwPBtm0v/oSL+faIif8GjiuQwbe24IMOF3ahDojMPusvInSBoDyuzxLufjEVvN7vXrpQgQ5QW4U5nJDSgoyPzWEf6ifo2gOhK2jd1eWps64pdER5FfpnhJFtqMAD07alAobWlanzVee9HqMQM89jWA5aH9g4Q71fVyUCh0qK+NzvZGlkIISBOXgqTsH+sEtA0n9BHd7Ey1ds0OJNHP6y0DagdmHPSGM02DaU3aHgvwUNFRcQaBJl3PJ5oSpjbYwFGyI87CLt4vp2EbqvGoD+RnKg0leE3JQ/HRQhRdj1SOEG7glfV07IYHZbomtjqSfb/IaPCnlz6gXEim9hMgcJY6o8uVJVNTFNk1q3WbEKV0RA/yr8lm27Dx++qlDm82+YW0WuXZI8BHw744+0zwZqyW7HcgiAYguDu2QowdkCmYnKOsdVcRg923NT3wqoN5yYf9tv++X7/bRofqaNh2f2eJBTZEKq5rfY8S8QRwrZgOWFJUD6VYVjM92dmZvKmxKEE3NDM6iRxEjOTTTrz9BStfYwif3UyYwe8+PTwU5Qnoiup0rSdkuqAJCJiAmzL7mcaKLB3hbA747TEcpOZoQus1/uEMYgOK1E="
+
+addons:
+  coverity_scan:
+    project:
+      name: "grafeo/grafeo"
+      description: "Build submitted via Travis CI"
+    notification_email: nocturne.pe@gmail.com
+    build_command_prepend: "cd build && make clean && cmake .. -DBUILD_TESTS=OFF"
+    build_command:   "make -j 4"
+    branch_pattern: coverity_scan
