@@ -27,11 +27,14 @@
 # ===================================================================
 cmake_minimum_required(VERSION 2.8)
 project(grafeo)
+
+#====================================================== DOCUMENTATION
 find_package(Doxygen)
 if(Doxygen_FOUND)
 	option(BUILD_DOCS      "Build doxygen documentation" ON)
 	file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/)
-	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
+	configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+				   ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
     add_custom_target(doc ALL
       ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc
@@ -39,11 +42,44 @@ if(Doxygen_FOUND)
     )
     add_custom_command(TARGET doc PRE_BUILD
       COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/tutorials ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+        ${CMAKE_CURRENT_SOURCE_DIR}/tutorials
+        ${CMAKE_CURRENT_SOURCE_DIR}/doc)
 endif(Doxygen_FOUND)
-
+#============================================================ LIBRARY
+set(GRAFEO_HDR
+	include/grafeo/list.h
+	include/grafeo/array.h
+	include/grafeo/queue.h
+)
 set(GRAFEO_SRC
  src/array.c
  src/list.c
  src/queue.c)
-add_library(grafeo ${GRAFEO_SRC})
+add_library(grafeo SHARED ${GRAFEO_SRC})
+install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
+install(TARGETS grafeo LIBRARY DESTINATION lib)
+
+#========================================================= DEBUG INFO
+option(DEBUG_INFO "Compile Grafeo with debug information?" ON)
+if(DEBUG_INFO)
+	SET(CMAKE_BUILD_TYPE Debug CACHE STRING
+   	   "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or 
+   	   CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+else()
+	SET(CMAKE_BUILD_TYPE Release CACHE STRING
+   	   "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or 
+   	   CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+endif(DEBUG_INFO)
+
+#============================================================== TESTS
+option(BUILD_TESTS "CMocka tests with GCov and GProf support" ON)
+if(BUILD_TESTS)
+	enable_testing()
+	set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS}
+	    "-pg -fprofile-arcs -ftest-coverage")
+
+	# Array
+	add_executable       (test_array tests/test_array.c)
+	add_test             (test_array       test_array)
+	target_link_libraries(test_array grafeo cmocka m)
+endif(BUILD_TESTS)
