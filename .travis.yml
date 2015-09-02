@@ -1,7 +1,9 @@
 language: c
 compiler: gcc
 before_install:
+  - sudo apt-get update
   - sudo pip install cpp-coveralls
+  - sudo apt-get install libcmocka-dev
 script:
   - mkdir build
   - cd build
