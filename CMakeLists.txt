@@ -85,11 +85,12 @@ if(NOT PNG_FOUND)
     load_submodule(PNG png)
 endif(NOT PNG_FOUND)
 #================================================================ JPG
-find_package(JPG QUIET)
-if(NOT JPG_FOUND)
+find_package(JPEG QUIET)
+if(NOT JPEG_FOUND)
 
-endif(NOT JPG_FOUND)
+endif(NOT JPEG_FOUND)
 #============================================================ LIBRARY
+include_directories(include)
 set(GRAFEO_HDR
     include/grafeo/list.h
     include/grafeo/array.h

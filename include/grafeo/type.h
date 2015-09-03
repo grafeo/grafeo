@@ -25,28 +25,18 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
-#include <grafeo/array.h>
-
-/**
- * Testing new arrays
- * TODO: testing also free
- */
-static void test_array_new(void** state){
-    Array* array = array_new();
-    assert_non_null(array);
-    assert_int_equal(array_get_num_elements(array),0);
-    assert_int_equal(array_get_type(array),GRAFEO_UINT8);
-    assert_int_equal(array_get_dim(array), 0);
-    array_free(array);
-}
-
-int main(int argc, char** argv){
-  const struct CMUnitTest tests[]={
-    cmocka_unit_test(test_array_new),
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
-}
+#ifndef GRAFEO_TYPE_H
+#define GRAFEO_TYPE_H
+typedef enum _DataType{
+    GRAFEO_UINT8,
+    GRAFEO_UINT16,
+    GRAFEO_UINT32,
+    GRAFEO_UINT64,
+    GRAFEO_INT8,
+    GRAFEO_INT16,
+    GRAFEO_INT32,
+    GRAFEO_INT64,
+    GRAFEO_FLOAT,
+    GRAFEO_DOUBLE,
+}DataType;
+#endif
