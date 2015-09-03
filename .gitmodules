@@ -1,0 +1,6 @@
+[submodule "external/cmocka"]
+	path = external/cmocka
+	url = git://git.cryptomilk.org/projects/cmocka.git
+[submodule "external/libpng"]
+	path = external/libpng
+	url = git://git.code.sf.net/p/libpng/code
