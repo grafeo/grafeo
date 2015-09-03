@@ -56,7 +56,7 @@ PROJECT_NAME           = "Grafeo"
 # could be handy for archiving the generated documentation or if some version
 # control system is used.
 
-PROJECT_NUMBER         = 0.1
+PROJECT_NUMBER         = 0.0.1
 
 # Using the PROJECT_BRIEF tag one can provide an optional one line description
 # for a project that appears at the top of each page and should give viewer a
@@ -780,10 +780,6 @@ INPUT  = @CMAKE_CURRENT_SOURCE_DIR@/include/grafeo/list.h
 INPUT += @CMAKE_CURRENT_SOURCE_DIR@/include/grafeo/queue.h
 INPUT += @CMAKE_CURRENT_SOURCE_DIR@/include/grafeo/graph.h
 INPUT += main.md
-INPUT += tutorial_graph.md
-INPUT += tutorial_ift.md
-INPUT += tutorial_opf.md
-INPUT += tutorial_rfc.md
 
 
 # This tag can be used to specify the character encoding of the source files
