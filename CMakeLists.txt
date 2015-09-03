@@ -157,11 +157,13 @@ if(BUILD_TESTS)
 
     enable_testing()
     # profiling directives (GCov and GProf)
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS}
-    "-pg -fprofile-arcs -ftest-coverage")
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
+    SET(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
+    add_definitions(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
     list(APPEND TESTS_NAMES array)
+    include (CTest)
     foreach(testname ${TESTS_NAMES})
         if(NOT CMOCKA_FOUND)
             include_directories(${EXTERNAL_INCLUDE_DIR})

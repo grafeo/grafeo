@@ -33,13 +33,32 @@
 
 typedef struct 
 _Array{
-
+    uint16_t  dim;
+    uint32_t* size;
+    uint64_t  num_elements;
+    union{
+        void*          data;
+        unsigned char* data_uint8;
+        u_int16_t*     data_uint16;
+        u_int32_t*     data_uint32;
+        u_int64_t*     data_uint64;
+        char*          data_int8;
+        int16_t*       data_int16;
+        int32_t*       data_int32;
+        int64_t*       data_int64;
+        float*         data_float;
+        double*        data_double;
+        unsigned int*  data_int;
+    };
 }Array;
 
 Array*    array_new();
-u_int64_t array_get_num_elements(Array* array);
+Array*    array_new_1D(u_int32_t size1);
+uint64_t array_get_num_elements(Array* array);
 DataType  array_get_type(Array* array);
-u_int16_t array_get_dim(Array* array);
+uint16_t array_get_dim(Array* array);
+uint32_t*array_get_size(Array* array);
 void      array_free(Array* array);
+void*     array_get_data(Array* array);
 
 #endif
