@@ -5,8 +5,8 @@ before_install:
   - sudo apt-get install doxygen
   - sudo pip install cpp-coveralls
 script:
-  - export COVERALLS_SERVICE_NAME=travis-ci
-  - export COVERALLS_REPO_TOKEN=jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL
+ #- export COVERALLS_SERVICE_NAME=travis-ci
+ #- export COVERALLS_REPO_TOKEN=jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL
   - mkdir build
   - cd build
   - cmake -DBUILD_TESTS=ON -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug ..
