@@ -29,7 +29,7 @@
 #define GRAFEO_TYPE_H
 #include <inttypes.h>
 typedef enum _DataType{
-    GRAFEO_UINT8,
+    GRAFEO_UINT8 = 0,
     GRAFEO_UINT16,
     GRAFEO_UINT32,
     GRAFEO_UINT64,

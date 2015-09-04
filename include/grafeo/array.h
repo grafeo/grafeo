@@ -30,18 +30,21 @@
 
 #include <grafeo/type.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct 
 _Array{
     uint16_t  dim;
     uint32_t* size;
     uint64_t  num_elements;
+    size_t    num_bytes;
+    DataType  type;
     union{
         void*          data;
         unsigned char* data_uint8;
-        u_int16_t*     data_uint16;
-        u_int32_t*     data_uint32;
-        u_int64_t*     data_uint64;
+        uint16_t*     data_uint16;
+        uint32_t*     data_uint32;
+        uint64_t*     data_uint64;
         char*          data_int8;
         int16_t*       data_int16;
         int32_t*       data_int32;
@@ -55,10 +58,18 @@ _Array{
 Array*    array_new();
 Array*    array_new_with_dim(uint16_t dim);
 Array*    array_new_with_size(uint16_t dim, uint32_t* size);
-Array*    array_new_1D(u_int32_t size1);
-Array*    array_new_2D(u_int32_t size1, u_int32_t size2);
-Array*    array_new_3D(u_int32_t size1, u_int32_t size2, u_int32_t size3);
-Array*    array_new_4D(u_int32_t size1, u_int32_t size2, u_int32_t size3, u_int32_t size4);
+Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type);
+Array*    array_new_1D(uint32_t size1);
+Array*    array_new_2D(uint32_t size1, uint32_t size2);
+Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3);
+Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4);
+Array*    array_new_1D_type(uint32_t size1, DataType type);
+Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type);
+Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, DataType type);
+Array*    array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type);
+Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type);
+Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type);
+void      array_fill(Array* array, double value);
 uint64_t  array_get_num_elements(Array* array);
 DataType  array_get_type(Array* array);
 uint16_t  array_get_dim(Array* array);
