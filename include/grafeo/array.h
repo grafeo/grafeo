@@ -41,11 +41,11 @@
  */
 typedef struct 
 _Array{
-    uint16_t  dim;
-    uint32_t* size;
-    uint64_t  num_elements;
-    size_t    num_bytes;
-    DataType  type;
+    uint16_t  dim;          /**< number of dimensions */
+    uint32_t* size;         /**< number of elements in each dimension */
+    uint64_t  num_elements; /**< number of elements of the array */
+    size_t    num_bytes;    /**< total number of bytes */
+    DataType  type;         /**< data type of each element */ 
     union{
         void*          data;
         unsigned char* data_uint8;
