@@ -53,6 +53,8 @@ _Array{
 }Array;
 
 Array*    array_new();
+Array*    array_new_with_dim(uint16_t dim);
+Array*    array_new_with_size(uint16_t dim, uint32_t* size);
 Array*    array_new_1D(u_int32_t size1);
 Array*    array_new_2D(u_int32_t size1, u_int32_t size2);
 Array*    array_new_3D(u_int32_t size1, u_int32_t size2, u_int32_t size3);
@@ -64,4 +66,3 @@ uint32_t* array_get_size(Array* array);
 void      array_free(Array* array);
 void*     array_get_data(Array* array);
 
-#endif
