@@ -66,3 +66,4 @@ uint32_t* array_get_size(Array* array);
 void      array_free(Array* array);
 void*     array_get_data(Array* array);
 
+#endif
