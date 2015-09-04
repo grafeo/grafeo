@@ -133,6 +133,7 @@ if(BUILD_TESTS)
     # find cmocka library
     INCLUDE(ExternalProject)
     if (COVERALLS)
+        set(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
         coveralls_setup(
             "${GRAFEO_SRC}" 
             ${COVERALLS_UPLOAD}
