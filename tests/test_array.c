@@ -221,10 +221,10 @@ static void test_array_new_4D_type(void** state){
 
 static void test_array_zeros(void** state){
     (void) state;
-    uint32_t i, i_max = 15,
-             j, j_max = 15,
-             k, k_max = 15,
-             l, l_max = 15;
+    uint32_t i, i_max = 25,
+             j, j_max = 25,
+             k, k_max = 25,
+             l, l_max = 25;
     uint64_t  n;
     uint64_t num_elements;
     uint32_t sizes[4];
@@ -241,7 +241,7 @@ static void test_array_zeros(void** state){
                     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
                         Array* array = array_zeros(4, sizes, type);
                         helper_testing_array(array, num_elements, type, 4, sizes);
-                        for(n = 0; n < num_elements; n++){
+                        for(n = num_elements-1; n < num_elements; n++){
                             switch(type){
                                 case GRAFEO_UINT8:  assert_int_equal(array->data_uint8[n],  0);break;
                                 case GRAFEO_UINT16: assert_int_equal(array->data_uint16[n], 0);break;
@@ -265,10 +265,10 @@ static void test_array_zeros(void** state){
 
 static void test_array_ones(void** state){
     (void) state;
-    uint32_t i, i_max = 10,
-             j, j_max = 10,
-             k, k_max = 10,
-             l, l_max = 10;
+    uint32_t i, i_max = 15,
+             j, j_max = 15,
+             k, k_max = 15,
+             l, l_max = 15;
     uint64_t  n;
     uint64_t num_elements;
     uint32_t sizes[4];
@@ -285,7 +285,7 @@ static void test_array_ones(void** state){
                     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
                         Array* array = array_ones(4, sizes, type);
                         helper_testing_array(array, num_elements, type, 4, sizes);
-                        for(n = 0; n < num_elements; n++){
+                        for(n = num_elements-1; n < num_elements; n++){
                             switch(type){
                                 case GRAFEO_UINT8:  assert_int_equal(array->data_uint8[n],  1);break;
                                 case GRAFEO_UINT16: assert_int_equal(array->data_uint16[n], 1);break;
@@ -299,6 +299,7 @@ static void test_array_ones(void** state){
                                 case GRAFEO_DOUBLE: assert_true(array->data_double[n] == 1.0);break;
                             }
                         }
+                        array_free(array);
                     }
                 }
             }
