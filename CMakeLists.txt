@@ -85,11 +85,24 @@ if(NOT PNG_FOUND)
     load_submodule(PNG png)
 endif(NOT PNG_FOUND)
 #================================================================ JPG
-find_package(JPG QUIET)
-if(NOT JPG_FOUND)
+find_package(JPEG QUIET)
+if(NOT JPEG_FOUND)
 
-endif(NOT JPG_FOUND)
+endif(NOT JPEG_FOUND)
+
+#============================================= TESTS (BEFORE LIBRARY)
+option(BUILD_TESTS "CMocka tests with GCov and GProf support" ON)
+option(COVERALLS "Generate coveralls data" OFF)
+option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
+if(BUILD_TESTS)
+    if (COVERALLS)
+        include(Coveralls)
+    endif(COVERALLS)
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
+endif(BUILD_TESTS)
 #============================================================ LIBRARY
+include_directories(include)
 set(GRAFEO_HDR
     include/grafeo/list.h
     include/grafeo/array.h
@@ -116,10 +129,17 @@ else()
 endif(DEBUG_INFO)
 
 #============================================================== TESTS
-option(BUILD_TESTS "CMocka tests with GCov and GProf support" ON)
 if(BUILD_TESTS)
     # find cmocka library
     INCLUDE(ExternalProject)
+    if (COVERALLS)
+        set(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
+        coveralls_setup(
+            "${GRAFEO_SRC}" 
+            ${COVERALLS_UPLOAD}
+            "${CMAKE_SOURCE_DIR}/cmake/")
+    endif(COVERALLS)
+
     find_package(CMocka QUIET)
 
     if(NOT CMOCKA_FOUND)
@@ -156,11 +176,11 @@ if(BUILD_TESTS)
 
     enable_testing()
     # profiling directives (GCov and GProf)
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS}
-    "-pg -fprofile-arcs -ftest-coverage")
+    add_definitions(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
     list(APPEND TESTS_NAMES array)
+    include (CTest)
     foreach(testname ${TESTS_NAMES})
         if(NOT CMOCKA_FOUND)
             include_directories(${EXTERNAL_INCLUDE_DIR})
