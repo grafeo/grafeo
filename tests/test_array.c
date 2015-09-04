@@ -265,10 +265,10 @@ static void test_array_zeros(void** state){
 
 static void test_array_ones(void** state){
     (void) state;
-    uint32_t i, i_max = 15,
-             j, j_max = 15,
-             k, k_max = 15,
-             l, l_max = 15;
+    uint32_t i, i_max = 10,
+             j, j_max = 10,
+             k, k_max = 10,
+             l, l_max = 10;
     uint64_t  n;
     uint64_t num_elements;
     uint32_t sizes[4];
