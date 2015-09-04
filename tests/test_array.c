@@ -70,12 +70,86 @@ static void test_array_new_1D(void** state){
     }
 }
 
+static void test_array_new_2D(void** state){
+    (void) state;
+    uint64_t i,           j, 
+             i_max = 100, j_max = 100;
+    for(i = 0; i < i_max; i++){
+        for(j = 0; j < j_max; j++){
+            Array* array = array_new_2D(i, j);
+            assert_non_null(array);
+            assert_int_equal(array_get_num_elements(array), i*j);
+            assert_int_equal(array_get_type(array), GRAFEO_UINT8);
+            assert_int_equal(array_get_dim(array), 2);
+            assert_non_null(array_get_size(array));
+            assert_int_equal(array_get_size(array)[0], i);
+            assert_int_equal(array_get_size(array)[1], j);
+            if(i != 0 || j != 0) assert_non_null(array_get_data(array));
+            array_free(array);
+        }
+    }
+}
+
+static void test_array_new_3D(void** state){
+    (void) state;
+    uint64_t i,           j,           k,
+             i_max = 100, j_max = 100, k_max = 100;
+    for(i = 0; i < i_max; i++){
+        for(j = 0; j < j_max; j++){
+            for(k = 0; k < k_max; k++){
+                Array* array = array_new_3D(i, j, k);
+                assert_non_null(array);
+                assert_int_equal(array_get_num_elements(array), i*j*k);
+                assert_int_equal(array_get_type(array), GRAFEO_UINT8);
+                assert_int_equal(array_get_dim(array), 3);
+                assert_non_null(array_get_size(array));
+                assert_int_equal(array_get_size(array)[0], i);
+                assert_int_equal(array_get_size(array)[1], j);
+                assert_int_equal(array_get_size(array)[2], k);
+                if(i != 0 || j != 0 || k != 0)
+                    assert_non_null(array_get_data(array));
+                array_free(array);
+            }
+        }
+    }
+}
+
+static void test_array_new_4D(void** state){
+    (void) state;(void) state;
+    uint64_t i,           j,           k,           l, 
+             i_max = 50, j_max = 50, k_max = 50, l_max = 50;
+    for(i = 0; i < i_max; i++){
+        for(j = 0; j < j_max; j++){
+            for(k = 0; k < k_max; k++){
+                for(l = 0; l < l_max; l++){
+                    Array* array = array_new_4D(i, j, k, l);
+                    assert_non_null(array);
+                    assert_int_equal(array_get_num_elements(array), i*j*k*l);
+                    assert_int_equal(array_get_type(array), GRAFEO_UINT8);
+                    assert_int_equal(array_get_dim(array), 4);
+                    assert_non_null(array_get_size(array));
+                    assert_int_equal(array_get_size(array)[0], i);
+                    assert_int_equal(array_get_size(array)[1], j);
+                    assert_int_equal(array_get_size(array)[2], k);
+                    assert_int_equal(array_get_size(array)[3], l);
+                    if(i != 0 || j != 0 || k != 0 || l != 0)
+                        assert_non_null(array_get_data(array));
+                    array_free(array);
+                }
+            }
+        }
+    }
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
     cmocka_unit_test(test_array_new),
     cmocka_unit_test(test_array_new_1D),
+    cmocka_unit_test(test_array_new_2D),
+    cmocka_unit_test(test_array_new_3D),
+    cmocka_unit_test(test_array_new_4D),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

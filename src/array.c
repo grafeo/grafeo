@@ -7,13 +7,50 @@ Array*    array_new(){
     return array;
 }
 
-Array*    array_new_1D(uint32_t size1){
+Array*    array_new_with_dim(uint16_t dim){
     Array* array        = array_new();
-    array->dim          = 1;
-    array->size         = malloc(sizeof(uint32_t));
-    array->size[0]      = size1;
-    array->num_elements = size1;
+    array->dim          = dim;
+    array->size         = malloc(sizeof(uint32_t) * dim);
+    return array;
+}
+Array*    array_new_with_size(uint16_t dim, uint32_t* size){
+    Array* array        = array_new_with_dim(dim);
+    uint16_t i;
+    array->num_elements = 1;
+    for(i = 0; i < dim; i++){
+        array->size[i] = size[i];
+        array->num_elements *= size[i];
+    }
     array->data         = malloc(sizeof(uint8_t) * array->num_elements);
+    return array;
+}
+
+Array*    array_new_1D(uint32_t size1){
+    Array* array        = array_new_with_size(1, &size1);
+    return array;
+}
+Array*    array_new_2D(uint32_t size1, uint32_t size2){
+    uint32_t sizes[2]; 
+    sizes[0]            = size1;
+    sizes[1]            = size2;
+    Array* array        = array_new_with_size(2, sizes);
+    return array;
+}
+Array*    array_new_3D(u_int32_t size1, u_int32_t size2, u_int32_t size3){
+    uint32_t sizes[3]; 
+    sizes[0]            = size1;
+    sizes[1]            = size2;
+    sizes[2]            = size3;
+    Array* array        = array_new_with_size(3, sizes);
+    return array;
+}
+Array*    array_new_4D(u_int32_t size1, u_int32_t size2, u_int32_t size3, u_int32_t size4){
+    uint32_t sizes[4]; 
+    sizes[0]            = size1;
+    sizes[1]            = size2;
+    sizes[2]            = size3;
+    sizes[3]            = size4;
+    Array* array        = array_new_with_size(4, sizes);
     return array;
 }
 

@@ -54,10 +54,13 @@ _Array{
 
 Array*    array_new();
 Array*    array_new_1D(u_int32_t size1);
-uint64_t array_get_num_elements(Array* array);
+Array*    array_new_2D(u_int32_t size1, u_int32_t size2);
+Array*    array_new_3D(u_int32_t size1, u_int32_t size2, u_int32_t size3);
+Array*    array_new_4D(u_int32_t size1, u_int32_t size2, u_int32_t size3, u_int32_t size4);
+uint64_t  array_get_num_elements(Array* array);
 DataType  array_get_type(Array* array);
-uint16_t array_get_dim(Array* array);
-uint32_t*array_get_size(Array* array);
+uint16_t  array_get_dim(Array* array);
+uint32_t* array_get_size(Array* array);
 void      array_free(Array* array);
 void*     array_get_data(Array* array);
 
