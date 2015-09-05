@@ -307,6 +307,46 @@ static void test_array_ones(void** state){
     }
 }
 
+static void test_array_sub(void** state){
+    (void) state;
+    Array* array = array_new_with_type(dim, sizes, type);
+
+    // All ranges defined
+    Range*  ranges[4];
+    Array* subarray = array_sub(array, ranges);
+    array_free(subarray);
+
+    // A range with only the starting index
+    ranges[1] = range_starting(starting);
+    Array* subarray = array_sub(array, ranges);
+    array_free(subarray);
+    
+    // A range with only the ending index
+    ranges[2] = range_ending(ending);
+    Array* subarray = array_sub(array, ranges);
+    array_free(subarray);
+
+    // A range which is the whole range of a dimension
+    ranges[3] = RANGE_ALL;
+    Array* subarray = array_sub(array, ranges);
+    array_free(subarray);
+
+
+}
+
+static void test_array_group(void** state){
+    Array* array  = array_new_with_type();
+    // Agregated sum
+    Array* result = array_group_sum();
+    // Agregated product
+    Array* result = array_group_mult();
+    // Agregated standard deviation
+    Array* result = array_group_std();
+    // Agregated maximum
+    Array* result = array_group_max();
+    // Agregated minimum
+    Array* result = array_group_min();
+}
 
 int main(int argc, char** argv){
   (void)argc;
