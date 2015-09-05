@@ -309,20 +309,42 @@ static void test_array_ones(void** state){
 
 static void test_array_sub(void** state){
     (void) state;
-    Array* array = array_new_with_type(dim, sizes, type);
+    uint16_t dim = 4;
+    uint32_t sizes[4] = {10,10,10,10};
+    Array* array = array_new_with_size_type(dim, sizes, type);
 
     // All ranges defined
     Range*  ranges[4];
+    ranges[0] = range_from_to(3,6);
+    ranges[1] = range_from_to(3,6);
+    ranges[2] = range_from_to(3,6);
+    ranges[3] = range_from_to(3,6);
+
     Array* subarray = array_sub(array, ranges);
+    assert_int_equal(array_get_dim(subarray), 4);
+    assert_int_equal(array_get_type(subarray), array_get_type(array));
+    uint32_t* sizes = array_get_size(subarray);
+    assert_non_null(sizes);
+    assert_int_equal(sizes[0], 3);
+    assert_int_equal(sizes[1], 3);
+    assert_int_equal(sizes[2], 3);
+    assert_int_equal(sizes[3], 3);
+    array_assign_scalar(subarray, 5);
+    array_get_element(array, );
+
+
+
     array_free(subarray);
 
     // A range with only the starting index
-    ranges[1] = range_starting(starting);
+    // TODO: this will replace (we need to free 
+    //       old ranges[1] memory)
+    ranges[1] = range_from(starting);
     Array* subarray = array_sub(array, ranges);
     array_free(subarray);
     
     // A range with only the ending index
-    ranges[2] = range_ending(ending);
+    ranges[2] = range_to(ending);
     Array* subarray = array_sub(array, ranges);
     array_free(subarray);
 
@@ -334,18 +356,18 @@ static void test_array_sub(void** state){
 
 }
 
-static void test_array_group(void** state){
+static void test_array_reduce(void** state){
     Array* array  = array_new_with_type();
     // Agregated sum
-    Array* result = array_group_sum();
+    Array* result = array_reduce_sum();
     // Agregated product
-    Array* result = array_group_mult();
+    Array* result = array_reduce_mult();
     // Agregated standard deviation
-    Array* result = array_group_std();
+    Array* result = array_reduce_std();
     // Agregated maximum
-    Array* result = array_group_max();
+    Array* result = array_reduce_max();
     // Agregated minimum
-    Array* result = array_group_min();
+    Array* result = array_reduce_min();
 }
 
 int main(int argc, char** argv){
@@ -363,6 +385,8 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_new_4D_type),
     cmocka_unit_test(test_array_zeros),
     cmocka_unit_test(test_array_ones),
+    cmocka_unit_test(test_array_sub),
+    cmocka_unit_test
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
