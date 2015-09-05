@@ -779,7 +779,8 @@ WARN_LOGFILE           =
 INPUT  = @CMAKE_CURRENT_SOURCE_DIR@/include/grafeo/list.h
 INPUT += @CMAKE_CURRENT_SOURCE_DIR@/include/grafeo/queue.h
 INPUT += @CMAKE_CURRENT_SOURCE_DIR@/include/grafeo/graph.h
-INPUT += main.md
+INPUT += @CMAKE_CURRENT_SOURCE_DIR@/include/grafeo/array.h
+INPUT += @CMAKE_CURRENT_SOURCE_DIR@/tutorials/main.md
 
 
 # This tag can be used to specify the character encoding of the source files
@@ -917,7 +918,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE = tutorials/main.md
+USE_MDFILE_AS_MAINPAGE = main.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
