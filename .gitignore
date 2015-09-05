@@ -41,3 +41,8 @@ build/
 # generated external
 external/include
 external/lib
+
+# generated tags
+.tags
+tests/.tags
+tests/.tags_sorted_by_file
