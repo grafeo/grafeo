@@ -41,11 +41,11 @@
  */
 typedef struct 
 _Array{
-    uint16_t  dim;
-    uint32_t* size;
-    uint64_t  num_elements;
-    size_t    num_bytes;
-    DataType  type;
+    uint16_t  dim;          /**< number of dimensions */
+    uint32_t* size;         /**< number of elements in each dimension */
+    uint64_t  num_elements; /**< number of elements of the array */
+    size_t    num_bytes;    /**< total number of bytes */
+    DataType  type;         /**< data type of each element */ 
     union{
         void*          data;
         unsigned char* data_uint8;
@@ -67,66 +67,66 @@ _Array{
 /**
  * @brief Create a new array: just the structure, without
  * allocating data and size
- * @memberof _Array
+ * @memberof Array
  * $$\\sum_{i=1}^{N}\\frac{1}{i}$$
  */
 Array*    array_new();
 /**
  * @brief Create a new array: structure and space for size, without
  * allocating data and defining sizes
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_with_dim(uint16_t dim);
 /**
  * @brief Create a new array with size (`sizeof(char)` bytes) and allocated 
  * data, without value.
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_with_size(uint16_t dim, uint32_t* size);
 /**
  * @brief Create a new array with size and allocated 
  * data, without value.
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type);
 /**
  * @brief Create a 1D array
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_1D(uint32_t size1);
 /**
  * @brief Create a 2D array
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_2D(uint32_t size1, uint32_t size2);
 /**
  * @brief Create a 3D array
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3);
 /**
  * @brief Create a 4D array
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4);
 /**
  * @brief Create a 1D array (each elem: sizeof(elementsize) bytes)
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_1D_type(uint32_t size1, DataType type);
 /**
  * @brief Create a 2D array (each elem: sizeof(elementsize) bytes)
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type);
 /**
  * @brief Create a 3D array (each elem: sizeof(elementsize) bytes)
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, DataType type);
 /**
  * @brief Create a 4D array (each elem: sizeof(elementsize) bytes)
- * @memberof _Array
+ * @memberof Array
  */
 Array*    array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type);
 /**
@@ -152,12 +152,12 @@ Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type);
  *-----------------------------------*/
 /**
  * Fill existing array with a value
- * @memberof _Array
+ * @memberof Array
  */
 void      array_fill(Array* array, double value);
 /**
  * @brief Free array memory
- * @memberof _Array
+ * @memberof Array
  */
 void      array_free(Array* array);
 /*-----------------------------------
@@ -165,28 +165,28 @@ void      array_free(Array* array);
  *-----------------------------------*/
  /**
  * @brief Get total number of elements of an array
- * @memberof _Array
+ * @memberof Array
  */
 uint64_t  array_get_num_elements(Array* array);
 /**
  * @brief Get data type of the array
- * @memberof _Array
+ * @memberof Array
  */
 DataType  array_get_type(Array* array);
 /**
  * @brief Get number of dimensions of an array
- * @memberof _Array
+ * @memberof Array
  */
 uint16_t  array_get_dim(Array* array);
 /**
  * @brief Get vector of sizes of each dimension of
  *        the array
- * @memberof _Array
+ * @memberof Array
  */
 uint32_t* array_get_size(Array* array);
 /**
  * @brief Get data vector of array
- * @memberof _Array
+ * @memberof Array
  */
 void*     array_get_data(Array* array);
 
