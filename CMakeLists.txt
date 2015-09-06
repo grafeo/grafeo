@@ -77,6 +77,10 @@ if(Doxygen_FOUND)
           COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/tutorials
             ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+        add_custom_command(TARGET doc POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/data/html
+            ${CMAKE_CURRENT_SOURCE_DIR}/doc/html)
     endif(BUILD_DOCS)
 endif(Doxygen_FOUND)
 #================================================================ PNG
