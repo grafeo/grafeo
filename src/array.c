@@ -1,3 +1,30 @@
+/* ===================================================================
+#   Copyright (C) 2015-2015
+#   Anderson Tavares <nocturne.pe at gmail.com> PK 0x38e7bfc5c2def8ff
+#   Lucy Mansilla    <lucyacm at gmail.com>
+#   Caio de Braz     <caiobraz at gmail.com>
+#   Hans Harley      <hansbecc at gmail.com>
+#   Paulo Miranda    <pavmbr at yahoo.com.br>
+#
+#   Institute of Mathematics and Statistics - IME
+#   University of Sao Paulo - USP
+#
+#   This file is part of Grafeo.
+#
+#   Grafeo is free software: you can redistribute it and/or
+#   modify it under the terms of the GNU General Public License
+#   as published by the Free Software Foundation, either version
+#   3 of the License, or (at your option) any later version.
+#
+#   Grafeo is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty
+#   of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#   See the GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public
+#   License along with Grafeo.  If not, see
+#   <http://www.gnu.org/licenses/>.
+# ===================================================================*/
 #include <grafeo/array.h>
 Array*    array_new(){
     Array* array = malloc(sizeof(Array));
@@ -5,6 +32,7 @@ Array*    array_new(){
     array->size = NULL;
     array->num_elements = 0;
     array->num_bytes = 0;
+    array->bitsize   = 0;
     array->type = GRAFEO_UINT8;
     return array;
 }
@@ -27,20 +55,19 @@ Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type){
         array->size[i] = size[i];
         array->num_elements *= size[i];
     }
-    size_t bitsize;
     switch(type){
-        case GRAFEO_UINT8:  bitsize = sizeof(uint8_t); break;
-        case GRAFEO_UINT16: bitsize = sizeof(uint16_t);break;
-        case GRAFEO_UINT32: bitsize = sizeof(uint32_t);break;
-        case GRAFEO_UINT64: bitsize = sizeof(uint64_t);break;
-        case GRAFEO_INT8:   bitsize = sizeof(int8_t);  break;
-        case GRAFEO_INT16:  bitsize = sizeof(int16_t); break;
-        case GRAFEO_INT32:  bitsize = sizeof(int32_t); break;
-        case GRAFEO_INT64:  bitsize = sizeof(int64_t); break;
-        case GRAFEO_FLOAT:  bitsize = sizeof(float);   break;
-        case GRAFEO_DOUBLE: bitsize = sizeof(double);  break;
+        case GRAFEO_UINT8:  array->bitsize = sizeof(uint8_t); break;
+        case GRAFEO_UINT16: array->bitsize = sizeof(uint16_t);break;
+        case GRAFEO_UINT32: array->bitsize = sizeof(uint32_t);break;
+        case GRAFEO_UINT64: array->bitsize = sizeof(uint64_t);break;
+        case GRAFEO_INT8:   array->bitsize = sizeof(int8_t);  break;
+        case GRAFEO_INT16:  array->bitsize = sizeof(int16_t); break;
+        case GRAFEO_INT32:  array->bitsize = sizeof(int32_t); break;
+        case GRAFEO_INT64:  array->bitsize = sizeof(int64_t); break;
+        case GRAFEO_FLOAT:  array->bitsize = sizeof(float);   break;
+        case GRAFEO_DOUBLE: array->bitsize = sizeof(double);  break;
     }
-    array->num_bytes    = bitsize * array->num_elements;
+    array->num_bytes    = array->bitsize * array->num_elements;
     array->data         = malloc(array->num_bytes);
     array->type         = type;
     return array;
@@ -143,9 +170,52 @@ uint32_t*array_get_size(Array* array){
 void* array_get_data(Array* array){
     return array->data;
 }
+uint8_t array_get_bitsize(Array* array){
+    return array->bitsize;
+}
+uint64_t  array_get_num_bytes(Array* array){
+    return array->num_bytes;
+}
 void      array_free(Array* array){
     if(array->data) free(array->data);
     if(array->size) free(array->size);
     free(array);
 }
 
+Array*    array_sub(Array* array, Range* ranges){
+    Array* subarray = array_new_with_dim(array_get_dim(array));
+    subarray->type = array->type;
+    subarray->bitsize = array->bitsize;
+    // Define the beginningn
+    uint16_t i;
+    uint64_t beginning = 0;
+    for(i = 0; i < subarray->dim; i++){
+        beginning += ranges[i].from->value * array->step[i] * array->bitsize;
+        subarray->step[i] = array->step[i];
+    }
+    subarray->data = &array->data_uint8[beginning];
+
+    return subarray;
+}
+void*     array_get_element(Array* array, uint32_t* indices){
+    uint8_t* x = array->data_uint8;
+    for(int i = 0; i < array->dim; i++){
+         x += indices[i] * array->step[i] * array->bitsize;
+    }
+    return x;
+}
+Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size){
+    return NULL;
+}
+Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size){
+    return NULL;
+}
+Array*    array_reduce_std(Array* array, int16_t* axes, uint16_t size){
+    return NULL;
+}
+Array*    array_reduce_mult(Array* array, int16_t* axes, uint16_t size){
+    return NULL;
+}
+Array*    array_reduce_sum(Array* array, int16_t* axes, uint16_t size){
+    return NULL;
+}

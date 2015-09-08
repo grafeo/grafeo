@@ -107,11 +107,13 @@ set(GRAFEO_HDR
     include/grafeo/list.h
     include/grafeo/array.h
     include/grafeo/queue.h
+    include/grafeo/range.h
 )
 set(GRAFEO_SRC
  src/array.c
  src/list.c
- src/queue.c)
+ src/queue.c
+ src/range.c)
 add_library(grafeo SHARED ${GRAFEO_SRC})
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
 install(TARGETS grafeo LIBRARY DESTINATION lib)

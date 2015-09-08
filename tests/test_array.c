@@ -32,11 +32,14 @@
 #include <grafeo/array.h>
 
 static void helper_testing_array(Array* array, uint64_t num_elements, DataType type, uint16_t dim, uint32_t* sizes){
+    uint8_t bitsizes[10] = {1,2,4,8,1,2,4,8,4,8};
     assert_non_null(array);
     assert_int_equal(array_get_num_elements(array), num_elements);
     assert_int_equal(array_get_type(array), type);
     assert_int_equal(array_get_dim(array), dim);
     assert_non_null(array_get_size(array));
+    assert_int_equal(array_get_bitsize(array), bitsizes[type]);
+    assert_int_equal(array_get_num_bytes(array), num_elements * bitsizes[type]);
     uint32_t i;
     for(i = 0; i < dim; i++)
         assert_int_equal(array_get_size(array)[i], sizes[i]);
@@ -55,6 +58,8 @@ static void test_array_new(void** state){
     assert_int_equal(array_get_num_elements(array),0);
     assert_int_equal(array_get_type(array),GRAFEO_UINT8);
     assert_int_equal(array_get_dim(array), 0);
+    assert_int_equal(array_get_bitsize(array), 0);
+    assert_int_equal(array_get_num_bytes(array), 0);
     uint32_t* size = array_get_size(array);
     assert_null(size);
     void* data = array_get_data(array);
@@ -307,74 +312,102 @@ static void test_array_ones(void** state){
     }
 }
 
-static void test_array_sub(void** state){
-    (void) state;
-    uint16_t dim = 4;
-    uint32_t sizes[4] = {10,10,10,10};
-    Array* array = array_new_with_size_type(dim, sizes, type);
-
-    // All ranges defined
-    Range*  ranges[4];
-    ranges[0] = range_from_to(3,6);
-    ranges[1] = range_from_to(3,6);
-    ranges[2] = range_from_to(3,6);
-    ranges[3] = range_from_to(3,6);
-
-    Array* subarray = array_sub(array, ranges);
+static void helper_testing_array_sub(Array* array, Array* subarray, uint32_t* subsizes, double value, Range* ranges){
     assert_int_equal(array_get_dim(subarray), 4);
     assert_int_equal(array_get_type(subarray), array_get_type(array));
     uint32_t* sizes = array_get_size(subarray);
     assert_non_null(sizes);
-    assert_int_equal(sizes[0], 3);
-    assert_int_equal(sizes[1], 3);
-    assert_int_equal(sizes[2], 3);
-    assert_int_equal(sizes[3], 3);
-    array_assign_scalar(subarray, 5);
-    array_get_element(array, );
+    assert_int_equal(sizes[0], subsizes[0]);
+    assert_int_equal(sizes[1], subsizes[1]);
+    assert_int_equal(sizes[2], subsizes[2]);
+    assert_int_equal(sizes[3], subsizes[3]);
+    array_fill(subarray, value);
 
+    uint32_t indices[4];
+    for(indices[0] = ranges[0].from->value; indices[0] < ranges[0].to->value; indices[0]++){
+        for(indices[1] = ranges[1].from->value; indices[1] < ranges[1].to->value; indices[1]++){
+            for(indices[2] = ranges[2].from->value; indices[2] < ranges[2].to->value; indices[2]++){
+                for(indices[3] = ranges[3].from->value; indices[3] < ranges[3].to->value; indices[3]++){
+        assert_int_equal(array_get_element(array, indices), value);
+    }}}}
 
+}
 
+static void test_array_sub(void** state){
+    (void) state;
+    uint16_t dim = 4;
+    uint32_t sizes[4] = {10,10,10,10};
+    Array* array = array_new_with_size_type(dim, sizes, GRAFEO_INT32);
+    array_fill(array, 10);
+
+    // All ranges defined
+    Range ranges[4];
+    range_from_to(&ranges[0],3,6);
+    range_from_to(&ranges[1],3,6);
+    range_from_to(&ranges[2],3,6);
+    range_from_to(&ranges[3],3,6);
+
+    Array* subarray = array_sub(array, ranges);
+    uint32_t subsizes[4] = {3,3,3,3};
+    helper_testing_array_sub(array, subarray, subsizes, 5, ranges);
     array_free(subarray);
+    assert_non_null(array);
 
     // A range with only the starting index
     // TODO: this will replace (we need to free 
     //       old ranges[1] memory)
-    ranges[1] = range_from(starting);
-    Array* subarray = array_sub(array, ranges);
+    uint32_t starting = 2;
+    range_from(&ranges[1], starting);
+    subarray = array_sub(array, ranges);
+    subsizes[1] = 8;
+    helper_testing_array_sub(array, subarray, subsizes, 6, ranges);
     array_free(subarray);
+    assert_non_null(array);
     
     // A range with only the ending index
-    ranges[2] = range_to(ending);
-    Array* subarray = array_sub(array, ranges);
+    uint32_t ending = 5;
+    range_to(&ranges[2],ending);
+    subarray = array_sub(array, ranges);
+    subsizes[2] = 4;
+    helper_testing_array_sub(array, subarray, subsizes, 7, ranges);
     array_free(subarray);
+    assert_non_null(array);
 
     // A range which is the whole range of a dimension
-    ranges[3] = RANGE_ALL;
-    Array* subarray = array_sub(array, ranges);
+    range_all(&ranges[3]);
+    subsizes[3] = 10;
+    subarray = array_sub(array, ranges);
+    helper_testing_array_sub(array, subarray, subsizes, 8, ranges);
     array_free(subarray);
+    assert_non_null(array);
 
 
 }
 
 static void test_array_reduce(void** state){
-    Array* array  = array_new_with_type();
+    (void) state;
+    uint16_t dim = 4;
+    uint32_t sizes[4] = {10,10,10,10};
+    Array* array  = array_new_with_size_type(dim, sizes, GRAFEO_INT32);
     // Agregated sum
-    Array* result = array_reduce_sum();
+    int16_t eixos[2] = {1,2};
+    Array* result = array_reduce_sum(array, eixos, 2);
+    assert_int_equal(array_get_dim(result), 2);
     // Agregated product
-    Array* result = array_reduce_mult();
+    result = array_reduce_mult(array, eixos, 2);
     // Agregated standard deviation
-    Array* result = array_reduce_std();
+    result = array_reduce_std(array, eixos, 2);
     // Agregated maximum
-    Array* result = array_reduce_max();
+    result = array_reduce_max(array, eixos, 2);
     // Agregated minimum
-    Array* result = array_reduce_min();
+    result = array_reduce_min(array, eixos, 2);
 }
 
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-    cmocka_unit_test(test_array_new),
+    /*cmocka_unit_test(test_array_new),
     cmocka_unit_test(test_array_new_1D),
     cmocka_unit_test(test_array_new_2D),
     cmocka_unit_test(test_array_new_3D),
@@ -382,11 +415,11 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_new_1D_type),
     cmocka_unit_test(test_array_new_2D_type),
     cmocka_unit_test(test_array_new_3D_type),
-    cmocka_unit_test(test_array_new_4D_type),
-    cmocka_unit_test(test_array_zeros),
-    cmocka_unit_test(test_array_ones),
+    cmocka_unit_test(test_array_new_4D_type),*/
+    //cmocka_unit_test(test_array_zeros),
+    //cmocka_unit_test(test_array_ones),
     cmocka_unit_test(test_array_sub),
-    cmocka_unit_test
+    cmocka_unit_test(test_array_reduce)
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
