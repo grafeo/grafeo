@@ -150,6 +150,17 @@ Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type);
  * @return Array*
  */
 Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type);
+/**
+ * @brief      Get a submatrix based on ranges
+ *
+ * @param      array   original array
+ * @param      ranges  list of ranges. Use `range_to`,
+ *             `range_from`,`range_from_to` or RANGE_ALL
+ *
+ * @return     Submatrix
+ */
+Array*    array_sub(Array* array, Range* ranges);
+
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
  *-----------------------------------*/
@@ -192,7 +203,6 @@ uint32_t* array_get_size(Array* array);
  * @memberof Array
  */
 void*     array_get_data(Array* array);
-
 /**
  * @brief      Get an element from an array
  *
@@ -202,18 +212,17 @@ void*     array_get_data(Array* array);
  * @return     { description_of_the_return_value }
  */
 void*     array_get_element(Array* array, uint32_t* indices);
-
 /**
- * @brief      Get a submatrix based on ranges
+ * @brief      { function_description }
  *
- * @param      array   original array
- * @param      ranges  list of ranges. Use `range_to`,
- *             `range_from`,`range_from_to` or RANGE_ALL
+ * @param      array  { parameter_description }
  *
- * @return     Submatrix
+ * @return     { description_of_the_return_value }
  */
-Array*    array_sub(Array* array, Range* ranges);
-
+uint64_t* array_get_step(Array* array);
+/*-----------------------------------
+ *   ARRAY REDUCTION FUNCTIONS
+ *-----------------------------------*/
 /**
  * @brief      { function_description }
  *

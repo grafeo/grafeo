@@ -38,11 +38,15 @@ static void helper_testing_array(Array* array, uint64_t num_elements, DataType t
     assert_int_equal(array_get_type(array), type);
     assert_int_equal(array_get_dim(array), dim);
     assert_non_null(array_get_size(array));
+    assert_non_null(array_get_step(array));
     assert_int_equal(array_get_bitsize(array), bitsizes[type]);
     assert_int_equal(array_get_num_bytes(array), num_elements * bitsizes[type]);
     uint32_t i;
-    for(i = 0; i < dim; i++)
+    uint64_t step = 1;
+    for(i = 0; i < dim; step*=sizes[dim-(i++)-1]){
         assert_int_equal(array_get_size(array)[i], sizes[i]);
+        assert_int_equal(array_get_step(array)[dim-i-1], step);
+    }
     if(num_elements)
         assert_non_null(array_get_data(array));
 }
@@ -62,6 +66,7 @@ static void test_array_new(void** state){
     assert_int_equal(array_get_num_bytes(array), 0);
     uint32_t* size = array_get_size(array);
     assert_null(size);
+    assert_null(array_get_step(array));
     void* data = array_get_data(array);
     assert_null(data);
     array_free(array);
@@ -316,11 +321,14 @@ static void helper_testing_array_sub(Array* array, Array* subarray, uint32_t* su
     assert_int_equal(array_get_dim(subarray), 4);
     assert_int_equal(array_get_type(subarray), array_get_type(array));
     uint32_t* sizes = array_get_size(subarray);
+    uint64_t* step = array_get_step(subarray);
     assert_non_null(sizes);
-    assert_int_equal(sizes[0], subsizes[0]);
-    assert_int_equal(sizes[1], subsizes[1]);
-    assert_int_equal(sizes[2], subsizes[2]);
-    assert_int_equal(sizes[3], subsizes[3]);
+    assert_non_null(step);
+    uint64_t stepAtual = 1,i;
+    for(i = 0; i < array_get_dim(array); stepAtual*= array_get_size(array)[3-(i++)]){
+        assert_int_equal(sizes[i], subsizes[i]);
+        assert_int_equal(step[3-i], stepAtual);
+    }
     array_fill(subarray, value);
 
     uint32_t indices[4];
@@ -407,7 +415,7 @@ int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-    /*cmocka_unit_test(test_array_new),
+    cmocka_unit_test(test_array_new),
     cmocka_unit_test(test_array_new_1D),
     cmocka_unit_test(test_array_new_2D),
     cmocka_unit_test(test_array_new_3D),
@@ -415,9 +423,9 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_new_1D_type),
     cmocka_unit_test(test_array_new_2D_type),
     cmocka_unit_test(test_array_new_3D_type),
-    cmocka_unit_test(test_array_new_4D_type),*/
-    //cmocka_unit_test(test_array_zeros),
-    //cmocka_unit_test(test_array_ones),
+    cmocka_unit_test(test_array_new_4D_type),
+    cmocka_unit_test(test_array_zeros),
+    cmocka_unit_test(test_array_ones),
     cmocka_unit_test(test_array_sub),
     cmocka_unit_test(test_array_reduce)
   };

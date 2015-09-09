@@ -34,6 +34,7 @@ Array*    array_new(){
     array->num_bytes = 0;
     array->bitsize   = 0;
     array->type = GRAFEO_UINT8;
+    array->step = NULL;
     return array;
 }
 
@@ -41,6 +42,7 @@ Array*    array_new_with_dim(uint16_t dim){
     Array* array        = array_new();
     array->dim          = dim;
     array->size         = malloc(sizeof(uint32_t) * dim);
+    array->step         = malloc(sizeof(uint64_t) * dim);
     return array;
 }
 Array*    array_new_with_size(uint16_t dim, uint32_t* size){
@@ -51,9 +53,12 @@ Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type){
     Array* array        = array_new_with_dim(dim);
     uint16_t i;
     array->num_elements = 1;
-    for(i = 0; i < dim; i++){
-        array->size[i] = size[i];
-        array->num_elements *= size[i];
+    array->step[dim-1] = 1;
+    uint64_t step = 1;
+    for(i = 0; i < dim; step*=size[dim-(i++)-1]){
+        array->size[i]        = size[i];
+        array->step[dim-i-1] *= step;
+        array->num_elements  *= size[i];
     }
     switch(type){
         case GRAFEO_UINT8:  array->bitsize = sizeof(uint8_t); break;
@@ -176,9 +181,20 @@ uint8_t array_get_bitsize(Array* array){
 uint64_t  array_get_num_bytes(Array* array){
     return array->num_bytes;
 }
+void*     array_get_element(Array* array, uint32_t* indices){
+    uint8_t* x = array->data_uint8;
+    for(int i = 0; i < array->dim; i++){
+         x += indices[i] * array->step[i] * array->bitsize;
+    }
+    return x;
+}
+uint64_t* array_get_step(Array* array){
+    return array->step;
+}
 void      array_free(Array* array){
     if(array->data) free(array->data);
     if(array->size) free(array->size);
+    if(array->step) free(array->step);
     free(array);
 }
 
@@ -197,13 +213,7 @@ Array*    array_sub(Array* array, Range* ranges){
 
     return subarray;
 }
-void*     array_get_element(Array* array, uint32_t* indices){
-    uint8_t* x = array->data_uint8;
-    for(int i = 0; i < array->dim; i++){
-         x += indices[i] * array->step[i] * array->bitsize;
-    }
-    return x;
-}
+
 Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size){
     return NULL;
 }
