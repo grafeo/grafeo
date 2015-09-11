@@ -25,44 +25,49 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_TYPE_H
-#define GRAFEO_TYPE_H
+#ifndef GRAFEO_RANGE_H
+#define GRAFEO_RANGE_H
 #include <inttypes.h>
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct _RangeItem{
+	int64_t value;
+}RangeItem;
+
+typedef struct _Range{
+	RangeItem* from;
+	RangeItem* to;
+}Range;
 
 /**
- * @brief Enumeration for data types
- * 
+ * @brief      { function_description }
+ *
+ * @param      range  { parameter_description }
+ * @param[in]  from   { parameter_description }
+ * @param[in]  to     { parameter_description }
  */
-typedef enum _DataType{
-    GRAFEO_UINT8 = 0,
-    GRAFEO_UINT16,
-    GRAFEO_UINT32,
-    GRAFEO_UINT64,
-    GRAFEO_INT8,
-    GRAFEO_INT16,
-    GRAFEO_INT32,
-    GRAFEO_INT64,
-    GRAFEO_FLOAT,
-    GRAFEO_DOUBLE,
-}DataType;
+void range_from_to(Range* range, int64_t from, int64_t to);
 
-typedef enum _ArrayOperation{
-  GRAFEO_SUM = 0,
-  GRAFEO_MULT,
-  GRAFEO_MAX,
-  GRAFEO_MIN,
-  GRAFEO_STD,
-  GRAFEO_MEAN
-}ArrayOperation;
+/**
+ * @brief      { function_description }
+ *
+ * @param      range  { parameter_description }
+ * @param[in]  from   { parameter_description }
+ */
+void range_from(Range* range, int64_t from);
 
-#define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
+/**
+ * @brief      { function_description }
+ *
+ * @param      range  { parameter_description }
+ * @param[in]  to     { parameter_description }
+ */
+void range_to(Range* range, int64_t to);
 
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a < _b ? _a : _b; })
-
+/**
+ * @brief      { function_description }
+ *
+ * @param      range  { parameter_description }
+ */
+void range_all(Range* range);
 #endif
