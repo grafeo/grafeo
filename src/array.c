@@ -193,7 +193,8 @@ uint64_t  array_get_num_bytes(Array* array){
 }
 void*     array_get_element(Array* array, uint32_t* indices){
     uint8_t* x = array->data_uint8;
-    for(int i = 0; i < array->dim; i++){
+    int i;
+    for(i = 0; i < array->dim; i++){
          x += indices[i] * array->step[i] * array->bitsize;
     }
     return x;
