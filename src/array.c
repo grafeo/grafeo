@@ -36,6 +36,8 @@ Array*    array_new(){
     array->bitsize   = 0;
     array->type = GRAFEO_UINT8;
     array->step = NULL;
+    array->contiguous = 1;
+    array->owns_data  = 1;
     return array;
 }
 
@@ -153,21 +155,46 @@ void array_fill_min(Array *array){
 }
 
 void array_fill(Array* array, double value){
-    uint64_t i;
-    for(i = 0; i < array->num_elements; i++){
-        switch(array->type){
-            case GRAFEO_UINT8:  array->data_uint8[i] = (uint8_t)value;break;
-            case GRAFEO_UINT16: array->data_uint16[i] = (uint16_t)value;break;
-            case GRAFEO_UINT32: array->data_uint32[i] = (uint32_t)value;break;
-            case GRAFEO_UINT64: array->data_uint64[i] = (uint64_t)value;break;
-            case GRAFEO_INT8:   array->data_int8[i] = (int8_t)value;break;
-            case GRAFEO_INT16:  array->data_int16[i] = (int16_t)value;break;
-            case GRAFEO_INT32:  array->data_int32[i] = (int32_t)value;break;
-            case GRAFEO_INT64:  array->data_int64[i] = (int64_t)value;break;
-            case GRAFEO_FLOAT:  array->data_float[i] = (float)value;break;
-            case GRAFEO_DOUBLE: array->data_double[i] = (double)value;break;
-        }
+    uint64_t i, ii, index_1d;
+    uint16_t* indices, atual, anterior;
+    if(!array->contiguous){
+      indices = malloc(sizeof(uint16_t) * array->dim);
+      memset(indices, 0, sizeof(uint16_t) * array->dim);
     }
+    for(i = 0; i < array->num_elements; i++){
+      // Get index (contiguous or not)
+      if(!array->contiguous){
+        atual    = array->dim - 2;
+        anterior = atual + 1;
+        index_1d = 0;
+        // Get ND coords
+        for(ii = 0; ii < array->dim-1; ii++, atual--, anterior--){
+          indices[atual]   += indices[anterior]/array->size[anterior];
+          indices[anterior] = indices[anterior]%array->size[anterior];
+        }
+        // Convert to 1D
+        for(ii = 0; ii < array->dim; ii++)
+          index_1d += indices[ii] * array->step[ii];
+      }
+      // If it's contiguouos, just get counter
+      else index_1d = i;
+
+      // Update
+      switch(array->type){
+        case GRAFEO_UINT8:  array->data_uint8[index_1d] = (uint8_t)value;break;
+        case GRAFEO_UINT16: array->data_uint16[index_1d] = (uint16_t)value;break;
+        case GRAFEO_UINT32: array->data_uint32[index_1d] = (uint32_t)value;break;
+        case GRAFEO_UINT64: array->data_uint64[index_1d] = (uint64_t)value;break;
+        case GRAFEO_INT8:   array->data_int8[index_1d] = (int8_t)value;break;
+        case GRAFEO_INT16:  array->data_int16[index_1d] = (int16_t)value;break;
+        case GRAFEO_INT32:  array->data_int32[index_1d] = (int32_t)value;break;
+        case GRAFEO_INT64:  array->data_int64[index_1d] = (int64_t)value;break;
+        case GRAFEO_FLOAT:  array->data_float[index_1d] = (float)value;break;
+        case GRAFEO_DOUBLE: array->data_double[index_1d] = (double)value;break;
+      }
+      if(!array->contiguous) indices[array->dim-1]++;
+    }
+    if(!array->contiguous) free(indices);
 }
 
 uint64_t array_get_num_elements(Array* array){
@@ -203,7 +230,7 @@ uint64_t* array_get_step(Array* array){
     return array->step;
 }
 void      array_free(Array* array){
-    if(array->data) free(array->data);
+    if(array->data && array->owns_data) free(array->data);
     if(array->size) free(array->size);
     if(array->step) free(array->step);
     free(array);
@@ -213,18 +240,25 @@ Array*    array_sub(Array* array, Range* ranges){
     Array* subarray = array_new_with_dim(array_get_dim(array));
     subarray->type = array->type;
     subarray->bitsize = array->bitsize;
+    subarray->data = array->data;
+    subarray->owns_data = 0;
+
     // Define the beginning
     uint16_t i;
     uint64_t beginning = 0;
     subarray->num_elements = 1;
+    uint64_t range_from, range_to;
     for(i = 0; i < subarray->dim; i++){
-        beginning += ranges[i].from->value * array->step[i] * array->bitsize;
+        range_from = ((ranges[i].from==NULL)?0             :ranges[i].from->value);
+        range_to   = ((ranges[i].to  ==NULL)?array->size[i]:ranges[i].to->value);
+        beginning += range_from * array->step[i];
         subarray->step[i] = array->step[i];
-        subarray->size[i] = ((ranges[i].to!=NULL)?ranges[i].to->value:array->size[i]) - ((ranges[i].from != NULL)?ranges[i].from->value:0);
+        subarray->size[i] = range_to-range_from;
+        if(subarray->size[i] != array->size[i]) subarray->contiguous = 0;
         subarray->num_elements *= subarray->size[i];
     }
     subarray->num_bytes = subarray->bitsize * subarray->num_elements;
-    subarray->data = &array->data_uint8[beginning];
+    subarray->data      = array->data + beginning * array->bitsize;
 
     return subarray;
 }

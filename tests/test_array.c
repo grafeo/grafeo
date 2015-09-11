@@ -332,11 +332,17 @@ static void helper_testing_array_sub(Array* array, Array* subarray, uint32_t* su
     array_fill(subarray, value);
 
     uint32_t indices[4];
+    uint32_t faixas_from[4], faixas_to[4];
+    for(i = 0; i < 4; i++){
+      faixas_from[i] = (ranges[i].from)?ranges[i].from->value:0;
+      faixas_to[i]   = (ranges[i].to)?ranges[i].to->value:array->size[i];
+    }
     double value1;
-    for(indices[0] = ranges[0].from->value; indices[0] < ranges[0].to->value; indices[0]++){
-        for(indices[1] = ranges[1].from->value; indices[1] < ranges[1].to->value; indices[1]++){
-            for(indices[2] = ranges[2].from->value; indices[2] < ranges[2].to->value; indices[2]++){
-                for(indices[3] = ranges[3].from->value; indices[3] < ranges[3].to->value; indices[3]++){
+
+    for(indices[0] = faixas_from[0]; indices[0] < faixas_to[0]; indices[0]++){
+        for(indices[1] = faixas_from[1]; indices[1] < faixas_to[1]; indices[1]++){
+            for(indices[2] = faixas_from[2]; indices[2] < faixas_to[2]; indices[2]++){
+                for(indices[3] = faixas_from[3]; indices[3] < faixas_to[3]; indices[3]++){
         switch(array->type){
           case GRAFEO_UINT8: value1 = (double)(*(uint8_t*)array_get_element(array, indices));break;
           case GRAFEO_UINT16: value1 = (double)(*(uint16_t*)array_get_element(array, indices));break;
@@ -357,19 +363,19 @@ static void helper_testing_array_sub(Array* array, Array* subarray, uint32_t* su
 static void test_array_sub(void** state){
     (void) state;
     uint16_t dim = 4;
-    uint32_t sizes[4] = {10,10,10,10};
+    uint32_t sizes[4] = {4,4,4,4};
     Array* array = array_new_with_size_type(dim, sizes, GRAFEO_INT32);
     array_fill(array, 10);
 
     // All ranges defined
     Range ranges[4];
-    range_from_to(&ranges[0],3,6);
-    range_from_to(&ranges[1],3,6);
-    range_from_to(&ranges[2],3,6);
-    range_from_to(&ranges[3],3,6);
+    range_from_to(&ranges[0],1,3);
+    range_from_to(&ranges[1],1,3);
+    range_from_to(&ranges[2],1,3);
+    range_from_to(&ranges[3],1,3);
 
     Array* subarray = array_sub(array, ranges);
-    uint32_t subsizes[4] = {3,3,3,3};
+    uint32_t subsizes[4] = {2,2,2,2};
     helper_testing_array_sub(array, subarray, subsizes, 5, ranges);
     array_free(subarray);
     assert_non_null(array);
@@ -377,26 +383,26 @@ static void test_array_sub(void** state){
     // A range with only the starting index
     // TODO: this will replace (we need to free 
     //       old ranges[1] memory)
-    uint32_t starting = 2;
+    uint32_t starting = 1;
     range_from(&ranges[1], starting);
     subarray = array_sub(array, ranges);
-    subsizes[1] = 8;
+    subsizes[1] = 3;
     helper_testing_array_sub(array, subarray, subsizes, 6, ranges);
     array_free(subarray);
     assert_non_null(array);
     
     // A range with only the ending index
-    uint32_t ending = 5;
+    uint32_t ending = 3;
     range_to(&ranges[2],ending);
     subarray = array_sub(array, ranges);
-    subsizes[2] = 4;
+    subsizes[2] = 3;
     helper_testing_array_sub(array, subarray, subsizes, 7, ranges);
     array_free(subarray);
     assert_non_null(array);
 
     // A range which is the whole range of a dimension
     range_all(&ranges[3]);
-    subsizes[3] = 10;
+    subsizes[3] = 4;
     subarray = array_sub(array, ranges);
     helper_testing_array_sub(array, subarray, subsizes, 8, ranges);
     array_free(subarray);
@@ -429,19 +435,19 @@ int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-//    cmocka_unit_test(test_array_new),
-//    cmocka_unit_test(test_array_new_1D),
-//    cmocka_unit_test(test_array_new_2D),
-//    cmocka_unit_test(test_array_new_3D),
-//    cmocka_unit_test(test_array_new_4D),
-//    cmocka_unit_test(test_array_new_1D_type),
-//    cmocka_unit_test(test_array_new_2D_type),
-//    cmocka_unit_test(test_array_new_3D_type),
-//    cmocka_unit_test(test_array_new_4D_type),
-//    cmocka_unit_test(test_array_zeros),
-//    cmocka_unit_test(test_array_ones),
+    cmocka_unit_test(test_array_new),
+    cmocka_unit_test(test_array_new_1D),
+    cmocka_unit_test(test_array_new_2D),
+    cmocka_unit_test(test_array_new_3D),
+    cmocka_unit_test(test_array_new_4D),
+    cmocka_unit_test(test_array_new_1D_type),
+    cmocka_unit_test(test_array_new_2D_type),
+    cmocka_unit_test(test_array_new_3D_type),
+    cmocka_unit_test(test_array_new_4D_type),
+    cmocka_unit_test(test_array_zeros),
+    cmocka_unit_test(test_array_ones),
     cmocka_unit_test(test_array_sub),
-//    cmocka_unit_test(test_array_reduce)
+    cmocka_unit_test(test_array_reduce)
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

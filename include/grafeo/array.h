@@ -49,6 +49,8 @@ _Array{
     uint8_t   bitsize;      /**< number of bytes of each value*/
     DataType  type;         /**< data type of each element */ 
     uint64_t* step;         /**< number of elements to increase an axis value */ 
+    uint8_t   contiguous;   /**< it can be iterated using a common loop */
+    uint8_t   owns_data;    /**< owner of its data */
     union{
         void*          data;
         unsigned char* data_uint8;
