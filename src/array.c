@@ -247,13 +247,13 @@ Array*    array_sub(Array* array, Range* ranges){
     uint16_t i;
     uint64_t beginning = 0;
     subarray->num_elements = 1;
-    uint64_t range_from, range_to;
+    uint64_t faixa_from, faixa_to;
     for(i = 0; i < subarray->dim; i++){
-        range_from = ((ranges[i].from==NULL)?0             :ranges[i].from->value);
-        range_to   = ((ranges[i].to  ==NULL)?array->size[i]:ranges[i].to->value);
-        beginning += range_from * array->step[i];
+        faixa_from = ((ranges[i].from==NULL)?0             :ranges[i].from->value);
+        faixa_to   = ((ranges[i].to  ==NULL)?array->size[i]:ranges[i].to->value);
+        beginning += faixa_from * array->step[i];
         subarray->step[i] = array->step[i];
-        subarray->size[i] = range_to-range_from;
+        subarray->size[i] = faixa_to-faixa_from;
         if(subarray->size[i] != array->size[i]) subarray->contiguous = 0;
         subarray->num_elements *= subarray->size[i];
     }
