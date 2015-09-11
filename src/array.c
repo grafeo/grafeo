@@ -213,13 +213,17 @@ Array*    array_sub(Array* array, Range* ranges){
     Array* subarray = array_new_with_dim(array_get_dim(array));
     subarray->type = array->type;
     subarray->bitsize = array->bitsize;
-    // Define the beginningn
+    // Define the beginning
     uint16_t i;
     uint64_t beginning = 0;
+    subarray->num_elements = 1;
     for(i = 0; i < subarray->dim; i++){
         beginning += ranges[i].from->value * array->step[i] * array->bitsize;
         subarray->step[i] = array->step[i];
+        subarray->size[i] = ((ranges[i].to!=NULL)?ranges[i].to->value:array->size[i]) - ((ranges[i].from != NULL)?ranges[i].from->value:0);
+        subarray->num_elements *= subarray->size[i];
     }
+    subarray->num_bytes = subarray->bitsize * subarray->num_elements;
     subarray->data = &array->data_uint8[beginning];
 
     return subarray;
