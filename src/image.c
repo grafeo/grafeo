@@ -47,6 +47,8 @@ Array* image_read(const char* filename, Error **error){
   else if(strcasecmp(ext, 'jpg') == 0) return image_read_jpg(filename, error);
 }
 Array* image_read_png(const char* filename, Error **error){
+  png_structp png_ptr;
+  png_infop info_ptr;
   char header[8];
   FILE* fp = fopen(filename, "rb");
   if(!fp){
@@ -68,7 +70,18 @@ Array* image_read_png(const char* filename, Error **error){
     *error = error_new_with_msg(GRAFEO_ERROR_PNG_INFO_STRUCT, "png_create-info_struct failed");
     return NULL;
   }
-  if(setjmp(png_jmpbuf))
+  if(setjmp(png_jmpbuf(png_ptr)))
+  {
+    *error = error_new_with_msg(GRAFEO_ERROR_PNG_INIT_IO, "Error during init_io");
+    return NULL;
+  }
+  png_init_io(png_ptr, fp);
+  png_set_sig_bytes(png_ptr, 8);
+  png_read_info(png_ptr, info_ptr);
+
+  uint32_t* size = malloc();
+  width = png_get_image_width(png_ptr, info_ptr);
+  height = png_get_image_height()
 }
 Array* image_read_jpg(const char* filename, Error **error){
   struct    jpeg_decompress_struct cinfo;
