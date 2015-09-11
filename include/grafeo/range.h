@@ -29,6 +29,7 @@
 #define GRAFEO_RANGE_H
 #include <inttypes.h>
 #include <stdio.h>
+#include <stdlib.h>
 typedef struct _RangeItem{
 	int64_t value;
 }RangeItem;

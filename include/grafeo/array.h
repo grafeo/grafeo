@@ -170,10 +170,48 @@ Array*    array_sub(Array* array, Range* ranges);
  */
 void      array_fill(Array* array, double value);
 /**
+ * @brief array_fill_max
+ * @param array
+ */
+void      array_fill_max(Array* array);
+/**
+ * @brief array_fill_min
+ * @param array
+ */
+void      array_fill_min(Array* array);
+/**
  * @brief Free array memory
  * @memberof Array
  */
 void      array_free(Array* array);
+/**
+ * @brief array_divide_scalar
+ * @param array
+ * @param value
+ */
+void      array_divide_scalar(Array* array, double value);
+/**
+ * @brief array_mult_scalar
+ * @param array
+ * @param value
+ */
+void      array_mult_scalar(Array* array, double value);
+/**
+ * @brief array_sum_scalar
+ * @param array
+ * @param value
+ */
+void      array_sum_scalar(Array* array, double value);
+/**
+ * @brief array_subtract_scalar
+ * @param array
+ * @param value
+ */
+void      array_subtract_scalar(Array* array, double value);
+Array*    array_sum(Array* array1, Array* array2);
+Array*    array_subtract(Array* array1, Array* array2);
+Array*    array_mult(Array* array1, Array* array2);
+Array*    array_divide(Array* array1, Array* array2);
 /*-----------------------------------
  *   ARRAY ACCESSOR FUNCTIONS
  *-----------------------------------*/
@@ -220,9 +258,35 @@ void*     array_get_element(Array* array, uint32_t* indices);
  * @return     { description_of_the_return_value }
  */
 uint64_t* array_get_step(Array* array);
+/**
+ * @brief      Get the size in bytes of each value of the array
+ *
+ * @param      array  Original array
+ *
+ * @return     Number of bytes of each value
+ */
+uint8_t   array_get_bitsize(Array* array);
+
+/**
+ * @brief      { function_description }
+ *
+ * @param      array  { parameter_description }
+ *
+ * @return     { description_of_the_return_value }
+ */
+uint64_t  array_get_num_bytes(Array* array);
 /*-----------------------------------
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/
+/**
+ * @brief array_reduce
+ * @param array
+ * @param axes
+ * @param size
+ * @param operation
+ * @return
+ */
+Array* array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operation);
 /**
  * @brief      { function_description }
  *
@@ -278,21 +342,5 @@ Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
  */
 Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
 
-/**
- * @brief      Get the size in bytes of each value of the array
- *
- * @param      array  Original array
- *
- * @return     Number of bytes of each value
- */
-uint8_t   array_get_bitsize(Array* array);
 
-/**
- * @brief      { function_description }
- *
- * @param      array  { parameter_description }
- *
- * @return     { description_of_the_return_value }
- */
-uint64_t  array_get_num_bytes(Array* array);
 #endif

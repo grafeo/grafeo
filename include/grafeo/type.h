@@ -45,4 +45,24 @@ typedef enum _DataType{
     GRAFEO_FLOAT,
     GRAFEO_DOUBLE,
 }DataType;
+
+typedef enum _ArrayOperation{
+  GRAFEO_SUM = 0,
+  GRAFEO_MULT,
+  GRAFEO_MAX,
+  GRAFEO_MIN,
+  GRAFEO_STD,
+  GRAFEO_MEAN
+}ArrayOperation;
+
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
+
+#define min(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a < _b ? _a : _b; })
+
 #endif

@@ -397,6 +397,7 @@ static void test_array_reduce(void** state){
     uint16_t dim = 4;
     uint32_t sizes[4] = {10,10,10,10};
     Array* array  = array_new_with_size_type(dim, sizes, GRAFEO_INT32);
+    array_fill(array,10);
     // Agregated sum
     int16_t eixos[2] = {1,2};
     Array* result = array_reduce_sum(array, eixos, 2);
