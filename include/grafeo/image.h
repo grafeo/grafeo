@@ -30,8 +30,11 @@
 
 #include <grafeo/type.h>
 #include <grafeo/error.h>
+#include <grafeo/array.h>
 #include <stdio.h>
 #include <jpeglib.h>
+#include <png.h>
+#include <setjmp.h>
 
 /**
  * @brief      { function_description }
@@ -40,7 +43,7 @@
  *
  * @return     { description_of_the_return_value }
  */
-Array* image_read(const char* filename);
+Array* image_read(const char* filename, Error** error);
 
 /**
  * @brief      { function_description }
@@ -49,7 +52,7 @@ Array* image_read(const char* filename);
  *
  * @return     { description_of_the_return_value }
  */
-Array* image_read_png(const char* filename);
+Array* image_read_png(const char* filename, Error** error);
 
 /**
  * @brief      { function_description }
@@ -58,7 +61,7 @@ Array* image_read_png(const char* filename);
  *
  * @return     { description_of_the_return_value }
  */
-Array* image_read_jpg(const char* filename);
+Array* image_read_jpg(const char* filename, Error** error);
 
 /**
  * @brief      { function_description }
@@ -66,7 +69,7 @@ Array* image_read_jpg(const char* filename);
  * @param      array     { parameter_description }
  * @param[in]  filename  { parameter_description }
  */
-void   image_write(Array* array, const char* filename);
+void   image_write(Array* array, const char* filename, Error** error);
 
 /**
  * @brief      { function_description }
@@ -74,7 +77,7 @@ void   image_write(Array* array, const char* filename);
  * @param      array     { parameter_description }
  * @param[in]  filename  { parameter_description }
  */
-void   image_write_png(Array* array, const char* filename);
+void   image_write_png(Array* array, const char* filename, Error** error);
 
 /**
  * @brief      { function_description }
@@ -82,7 +85,7 @@ void   image_write_png(Array* array, const char* filename);
  * @param      array     { parameter_description }
  * @param[in]  filename  { parameter_description }
  */
-void   image_write_jpg(Array* array, const char* filename);
+void   image_write_jpg(Array* array, const char* filename, Error** error);
 
 /**
  * @brief      { function_description }
@@ -93,6 +96,9 @@ void   image_write_jpg(Array* array, const char* filename);
  */
 void   image_cvt_color(Array* array, ColorType origin, ColorType destiny);
 
+typedef enum _ImageError{
+  GRAFEO_ERROR_FILE_OPEN = 0
+}ImageError;
 
 
 #endif
