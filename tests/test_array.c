@@ -421,14 +421,23 @@ static void test_array_reduce(void** state){
     int16_t eixos[2] = {1,2};
     Array* result = array_reduce_sum(array, eixos, 2);
     assert_int_equal(array_get_dim(result), 2);
+    array_free(result);
     // Agregated product
     result = array_reduce_mult(array, eixos, 2);
+    assert_int_equal(array_get_dim(result), 2);
+    array_free(result);
     // Agregated standard deviation
     result = array_reduce_std(array, eixos, 2);
+    assert_int_equal(array_get_dim(result), 2);
+    array_free(result);
     // Agregated maximum
     result = array_reduce_max(array, eixos, 2);
+    assert_int_equal(array_get_dim(result), 2);
+    array_free(result);
     // Agregated minimum
     result = array_reduce_min(array, eixos, 2);
+    assert_int_equal(array_get_dim(result), 2);
+    array_free(result);
 }
 
 int main(int argc, char** argv){
