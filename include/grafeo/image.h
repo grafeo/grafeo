@@ -28,6 +28,7 @@
 #ifndef GRAFEO_IMAGE_H
 #define GRAFEO_IMAGE_H
 
+#define PNG_SKIP_SETJMP_CHECK 1
 #include <stdarg.h>
 
 #include <grafeo/type.h>
