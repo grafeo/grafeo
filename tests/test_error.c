@@ -31,6 +31,7 @@
 #include <cmocka.h>
 #include <grafeo/error.h>
 
+// If it creates a new error message
 static void test_error_new(void** state){
 	
 }
