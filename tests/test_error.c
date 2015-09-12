@@ -25,8 +25,21 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <cmocka.h>
 #include <grafeo/error.h>
 
-Error* error_new_with_msg(uint8_t domain, uint16_t code, const char* msg){
-  return NULL;
+static void test_error_new(void** state){
+	
+}
+
+int main(int argc, char** argv){
+  (void)argc;
+  (void)argv;
+  const struct CMUnitTest tests[]={
+    cmocka_unit_test(test_error_new)
+  };
+  return cmocka_run_group_tests(tests,NULL,NULL);
 }
