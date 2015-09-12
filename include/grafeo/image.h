@@ -28,13 +28,18 @@
 #ifndef GRAFEO_IMAGE_H
 #define GRAFEO_IMAGE_H
 
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdarg.h>
+#include <setjmp.h>
+
 #include <grafeo/type.h>
 #include <grafeo/array.h>
-#include <stdio.h>
-#include <stdarg.h>
 #include <jpeglib.h>
 #include <png.h>
-#include <setjmp.h>
+
 
 /**
  * @brief      { function_description }
