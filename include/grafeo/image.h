@@ -28,16 +28,12 @@
 #ifndef GRAFEO_IMAGE_H
 #define GRAFEO_IMAGE_H
 
-#include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <stdarg.h>
 
 #include <grafeo/type.h>
 #include <grafeo/array.h>
-#include <jpeglib.h>
 #include <png.h>
+#include <jpeglib.h>
 
 
 /**
