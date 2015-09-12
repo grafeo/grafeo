@@ -104,12 +104,14 @@ endif(BUILD_TESTING)
 #============================================================ LIBRARY
 include_directories(include)
 set(GRAFEO_HDR
+		include/grafeo/ift.h
     include/grafeo/list.h
     include/grafeo/array.h
     include/grafeo/queue.h
     include/grafeo/range.h
 )
 set(GRAFEO_SRC
+ src/ift.c
  src/array.c
  src/list.c
  src/queue.c
