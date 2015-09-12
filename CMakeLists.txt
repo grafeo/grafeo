@@ -91,27 +91,29 @@ if(NOT JPEG_FOUND)
 endif(NOT JPEG_FOUND)
 
 #============================================= TESTS (BEFORE LIBRARY)
-option(BUILD_TESTS "CMocka tests with GCov and GProf support" ON)
+include(CTest)
 option(COVERALLS "Generate coveralls data" OFF)
 option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
-if(BUILD_TESTS)
+if(BUILD_TESTING)
     if (COVERALLS)
         include(Coveralls)
     endif(COVERALLS)
     set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
     set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
-endif(BUILD_TESTS)
+endif(BUILD_TESTING)
 #============================================================ LIBRARY
 include_directories(include)
 set(GRAFEO_HDR
     include/grafeo/list.h
     include/grafeo/array.h
     include/grafeo/queue.h
+    include/grafeo/range.h
 )
 set(GRAFEO_SRC
  src/array.c
  src/list.c
- src/queue.c)
+ src/queue.c
+ src/range.c)
 add_library(grafeo SHARED ${GRAFEO_SRC})
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
 install(TARGETS grafeo LIBRARY DESTINATION lib)
@@ -129,7 +131,7 @@ else()
 endif(DEBUG_INFO)
 
 #============================================================== TESTS
-if(BUILD_TESTS)
+if(BUILD_TESTING)
     # find cmocka library
     INCLUDE(ExternalProject)
     if (COVERALLS)
@@ -194,7 +196,5 @@ if(BUILD_TESTS)
             target_link_libraries(test_${testname} grafeo cmocka png m)
         endif(NOT CMOCKA_FOUND)
         add_test             (test_${testname}       test_${testname})
-    endforeach()
-
-    
-endif(BUILD_TESTS)
+    endforeach()    
+endif(BUILD_TESTING)
