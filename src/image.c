@@ -50,12 +50,12 @@ Array* image_read_png(const char* filename, Error **error){
   png_structp png_ptr;
   png_infop info_ptr;
   char header[8];
-  FILE* fp = fopen(filename, "rb");
-  if(!fp){
+  FILE* infile = fopen(filename, "rb");
+  if(!infile){
     *error = error_new_with_msg(GRAFEO_ERROR_FILE_OPEN, "Can't open image");
     return NULL;
   }
-  fread(header, 1, 8, fp);
+  fread(header, 1, 8, infile);
   if(png_sig_cmp(header, 0, 8)){
     *error = error_new_with_msg(GRAFEO_ERROR_PNG_FORMAT, "File is not recognized as a PNG file");
     return NULL;
@@ -70,18 +70,41 @@ Array* image_read_png(const char* filename, Error **error){
     *error = error_new_with_msg(GRAFEO_ERROR_PNG_INFO_STRUCT, "png_create-info_struct failed");
     return NULL;
   }
-  if(setjmp(png_jmpbuf(png_ptr)))
-  {
+  if(setjmp(png_jmpbuf(png_ptr))){
     *error = error_new_with_msg(GRAFEO_ERROR_PNG_INIT_IO, "Error during init_io");
     return NULL;
   }
-  png_init_io(png_ptr, fp);
+  png_init_io(png_ptr, infile);
   png_set_sig_bytes(png_ptr, 8);
   png_read_info(png_ptr, info_ptr);
 
-  uint32_t* size = malloc();
-  width = png_get_image_width(png_ptr, info_ptr);
-  height = png_get_image_height()
+  uint32_t* size = malloc(sizeof(uint32_t) * 3);
+  size[0] = png_get_image_height(png_ptr, info_ptr);
+  size[1] = png_get_image_width(png_ptr, info_ptr);
+  size[2] = png_get_channels(png_ptr, info_ptr);
+  uint8_t bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+  DataType type;
+  switch (bit_depth) {
+  case 16:
+    type = GRAFEO_UINT16; break;
+  default:
+    type = GRAFEO_UINT8;  break;
+  }
+  Array* array = array_new_with_size_type(3, size, type);
+  png_read_update_info(png_ptr, info_ptr);
+
+  // Read file
+  if(setjmp(png_jmpbuf(png_ptr))){
+    *error = error_new_with_msg(GRAFEO_ERROR_PNG_READ_IMAGE, "Error during reading image data");
+    return NULL;
+  }
+  uint8_t**buffer   = (uint8_t**)malloc(sizeof(uint8_t*) * size[0]);
+  size_t row_stride = png_get_rowbytes(png_ptr, info_ptr);
+  for(i = 0; i < cinfo.output_height; i++) buffer[i] = array->data_uint8 + row_stride * i;
+  png_read_image(png_ptr, buffer);
+  fclose(infile);
+  free(buffer);
+  return array;
 }
 Array* image_read_jpg(const char* filename, Error **error){
   struct    jpeg_decompress_struct cinfo;
@@ -107,10 +130,10 @@ Array* image_read_jpg(const char* filename, Error **error){
   jpeg_start_decompress(&cinfo);
   uint32_t size[3] = {cinfo.output_height, cinfo.output_width, cinfo.output_components};
   Array* array     = array_new_with_size_type(3, size, GRAFEO_UINT8);
-  row_stride       = cinfo.output_width * cinfo.output_components;
-  buffer           = (uint8_t**)malloc(sizeof(uint8_t*) * cinfo.output_height);
-  for(i = 0; i < cinfo.output_height; i++) buffer[i] = array->data_uint8 + row_stride * i;
-  jpeg_read_scanlines(&cinfo, buffer, cinfo.output_height);
+  row_stride       = size[1]*size[2];
+  buffer           = (uint8_t**)malloc(sizeof(uint8_t*) * size[0]);
+  for(i = 0; i < size[0]; i++) buffer[i] = array->data_uint8 + row_stride * i;
+  jpeg_read_scanlines(&cinfo, buffer, size[0]);
   jpeg_finish_decompress(&cinfo);
   fclose(infile);
   free(buffer);
