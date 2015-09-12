@@ -33,7 +33,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include <setjmp.h>
 
 #include <grafeo/type.h>
 #include <grafeo/array.h>
