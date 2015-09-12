@@ -55,6 +55,17 @@ typedef enum _ArrayOperation{
   GRAFEO_MEAN
 }ArrayOperation;
 
+typedef enum _ColorType{
+  GRAFEO_BIN = 0,
+  GRAFEO_GRAY,
+  GRAFEO_RGB,
+  GRAFEO_XYZ,
+  GRAFEO_YUV,
+  GRAFEO_YCBCR,
+  GRAFEO_LUV,
+  GRAFEO_LAB,
+}ColorType;
+
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \

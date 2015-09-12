@@ -29,9 +29,9 @@
 #define GRAFEO_IMAGE_H
 
 #include <grafeo/type.h>
-#include <grafeo/error.h>
 #include <grafeo/array.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <jpeglib.h>
 #include <png.h>
 #include <setjmp.h>
@@ -43,7 +43,7 @@
  *
  * @return     { description_of_the_return_value }
  */
-Array* image_read(const char* filename, Error** error);
+Array* image_read(const char* filename);
 
 /**
  * @brief      { function_description }
@@ -52,7 +52,7 @@ Array* image_read(const char* filename, Error** error);
  *
  * @return     { description_of_the_return_value }
  */
-Array* image_read_png(const char* filename, Error** error);
+Array* image_read_png(const char* filename);
 
 /**
  * @brief      { function_description }
@@ -61,7 +61,7 @@ Array* image_read_png(const char* filename, Error** error);
  *
  * @return     { description_of_the_return_value }
  */
-Array* image_read_jpg(const char* filename, Error** error);
+Array* image_read_jpg(const char* filename);
 
 /**
  * @brief      { function_description }
@@ -69,7 +69,7 @@ Array* image_read_jpg(const char* filename, Error** error);
  * @param      array     { parameter_description }
  * @param[in]  filename  { parameter_description }
  */
-void   image_write(Array* array, const char* filename, Error** error);
+void   image_write(Array* array, const char* filename);
 
 /**
  * @brief      { function_description }
@@ -77,7 +77,7 @@ void   image_write(Array* array, const char* filename, Error** error);
  * @param      array     { parameter_description }
  * @param[in]  filename  { parameter_description }
  */
-void   image_write_png(Array* array, const char* filename, Error** error);
+void   image_write_png(Array* array, const char* filename);
 
 /**
  * @brief      { function_description }
@@ -85,7 +85,7 @@ void   image_write_png(Array* array, const char* filename, Error** error);
  * @param      array     { parameter_description }
  * @param[in]  filename  { parameter_description }
  */
-void   image_write_jpg(Array* array, const char* filename, Error** error);
+void   image_write_jpg(Array* array, const char* filename);
 
 /**
  * @brief      { function_description }

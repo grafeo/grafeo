@@ -105,6 +105,7 @@ endif(BUILD_TESTING)
 include_directories(include)
 set(GRAFEO_HDR
     include/grafeo/list.h
+    include/grafeo/type.h
     include/grafeo/array.h
     include/grafeo/queue.h
     include/grafeo/range.h
@@ -116,7 +117,7 @@ set(GRAFEO_SRC
  src/queue.c
  src/range.c
  src/image.c)
-add_library(grafeo SHARED ${GRAFEO_SRC})
+add_library(grafeo SHARED ${GRAFEO_SRC} ${GRAFEO_HDR})
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
 install(TARGETS grafeo LIBRARY DESTINATION lib)
 
@@ -190,13 +191,15 @@ if(BUILD_TESTING)
             include_directories(${EXTERNAL_INCLUDE_DIR})
             #link_directories(${CMAKE_SOURCE_DIR}/external/lib)
             add_executable       (test_${testname} tests/test_${testname}.c)
-            target_link_libraries(test_${testname} grafeo cmocka png m)
+            target_link_libraries(test_${testname} grafeo cmocka png jpeg m)
             add_dependencies     (test_${testname} cmockaDownload)
             #target_link_libraries(test_array grafeo cmocka m)
         else()
             add_executable       (test_${testname} tests/test_${testname}.c)
-            target_link_libraries(test_${testname} grafeo cmocka png m)
+            target_link_libraries(test_${testname} grafeo cmocka png jpeg m)
         endif(NOT CMOCKA_FOUND)
-        add_test             (test_${testname}       test_${testname})
+        if(${testname} STREQUAL "image")
+          add_test             (test_${testname}       test_${testname})
+        endif()
     endforeach()    
 endif(BUILD_TESTING)
