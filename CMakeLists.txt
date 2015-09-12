@@ -105,16 +105,19 @@ endif(BUILD_TESTING)
 include_directories(include)
 set(GRAFEO_HDR
     include/grafeo/list.h
+    include/grafeo/type.h
     include/grafeo/array.h
     include/grafeo/queue.h
     include/grafeo/range.h
+    include/grafeo/image.h
 )
 set(GRAFEO_SRC
  src/array.c
  src/list.c
  src/queue.c
- src/range.c)
-add_library(grafeo SHARED ${GRAFEO_SRC})
+ src/range.c
+ src/image.c)
+add_library(grafeo SHARED ${GRAFEO_SRC} ${GRAFEO_HDR})
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
 install(TARGETS grafeo LIBRARY DESTINATION lib)
 
@@ -167,8 +170,8 @@ if(BUILD_TESTING)
             # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
             #GIT_TAG "origin/master"
             #GIT_SUBMODULES ""
-            UPDATE_COMMAND git submodule update --init --recursive
-            DOWNLOAD_COMMAND git submodule update --init --recursive
+            UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
+            DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
         )
         set(CMOCKA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
         set(CMOCKA_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
@@ -181,20 +184,22 @@ if(BUILD_TESTING)
     add_definitions(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
-    list(APPEND TESTS_NAMES array)
+    list(APPEND TESTS_NAMES array image)
     include (CTest)
     foreach(testname ${TESTS_NAMES})
         if(NOT CMOCKA_FOUND)
             include_directories(${EXTERNAL_INCLUDE_DIR})
             #link_directories(${CMAKE_SOURCE_DIR}/external/lib)
             add_executable       (test_${testname} tests/test_${testname}.c)
-            target_link_libraries(test_${testname} grafeo cmocka png m)
+            target_link_libraries(test_${testname} grafeo cmocka png jpeg m)
             add_dependencies     (test_${testname} cmockaDownload)
             #target_link_libraries(test_array grafeo cmocka m)
         else()
             add_executable       (test_${testname} tests/test_${testname}.c)
-            target_link_libraries(test_${testname} grafeo cmocka png m)
+            target_link_libraries(test_${testname} grafeo cmocka png jpeg m)
         endif(NOT CMOCKA_FOUND)
-        add_test             (test_${testname}       test_${testname})
+        if(${testname} STREQUAL "image" OR ${testname} STREQUAL "image")
+          add_test             (test_${testname}       test_${testname})
+        endif()
     endforeach()    
 endif(BUILD_TESTING)
