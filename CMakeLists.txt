@@ -170,8 +170,8 @@ if(BUILD_TESTING)
             # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
             #GIT_TAG "origin/master"
             #GIT_SUBMODULES ""
-            UPDATE_COMMAND git submodule update --init --recursive
-            DOWNLOAD_COMMAND git submodule update --init --recursive
+            UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
+            DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
         )
         set(CMOCKA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
         set(CMOCKA_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
