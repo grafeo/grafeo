@@ -38,64 +38,65 @@
 
 
 /**
- * @brief      { function_description }
+ * @brief      Read an image and generate an Array (for now, PNG or JPG)
  *
- * @param[in]  filename  { parameter_description }
+ * @param[in]  filename  the name of the image
  *
- * @return     { description_of_the_return_value }
+ * @return     Array containing pixels data
  */
 Array* image_read(const char* filename);
 
 /**
- * @brief      { function_description }
+ * @brief      Read a PNG image and generate an Array
  *
- * @param[in]  filename  { parameter_description }
+ * @param[in]  filename  the name of the image
  *
- * @return     { description_of_the_return_value }
+ * @return     Array containing pixels data
  */
 Array* image_read_png(const char* filename);
 
 /**
- * @brief      { function_description }
+ * @brief      Read a JPG image and generate an Array
  *
- * @param[in]  filename  { parameter_description }
+ * @param[in]  filename  the name of the image
  *
- * @return     { description_of_the_return_value }
+ * @return     Array containing pixels data
  */
 Array* image_read_jpg(const char* filename);
 
 /**
- * @brief      { function_description }
+ * @brief      Generates a file with name `filename` from an Array
  *
- * @param      array     { parameter_description }
- * @param[in]  filename  { parameter_description }
+ * @param      array     Matriz de dados (height,
+ * @param[in]  filename  name of file
  */
 void   image_write(Array* array, const char* filename);
 
 /**
- * @brief      { function_description }
+ * @brief      Generate a PNG file with name `filename`
  *
- * @param      array     { parameter_description }
- * @param[in]  filename  { parameter_description }
+ * @param      array     data array (height, width, number of channels)
+ * @param[in]  filename  name of file
  */
 void   image_write_png(Array* array, const char* filename);
 
 /**
- * @brief      { function_description }
+ * @brief      Generate a JPG file with name `filename`
  *
- * @param      array     { parameter_description }
- * @param[in]  filename  { parameter_description }
+ * @param      array     pixels data (height, width, number of channels)
+ * @param[in]  filename  name of file
  */
 void   image_write_jpg(Array* array, const char* filename);
 
 /**
- * @brief      { function_description }
+ * @brief      Convert an image from a color space to another
  *
- * @param      array    { parameter_description }
- * @param[in]  origin   { parameter_description }
- * @param[in]  destiny  { parameter_description }
+ * @param      array    pixels data
+ * @param[in]  origin   current color space
+ * @param[in]  destiny  desired color space
+ * @return     New Array based on desired color space
  */
-void   image_cvt_color(Array* array, ColorType origin, ColorType destiny);
+Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny);
 
 typedef enum _ImageError{
   GRAFEO_ERROR_FILE_OPEN = 0
