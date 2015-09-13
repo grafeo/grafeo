@@ -66,6 +66,14 @@ typedef enum _ColorType{
   GRAFEO_LAB,
 }ColorType;
 
+typedef enum _Adjacency{
+  GRAFEO_NEIGHBOR_4,
+  GRAFEO_NEIGHBOR_6,
+  GRAFEO_NEIGHBOR_8,
+  GRAFEO_NEIGHBOR_18,
+  GRAFEO_NEIGHBOR_26
+}Adjacency;
+
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
