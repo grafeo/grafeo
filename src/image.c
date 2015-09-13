@@ -224,5 +224,6 @@ void image_write_jpg(Array* array, const char* filename){
   fclose(outfile);
   jpeg_destroy_compress(&cinfo);
 }
-void image_cvt_color(Array* array, ColorType origin, ColorType destiny){
+Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
+  return array;
 }
