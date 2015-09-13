@@ -35,33 +35,63 @@
 #include <grafeo/image.h>
 #include <grafeo/ift.h>
 
-static void test_ift_sum(void** state){
-  (void) state;
+static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
+  switch (array->type){
+    case GRAFEO_UINT8:  return (double) array->data_uint8[index1]  - (double) array->data_uint8[index2];break;
+    case GRAFEO_UINT16: return (double) array->data_uint16[index1] - (double) array->data_uint16[index2];break;
+    case GRAFEO_UINT32: return (double) array->data_uint32[index1] - (double) array->data_uint32[index2];break;
+    case GRAFEO_UINT64: return (double) array->data_uint64[index1] - (double) array->data_uint64[index2];break;
+    case GRAFEO_INT8:   return (double) array->data_int8[index1]   - (double) array->data_int8[index2];break;
+    case GRAFEO_INT16:  return (double) array->data_int16[index1]  - (double) array->data_int16[index2];break;
+    case GRAFEO_INT32:  return (double) array->data_int32[index1]  - (double) array->data_int32[index2];break;
+    case GRAFEO_INT64:  return (double) array->data_int64[index1]  - (double) array->data_int64[index2];break;
+    case GRAFEO_FLOAT:  return (double) array->data_float[index1]  - (double) array->data_float[index2];break;
+    case GRAFEO_DOUBLE: return (double) array->data_double[index1] - (double) array->data_double[index2];break;
+  }
+  return 0;
+}
+
+static void helper_test_ift(const char* imagepath, const char* correctpath, double path_connectivity(double connectivity_value, double weight_value)){
   // Load an image
-  Array* image  = image_read("../data/trianglebw.png");
+  Array* image  = image_read(imagepath);
 
   // Apply original IFT with fsum
-  IFT*   ift    = ift_apply_array(image, GRAFEO_NEIGHBOR_4, path_connectivity_sum);
+  IFT*   ift    = ift_apply_array(image, GRAFEO_NEIGHBOR_4, weight_diff, path_connectivity);
 
-  // Compare it with groundtruth
-  Array* ground = image_read("../data/trianglebw_iftground.png");
-  uint64_t i;
-  for(i = 0; i < ground->num_bytes; i++)
-    assert_int_equal(ground->data_uint8[i], ift_get_label(ift)->data_uint8[i]);
+  // Load correct values (keys: label, root, connectivity, predecessor)
+  HashTable* correct = array_load(correctpath);
+  Array* correct_label        = hashtable_lookup(correct, "label");
+  Array* correct_root         = hashtable_lookup(correct, "root");
+  Array* correct_connectivity = hashtable_lookup(correct, "connectivity");
+  Array* correct_predecessor  = hashtable_lookup(correct, "predecessor");
 
-  array_free(image);
-  array_free(ground);
+  // Check Values
+  assert_array_equal(ift_get_label(ift)       , correct_label);
+  assert_array_equal(ift_get_root(ift)        , correct_root);
+  assert_array_equal(ift_get_connectivity(ift), correct_connectivity);
+  assert_array_equal(ift_get_predecessor(ift) , correct_predecessor);
+
+  // Free memory
+  hashtable_free(correct);
   ift_free(ift);
+  array_free(image);
 }
 
+static void test_ift_sum(void** state){
+  (void) state;
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_sum.zip", path_connectivity_sum);
+}
 static void test_ift_max(void** state){
-
+  (void) state;
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_max.zip", path_connectivity_max);
 }
 static void test_ift_min(void** state){
-
+  (void) state;
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_min.zip", path_connectivity_min);
 }
 static void test_ift_euc(void** state){
-
+  (void) state;
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_euc.zip", path_connectivity_euc);
 }
 
 int main(int argc, char** argv){

@@ -1,6 +1,6 @@
 #include <grafeo/ift.h>
 
-IFT*   ift_apply_array(Array* array, Adjacency adjacency, void (*path_connectivity)()){
+IFT*   ift_apply_array(Array* array, Adjacency adjacency, void (*weight_function)(Array* array, uint64_t index1, uint64_t index2), double (*path_connectivity)(double connectivity_value, double weight_value)){
 
 }
 
