@@ -25,55 +25,30 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_TYPE_H
-#define GRAFEO_TYPE_H
-#include <inttypes.h>
+#include <grafeo/range.h>
 
-/**
- * @brief Enumeration for data types
- * 
- */
-typedef enum _DataType{
-    GRAFEO_UINT8 = 0,
-    GRAFEO_UINT16,
-    GRAFEO_UINT32,
-    GRAFEO_UINT64,
-    GRAFEO_INT8,
-    GRAFEO_INT16,
-    GRAFEO_INT32,
-    GRAFEO_INT64,
-    GRAFEO_FLOAT,
-    GRAFEO_DOUBLE,
-}DataType;
+static RangeItem* rangeitem_new_with_value(int64_t value){
+	RangeItem* rangeitem = malloc(sizeof(RangeItem));
+	rangeitem->value = value;
+	return rangeitem;
+}
 
-typedef enum _ArrayOperation{
-  GRAFEO_SUM = 0,
-  GRAFEO_MULT,
-  GRAFEO_MAX,
-  GRAFEO_MIN,
-  GRAFEO_STD,
-  GRAFEO_MEAN
-}ArrayOperation;
+void range_from_to(Range* range, int64_t from, int64_t to){
+	range->from = rangeitem_new_with_value(from);
+	range->to   = rangeitem_new_with_value(to);
+}
 
-typedef enum _ColorType{
-  GRAFEO_BIN = 0,
-  GRAFEO_GRAY,
-  GRAFEO_RGB,
-  GRAFEO_XYZ,
-  GRAFEO_YUV,
-  GRAFEO_YCBCR,
-  GRAFEO_LUV,
-  GRAFEO_LAB,
-}ColorType;
+void range_from(Range* range, int64_t from){
+	range->from = rangeitem_new_with_value(from);
+	range->to   = NULL;
+}
 
-#define max(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a > _b ? _a : _b; })
+void range_to(Range* range, int64_t to){
+	range->from = NULL;
+	range->to   = rangeitem_new_with_value(to);
+}
 
-#define min(a,b) \
-   ({ __typeof__ (a) _a = (a); \
-       __typeof__ (b) _b = (b); \
-     _a < _b ? _a : _b; })
-
-#endif
+void range_all(Range* range){
+	range->from = NULL;
+	range->to   = NULL;
+}
