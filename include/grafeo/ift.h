@@ -28,15 +28,59 @@
 #ifndef IFT_ARRAY_H
 #define IFT_ARRAY_H
 #include <grafeo/array.h>
+#include <grafeo/queue.h>
+/**
+  * @brief Structure for managing IFT data
+  */
 typedef struct _IFT{
+  Array* original;
   Array* label;
   Array* predecessors;
+  Array* connectivity;
+  Array* root;
 }IFT;
-IFT*   ift_apply_array(Array* array, Adjacency adjacency, void (*weight_function)(Array* array, uint64_t index1, uint64_t index2),double (*path_connectivity)(double connectivity_value, double weight_value));
-Array* ift_get_label();
+/* ====================== *
+ *    IFT ALGORITHMS
+ * ====================== */
+IFT*   ift_apply_array(Array* array, Adjacency adjacency, double (*weight_function)(Array* array, uint64_t index1, uint64_t index2),double (*path_connectivity)(double connectivity_value, double weight_value));
 void   path_connectivity_sum();
 void   path_connectivity_max();
 void   path_connectivity_min();
 void   path_connectivity_euc();
 void   ift_free(IFT* ift);
+
+/* ====================== *
+ * IFT ACCESSOR FUNCTIONS
+ * ====================== */
+/**
+ * @brief ift_get_label
+ * @param ift
+ * @return
+ */
+Array* ift_get_label(ift);
+/**
+ * @brief ift_get_predecessors
+ * @param ift
+ * @return
+ */
+Array* ift_get_predecessors(ift);
+/**
+ * @brief ift_get_connectivity
+ * @param ift
+ * @return
+ */
+Array* ift_get_connectivity(ift);
+/**
+ * @brief ift_get_root
+ * @param ift
+ * @return
+ */
+Array* ift_get_root(ift);
+/**
+ * @brief ift_get_original
+ * @param ift
+ * @return
+ */
+Array* ift_get_original(IFT* ift);
+
 #endif
