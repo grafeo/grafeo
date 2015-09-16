@@ -30,6 +30,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <errno.h>
 #include <grafeo/list.h>
 
@@ -125,9 +126,6 @@ static void test_list_adding_removing(void** state){
   assert_string_equal(item->value, "G");
   assert_string_equal(list->next->value, "A");
 
-  list = list_append_several(list, items);
-  list = list_prepend_several(list, items);
-
   list_free(list);
 }
 
@@ -135,7 +133,7 @@ static void test_list_accessors(void** state){
   (void)state;
   uint8_t items[10] = {0,1,2,3,4,5,6,7,8,9};
   uint8_t i;
-  List* list = NULL, item = NULL;
+  List* list = NULL, *item = NULL;
   uint32_t index;
   // put in reverse order (from 9 to 0)
   for(i = 0; i < 10; i++) list = list_prepend(list, items[i]);
@@ -168,7 +166,8 @@ static void test_list_accessors(void** state){
 
 static void test_list_operations(void** state){
   (void)state;
-  List* list;
+  List* list, *item1, *item2, *list2;
+
   list_swap(list, item1, item2);
   list_swap_at(list, 2, 3);
   list_swap_values(list, item1, item2);
@@ -181,8 +180,9 @@ static void test_list_operations(void** state){
 
 static void test_list_comparisons(void** state){
   (void)state;
-  assert_true(list_is_different(list1, list2));
-  assert_false(list_is_equal(list1, list2));
+  List* list1, *list2, *list;
+  assert_true(list_is_different(list, list1));
+  assert_false(list_is_equal(list, list1));
   list_free(list1);
   list_free(list2);
 }
