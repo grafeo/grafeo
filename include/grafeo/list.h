@@ -91,6 +91,38 @@ List*    list_prepend_at_index(List* list, uint32_t index, void* value);
  */
 List*    list_append_at_index(List* list, uint32_t index, void* value);
 /**
+ * @brief list_prepend_item_at
+ * @param list
+ * @param item
+ * @param item_new
+ * @return
+ */
+List* list_prepend_item_at(List* list, List* item, List* item_new);
+/**
+ * @brief list_append_item_at
+ * @param list
+ * @param item
+ * @param item_new
+ * @return
+ */
+List* list_append_item_at(List* list, List* item, List* item_new);
+/**
+ * @brief list_prepend_item_at_index
+ * @param list
+ * @param index
+ * @param item_new
+ * @return
+ */
+List* list_prepend_item_at_index(List* list, uint32_t index, List* item_new);
+/**
+ * @brief list_append_item_at_index
+ * @param list
+ * @param index
+ * @param item_new
+ * @return
+ */
+List* list_append_item_at_index(List* list, uint32_t index, List* item_new);
+/**
  * @brief list_remove
  * @param list
  * @param item
@@ -286,4 +318,42 @@ uint8_t  list_is_equal(List* list, List* list2);
  * @return
  */
 List*    list_find(List* list, void* value);
+/**
+ * @brief list_foreach
+ * @param list
+ * @param data_function
+ * @param value
+ */
+void     list_foreach(List* list, DataFunc data_function, void* value);
+/**
+ * @brief list_append_sorted
+ * @param list
+ * @param compare_function
+ * @param value
+ */
+List*    list_append_sorted(List* list, CompareFunc compare_function, void* value);
+/**
+ * @brief list_append_sorted_with_data
+ * @param list
+ * @param compare_function
+ * @param value
+ * @param user_data
+ */
+List*    list_append_sorted_with_data(List* list, CompareDataFunc compare_function, void* value, void* user_data);
+/**
+ * @brief list_prepend_sorted
+ * @param list
+ * @param compare_function
+ * @param value
+ */
+List*    list_prepend_sorted(List* list, CompareFunc compare_function, void* value);
+/**
+ * @brief list_prepend_sorted_with_data
+ * @param list
+ * @param compare_function
+ * @param value
+ * @param user_data
+ */
+List*    list_prepend_sorted_with_data(List* list, CompareDataFunc compare_function, void* value, void* user_data);
+
 #endif
