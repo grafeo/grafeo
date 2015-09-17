@@ -29,129 +29,199 @@
 #define GRAFEO_QUEUE_H
 #include <grafeo/list.h>
 /**
-  * Queue structure
+  * @brief Queue structure
   */
 typedef struct _Queue{
-  uint32_t   length;
-  List     * begin;
-  List     * end;
+  uint32_t   length; /**< Number of elements */
+  List     * begin;  /**< Initial element */
+  List     * end;    /**< Final element */
 }Queue;
 
 /**
- Alocar uma fila
-*/
+ * @brief Alocar uma fila
+ * @return
+ */
 Queue* queue_new();
 /**
- Liberar a fila
-*/
+ * @brief Liberar a fila
+ * @return
+ */
 void queue_free(Queue* queue);
 /**
- Adicionar no início
-*/
-Queue* queue_prepend(Queue* queue, void* value);
+ * @brief Adicionar no início
+ * @return
+ */
+void queue_prepend(Queue* queue, void* value);
 /**
- Adicionar no final
-*/
-Queue* queue_append(Queue* queue, void* value);
+ * @brief Adicionar no final
+ * @return
+ */
+void queue_append(Queue* queue, void* value);
 /**
- Adicionar antes de um item
-*/
-Queue* queue_prepend_at(Queue* queue, List* item, void* value);
+ * @brief Adicionar antes de um item
+ * @return
+ */
+void queue_prepend_at(Queue* queue, List* item, void* value);
 /**
- Adicionar após um item
-*/
-Queue* queue_append_at(Queue* queue, List* item, void* value);
+ * @brief Adicionar após um item
+ * @return
+ */
+void queue_append_at(Queue* queue, List* item, void* value);
 /**
- Adicionar antes de item especificado pela sua posição
-*/
-Queue* queue_prepend_at_index(Queue* queue, uint32_t index, void* value);
+ * @brief Adicionar antes de item especificado pela sua posição
+ * @return
+ */
+void queue_prepend_at_index(Queue* queue, uint32_t index, void* value);
 /**
- Adicionar após um item especificado pela sua posição
-*/
-Queue* queue_append_at_index(Queue* queue, uint32_t index, void* value);
+ * @brief Adicionar após um item especificado pela sua posição
+ * @return
+ */
+void queue_append_at_index(Queue* queue, uint32_t index, void* value);
 /**
- Adicionar um item List no início da fila
-*/
-Queue* queue_prepend_item(Queue* queue, List* new_item);
+ * @brief Adicionar um item List no início da fila
+ * @return
+ */
+void queue_prepend_item(Queue* queue, List* new_item);
 /**
- Adicionar um item List no fim da fila
-*/
-Queue* queue_append_item(Queue* queue, List* new_item);
+ * @brief Adicionar um item List no fim da fila
+ * @return
+ */
+void queue_append_item(Queue* queue, List* new_item);
 /**
- Adicionar um item List antes de um item
-*/
-Queue* queue_prepend_item_at(Queue* queue, List* item, List* new_item);
+ * @brief Adicionar um item List antes de um item
+ * @return
+ */
+void queue_prepend_item_at(Queue* queue, List* item, List* new_item);
 /**
- Adicionar um item List depois de um item
-*/
-Queue* queue_append_item_at(Queue* queue, List* item, List* new_item);
+ * @brief Adicionar um item List depois de um item
+ * @return
+ */
+void queue_append_item_at(Queue* queue, List* item, List* new_item);
 /**
- Adicionar um item List antes de um item especificado pela sua posição
-*/
-Queue* queue_prepend_item_at_index(Queue* queue, uint32_t index, List* new_item);
+ * @brief Adicionar um item List antes de um item especificado pela sua posição
+ * @return
+ */
+void queue_prepend_item_at_index(Queue* queue, uint32_t index, List* new_item);
 /**
- Adicionar um item List depois de um item especificado pela sua posição
-*/
-Queue* queue_append_item_at_index(Queue* queue, uint32_t index, List* new_item);
+ * @brief Adicionar um item List depois de um item especificado pela sua posição
+ * @return
+ */
+void queue_append_item_at_index(Queue* queue, uint32_t index, List* new_item);
 /**
- Get first item
-*/
+ * @brief Get first item
+ * @return
+ */
 List* queue_begin(Queue* queue);
 /**
- Get last item
-*/
+ * @brief Get last item
+ * @return
+ */
 List* queue_end(Queue* queue);
 /**
- True if length is zero
-*/
+ * @brief True if length is zero
+ * @return
+ */
 uint8_t queue_is_empty(Queue* queue);
 /**
- Inverte a fila
-*/
-Queue* queue_reverse(Queue* queue);
+ * @brief Inverte a fila
+ * @return
+ */
+void queue_reverse(Queue* queue);
 /**
- ordena a fila
-*/
-Queue* queue_sort(Queue* queue);
+ * @brief ordena a fila
+ * @return
+ */
+void queue_sort(Queue* queue, CompareDataFunc compare_function, void* data);
 /**
- copia a fila
-*/
+ * @brief copia a fila
+ * @return
+ */
 Queue* queue_copy(Queue* queue);
 /**
- vectorize a function within a queue
-*/
-Queue* queue_foreach(Queue* queue, );
+ * @brief vectorize a function within a queue
+ * @return
+ */
+void queue_foreach(Queue* queue, DataFunc func, void* data);
 /**
- posição de um item especificado pelo seu valor
-*/
-int32_t queue_index_of(Queue* queue);
+ * @brief posição de um item especificado pelo seu valor
+ * @return
+ */
+int32_t queue_index_of(Queue* queue, void* value);
 /**
- obter um item a partir de sua posição
-*/
+ * @brief obter um item a partir de sua posição
+ * @return
+ */
 List* queue_at(Queue* queue, uint32_t index);
 /**
- obter o valor do item a partir de sua posição
-*/
+ * @brief obter o valor do item a partir de sua posição
+ * @return
+ */
 void* queue_value_at(Queue* queue, uint32_t index);
 /**
- obter o valor do item inicial
-*/
+ * @brief obter o valor do item inicial
+ * @return
+ */
 void* queue_begin_value(Queue* queue);
 /**
- obter o valor do item final
-*/
+ * @brief obter o valor do item final
+ * @return
+ */
 void* queue_end_value(Queue* queue);
 /**
- Remover um item em uma fila
-*/
-Queue* queue_remove(Queue* queue, void* value);
+ * @brief Remover um item em uma fila
+ * @return
+ */
+void queue_remove(Queue* queue, void* value);
 /**
- Remover um item em uma fila baseado em sua posição
-*/
-Queue* queue_remove_by_index(Queue* queue, uint32_t index);
+ * @brief Remover um item em uma fila baseado em sua posição
+ * @return
+ */
+void* queue_remove_at(Queue* queue, uint32_t index);
 /**
- Obter o número de elementos da fila
-*/
+ * @brief queue_remove_begin
+ * @param queue
+ * @return
+ */
+void* queue_remove_begin(Queue* queue);
+/**
+ * @brief queue_remove_end
+ * @param queue
+ * @return
+ */
+void* queue_remove_end(Queue* queue);
+/**
+ * @brief Obter o número de elementos da fila
+ * @return
+ */
 uint32_t queue_length(Queue* queue);
+/**
+ * @brief queue_append_sorted
+ * @param queue
+ * @param compare_function
+ * @param value
+ */
+void queue_append_sorted(Queue* queue, CompareFunc compare_function, void* value);
+/**
+ * @brief queue_append_sorted_with_data
+ * @param queue
+ * @param compare_function
+ * @param value
+ */
+void queue_append_sorted_with_data(Queue* queue, CompareDataFunc compare_function, void* value, void* user_data);
+/**
+ * @brief queue_prepend_sorted
+ * @param queue
+ * @param compare_function
+ * @param value
+ */
+void queue_prepend_sorted(Queue* queue, CompareFunc compare_function, void* value);
+/**
+ * @brief queue_prepend_sorted_with_data
+ * @param queue
+ * @param compare_function
+ * @param value
+ * @param user_data
+ */
+void queue_prepend_sorted_with_data(Queue* queue, CompareDataFunc compare_function, void* value, void* user_data);
 
 #endif
