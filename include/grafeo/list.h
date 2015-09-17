@@ -29,10 +29,14 @@
 #define GRAFEO_LIST_H
 #include <stdint.h>
 #include <stdlib.h>
+#include <grafeo/type.h>
+/**
+  * @brief List structure
+  */
 typedef struct _List{
-  void* value;
-  struct _List* next;
-  struct _List* prev;
+  void* value;       /**< item value */
+  struct _List* next;/**< next item */
+  struct _List* prev;/**< previous item */
 }List;
 
 /**
@@ -130,7 +134,7 @@ void     list_free(List* list);
  * @param value
  * @return
  */
-uint32_t list_index_of(List* list, void* value);
+int32_t list_index_of(List* list, void* value);
 /**
  * @brief list_begin
  * @param list
@@ -182,6 +186,20 @@ List*    list_next(List* list);
  */
 List*    list_prev(List* list);
 /**
+ * @brief list_join
+ * @param list1
+ * @param list2
+ * @return
+ */
+List*    list_join(List* list1, List* list2);
+/**
+ * @brief list_split_at
+ * @param list
+ * @param index
+ * @return
+ */
+List*    list_split_at(List* list, uint32_t index);
+/**
  * @brief list_swap
  * @param list
  * @param item1
@@ -223,18 +241,30 @@ List*    list_copy(List* list);
  * @brief list_replace
  * @param list
  * @param item
- * @param value
+ * @param item2
  * @return
  */
-List*    list_replace(List* list, List* item, void* value);
+List*    list_replace(List* list, List* item, List* item2);
 /**
  * @brief list_replace_at
  * @param list
  * @param index
- * @param value
+ * @param item2
  * @return
  */
-List*    list_replace_at(List* list, uint32_t index, void* value);
+List*    list_replace_at(List* list, uint32_t index, List* item2);
+/**
+ * @brief list_reverse
+ * @param list
+ * @return
+ */
+List*    list_reverse(List* list);
+/**
+ * @brief list_sort
+ * @param list
+ * @return
+ */
+List*    list_sort(List* list, CompareFunc compare_function);
 /**
  * @brief list_is_different
  * @param list
@@ -249,4 +279,11 @@ uint8_t  list_is_different(List* list, List* list2);
  * @return
  */
 uint8_t  list_is_equal(List* list, List* list2);
+/**
+ * @brief list_find
+ * @param list
+ * @param value
+ * @return
+ */
+List*    list_find(List* list, void* value);
 #endif
