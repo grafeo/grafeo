@@ -10,5 +10,5 @@ test:
     - cd build
     - pwd
     - cd build && cmake .. -DBUILD_DOCS=OFF -DBUILD_TESTING=ON -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug
-    - make
-    - make coveralls
+    - cd build && make
+    - cd build && make coveralls
