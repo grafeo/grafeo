@@ -181,7 +181,7 @@ static void test_list_accessors(void** state){
 
 static void test_list_operations(void** state){
   (void)state;
-  List* list = NULL, *item1 = NULL, *item2 = NULL, *list2 = NULL;
+  List* list = NULL, *item1 = NULL, *item2 = NULL, *list2 = NULL, *current = NULL;
 
   uint8_t items[10] = {0,1,2,3,4,5,6,7,8,9};
   uint8_t i;
@@ -277,7 +277,12 @@ static void test_list_operations(void** state){
   List* item_next = item1->next;     // value = 5
   List* item2_end = list_end(item2); // value = 2
 
-  list_replace(list, item1, item2);
+  list = list_replace(list, item1, item2); // 4 3 2 7 6 5 0
+  uint8_t values[7] = {4,3,2,7,6,5,0};
+  current = list;
+  for(i = 0; i < 7; i++, current = current->next){
+    assert_int_equal(current->value, values[i]);
+  }
   assert_null(item1->prev);
   assert_null(item1->next);
   assert_int_equal(list_length(list), old_length - old_length1 + old_length2);
@@ -287,17 +292,36 @@ static void test_list_operations(void** state){
   assert_int_equal(item2_end->next, item_next);
   list_free(item1);
 
-  item1 = list_at(list, 2); // value = 7
+  item1 = list_at(list, 2); // value = 2
   item_prev = item1->prev;
   item_next = item1->next;
   List* item3_end = list_end(item3);
 
-  list_replace_at(list, 2, item3);
+  list = list_replace_at(list, 2, item3); // 4 3 9 8 7 6 5 0
+  assert_non_null(list);
+  uint8_t values3[8] = {4,3,9,8,7,6,5,0};
+  current = list;
+  for(i = 0; i < 8; i++, current = current->next){
+    assert_int_equal(current->value, values3[i]);
+  }
   assert_int_equal(list_length(list), old_length - 2*old_length1 + old_length2 + old_length3);
   assert_int_equal(item3          , item_prev->next);
   assert_int_equal(item3->prev    , item_prev);
   assert_int_equal(item3_end      , item_next->prev);
   assert_int_equal(item3_end->next, item_next);
+
+  list2 = list_reverse(list);
+  assert_non_null(list2);
+  uint8_t values2[8] = {0,5,6,7,8,9,3,4};
+  current = list2;
+  for(i = 0; i < 8; i++, current=current->next)
+    assert_int_equal(current->value, values2[i]);
+
+  current = list;
+
+  for(i = 0; i < 8; i++, current=current->prev)
+    assert_int_equal(current->value, values2[7-i]);
+
   list_free(item1);
   list_free(list);
 }

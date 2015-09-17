@@ -281,6 +281,8 @@ List*    list_replace(List* list, List* item, List* item2){
   item2->prev     = item_prev;
   item_next->prev = item2_end;
   item2_end->next = item_next;
+  item->prev = NULL;
+  item->next = NULL;
   return list_begin(list);
 }
 
@@ -296,7 +298,7 @@ uint8_t  list_is_different(List* list, List* list2){
     list2 = list2->next;
   }
   // They have different size
-  if(list->next || list2->next) return 1;
+  if((list && list->next) || (list2 && list2->next)) return 1;
   return 0;
 }
 
@@ -309,4 +311,20 @@ List* list_find(List *list, void *value){
   while(current->next && current->value != value) current = current->next;
   if(current->value != value) return NULL;
   else return current;
+}
+
+List* list_reverse(List *list){
+  if(list == NULL) return NULL;
+  List* current = list;
+  List* current_next, *current_prev;
+  List* begin = current;
+  while(current){
+    current_next = current->next;
+    current_prev = current->prev;
+    current->prev = current_next;
+    current->next = current_prev;
+    begin   = current;
+    current = current_next;
+  }
+  return begin;
 }
