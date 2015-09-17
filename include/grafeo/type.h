@@ -84,4 +84,25 @@ typedef enum _Adjacency{
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
+typedef int8_t (*CompareFunc) (void* data1, void* data2);
+typedef int8_t (*CompareDataFunc)(void* data1, void* data2, void* user_data);
+
+#define INT8_TO_POINTER(i)   ((void*)(int64_t)(i))
+#define INT16_TO_POINTER(i)  ((void*)(int64_t)(i))
+#define INT32_TO_POINTER(i)  ((void*)(int64_t)(i))
+#define INT64_TO_POINTER(i)  ((void*)(int64_t)(i))
+#define UINT8_TO_POINTER(i)  ((void*)(uint64_t)(i))
+#define UINT16_TO_POINTER(i) ((void*)(uint64_t)(i))
+#define UINT32_TO_POINTER(i) ((void*)(uint64_t)(i))
+#define UINT64_TO_POINTER(i) ((void*)(uint64_t)(i))
+
+#define POINTER_TO_INT8(i)   ((int8_t)  (int64_t)(i))
+#define POINTER_TO_INT16(i)  ((int16_t) (int64_t)(i))
+#define POINTER_TO_INT32(i)  ((int32_t) (int64_t)(i))
+#define POINTER_TO_INT64(i)  ((int64_t) (int64_t)(i))
+#define POINTER_TO_UINT8(i)  ((uint8_t) (uint64_t)(i))
+#define POINTER_TO_UINT16(i) ((uint16_t)(uint64_t)(i))
+#define POINTER_TO_UINT32(i) ((uint32_t)(uint64_t)(i))
+#define POINTER_TO_UINT64(i) ((uint64_t)(uint64_t)(i))
+
 #endif

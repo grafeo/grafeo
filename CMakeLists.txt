@@ -186,7 +186,7 @@ if(BUILD_TESTING)
     add_definitions(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
-    list(APPEND TESTS_NAMES array image ift)
+    list(APPEND TESTS_NAMES array image list ift)
     include (CTest)
     foreach(testname ${TESTS_NAMES})
         if(NOT CMOCKA_FOUND)
