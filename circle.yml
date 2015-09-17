@@ -1,3 +1,6 @@
+machine:
+  environment:
+    - COVERALLS_REPO_TOKEN: jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL
 dependencies:
   pre:
     - sudo pip install cpp-coveralls
@@ -5,6 +8,7 @@ test:
   pre:
     - mkdir build
     - cd build
-    - cmake .. -DBUILD_DOCS=OFF -DBUILD_TESTING=ON -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug
+    - pwd
+    - cd build && cmake .. -DBUILD_DOCS=OFF -DBUILD_TESTING=ON -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug
     - make
     - make coveralls
