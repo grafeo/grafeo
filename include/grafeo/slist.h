@@ -27,9 +27,12 @@
 # ===================================================================*/
 #ifndef GRAFEO_SLIST_H
 #define GRAFEO_SLIST_H
+#include <stdint.h>
+#include <stdlib.h>
+#include <grafeo/type.h>
 typedef struct _SList{
   void* value;
-  struct SList* next;
+  struct _SList* next;
 }SList;
 /**
  * @brief slist_new
