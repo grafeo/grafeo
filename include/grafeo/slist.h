@@ -60,7 +60,7 @@ SList*    slist_append(SList* list, void* value);
  * @param value
  * @return
  */
-SList*    slist_prepend_at(SList* list, SList* item, void* value);
+SList*    slist_prepend_at_item(SList* list, SList* item, void* value);
 /**
  * @brief slist_append_at
  * @param list
@@ -68,7 +68,7 @@ SList*    slist_prepend_at(SList* list, SList* item, void* value);
  * @param value
  * @return
  */
-SList*    slist_append_at(SList* list, SList* item, void* value);
+SList*    slist_append_at_item(SList* list, SList* item, void* value);
 /**
  * @brief slist_prepend_at_index
  * @param list
@@ -76,7 +76,7 @@ SList*    slist_append_at(SList* list, SList* item, void* value);
  * @param value
  * @return
  */
-SList*    slist_prepend_at_index(SList* list, uint32_t index, void* value);
+SList*    slist_prepend_at(SList* list, uint32_t index, void* value);
 /**
  * @brief slist_append_at_index
  * @param list
@@ -84,28 +84,74 @@ SList*    slist_prepend_at_index(SList* list, uint32_t index, void* value);
  * @param value
  * @return
  */
-SList*    slist_append_at_index(SList* list, uint32_t index, void* value);
+SList*    slist_append_at(SList* list, uint32_t index, void* value);
+/**
+ * @brief slist_append_item
+ * @param list
+ * @param new_item
+ * @return
+ */
+SList*    slist_append_item(SList* list, SList* new_item);
+/**
+ * @brief slist_append_item_at
+ * @param list
+ * @param index
+ * @param new_item
+ * @return
+ */
+SList*    slist_append_item_at(SList* list, uint32_t index, SList* new_item);
+/**
+ * @brief slist_append_item_at_item
+ * @param list
+ * @param item
+ * @param new_item
+ * @return
+ */
+SList*    slist_append_item_at_item(SList* list, SList* item, SList* new_item);
+/**
+ * @brief slist_prepend_item
+ * @param list
+ * @param new_item
+ * @return
+ */
+SList*    slist_prepend_item(SList* list, SList* new_item);
+/**
+ * @brief slist_prepend_item_at
+ * @param list
+ * @param index
+ * @param new_item
+ * @return
+ */
+SList*    slist_prepend_item_at(SList* list, uint32_t index, SList* new_item);
+/**
+ * @brief slist_prepend_item_at_item
+ * @param list
+ * @param item
+ * @param new_item
+ * @return
+ */
+SList*    slist_prepend_item_at_item(SList* list, SList* item, SList* new_item);
 /**
  * @brief slist_remove
  * @param list
  * @param item
  * @return
  */
-SList*    slist_remove(SList* list, SList* item);
+SList*    slist_remove_item(SList* list, SList* item);
 /**
  * @brief slist_remove_from_value
  * @param list
  * @param value
  * @return
  */
-SList*    slist_remove_from_value(SList* list, void* value);
+SList*    slist_remove(SList* list, void* value);
 /**
  * @brief slist_remove_at_index
  * @param list
  * @param index
  * @return
  */
-SList*    slist_remove_at_index(SList* list, uint32_t index);
+SList*    slist_remove_at(SList* list, uint32_t index);
 /**
  * @brief slist_remove_begin
  * @param list

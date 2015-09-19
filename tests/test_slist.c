@@ -34,96 +34,93 @@
 #include <errno.h>
 #include <grafeo/slist.h>
 
+void helper_test_slist_str(SList* begin, char** values, uint8_t qty){
+  SList* current = begin;
+  assert_non_null(current);
+  uint8_t i;
+  for(i = 0; i < qty; i++, current=current->next){
+    assert_non_null(current->value);
+    assert_string_equal(values[i],current->value);
+  }
+  assert_null(current);
+}
+
 static void test_slist_adding_removing(void** state){
   (void)state;
+  char* values1[3]={"C","A","B"};
+  char* values2[4]={"C","D","A","B"};
+  char* values3[5]={"C","D","E","A","B"};
+  char* values4[6]={"C","D","E","F","A","B"};
+  char* values5[7]={"C","D","G","E","F","A","B"};
+  char* values6[6]={"C","G","E","F","A","B"};
+  char* values7[5]={"C","G","E","A","B"};
+  char* values8[4]={"C","G","A","B"};
+  char* values9[3]={"G","A","B"};
+  char* values10[2]={"G","A"};
+  char* values11[3]={"G","A","H"};
+  char* values12[4]={"G","A","I","H"};
+  char* values13[5]={"G","A","K","I","H"};
+  char* values14[6]={"L","G","A","K","I","H"};
+  char* values15[7]={"L","G","M","A","K","I","H"};
+  char* values16[8]={"L","G","M","N","A","K","I","H"};
   SList* list = slist_new();
-  SList* item;
   assert_non_null(list);
   slist_free(list);
+
   list = NULL;
   list = slist_prepend(list, "A"); // A
-  assert_non_null(list);
-  assert_null(list->next);
-  assert_non_null(list->value);
-  assert_string_equal(list->value, "A");
+  helper_test_slist_str(list,&values1[1],1);
 
   list = slist_append(list, "B");  // A->B
-  assert_non_null(list);
-  assert_non_null(list->next);
-  assert_string_equal(list->next->value, "B");
-  assert_string_equal(list->value, "A");
+  helper_test_slist_str(list,&values1[1],2);
 
   list = slist_prepend(list, "C"); // C->A->B
-  assert_non_null(list);
-  assert_non_null(list->next);
-  assert_non_null(list->next->next);
-  assert_string_equal(list->value, "C");
-  assert_string_equal(list->next->value, "A");
-  assert_string_equal(list->next->next->value, "B");
+  helper_test_slist_str(list,values1,3);
 
-  list = slist_prepend_at(list, list->next, "D"); // C->D->A->B
-  item = list;
-  assert_non_null(item); // Testing C
-  assert_string_equal(item->value, "C");
-  item = item->next;
-  assert_non_null(item); // Testing D
-  assert_string_equal(item->value, "D");
-  item = item->next;
-  assert_non_null(item); // Testing A
-  assert_string_equal(item->value, "A");
-  item = item->next;
-  assert_non_null(item); // Testing B
-  assert_string_equal(item->value, "B");
-  assert_null(item->next);
+  list = slist_prepend_at_item(list, list->next, "D"); // C->D->A->B
+  helper_test_slist_str(list,values2,4);
 
-  list = slist_append_at(list, list->next, "E"); // C->D->E->A->B
-  assert_string_equal(list->next->value, "D");
-  assert_string_equal(list->next->next->value, "E");
-  assert_string_equal(list->next->next->next->value, "A");
+  list = slist_append_at_item(list, list->next, "E"); // C->D->E->A->B
+  helper_test_slist_str(list,values3,5);
 
-  list = slist_append_at_index(list, 2, "F"); // C->D->E->F->A->B
-  item = list->next->next;
-  assert_string_equal(item->value, "E");
-  assert_string_equal(item->next->value, "F");
-  assert_string_equal(item->next->next->value, "A");
+  list = slist_append_at(list, 2, "F"); // C->D->E->F->A->B
+  helper_test_slist_str(list,values4,6);
 
-  list = slist_prepend_at_index(list, 2, "G"); // C->D->G->E->F->A->B
-  item = list->next->next;
-  assert_string_equal(item->value, "G");
-  assert_string_equal(item->next->value, "E");
-  assert_string_equal(item->next->next->value, "F");
+  list = slist_prepend_at(list, 2, "G"); // C->D->G->E->F->A->B
+  helper_test_slist_str(list,values5,7);
 
-  list = slist_remove(list, list->next);       // C->G->E->F->A->B
-  assert_non_null(list);
-  item = list;
-  assert_string_equal(item->value, "C");
-  assert_string_equal(item->next->value, "G");
-  assert_string_equal(item->next->next->value, "E");
+  list = slist_remove_item(list, list->next);       // C->G->E->F->A->B
+  helper_test_slist_str(list,values6,6);
 
-  list = slist_remove_from_value(list, "F");   // C->G->E->A->B
-  assert_non_null(list);
-  item = list->next->next;
-  assert_string_equal(item->value, "E");
-  assert_string_equal(item->next->value, "A");
-  assert_string_equal(item->next->next->value, "B");
+  list = slist_remove(list, "F");   // C->G->E->A->B
+  helper_test_slist_str(list,values7,5);
 
-  list = slist_remove_at_index(list, 2);       // C->G->A->B
-  assert_non_null(list);
-  item = list->next;
-  assert_string_equal(item->value, "G");
-  assert_string_equal(item->next->value, "A");
-  assert_string_equal(item->next->next->value, "B");
+  list = slist_remove_at(list, 2);       // C->G->A->B
+  helper_test_slist_str(list,values8,4);
 
   list = slist_remove_begin(list);             // G->A->B
-  item = list;
-  assert_string_equal(item->value, "G");
-  assert_string_equal(item->next->value, "A");
-  assert_string_equal(item->next->next->value, "B");
+  helper_test_slist_str(list,values9,3);
 
   list = slist_remove_end(list);               // G->A
-  item = list;
-  assert_string_equal(item->value, "G");
-  assert_string_equal(item->next->value, "A");
+  helper_test_slist_str(list,values10,2);
+
+  list = slist_append_item(list, slist_prepend(NULL,"H"));
+  helper_test_slist_str(list,values11,3);
+
+  list = slist_append_item_at(list, 1, slist_prepend(NULL, "I"));
+  helper_test_slist_str(list,values12,4);
+
+  list = slist_append_item_at_item(list, list->next, slist_prepend(NULL,"K"));
+  helper_test_slist_str(list,values13,5);
+
+  list = slist_prepend_item(list, slist_prepend(NULL,"L"));
+  helper_test_slist_str(list,values14,6);
+
+  list = slist_prepend_item_at(list, 2, slist_prepend(NULL, "M"));
+  helper_test_slist_str(list,values15,7);
+
+  list = slist_prepend_item_at_item(list, list->next->next->next, slist_prepend(NULL,"N"));
+  helper_test_slist_str(list,values16,8);
 
   slist_free(list);
 }

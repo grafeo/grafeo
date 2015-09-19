@@ -29,7 +29,7 @@ SList*    slist_append(SList* list, void* value){
   return list;
 }
 
-SList*    slist_prepend_at(SList* list, SList* item, void* value){
+SList*    slist_prepend_at_item(SList* list, SList* item, void* value){
   if(list == item) return slist_prepend(list, value);
   SList* current = list;
   while(current && current->next != item) current=current->next;
@@ -40,7 +40,7 @@ SList*    slist_prepend_at(SList* list, SList* item, void* value){
   return list;
 }
 
-SList*    slist_append_at(SList* list, SList* item, void* value){
+SList*    slist_append_at_item(SList* list, SList* item, void* value){
   SList* new_item = slist_new();
   new_item->value = value;
   new_item->next  = item->next;
@@ -48,56 +48,78 @@ SList*    slist_append_at(SList* list, SList* item, void* value){
   return list;
 }
 
-SList*    slist_prepend_at_index(SList* list, uint32_t index, void* value){
-  if(index) return slist_append_at(list, slist_at(list, index-1), value);
+SList*    slist_prepend_at(SList* list, uint32_t index, void* value){
+  if(index) return slist_append_at_item(list, slist_at(list, index-1), value);
   return slist_append(NULL, value);
 }
 
-SList*    slist_append_at_index(SList* list, uint32_t index, void* value){
-  return slist_append_at(list, slist_at(list, index), value);
+SList*    slist_append_at(SList* list, uint32_t index, void* value){
+  return slist_append_at_item(list, slist_at(list, index), value);
+}
+SList*    slist_append_item(SList *list, SList *new_item){
+  return NULL;
+}
+SList*    slist_append_item_at_item(SList *list, SList *item, SList *new_item){
+  return NULL;
+}
+SList*    slist_append_item_at(SList *list, uint32_t index, SList *new_item){
+  return NULL;
+}
+SList*    slist_prepend_item(SList *list, SList *new_item){
+  return NULL;
+}
+SList*    slist_prepend_item_at(SList *list, uint32_t index, SList *new_item){
+  return NULL;
+}
+SList*    slist_prepend_item_at_item(SList *list, SList *item, SList *new_item){
+  return NULL;
 }
 
-SList*    slist_remove(SList* list, SList* item){
+
+SList*    slist_remove_item(SList* list, SList* item){
+  return list;
   SList* current = list;
   while(current && current->next != item) current=current->next;
 
-  if(item == NULL) return list;
-  SList* begin  = list;
-  if(item->next) item->next->prev = item->prev;
-  if(item->prev) item->prev->next = item->next;
-  else begin   = item->next;
-  free(item);
-  return begin;
+//  if(item == NULL) return list;
+//  SList* begin  = list;
+//  if(item->next) item->next->prev = item->prev;
+//  if(item->prev) item->prev->next = item->next;
+//  else begin   = item->next;
+//  free(item);
+//  return begin;
 }
 
-SList*    slist_remove_from_value(SList* list, void* value){
-  return slist_remove(list, slist_find(list, value));
+SList*    slist_remove(SList* list, void* value){
+  return slist_remove_item(list, slist_find(list, value));
 }
 
-SList*    slist_remove_at_index(SList* list, uint32_t index){
-  return slist_remove(list,slist_at(list, index));
+SList*    slist_remove_at(SList* list, uint32_t index){
+  return slist_remove_item(list,slist_at(list, index));
 }
 
 SList*    slist_remove_begin(SList* list){
   if(list == NULL) return NULL;
-  List* item       = list;
-  List* new_begin  = item->next;
+  SList* item       = list;
+  SList* new_begin  = item->next;
   free(item);
   return new_begin;
 }
 
 SList*    slist_remove_end(SList* list){
-  SList* current = list;
-  while(current->next->next) current=current->next;
+//  SList* current = list;
+  return list;
+//  while(current->next->next) current=current->next;
 
 
-  if(list == NULL) return NULL;
-  List* begin = list_begin(list);
-  List* end   = list_end(list);
-  if(begin == end) begin = NULL;
-  else end->prev->next = NULL;
-  free(end);
-  return begin;
+//  if(list == NULL) return NULL;
+//  SList* begin = list;
+
+//  SList* end   = slist_end(list);
+//  if(begin == end) begin = NULL;
+//  else end->prev->next = NULL;
+//  free(end);
+//  return begin;
 }
 
 void      slist_free(SList* list){
@@ -118,7 +140,10 @@ SList*    slist_begin(SList* list){
 }
 
 SList*    slist_end(SList* list){
-
+  if(!list) return NULL;
+  SList* current = list;
+  while(current->next) current = current->next;
+  return current;
 }
 
 uint32_t  slist_length(SList* list){
@@ -130,7 +155,9 @@ uint8_t   slist_is_empty(SList* list){
 }
 
 SList*    slist_at(SList* list, uint32_t index){
-
+  uint32_t i;
+  for(i = 0; i < index; i++) list = list->next;
+  return list;
 }
 
 void*     slist_value_at(SList* list, uint32_t index){
