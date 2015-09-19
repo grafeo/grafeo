@@ -66,6 +66,10 @@ static void test_slist_adding_removing(void** state){
   SList* list = slist_new();
   assert_non_null(list);
   slist_free(list);
+  list = slist_new_with_value("2");
+  assert_non_null(list);
+  assert_string_equal(list->value, "2");
+  slist_free(list);
 
   list = NULL;
   list = slist_prepend(list, "A"); // A
@@ -83,25 +87,25 @@ static void test_slist_adding_removing(void** state){
   list = slist_append_at_item(list, list->next, "E"); // C->D->E->A->B
   helper_test_slist_str(list,values3,5);
 
-  list = slist_append_at(list, 2, "F"); // C->D->E->F->A->B
+  list = slist_append_at(list, 2, "F");               // C->D->E->F->A->B
   helper_test_slist_str(list,values4,6);
 
-  list = slist_prepend_at(list, 2, "G"); // C->D->G->E->F->A->B
+  list = slist_prepend_at(list, 2, "G");              // C->D->G->E->F->A->B
   helper_test_slist_str(list,values5,7);
 
-  list = slist_remove_item(list, list->next);       // C->G->E->F->A->B
+  list = slist_remove_item(list, list->next);         // C->G->E->F->A->B
   helper_test_slist_str(list,values6,6);
 
-  list = slist_remove(list, "F");   // C->G->E->A->B
+  list = slist_remove(list, "F");                     // C->G->E->A->B
   helper_test_slist_str(list,values7,5);
 
-  list = slist_remove_at(list, 2);       // C->G->A->B
+  list = slist_remove_at(list, 2);                    // C->G->A->B
   helper_test_slist_str(list,values8,4);
 
-  list = slist_remove_begin(list);             // G->A->B
+  list = slist_remove_begin(list);                    // G->A->B
   helper_test_slist_str(list,values9,3);
 
-  list = slist_remove_end(list);               // G->A
+  list = slist_remove_end(list);                     // G->A
   helper_test_slist_str(list,values10,2);
 
   list = slist_append_item(list, slist_prepend(NULL,"H"));
@@ -141,28 +145,22 @@ static void test_slist_accessors(void** state){
   assert_int_equal(index, 0);
   index = slist_index_of(list, INT8_TO_POINTER(0)); // the last value
   assert_int_equal(index, 9);
+  item  = slist_item_of(list,  INT8_TO_POINTER(9)); // the first value
+  assert_int_equal(list, item);
 
-  item = slist_begin(list);
-  assert_int_equal(item, list);
-  item = slist_end(list);
+  item = slist_item_end(list);
   assert_int_equal(item->value, 0);
   assert_int_equal(slist_length(list), 10);
   assert_false(slist_is_empty(list));
   assert_true(slist_is_empty(NULL));
-  item = slist_at(list, 4);
+  assert_int_equal(slist_end(list), 0);
+  item = slist_item_at(list, 4);
   assert_int_equal(item->value, 5);
-  assert_int_equal(POINTER_TO_INT8(slist_value_at(list, 6)),3);
+  assert_int_equal(POINTER_TO_INT8(slist_at(list, 6)),3);
   item = slist_next(list->next);
   assert_int_equal(item->value, 7);
-  item = slist_prev(list->next);
+  item = slist_prev(list, list->next);
   assert_int_equal(item, list);
-
-  item  = slist_find(list, INT8_TO_POINTER(7));
-  SList* item2 = slist_find(list, INT8_TO_POINTER(8));
-  assert_non_null(item);
-  assert_int_equal(item2->next, item);
-  assert_int_equal(item->value, 7);
-  assert_int_equal(item->next->value, 6);
 
   slist_free(list);
 }
@@ -180,7 +178,7 @@ static void test_slist_operations(void** state){
   assert_non_null(list);
   assert_int_equal(slist_length(list), 10);
   assert_int_equal(list->value, 7);
-  SList* item = slist_at(list,8);
+  SList* item = slist_item_at(list,8);
   assert_int_equal(item->value, 9);
 
   list2 = slist_split_at(list, 8); // 7 6 5 4 3 2 1 0     9 8
@@ -188,30 +186,30 @@ static void test_slist_operations(void** state){
   assert_int_equal(slist_length(list), 8);
   assert_int_equal(slist_length(list2), 2);
   assert_int_equal(list2->value, 9);
-  item1 = slist_at(list,7);
+  item1 = slist_item_at(list,7);
   assert_null(item1->next);
   assert_int_equal(item, list2);
 
-  item1 = slist_at(list,3); // value = 4
-  item2 = slist_at(list,5); // value = 2
+  item1 = slist_item_at(list,3); // value = 4
+  item2 = slist_item_at(list,5); // value = 2
 
-  list = slist_swap(list, item1, item2); // 7 6 5 2 3 4 1 0
+  list = slist_swap_items(list, item1, item2); // 7 6 5 2 3 4 1 0
   assert_non_null(list);
   assert_int_equal(item1->value, 4);
   assert_int_equal(item2->value, 2);
   assert_int_equal(item1->next->value, 1);
   assert_int_equal(item2->next->value, 3);
 
-  item1 = slist_at(list, 2); // value=5
+  item1 = slist_item_at(list, 2); // value=5
   item2 = item1->next;      // value=2
-  list = slist_swap_at(list, 2, 3); // 7 6 2 5 3 4 1 0
+  list = slist_swap_items_at(list, 2, 3); // 7 6 2 5 3 4 1 0
   assert_non_null(list);
   assert_int_equal(item1->value, 5);
   assert_int_equal(item2->value, 2);
   assert_int_equal(item2->next, item1);
   assert_int_equal(item1->next->value, 3);
 
-  list = slist_swap_values(list, item1, item2); // 7 6 5 2 3 4 1 0
+  list = slist_swap(list, item1, item2); // 7 6 5 2 3 4 1 0
   assert_non_null(list);
 
   assert_int_equal(item1->value, 2);
@@ -220,7 +218,7 @@ static void test_slist_operations(void** state){
   assert_int_equal(item2->next, item1);
   assert_int_equal(item1->next->value, 3);
 
-  slist_swap_values_at(list, 2, 3); // 7 6 2 5 3 4 1 0
+  slist_swap_at(list, 2, 3); // 7 6 2 5 3 4 1 0
   assert_non_null(list);
 
   assert_int_equal(item1->value, 5);
@@ -243,7 +241,7 @@ static void test_slist_operations(void** state){
   for(i = 5; i < 8 ; i++) list2 = slist_prepend(list2, INT8_TO_POINTER(items[i]));
   for(i = 8; i < 10; i++) list3 = slist_prepend(list3, INT8_TO_POINTER(items[i]));
 
-  item1 = slist_at(list, 3); // value = 6
+  item1 = slist_item_at(list, 3); // value = 6
   item2 = list2;
   item3 = list3;
   uint32_t old_length  = slist_length(list);// 5
@@ -251,9 +249,9 @@ static void test_slist_operations(void** state){
   uint32_t old_length2 = slist_length(item2);// 3
   uint32_t old_length3 = slist_length(item3);// 2
 
-  SList* item_prev = slist_find(list,INT8_TO_POINTER(7)); // value = 7
+  SList* item_prev = slist_item_of(list,INT8_TO_POINTER(7)); // value = 7
   SList* item_next = item1->next;     // value = 5
-  SList* item2_end = slist_end(item2); // value = 2
+  SList* item2_end = slist_item_end(item2); // value = 2
 
   list = slist_replace(list, item1, item2); // 4 3 2 7 6 5 0
   uint8_t values[7] = {4,3,2,7,6,5,0};
@@ -267,10 +265,10 @@ static void test_slist_operations(void** state){
   assert_int_equal(item2_end->next, item_next);
   slist_free(item1);
 
-  item1     = slist_at(list, 2); // value = 2
-  item_prev = slist_at(list, 1); // value = 3
+  item1     = slist_item_at(list, 2); // value = 2
+  item_prev = slist_item_at(list, 1); // value = 3
   item_next = item1->next;
-  SList* item3_end = slist_end(item3);
+  SList* item3_end = slist_item_end(item3);
 
   list = slist_replace_at(list, 2, item3); // 4 3 9 8 7 6 5 0
   assert_non_null(list);

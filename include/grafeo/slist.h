@@ -40,6 +40,12 @@ typedef struct _SList{
  */
 SList*    slist_new();
 /**
+ * @brief slist_new_with_value
+ * @param value
+ * @return
+ */
+SList*    slist_new_with_value(void* value);
+/**
  * @brief slist_prepend
  * @param list
  * @param value
@@ -146,6 +152,13 @@ SList*    slist_remove_item(SList* list, SList* item);
  */
 SList*    slist_remove(SList* list, void* value);
 /**
+ * @brief slist_remove_after
+ * @param list
+ * @param before
+ * @return
+ */
+SList*    slist_remove_after(SList* list, SList* before);
+/**
  * @brief slist_remove_at_index
  * @param list
  * @param index
@@ -177,17 +190,24 @@ void      slist_free(SList* list);
  */
 int32_t   slist_index_of(SList* list, void* value);
 /**
- * @brief slist_begin
+ * @brief slist_item_of
  * @param list
+ * @param value
  * @return
  */
-SList*    slist_begin(SList* list);
+SList*    slist_item_of(SList* list, void* value);
 /**
  * @brief slist_end
  * @param list
  * @return
  */
-SList*    slist_end(SList* list);
+SList*    slist_item_end(SList* list);
+/**
+ * @brief slist_end
+ * @param list
+ * @return
+ */
+void*     slist_end(SList* list);
 /**
  * @brief slist_length
  * @param list
@@ -206,14 +226,7 @@ uint8_t   slist_is_empty(SList* list);
  * @param index
  * @return
  */
-SList*    slist_at(SList* list, uint32_t index);
-/**
- * @brief slist_value_at
- * @param list
- * @param index
- * @return
- */
-void*     slist_value_at(SList* list, uint32_t index);
+SList*    slist_item_at(SList* list, uint32_t index);
 /**
  * @brief slist_next
  * @param list
@@ -223,9 +236,10 @@ SList*    slist_next(SList* list);
 /**
  * @brief slist_prev
  * @param list
+ * @param item
  * @return
  */
-SList*    slist_prev(SList* list);
+SList*    slist_prev(SList* list, SList* item);
 /**
  * @brief slist_join
  * @param list1
@@ -263,7 +277,7 @@ SList*    slist_swap_at(SList* list, uint32_t index1, uint32_t index2);
  * @param item2
  * @return
  */
-SList*    slist_swap_values(SList* list, SList* item1, SList* item2);
+SList*    slist_swap_items(SList* list, SList* item1, SList* item2);
 /**
  * @brief slist_swap_values_at
  * @param list
@@ -271,7 +285,7 @@ SList*    slist_swap_values(SList* list, SList* item1, SList* item2);
  * @param index2
  * @return
  */
-SList*    slist_swap_values_at(SList* list, uint32_t index1, uint32_t index2);
+SList*    slist_swap_items_at(SList* list, uint32_t index1, uint32_t index2);
 /**
  * @brief slist_copy
  * @param list
@@ -320,12 +334,5 @@ uint8_t   slist_is_different(SList* list, SList* list2);
  * @return
  */
 uint8_t   slist_is_equal(SList* list, SList* list2);
-/**
- * @brief slist_find
- * @param list
- * @param value
- * @return
- */
-SList*    slist_find(SList* list, void* value);
 
 #endif
