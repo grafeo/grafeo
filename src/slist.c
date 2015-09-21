@@ -201,43 +201,72 @@ SList*    slist_swap_at(SList* list, uint32_t index1, uint32_t index2){
   return slist_swap(list, slist_item_at(list, index1),slist_item_at(list, index2));
 }
 
-SList*    slist_swap_items(SList* list, SList* item1, SList* item2){
+SList*   slist_swap_items_after(SList* list, SList* before1, SList* before2, SList* item1, SList* item2){
   SList* tmp;
+
+  // Sort items
+  if(before1 == item2 || before1->next == item2){
+    tmp = item1;item1=item2;item2=tmp;
+  }
+
+  // Exchange items
+  tmp              = item1->next;
+  item1->next      = item2->next;
+  if(tmp != item2) item2->next = tmp;
+  else item2->next = item1;
+
+  // Fix previous items links to items
+  if(before1 != item1) before1->next = item2;
+  if(before2 != item2) before2->next = item1;
+
+  if(list == item2) return item1;
+  return list;
+}
+
+
+SList*    slist_swap_items(SList* list, SList* item1, SList* item2){
   SList* before1, *before2;
+
+  while(current){
+
+  }
+
   for(before1 = list         ; before1 && before1 != item1 && before1 != item2 && before1->next != item1 && before1->next != item2; before1 = before1->next);
   if(!before1 || !before1->next) return list;
   for(before2 = before1->next; before2 && before2 != item1 && before2 != item2 && before2->next != item1 && before2->next != item2; before2 = before2->next);
   if(!before2 || !before2->next) return list;
 
-  tmp = item1->next;
-  item1->next = item2->next;
-  item2->next = item1->next;
-
-  if(before1 != item1 && before1 != item2){
-    if(before1->next == item1) before1->next = item2;
-    else                       before1->next = item1;
-  }
-  if(before2 != item1 && before2 != item2){
-    if(before2->next == item1) before2->next = item2;
-    else                       before2->next = item1;
-  }
-  return list;
+  return slist_swap_items_after(list, before1, before2, item1, item2);
 }
 
 SList*    slist_swap_items_at(SList* list, uint32_t index1, uint32_t index2){
-  SList* tmp;
-  SList* before1, *before2;
-  uint32_t i;
-  for(i = 0,        before1 = list;                i < index1; i++, before1 = before1->next);
-  for(i = index1+1, before2 = before1->next->next; i < index2; i++, before2 = before2->next);
-  tmp           = before1->next;
-  before1->next = before2->next;
-  before2->next = tmp;
-  tmp           = before1->next->next;
-  before1->next->next = before2->next->next;
-  before2->next->next = tmp;
-  return list;
+  SList* item1, *item2, *before1, *before2, *before, *current;
+  uint32_t i = 0;
+  // Same indices? Do nothing
+  if(index1 == index2) return list;
+  // Sort indices
+  else if(index1 > index2) {
+    uint32_t tmpi = index1;
+    index1        = index2;
+    index2        = tmpi;
+  }
+  // Iterate inside list
+  before = current = list;
+  while(current){
+
+    // Get items and items before
+    if(i == index1){ before1 = before; item1 = current;}
+    if(i == index2){ before2 = before; item2 = current;}
+
+    // Next iteration
+    before  = current;
+    current = current->next;
+    i++;
+  }
+  // Swap items and return beginning
+  return slist_swap_items_after(list, before1, before2, item1, item2);
 }
+
 
 SList*    slist_copy(SList* list){
   SList* list2 = NULL, *item2;
@@ -278,6 +307,9 @@ SList*    slist_reverse(SList* list){
 }
 
 SList*    slist_sort(SList* list, CompareFunc compare_function){
+  return NULL;
+}
+SList*    slist_sort_with_data(SList* list, CompareDataFunc compare_function, void* user_data){
   return NULL;
 }
 

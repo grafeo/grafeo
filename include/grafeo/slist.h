@@ -221,12 +221,17 @@ uint32_t  slist_length(SList* list);
  */
 uint8_t   slist_is_empty(SList* list);
 /**
- * @brief slist_at
+ * @brief slist_item_at
  * @param list
  * @param index
  * @return
  */
 SList*    slist_item_at(SList* list, uint32_t index);
+/**
+ * @brief slist_at
+ * @return
+ */
+void*     slist_at(SList* list, uint32_t index);
 /**
  * @brief slist_next
  * @param list
@@ -320,6 +325,14 @@ SList*    slist_reverse(SList* list);
  * @return
  */
 SList*    slist_sort(SList* list, CompareFunc compare_function);
+/**
+ * @brief slist_sort_with_data
+ * @param list
+ * @param compare_function
+ * @param user_data
+ * @return
+ */
+SList*    slist_sort_with_data(SList* list, CompareDataFunc compare_function, void* user_data);
 /**
  * @brief slist_is_different
  * @param list
