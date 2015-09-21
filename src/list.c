@@ -52,19 +52,12 @@ List* list_append_at(List *list, List *item, void *value){
   List* begin = list_begin(list);
   List* new_item = list_new();
   new_item->value = value;
-  new_item->prev = item;
-  new_item->next = item->next;
-  item->next = new_item;
-  if(new_item->next) new_item->next->prev = new_item;
 
-  return begin;
+  return list_append_item_at(begin, item, new_item);
 }
 
 List* list_append_at_index(List *list, uint32_t index, void *value){
-  uint32_t i = 0;
-  List* current = list;
-  while(i++ < index && current->next) current = current->next;
-  return list_append_at(list, current, value);
+  return list_append_at(list, list_at(list, index), value);
 }
 
 void list_free(List *list){
@@ -91,13 +84,7 @@ List* list_prepend_at(List *list, List *item, void *value){
   List* new_item = list_new();
   new_item->value = value;
 
-  new_item->next = item;
-  new_item->prev = item->prev;
-  item->prev = new_item;
-  if(new_item->prev) new_item->prev->next = new_item;
-  else begin = new_item;
-
-  return begin;
+  return list_prepend_item_at(begin,item,new_item);
 }
 
 List* list_prepend_at_index(List *list, uint32_t index, void *value){
@@ -112,6 +99,32 @@ List* list_remove(List *list, List *item){
   else begin   = item->next;
   free(item);
   return begin;
+}
+
+List* list_prepend_item_at(List* list, List* item, List* item_new){
+  item_new->next = item;
+  item_new->prev = item->prev;
+  item->prev = item_new;
+  if(item_new->prev) item_new->prev->next = item_new;
+  else list = item_new;
+  return list;
+}
+
+List* list_append_item_at(List* list, List* item, List* item_new){
+  item_new->prev = item;
+  item_new->next = item->next;
+  item->next = item_new;
+  if(item_new->next) item_new->next->prev = item_new;
+
+  return list;
+}
+
+List* list_prepend_item_at_index(List* list, uint32_t index, List* item_new){
+  return list_prepend_item_at(list, list_at(list, index), item_new);
+}
+
+List* list_append_item_at_index(List* list, uint32_t index, List* item_new){
+  return list_append_item_at(list, list_at(list, index), item_new);
 }
 
 List* list_remove_at_index(List *list, uint32_t index){
@@ -329,4 +342,51 @@ List* list_reverse(List *list){
     current = current_next;
   }
   return begin;
+}
+
+void list_foreach(List* list, DataFunc data_function, void* value){
+  List* current;
+  for(current = list; current; current = current->next)
+    data_function(current, value);
+}
+
+List* list_append_sorted(List* list, CompareFunc compare_function, void* value){
+  List* current = list, *before = NULL;
+  if(!list) return list_prepend(NULL, value);
+  while(current && compare_function(current->value, value) <= 0){
+    before  = current;
+    current = current->next;
+  }
+  if(!current) return list_append_at(list,before,value);
+  return list_prepend_at(list, current, value);
+}
+List* list_append_sorted_with_data(List* list, CompareDataFunc compare_function, void* value, void* user_data){
+  List* current = list, *before = NULL;
+  if(!list) return list_prepend(NULL, value);
+  while(current && compare_function(current->value, value, user_data) <= 0){
+    before  = current;
+    current = current->next;
+  }
+  if(!current) return list_append_at(list,before,value);
+  return list_prepend_at(list, current, value);
+}
+List* list_prepend_sorted(List* list, CompareFunc compare_function, void* value){
+  List* current = list, *before = NULL;
+  if(!list) return list_prepend(NULL, value);
+  while(current && compare_function(current->value, value) < 0){
+    before  = current;
+    current = current->next;
+  }
+  if(!current) return list_append_at(list,before,value);
+  return list_prepend_at(list, current, value);
+}
+List* list_prepend_sorted_with_data(List* list, CompareDataFunc compare_function, void* value, void* user_data){
+  List* current = list, *before = NULL;
+  if(!list) return list_prepend(NULL, value);
+  while(current && compare_function(current->value, value, user_data) < 0){
+    before  = current;
+    current = current->next;
+  }
+  if(!current) return list_append_at(list,before,value);
+  return list_prepend_at(list, current, value);
 }
