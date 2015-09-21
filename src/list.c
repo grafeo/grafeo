@@ -61,10 +61,12 @@ List* list_append_at_index(List *list, uint32_t index, void *value){
 }
 
 void list_free(List *list){
-  List* item = list_begin(list);
-  List* next = item->next;
-  while(item->next){free(item); item = next; next = item->next;}
-  free(item);
+  if(list){
+    List* item = list_begin(list);
+    List* next = item->next;
+    while(item->next){free(item); item = next; next = item->next;}
+    free(item);
+  }
 }
 
 List* list_prepend(List *list, void *value){

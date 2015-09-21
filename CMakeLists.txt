@@ -104,6 +104,7 @@ endif(BUILD_TESTING)
 #============================================================ LIBRARY
 include_directories(include)
 set(GRAFEO_HDR
+    include/grafeo/slist.h
     include/grafeo/list.h
     include/grafeo/type.h
     include/grafeo/array.h
@@ -112,6 +113,7 @@ set(GRAFEO_HDR
     include/grafeo/image.h
 )
 set(GRAFEO_SRC
+ src/slist.c
  src/array.c
  src/list.c
  src/queue.c
@@ -184,7 +186,7 @@ if(BUILD_TESTING)
     add_definitions(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
-    list(APPEND TESTS_NAMES array image list queue)
+    list(APPEND TESTS_NAMES array image list queue slist)
     include (CTest)
     foreach(testname ${TESTS_NAMES})
         if(NOT CMOCKA_FOUND)
