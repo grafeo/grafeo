@@ -178,7 +178,7 @@ static void test_slist_accessors(void** state){
 
 static void test_slist_operations(void** state){
   (void)state;
-  SList* list = NULL, *item1 = NULL, *item2 = NULL, *list2 = NULL, *current = NULL;
+  SList* list = NULL, *item1 = NULL, *item2 = NULL, *list2 = NULL;
 
   uint8_t items[10] = {0,1,2,3,4,5,6,7,8,9};
   uint8_t i;
@@ -240,61 +240,38 @@ static void test_slist_operations(void** state){
   slist_free(list); list  = NULL;
   slist_free(list2);list2 = NULL;
   SList* list3 = NULL, *item3 = NULL;
-  for(i = 0; i < 5 ; i++) list  = slist_prepend(list , INT8_TO_POINTER(items[i]));
-  for(i = 5; i < 8 ; i++) list2 = slist_prepend(list2, INT8_TO_POINTER(items[i]));
-  for(i = 8; i < 10; i++) list3 = slist_prepend(list3, INT8_TO_POINTER(items[i]));
+  for(i = 0; i < 5 ; i++) list  = slist_prepend(list , INT8_TO_POINTER(items[i])); // 4 3 2 1 0
+  for(i = 5; i < 8 ; i++) list2 = slist_prepend(list2, INT8_TO_POINTER(items[i])); // 7 6 5
+  for(i = 8; i < 10; i++) list3 = slist_prepend(list3, INT8_TO_POINTER(items[i])); // 9 8
 
-  item1 = slist_item_at(list, 3); // value = 6
-  item2 = list2;
-  item3 = list3;
-  uint32_t old_length  = slist_length(list);// 5
-  uint32_t old_length1 = 1;
-  uint32_t old_length2 = slist_length(item2);// 3
-  uint32_t old_length3 = slist_length(item3);// 2
+  item1 = slist_item_at(list, 3);            // value = 1
+  item2 = list2;                             // value = 7
+  item3 = list3;                             // value = 9
+  uint32_t old_length  = slist_length(list); // 5
+  SList* item_prev = slist_item_of(list,INT8_TO_POINTER(2)); // value = 2
 
-  SList* item_prev = slist_item_of(list,INT8_TO_POINTER(7)); // value = 7
-  SList* item_next = item1->next;     // value = 5
-  SList* item2_end = slist_item_end(item2); // value = 2
-
-  list = slist_replace(list, item1, item2); // 4 3 2 7 6 5 0
-  uint8_t values6[7] = {4,3,2,7,6,5,0};
-  current = list;
-  for(i = 0; i < 7; i++, current = current->next){
-    assert_int_equal(current->value, values6[i]);
-  }
-  assert_null(item1->next);
-  assert_int_equal(slist_length(list), old_length - old_length1 + old_length2);
+  list2 = list2->next; // 6 5
+  list  = slist_replace(list, item1, item2);  // 4 3 2 7 0
+  uint8_t values6[5] = {4,3,2,7,0};
+  helper_test_slist_uint8(list, values6, 5);
+  assert_int_equal(slist_length(list), old_length);
   assert_int_equal(item2          , item_prev->next);
-  assert_int_equal(item2_end->next, item_next);
-  slist_free(item1);
 
   item1     = slist_item_at(list, 2); // value = 2
   item_prev = slist_item_at(list, 1); // value = 3
-  item_next = item1->next;
-  SList* item3_end = slist_item_end(item3);
 
-  list = slist_replace_at(list, 2, item3); // 4 3 9 8 7 6 5 0
-  assert_non_null(list);
-  uint8_t values7[8] = {4,3,9,8,7,6,5,0};
-  current = list;
-  for(i = 0; i < 8; i++, current = current->next){
-    assert_int_equal(current->value, values7[i]);
-  }
-  assert_int_equal(slist_length(list), old_length - 2*old_length1 + old_length2 + old_length3);
+  list = slist_replace_at(list, 2, item3); // 4 3 9 7 0
+  uint8_t values7[5] = {4,3,9,7,0};
+  helper_test_slist_uint8(list, values7, 5);
+  assert_int_equal(slist_length(list), old_length);
   assert_int_equal(item3          , item_prev->next);
-  assert_int_equal(item3_end->next, item_next);
 
   list2 = slist_reverse(list);
   assert_non_null(list2);
-  uint8_t values8[8] = {0,5,6,7,8,9,3,4};
-  current = list2;
-  for(i = 0; i < 8; i++, current=current->next)
-    assert_int_equal(current->value, values8[i]);
+  uint8_t values8[5] = {0,7,9,3,4};
+  helper_test_slist_uint8(list2, values8, 5);
 
-  current = list;
-
-  slist_free(item1);
-  slist_free(list);
+  slist_free(list2);
 }
 
 static void test_slist_comparisons(void** state){
