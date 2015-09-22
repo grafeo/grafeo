@@ -37,13 +37,13 @@ static void helper_test_values(Queue* queue, uint8_t* values, uint8_t qty){
   uint8_t i;
 
   assert_int_equal(queue->length, qty);
-  for(i = 0, current=queue->begin;i < qty; i++, current=current->next){
+  for(i = 0, current=queue->begin;i < qty; i++, current=list_next(current)){
     assert_non_null(current);
-    assert_int_equal(current->value, values[i]);
+    assert_int_equal(list_value(current), values[i]);
   }
-  for(i = 0, current=queue->end  ;i < qty; i++, current=current->prev){
+  for(i = 0, current=queue->end  ;i < qty; i++, current=list_prev(current)){
     assert_non_null(current);
-    assert_int_equal(current->value, values[qty-1-i]);
+    assert_int_equal(list_value(current), values[qty-1-i]);
   }
 }
 
@@ -78,15 +78,15 @@ static void test_queue_adding_removing(void** state){
   assert_non_null(queue->begin);
   assert_non_null(queue->end);
   assert_int_equal(queue->begin, queue->end);
-  assert_int_equal(queue->begin->value, 5);
+  assert_int_equal(list_value(queue->begin), 5);
 
   queue_append(queue, INT8_TO_POINTER(3)); // 5 3
   assert_int_equal(queue->length, 2);
   assert_non_null(queue->begin);
   assert_non_null(queue->end);
   assert_int_not_equal(queue->begin, queue->end);
-  assert_int_equal(queue->begin->value, 5);
-  assert_int_equal(queue->end->value, 3);
+  assert_int_equal(list_value(queue->begin), 5);
+  assert_int_equal(list_value(queue->end), 3);
 
   print_message("\nqueue_prepend\n");
   queue_prepend(queue, INT8_TO_POINTER(2)); // 2 5 3
@@ -94,7 +94,7 @@ static void test_queue_adding_removing(void** state){
   helper_test_values(queue, values1, 3);
 
   print_message("\nqueue_prepend_at\n");
-  queue_prepend_at(queue, queue->begin->next, INT8_TO_POINTER(4)); // 2 4 5 3
+  queue_prepend_at(queue, list_next(queue->begin), INT8_TO_POINTER(4)); // 2 4 5 3
   uint8_t values[4] = {2,4,5,3};
   helper_test_values(queue, values, 4);
 
@@ -127,14 +127,14 @@ static void test_queue_adding_removing(void** state){
 
   print_message("\nqueue_prepend_item_at\n");
   item = list_prepend(NULL, INT8_TO_POINTER(11));
-  item2 = queue->begin->next->next->next->next->next;
+  item2 = list_at(queue->begin,5);
   queue_prepend_item_at(queue, item2, item); // 9 2 4 8 6 11 5 7 3 10
   uint8_t values7[10] = {9,2,4,8,6,11,5,7,3,10};
   helper_test_values(queue, values7, 10);
 
   print_message("\nqueue_append_item_at\n");
   item = list_prepend(NULL, INT8_TO_POINTER(12));
-  item2 = queue->begin->next->next->next;
+  item2 = list_at(queue->begin,3);
   queue_append_item_at(queue, item2, item); // 9 2 4 8 12 6 11 5 7 3 10
   uint8_t values8[11] = {9,2,4,8,12,6,11,5,7,3,10};
   helper_test_values(queue, values8, 11);
@@ -218,22 +218,22 @@ static void test_queue_accessors(void** state){
 
   item = queue_begin(queue);
   assert_non_null(item);
-  assert_string_equal(item->value, "Tavares");
+  assert_string_equal(list_value(item), "Tavares");
 
   item = queue_end(queue);
   assert_non_null(item);
-  assert_string_equal(item->value, "Anderson");
+  assert_string_equal(list_value(item), "Anderson");
 
   assert_int_equal(queue_index_of(queue,"Moreira"), 1);
   assert_int_equal(queue_index_of(queue,"Carlos"), 2);
 
   item = queue_at(queue,2);
   assert_non_null(item);
-  assert_string_equal(item->value,"Carlos");
+  assert_string_equal(list_value(item),"Carlos");
 
   item = queue_at(queue,0);
   assert_non_null(item);
-  assert_string_equal(item->value,"Tavares");
+  assert_string_equal(list_value(item),"Tavares");
 
   value = queue_value_at(queue, 3);
   assert_string_equal(value, "Anderson");
@@ -252,7 +252,7 @@ static void test_queue_accessors(void** state){
 
 void add_prefix(void* item, void* prefix){
   List* list_item = (List*) item;
-  char* text       = (char*) list_item->value;
+  char* text       = (char*) list_value(list_item);
   char* prefix_str = (char*) prefix;
 
   size_t text_length   = strlen(text);
@@ -263,7 +263,7 @@ void add_prefix(void* item, void* prefix){
   strcpy(str+prefix_length, text);
   str[prefix_length+text_length] = '\0';
 
-  list_item->value = str;
+  list_set_value(list_item,str);
 }
 
 static void test_queue_operations(void** state){
@@ -279,21 +279,21 @@ static void test_queue_operations(void** state){
 
   queue_reverse(queue);
   List* current;
-  for(i=0,current = queue->begin; current;current = current->next,i++)
-    assert_string_equal(current->value, values[i]);
+  for(i=0,current = queue->begin; current;current = list_next(current),i++)
+    assert_string_equal(list_value(current), values[i]);
 
   Queue* queuecopy = queue_copy(queue);
   List* current2;
   for(current = queue->begin,current2 = queuecopy->begin, i=0;
       current;
-      current = current->next,current2 = current2->next,i++) {
+      current = list_next(current),current2 = list_next(current2),i++) {
     assert_int_not_equal(current, current2);
-    assert_string_equal(current->value, current2->value);
+    assert_string_equal(list_value(current), list_value(current2));
   }
 
   queue_foreach(queue, add_prefix, "prev");
-  for(current = queue->begin, i=0;current;current = current->next,i++) {
-    assert_string_equal(current->value, values2[i]);
+  for(current = queue->begin, i=0;current;current = list_next(current),i++) {
+    assert_string_equal(list_value(current), values2[i]);
   }
 
 }

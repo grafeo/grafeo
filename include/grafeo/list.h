@@ -30,13 +30,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <grafeo/type.h>
+#include <grafeo/slist.h>
 /**
   * @brief List structure
   */
 typedef struct _List{
-  void* value;       /**< item value */
-  struct _List* next;/**< next item */
-  struct _List* prev;/**< previous item */
+  SList base;/**< All resources of single linked list (link to next item and value) */
+  struct _List* prev;/**< Link to previous item */
 }List;
 
 /**
@@ -90,6 +90,13 @@ List*    list_prepend_at_index(List* list, uint32_t index, void* value);
  * @return
  */
 List*    list_append_at_index(List* list, uint32_t index, void* value);
+/**
+ * @brief list_prepend_item
+ * @param list
+ * @param new_item
+ * @return
+ */
+List* list_prepend_item(List *list, List *new_item);
 /**
  * @brief list_prepend_item_at
  * @param list
@@ -238,7 +245,7 @@ List*    list_split_at(List* list, uint32_t index);
  * @param item2
  * @return
  */
-List*    list_swap(List* list, List* item1, List* item2);
+List*    list_swap_items(List* list, List* item1, List* item2);
 /**
  * @brief list_swap_at
  * @param list
@@ -246,7 +253,7 @@ List*    list_swap(List* list, List* item1, List* item2);
  * @param index2
  * @return
  */
-List*    list_swap_at(List* list, uint32_t index1, uint32_t index2);
+List*    list_swap_items_at(List* list, uint32_t index1, uint32_t index2);
 /**
  * @brief list_swap_values
  * @param list
@@ -254,7 +261,7 @@ List*    list_swap_at(List* list, uint32_t index1, uint32_t index2);
  * @param item2
  * @return
  */
-List*    list_swap_values(List* list, List* item1, List* item2);
+List*    list_swap(List* list, List* item1, List* item2);
 /**
  * @brief list_swap_values_at
  * @param list
@@ -262,7 +269,7 @@ List*    list_swap_values(List* list, List* item1, List* item2);
  * @param index2
  * @return
  */
-List*    list_swap_values_at(List* list, uint32_t index1, uint32_t index2);
+List*    list_swap_at(List* list, uint32_t index1, uint32_t index2);
 /**
  * @brief list_copy
  * @param list
@@ -355,5 +362,34 @@ List*    list_prepend_sorted(List* list, CompareFunc compare_function, void* val
  * @param user_data
  */
 List*    list_prepend_sorted_with_data(List* list, CompareDataFunc compare_function, void* value, void* user_data);
-
+/**
+ * @brief list_set_next
+ * @param item
+ * @param next
+ */
+void list_set_next(List* item, List* next);
+/**
+ * @brief list_set_prev
+ * @param item
+ * @param prev
+ */
+void list_set_prev(List* item, List* prev);
+/**
+ * @brief list_set_value
+ * @param item
+ * @param value
+ */
+void list_set_value(List* item, void* value);
+/**
+ * @brief list_value
+ * @param item
+ * @return
+ */
+void* list_value(List* item);
+/**
+ * @brief list_new_with_value
+ * @param value
+ * @return
+ */
+List* list_new_with_value(void* value);
 #endif
