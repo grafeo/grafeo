@@ -122,7 +122,7 @@ List* list_prepend_item_at(List* list, List* item, List* item_new){
   list_set_next(item_new,item);
   list_set_prev(item_new,list_prev(item));
   list_set_prev(item, item_new);
-  if(list_prev(item)) list_set_next(list_prev(item_new),item_new);
+  if(list_prev(item_new)) list_set_next(list_prev(item_new),item_new);
   else list = item_new;
   return list;
 }
@@ -347,7 +347,7 @@ List* list_find(List *list, void *value){
 }
 
 List* list_reverse(List *list){
-  List* list2 = NULL, *after, *before;
+  List *after, *before;
   while(list){
     before = list_prev(list);
     after  = list_next(list);

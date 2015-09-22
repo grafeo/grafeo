@@ -347,5 +347,23 @@ uint8_t   slist_is_different(SList* list, SList* list2);
  * @return
  */
 uint8_t   slist_is_equal(SList* list, SList* list2);
-
+/**
+ * @brief slist_value
+ * @param list
+ * @return
+ */
+SList*    slist_value(SList* list);
+/**
+ * @brief slist_set_next
+ * @param list
+ * @param item
+ * @return
+ */
+void    slist_set_next(SList* list, SList* item);
+/**
+ * @brief slist_set_value
+ * @param list
+ * @param value
+ */
+void slist_set_value(SList* list, void* value);
 #endif
