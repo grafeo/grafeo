@@ -52,7 +52,7 @@ void queue_append(Queue* queue, void* value){
   else{
     queue->length++;
     list_append_at(queue->begin, queue->end, value);
-    queue->end=queue->end->next;
+    queue->end=list_next(queue->end);
   }
 }
 // Adicionar antes de um item
@@ -66,7 +66,7 @@ void queue_append_at(Queue* queue, List* item, void* value){
   queue->length++;
   queue->begin = list_append_at(queue->begin, item, value);
   if(queue->length == 1)    queue->end = queue->begin;
-  else if(queue->end->next) queue->end = queue->end->next;
+  else if(list_next(queue->end)) queue->end = list_next(queue->end);
 }
 // Adicionar antes de item especificado pela sua posição
 void queue_prepend_at_index(Queue* queue, uint32_t index, void* value){
@@ -79,22 +79,22 @@ void queue_append_at_index(Queue* queue, uint32_t index, void* value){
   queue->length++;
   queue->begin = list_append_at_index(queue->begin, index, value);
   if(queue->length == 1)    queue->end = queue->begin;
-  else if(queue->end->next) queue->end = queue->end->next;
+  else if(list_next(queue->end)) queue->end = list_next(queue->end);
 }
 // Adicionar um item List no início da fila
 void queue_prepend_item(Queue* queue, List* new_item){
   queue->length++;
   queue->begin->prev = new_item;
-  new_item->next     = queue->begin;
+  list_set_next(new_item, queue->begin);
   new_item->prev     = NULL;
   queue->begin       = new_item;
 }
 // Adicionar um item List no fim da fila
 void queue_append_item(Queue* queue, List* new_item){
   queue->length++;
-  queue->end->next   = new_item;
+  list_set_next(queue->end,new_item);
   new_item->prev     = queue->end;
-  new_item->next     = NULL;
+  list_set_next(new_item,NULL);
   queue->end         = new_item;
 }
 // Adicionar um item List antes de um item
@@ -106,7 +106,7 @@ void queue_prepend_item_at(Queue* queue, List* item, List* new_item){
 void queue_append_item_at(Queue* queue, List* item, List* new_item){
   queue->length++;
   queue->begin = list_append_item_at(queue->begin, item, new_item);
-  if(queue->end->next) queue->end = queue->end->next;
+  if(list_next(queue->end)) queue->end = list_next(queue->end);
 }
 // Adicionar um item List antes de um item especificado pela sua posição
 void queue_prepend_item_at_index(Queue* queue, uint32_t index, List* new_item){
@@ -117,7 +117,7 @@ void queue_prepend_item_at_index(Queue* queue, uint32_t index, List* new_item){
 void queue_append_item_at_index(Queue* queue, uint32_t index, List* new_item){
   queue->length++;
   queue->begin = list_append_item_at_index(queue->begin, index, new_item);
-  if(queue->end->next) queue->end = queue->end->next;
+  if(list_next(queue->end)) queue->end = list_next(queue->end);
 }
 // Get first item
 List* queue_begin(Queue* queue){
@@ -163,17 +163,17 @@ List* queue_at(Queue* queue, uint32_t index){
 }
 // obter o valor do item a partir de sua posição
 void* queue_value_at(Queue* queue, uint32_t index){
-  return queue_at(queue,index)->value;
+  return list_value(queue_at(queue,index));
 }
 // obter o valor do item inicial
 void* queue_begin_value(Queue* queue){
   if(queue_is_empty(queue)) return NULL;
-  return queue->begin->value;
+  return list_value(queue->begin);
 }
 // obter o valor do item final
 void* queue_end_value(Queue* queue){
   if(queue_is_empty(queue)) return NULL;
-  return queue->end->value;
+  return list_value(queue->end);
 }
 // Remover um item em uma fila
 void queue_remove(Queue* queue, void* value){
@@ -186,7 +186,7 @@ void queue_remove(Queue* queue, void* value){
 void* queue_remove_at(Queue* queue, uint32_t index){
   if(queue->length <= index) return NULL;
   List* item = list_at(queue->begin,index);
-  void* value = item->value;
+  void* value = list_value(item);
   if(queue->end == item) queue->end = queue->end->prev;
   queue->begin = list_remove(queue->begin, item);
   queue->length--;
@@ -195,7 +195,7 @@ void* queue_remove_at(Queue* queue, uint32_t index){
 // Remove first element
 void* queue_remove_begin(Queue* queue){
   if(queue_is_empty(queue)) return NULL;
-  void* value = queue->begin->value;
+  void* value = list_value(queue->begin);
   queue->begin = list_remove_begin(queue->begin);
   queue->length--;
   return value;
@@ -203,7 +203,7 @@ void* queue_remove_begin(Queue* queue){
 // Remove last element
 void* queue_remove_end(Queue* queue){
   if(queue_is_empty(queue)) return NULL;
-  void* value = queue->end->value;
+  void* value = list_value(queue->end);
   queue->end   = queue->end->prev;
   queue->begin = list_remove_end(queue->begin);
   queue->length--;
@@ -218,26 +218,26 @@ void queue_append_sorted(Queue* queue, CompareFunc compare_function, void* value
   queue->length++;
   queue->begin = list_append_sorted(queue->begin, compare_function, value);
   if(!queue->end) queue->end = queue->begin;
-  else if(queue->end->next) queue->end = queue->end->next;
+  else if(list_next(queue->end)) queue->end = list_next(queue->end);
 }
 
 void queue_append_sorted_with_data(Queue* queue, CompareDataFunc compare_function, void* value, void* user_data){
   queue->length++;
   queue->begin = list_append_sorted_with_data(queue->begin, compare_function, value, user_data);
   if(!queue->end) queue->end = queue->begin;
-  else if(queue->end->next) queue->end = queue->end->next;
+  else if(list_next(queue->end)) queue->end = list_next(queue->end);
 }
 
 void queue_prepend_sorted(Queue* queue, CompareFunc compare_function, void* value){
   queue->length++;
   queue->begin = list_prepend_sorted(queue->begin, compare_function, value);
   if(!queue->end) queue->end = queue->begin;
-  else if(queue->end->next) queue->end = queue->end->next;
+  else if(list_next(queue->end)) queue->end = list_next(queue->end);
 }
 
 void queue_prepend_sorted_with_data(Queue* queue, CompareDataFunc compare_function, void* value, void* user_data){
   queue->length++;
   queue->begin = list_prepend_sorted_with_data(queue->begin, compare_function, value, user_data);
   if(!queue->end) queue->end = queue->begin;
-  else if(queue->end->next) queue->end = queue->end->next;
+  else if(list_next(queue->end)) queue->end = list_next(queue->end);
 }

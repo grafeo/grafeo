@@ -3,12 +3,12 @@
 SList*    slist_new(){
   SList* item = malloc(sizeof(SList));
   item->next = NULL;
-  item->value = NULL;
+  slist_set_value(item,NULL);
   return item;
 }
 SList*    slist_new_with_value(void* value){
   SList* item = slist_new();
-  item->value = value;
+  slist_set_value(item,value);
   return item;
 }
 
@@ -192,8 +192,8 @@ SList*    slist_split_at(SList* list, uint32_t index){
 
 SList*    slist_swap(SList* list, SList* item1, SList* item2){
   void* tmp    = item1->value;
-  item1->value = item2->value;
-  item2->value = tmp;
+  slist_set_value(item1,item2->value);
+  slist_set_value(item2,tmp);
   return list;
 }
 
@@ -349,4 +349,14 @@ uint8_t   slist_is_equal(SList* list, SList* list2){
 SList*    slist_item_of(SList* list, void* value){
   while(list && list->value != value) list=list->next;
   return list;
+}
+
+void slist_set_value(SList* list, void* value){
+  list->value = value;
+}
+SList* slist_value(SList* list){
+  return list->value;
+}
+void slist_set_next(SList* list, SList* item){
+  list->next = item;
 }
