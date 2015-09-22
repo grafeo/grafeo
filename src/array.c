@@ -135,6 +135,10 @@ Array*    array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint
     sizes[3]            = size4;
     return array_new_with_size_type(4, sizes, type);
 }
+Array*    array_new_like(Array* array){
+  return array_new_with_size_type(array->dim, array->size, array->type);
+}
+
 Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
     Array* array = array_new_with_size_type(dim, sizes, type);
     memset(array->data, 0, array->num_bytes);
@@ -408,20 +412,168 @@ Array* array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation o
   return reduced;
 }
 
-void array_divide_scalar(Array *array, double value){
+Array* array_sum_scalar(Array *array, double value){
+  Array* new_array = array_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
-      case GRAFEO_UINT8: array->data_uint8[i] /= value; break;
-      case GRAFEO_UINT16: array->data_uint16[i] /= value; break;
-      case GRAFEO_UINT32: array->data_uint32[i] /= value; break;
-      case GRAFEO_UINT64: array->data_uint64[i] /= value; break;
-      case GRAFEO_INT8: array->data_int8[i] /= value; break;
-      case GRAFEO_INT16: array->data_int16[i] /= value; break;
-      case GRAFEO_INT32: array->data_int32[i] /= value; break;
-      case GRAFEO_INT64: array->data_int64[i] /= value; break;
-      case GRAFEO_FLOAT: array->data_float[i] /= value; break;
-      case GRAFEO_DOUBLE: array->data_double[i] /= value; break;
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  + value; break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] + value; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] + value; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] + value; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   + value; break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  + value; break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  + value; break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  + value; break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  + value; break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] + value; break;
     }
   }
+  return new_array;
+}
+Array* array_subtract_scalar(Array *array, double value){
+  Array* new_array = array_new_like(array);
+  uint64_t i;
+  for(i = 0; i < array->num_elements; i++){
+    switch(array->type){
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  - value; break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] - value; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] - value; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] - value; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   - value; break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  - value; break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  - value; break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  - value; break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  - value; break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] - value; break;
+    }
+  }
+  return new_array;
+}
+Array* array_mult_scalar(Array *array, double value){
+  Array* new_array = array_new_like(array);
+  uint64_t i;
+  for(i = 0; i < array->num_elements; i++){
+    switch(array->type){
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  * value; break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] * value; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] * value; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] * value; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   * value; break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  * value; break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  * value; break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  * value; break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  * value; break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] * value; break;
+    }
+  }
+  return new_array;
+}
+Array* array_divide_scalar(Array *array, double value){
+  Array* new_array = array_new_like(array);
+  uint64_t i;
+  for(i = 0; i < array->num_elements; i++){
+    switch(array->type){
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  / value; break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] / value; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] / value; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] / value; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   / value; break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  / value; break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  / value; break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  / value; break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  / value; break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] / value; break;
+    }
+  }
+  return new_array;
+}
+
+Array* array_sum(Array *array1, Array *array2){
+  return array_sum_to(array1, array2, NULL);
+}
+Array* array_subtract(Array *array1, Array *array2){
+  return array_subtract_to(array1, array2, NULL);
+}
+Array* array_mult(Array *array1, Array *array2){
+  return array_mult_to(array1, array2, NULL);
+}
+Array* array_divide(Array *array1, Array *array2){
+  return array_divide_to(array1, array2, NULL);
+}
+Array* array_sum_to(Array* array1, Array* array2, Array* new_array){
+  if(!new_array) new_array = array_new_like(array1);
+  uint64_t i;
+  for(i = 0; i < new_array->num_elements; i++){
+    switch(new_array->type){
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  + array2->data_uint8[i];  break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] + array2->data_uint16[i]; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] + array2->data_uint32[i]; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] + array2->data_uint64[i]; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   + array2->data_int8[i];   break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  + array2->data_int16[i];  break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  + array2->data_int32[i];  break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  + array2->data_int64[i];  break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  + array2->data_float[i];  break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] + array2->data_double[i]; break;
+    }
+  }
+  return new_array;
+}
+Array* array_subtract_to(Array* array1, Array* array2, Array* new_array){
+  if(!new_array) new_array = array_new_like(array1);
+  uint64_t i;
+  for(i = 0; i < new_array->num_elements; i++){
+    switch(new_array->type){
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  - array2->data_uint8[i];  break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] - array2->data_uint16[i]; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] - array2->data_uint32[i]; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] - array2->data_uint64[i]; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   - array2->data_int8[i];   break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  - array2->data_int16[i];  break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  - array2->data_int32[i];  break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  - array2->data_int64[i];  break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  - array2->data_float[i];  break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] - array2->data_double[i]; break;
+    }
+  }
+  return new_array;
+}
+Array* array_mult_to(Array* array1, Array* array2, Array* new_array){
+  if(!new_array) new_array = array_new_like(array1);
+  uint64_t i;
+  for(i = 0; i < new_array->num_elements; i++){
+    switch(new_array->type){
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  * array2->data_uint8[i];  break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] * array2->data_uint16[i]; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] * array2->data_uint32[i]; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] * array2->data_uint64[i]; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   * array2->data_int8[i];   break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  * array2->data_int16[i];  break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  * array2->data_int32[i];  break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  * array2->data_int64[i];  break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  * array2->data_float[i];  break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] * array2->data_double[i]; break;
+    }
+  }
+  return new_array;
+}
+Array* array_divide_to(Array* array1, Array* array2, Array* new_array){
+  if(!new_array) new_array = array_new_like(array1);
+  uint64_t i;
+  for(i = 0; i < new_array->num_elements; i++){
+    switch(new_array->type){
+      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  / array2->data_uint8[i];  break;
+      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] / array2->data_uint16[i]; break;
+      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] / array2->data_uint32[i]; break;
+      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] / array2->data_uint64[i]; break;
+      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   / array2->data_int8[i];   break;
+      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  / array2->data_int16[i];  break;
+      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  / array2->data_int32[i];  break;
+      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  / array2->data_int64[i];  break;
+      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  / array2->data_float[i];  break;
+      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] / array2->data_double[i]; break;
+    }
+  }
+  return new_array;
 }

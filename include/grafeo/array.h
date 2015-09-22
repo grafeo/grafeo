@@ -135,6 +135,12 @@ Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, Data
  */
 Array*    array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type);
 /**
+ * @brief Create a new array with same type and size as input array
+ * @param array
+ * @return
+ */
+Array*    array_new_like(Array* array);
+/**
  * @brief Create a new array filled with zeros (each elem has type `type`)
  * 
  * @param dim ...
@@ -187,33 +193,90 @@ void      array_fill_min(Array* array);
  */
 void      array_free(Array* array);
 /**
- * @brief array_divide_scalar
- * @param array
- * @param value
- */
-void      array_divide_scalar(Array* array, double value);
-/**
- * @brief array_mult_scalar
- * @param array
- * @param value
- */
-void      array_mult_scalar(Array* array, double value);
-/**
  * @brief array_sum_scalar
  * @param array
  * @param value
  */
-void      array_sum_scalar(Array* array, double value);
+Array*    array_sum_scalar(Array* array, double value);
 /**
  * @brief array_subtract_scalar
  * @param array
  * @param value
  */
-void      array_subtract_scalar(Array* array, double value);
+Array*    array_subtract_scalar(Array* array, double value);
+/**
+ * @brief array_mult_scalar
+ * @param array
+ * @param value
+ */
+Array*    array_mult_scalar(Array* array, double value);
+/**
+ * @brief array_divide_scalar
+ * @param array
+ * @param value
+ */
+Array*    array_divide_scalar(Array* array, double value);
+/**
+ * @brief array_sum
+ * @param array1
+ * @param array2
+ * @return
+ */
 Array*    array_sum(Array* array1, Array* array2);
+/**
+ * @brief array_subtract
+ * @param array1
+ * @param array2
+ * @return
+ */
 Array*    array_subtract(Array* array1, Array* array2);
+/**
+ * @brief array_mult
+ * @param array1
+ * @param array2
+ * @return
+ */
 Array*    array_mult(Array* array1, Array* array2);
+/**
+ * @brief array_divide
+ * @param array1
+ * @param array2
+ * @return
+ */
 Array*    array_divide(Array* array1, Array* array2);
+/**
+ * @brief array_sum_to
+ * @param array1
+ * @param array2
+ * @param new_array
+ * @return
+ */
+Array*    array_sum_to(Array* array1, Array* array2, Array* new_array);
+/**
+ * @brief array_subtract_to
+ * @param array1
+ * @param array2
+ * @param new_array
+ * @return
+ */
+Array*    array_subtract_to(Array* array1, Array* array2, Array* new_array);
+/**
+ * @brief array_mult_to
+ * @param array1
+ * @param array2
+ * @param new_array
+ * @return
+ */
+Array*    array_mult_to(Array* array1, Array* array2, Array* new_array);
+/**
+ * @brief array_divide_to
+ * @param array1
+ * @param array2
+ * @param new_array
+ * @return
+ */
+Array*    array_divide_to(Array* array1, Array* array2, Array* new_array);
+
 /*-----------------------------------
  *   ARRAY ACCESSOR FUNCTIONS
  *-----------------------------------*/
