@@ -440,6 +440,64 @@ static void test_array_reduce(void** state){
     array_free(result);
 }
 
+static void test_array_ops(){
+  uint64_t i;
+  Array* array = array_new_2D(5,4);
+  Array* array2= array_new_2D(5,4);
+
+  array_fill(array, 5);
+  array_fill(array2, 7);
+
+  // Adding two arrays to a new one
+  Array* result = array_sum(array, array2);
+  for(i = 0; i < result->num_elements; i++)
+    assert_int_equal(result->data_uint8[i],12);
+
+  // Adding a scalar inside an array
+  Array* result1 = array_sum_scalar(array, 7);
+  for(i = 0; i < result1->num_elements; i++)
+    assert_int_equal(result1->data_uint8[i],12);
+
+  // Subtracting two arrays
+  Array* result2 = array_subtract(result, array2);
+  for(i = 0; i < result2->num_elements; i++)
+    assert_int_equal(result2->data_uint8[i],5);
+
+  // Subtracting a scalar from an array
+  Array* result3 = array_subtract_scalar(result, 7);
+  for(i = 0; i < result3->num_elements; i++)
+    assert_int_equal(result3->data_uint8[i],5);
+
+  // Multiply
+  Array* result4 = array_mult(array, array2);
+  for(i = 0; i < result4->num_elements; i++)
+    assert_int_equal(result4->data_uint8[i],35);
+
+  // Multiply by a scalar
+  Array* result5 = array_mult_scalar(array, 7);
+  for(i = 0; i < result5->num_elements; i++)
+    assert_int_equal(result5->data_uint8[i],35);
+
+  // Divide
+  Array* result6 = array_divide(result5, array2);
+  for(i = 0; i < result6->num_elements; i++)
+    assert_int_equal(result6->data_uint8[i],5);
+
+  // Divide by a scalar
+  Array* result7 = array_divide_scalar(result5, 7);
+  for(i = 0; i < result7->num_elements; i++)
+    assert_int_equal(result7->data_uint8[i],5);
+
+  array_free(result);
+  array_free(result1);
+  array_free(result2);
+  array_free(result3);
+  array_free(result4);
+  array_free(result5);
+  array_free(result6);
+  array_free(result7);
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
@@ -456,7 +514,8 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_zeros),
     cmocka_unit_test(test_array_ones),
     cmocka_unit_test(test_array_sub),
-    cmocka_unit_test(test_array_reduce)
+    cmocka_unit_test(test_array_reduce),
+    cmocka_unit_test(test_array_ops),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
