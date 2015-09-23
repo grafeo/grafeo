@@ -111,23 +111,32 @@ static void test_pqueue_adding_removing(void ** state){
   // Removing the first value of the first bucket
   // It doesn't automatically remove the empty bucket
   pqueue_remove_begin(pqueue);
-  helper_pqueue_elements(pqueue, {3,7,9}, {{},{5},{6}}, 3, {0,1,1});
+  uint8_t  bucketslists71[0]  = {};
+  uint8_t  bucketslists72[1]  = {5};
+  uint8_t* bucketslists7[2]   = {bucketslists71,bucketslists72,bucketslists43};
+  uint8_t  bucketslengths7[2] = {0,1,1};
+  helper_pqueue_elements(pqueue, buckets4, bucketslists7, 3, bucketslengths7);
 
   // Adding a value in the empty bucket
   pqueue_prepend(pqueue, IP(3), IP(10));
-  helper_pqueue_elements(pqueue, {3,7,9}, {{10},{5},{6}}, 3, {1,1,1});
+  uint8_t  bucketslists81[0]  = {10};
+  uint8_t* bucketslists8[3]   = {bucketslists81,bucketslists72,bucketslists43};
+  helper_pqueue_elements(pqueue, buckets4, bucketslists8, 3, bucketslengths6);
 
   // Adding another value in the empty bucket
   pqueue_prepend(pqueue, IP(3), IP(11));
-  helper_pqueue_elements(pqueue, {3,7,9}, {{11,10},{5},{6}}, 3, {2,1,1});
+  uint8_t  bucketslists91[2]  = {11,10};
+  uint8_t* bucketslists9[3]   = {bucketslists91,bucketslists72,bucketslists43};
+  uint8_t  bucketslengths9[2] = {2,1,1};
+  helper_pqueue_elements(pqueue, buckets4, bucketslists9, 3, bucketslengths9);
 
   // Removing the last value of the first bucket
   pqueue_remove_end(pqueue);
-  helper_pqueue_elements(pqueue, {3,7,9}, {{11},{5},{6}}, 3, {1,1,1});
+  helper_pqueue_elements(pqueue, buckets4, {{11},{5},{6}}, 3, {1,1,1});
 
   // Removing the last value of the first bucket
   pqueue_remove_end(pqueue);
-  helper_pqueue_elements(pqueue, {3,7,9}, {{},{5},{6}}, 3, {0,1,1});
+  helper_pqueue_elements(pqueue, buckets4, {{},{5},{6}}, 3, {0,1,1});
 
   // Shrink Queue (removing first bucket if it's empty)
   pqueue_shrink(pqueue);
