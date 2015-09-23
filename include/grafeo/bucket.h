@@ -25,38 +25,53 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_PQUEUE_H
-#define GRAFEO_PQUEUE_H
-
-#include <grafeo/bucket.h>
+#ifndef GRAFEO_BUCKET_H
+#define GRAFEO_BUCKET_H
 #include <grafeo/queue.h>
-
 /**
- * @brief pqueue_append
- * @param pqueue
+ * @brief Bucket structure, just a queue with an additional attribute which
+ * is the same for every item
+ *
+ * You can put additional attributes just by extending Bucket, or inserting
+ * a struct of attributes in the `value` variable.
+ */
+typedef struct _Bucket{
+  Queue* queue; /**< Queue of elements in the bucket */
+  void*  value; /**< Unique attribute of the queue */
+}Bucket;
+/**
+ * @brief bucket_new
+ * @return
+ */
+Bucket* bucket_new();
+/**
+ * @brief bucket_queue
+ * @param bucket
+ * @return
+ */
+Queue*  bucket_queue(Bucket* bucket);
+/**
+ * @brief bucket_value
+ * @param bucket
+ * @return
+ */
+void*   bucket_value(Bucket* bucket);
+/**
+ * @brief bucket_set_queue
+ * @param bucket
+ * @param queue
+ */
+void    bucket_set_queue(Bucket* bucket,Queue* queue);
+/**
+ * @brief bucket_set_value
  * @param bucket
  * @param value
  */
-void  pqueue_append(Queue* pqueue, void* bucket, void* value);
+void    bucket_set_value(Bucket* bucket, void* value);
 /**
- * @brief pqueue_bucket_remove_begin
- * @param pqueue
+ * @brief bucket_free
  * @param bucket
- * @return
  */
-void* pqueue_bucket_remove_begin(Queue* pqueue,  void* bucket);
-/**
- * @brief pqueue_bucket_remove_end
- * @param pqueue
- * @param bucket
- * @return
- */
-void* pqueue_bucket_remove_end(Queue* pqueue,    void* bucket);
-/**
- * @brief pqueue_bucket_is_empty
- * @param pqueue
- * @param bucket
- * @return
- */
-uint8_t pqueue_bucket_is_empty(Queue* pqueue,    void* bucket);
+void    bucket_free(Bucket* bucket);
+
 #endif

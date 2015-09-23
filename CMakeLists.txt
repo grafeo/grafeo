@@ -104,11 +104,9 @@ endif(BUILD_TESTING)
 #============================================================ LIBRARY
 include_directories(include)
 set(GRAFEO_HDR
-<<<<<<< HEAD
     include/grafeo/pqueue.h
-=======
+    include/grafeo/bucket.h
     include/grafeo/slist.h
->>>>>>> develop
     include/grafeo/list.h
     include/grafeo/type.h
     include/grafeo/array.h
@@ -117,11 +115,9 @@ set(GRAFEO_HDR
     include/grafeo/image.h
 )
 set(GRAFEO_SRC
-<<<<<<< HEAD
  src/pqueue.c
-=======
+ src/bucket.c
  src/slist.c
->>>>>>> develop
  src/array.c
  src/list.c
  src/queue.c
