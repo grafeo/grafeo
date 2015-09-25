@@ -31,13 +31,18 @@
 #include <grafeo/bucket.h>
 #include <grafeo/queue.h>
 
-/**
- * @brief pqueue_append
- * @param pqueue
- * @param bucket
- * @param value
- */
-void  pqueue_append(Queue* pqueue, void* bucket, void* value);
+void  pqueue_append_at(Queue* pqueue, void* bucket, void* value);
+void  pqueue_prepend_at(Queue* pqueue, void* bucket, void* value);
+void  pqueue_prepend(Queue* pqueue, void* value);
+void  pqueue_append(Queue* pqueue, void* value);
+void  pqueue_remove_begin_at(Queue* pqueue, void* bucket);
+void  pqueue_remove_end_at  (Queue* pqueue, void* bucket);
+void  pqueue_remove_begin(Queue* pqueue);
+void  pqueue_remove_end(Queue* pqueue);
+void  pqueue_shrink(Queue* pqueue);
+void* pqueue_at(Queue* pqueue, uint32_t bucket_index);
+void* pqueue_bucket_at(Queue* pqueue, uint32_t bucket_index, uint32_t index);
+
 /**
  * @brief pqueue_bucket_remove_begin
  * @param pqueue
@@ -59,4 +64,5 @@ void* pqueue_bucket_remove_end(Queue* pqueue,    void* bucket);
  * @return
  */
 uint8_t pqueue_bucket_is_empty(Queue* pqueue,    void* bucket);
+
 #endif
