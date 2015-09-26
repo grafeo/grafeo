@@ -27,6 +27,10 @@
 # ===================================================================*/
 #include <grafeo/bucket.h>
 
+Bucket* bucket_new(){
+  return malloc(sizeof(Bucket));
+}
+
 Queue* bucket_queue(Bucket *bucket){
   return bucket->queue;
 }
