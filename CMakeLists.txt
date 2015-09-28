@@ -105,6 +105,9 @@ endif(BUILD_TESTING)
 include_directories(include)
 set(GRAFEO_HDR
     include/grafeo/ift.h
+    include/grafeo/pqueue.h
+    include/grafeo/bucket.h
+    include/grafeo/slist.h
     include/grafeo/list.h
     include/grafeo/type.h
     include/grafeo/array.h
@@ -113,7 +116,13 @@ set(GRAFEO_HDR
     include/grafeo/image.h
 )
 set(GRAFEO_SRC
+<<<<<<< HEAD
  src/ift.c
+=======
+ src/pqueue.c
+ src/bucket.c
+ src/slist.c
+>>>>>>> develop
  src/array.c
  src/list.c
  src/queue.c
@@ -186,7 +195,14 @@ if(BUILD_TESTING)
     add_definitions(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
-    list(APPEND TESTS_NAMES array image list ift)
+    list(APPEND TESTS_NAMES
+      array
+      image
+      list
+      slist
+      queue
+      pqueue
+    )
     include (CTest)
     foreach(testname ${TESTS_NAMES})
         if(NOT CMOCKA_FOUND)
@@ -200,8 +216,6 @@ if(BUILD_TESTING)
             add_executable       (test_${testname} tests/test_${testname}.c)
             target_link_libraries(test_${testname} grafeo cmocka png jpeg m)
         endif(NOT CMOCKA_FOUND)
-        #if(${testname} STREQUAL "image" OR ${testname} STREQUAL "array" )
         add_test             (test_${testname}       test_${testname})
-        #endif()
     endforeach()    
 endif(BUILD_TESTING)

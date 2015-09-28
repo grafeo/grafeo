@@ -84,8 +84,9 @@ typedef enum _Adjacency{
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
-typedef int8_t (*CompareFunc) (void* data1, void* data2);
+typedef int8_t (*CompareFunc)    (void* data1, void* data2);
 typedef int8_t (*CompareDataFunc)(void* data1, void* data2, void* user_data);
+typedef void (*DataFunc)       (void* data1, void* user_data);
 
 #define INT8_TO_POINTER(i)   ((void*)(int64_t)(i))
 #define INT16_TO_POINTER(i)  ((void*)(int64_t)(i))
