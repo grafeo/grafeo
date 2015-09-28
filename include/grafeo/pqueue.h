@@ -31,38 +31,61 @@
 #include <grafeo/bucket.h>
 #include <grafeo/queue.h>
 
+/**
+ * @brief Append a value in a bucket list.
+ * @param pqueue The priority queue
+ * @param bucket The bucket key
+ * @param value The value to be inserted in a bucket list
+ */
 void  pqueue_append_at(Queue* pqueue, void* bucket, void* value);
+/**
+ * @brief Prepend a value in a bucket list.
+ * @param pqueue The priority queue
+ * @param bucket The bucket key
+ * @param value The value to be inserted in a bucket list
+ */
 void  pqueue_prepend_at(Queue* pqueue, void* bucket, void* value);
-void  pqueue_prepend(Queue* pqueue, void* value);
-void  pqueue_append(Queue* pqueue, void* value);
+/**
+ * @brief Remove the first item of the bucket list
+ * @param pqueue
+ * @param bucket
+ */
 void  pqueue_remove_begin_at(Queue* pqueue, void* bucket);
+/**
+ * @brief Remove the last item of the bucket list
+ * @param pqueue The priority queue
+ * @param bucket the bucket key
+ */
 void  pqueue_remove_end_at  (Queue* pqueue, void* bucket);
+/**
+ * @brief Remove the first item of the current bucket
+ * @param pqueue The priority queue
+ */
 void  pqueue_remove_begin(Queue* pqueue);
+/**
+ * @brief Remove the last item of the current
+ * @param pqueue The priority queue
+ */
 void  pqueue_remove_end(Queue* pqueue);
+/**
+ * @brief Remove current bucket if it's empty
+ * @param pqueue The priority queue
+ */
 void  pqueue_shrink(Queue* pqueue);
+/**
+ * @brief Get key of nth bucket (n = bucket_index+1)
+ * @param pqueue
+ * @param bucket_index
+ * @return
+ */
 void* pqueue_at(Queue* pqueue, uint32_t bucket_index);
+/**
+ * @brief Get ith value of nth bucket (n = bucket_index+1 | i = index+1)
+ * @param pqueue The priority queue
+ * @param bucket_index the position of the bucket in the priority queue
+ * @param index The position of the value in the bucket list
+ * @return value
+ */
 void* pqueue_bucket_at(Queue* pqueue, uint32_t bucket_index, uint32_t index);
-
-/**
- * @brief pqueue_bucket_remove_begin
- * @param pqueue
- * @param bucket
- * @return
- */
-void* pqueue_bucket_remove_begin(Queue* pqueue,  void* bucket);
-/**
- * @brief pqueue_bucket_remove_end
- * @param pqueue
- * @param bucket
- * @return
- */
-void* pqueue_bucket_remove_end(Queue* pqueue,    void* bucket);
-/**
- * @brief pqueue_bucket_is_empty
- * @param pqueue
- * @param bucket
- * @return
- */
-uint8_t pqueue_bucket_is_empty(Queue* pqueue,    void* bucket);
 
 #endif
