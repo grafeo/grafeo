@@ -10,10 +10,11 @@ IFT* ift_new_from_array(Array* array){
   ift->predecessors = array_zeros_like(array);
   ift->connectivity = array_zeros_like(array);
   ift->root         = array_zeros_like(array);
+  ift->original     = array;
   return ift;
 }
 
-IFT*   ift_apply_array(Array* array, Adjacency adjacency, double (*weight_function)(Array* array, uint64_t index1, uint64_t index2), double (*path_connectivity)(double connectivity_value, double weight_value)){
+IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimization_type, WeightFunc weight_function, PathConnectivityFunc path_connectivity){
   // IFT structure
   IFT* ift          = ift_new_from_array(array);
 
@@ -21,46 +22,80 @@ IFT*   ift_apply_array(Array* array, Adjacency adjacency, double (*weight_functi
   Array* visited    = array_zeros_like(array);
   Queue* queue      = queue_new();
 
-  // Define seeds
-  queue_insert();
+  // Initialize maps
+  if(optimization_type == GRAFEO_IFT_MIN){
+    array_fill_max(ift->connectivity);
+    // update seed connectivity
 
-  //
-  neighbors_relative[8][] = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{-1,1},{1,-1},{1,1}};
+  }else if(optimization_type == GRAFEO_IFT_MAX){
+    array_fill_min(ift->connectivity);
+    // update seed connectivity
 
-  uint64_t i;
-  int64_t neighbor_index;
+  }
+
+  // Standard neighbors
+  int32_t neighbors_relative[8][2] = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{-1,1},{1,-1},{1,1}};
+
   // Process all nodes
-  while(!queue_is_empty(queue)){
-    // get node with minimum connectivity value
-    uint64_t index = queue_push_head(0);
+  uint64_t index, neighbor_index; // indices for nodes s and t
+  uint8_t  i,num_neighbors;       // for iterating neighbors
+  int64_t  connectivity;            // connectivity for extended path <r...s,t>
 
-    // set visible (to not process this node again)
+  if     (adjacency == GRAFEO_NEIGHBOR_4) num_neighbors = 4;
+  else if(adjacency == GRAFEO_NEIGHBOR_8) num_neighbors = 8;
+
+  while(!queue_is_empty(queue)){
+
+    // Get node of minimum connectivity value (remove it from queue)
+    index = POINTER_TO_UINT64(pqueue_bucket_at(queue,0,0));
+    pqueue_remove_begin(queue);
+
+    // Do not process this node again
     array_set_value(visited, index, 1);
 
     // Process all neighbors
-    for(i = 0; i < neighbors_relative[8];i++){
-      neighbor_index = (int64_t)index + array_get_index_1D(array,neighbors_relative[i]);
+    for(i = 0; i < num_neighbors; i++){
 
-      // if index inside limits of array and not visited
-      if(array_is_in_bound(visited, neighbor_index) && !(uint8_t)array_get_element(visited, neighbor_index)){
-        connectivity = path_connectivity(array_get_element(array, index), weight_function(array, index, neighbor_index));
+      // Calculate neighbor index
+      neighbor_index = (int64_t)index + array_index_1D(array,neighbors_relative[i]);
 
-        // If calculated connectivity is better than current one
-        if(connectivity < array_get_element(ift->connectivity, neighbor_index)){
+      // Verify if it's valid (inside array region)
+      if(array_index_1D_is_valid(visited, neighbor_index)){
 
-          // Update it (remove if from queue if it's a seed)
-          if(array_get_element(ift->connectivity, neighbor_index) == INT64_MAX)
-            queue_remove(queue,neighbor_index);
-          // Update predecessors, connectivity and labels
-          array_set_element(ift->predecessors, neighbor_index, index);
-          array_set_element(ift->connectivity, neighbor_index, connectivity);
-          array_set_element(ift->label, neighbor_index, array_get_element(ift->label, index));
-          // (re)insert unvisited neighbors
-          queue_insert(queue, neighbor_index);
+        // If it's not visited
+        uint32_t* neighbor_index_nd = (uint32_t*) array_index(array,neighbor_index);
+        uint8_t*  element           = (uint8_t*)  array_get_element(visited, neighbor_index_nd);
+        if(!*element){
+          // Calculate connectivity of extended path
+          connectivity = path_connectivity(ift, index, neighbor_index, weight_function);
+
+          // Compare with the current connectivity
+          int64_t* old_connectivity = (int64_t*)array_get_element(ift->connectivity, neighbor_index_nd);
+          if(connectivity < *old_connectivity){
+
+            // remove if from queue if it's a seed
+            if(optimization_type == GRAFEO_IFT_MIN && *old_connectivity == INT64_MAX ||
+               optimization_type == GRAFEO_IFT_MAX && *old_connectivity == 0)
+              pqueue_remove(queue,neighbor_index);
+
+            // Update predecessors, connectivity, labels and roots
+            array_set_element(ift->predecessors, neighbor_index, index);
+            array_set_element(ift->connectivity, neighbor_index, connectivity);
+            array_set_element(ift->label,        neighbor_index, array_get_element(ift->label, index));
+            array_set_element(ift->root,         neighbor_index, array_get_element(ift->root,  index));
+
+            // (re)insert unvisited neighbors
+            queue_insert(queue, neighbor_index);
+          }
         }
       }
     }
   }
+
+  array_free(visited);
+  queue_free(queue);
+
+  return ift;
 }
 
 Array* ift_get_label(IFT *ift){
@@ -105,20 +140,20 @@ void ift_set_root(IFT* ift, Array* root){
 
 
 
-void   path_connectivity_sum(){
-
+double path_connectivity_sum(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return 0;
 }
 
-void   path_connectivity_max(){
-
+double path_connectivity_max(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return 0;
 }
 
-void   path_connectivity_min(){
-
+double path_connectivity_min(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return 0;
 }
 
-void   path_connectivity_euc(){
-
+double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return 0;
 }
 
 void   ift_free(IFT* ift){

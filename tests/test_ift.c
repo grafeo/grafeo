@@ -36,6 +36,19 @@
 #include <grafeo/ift.h>
 #include <math.h>
 
+static void assert_array_equal(Array* array1, Array* array2){
+  uint64_t i;
+  assert_int_equal(array1->dim,          array2->dim);
+  assert_int_equal(array1->type,         array2->type);
+  assert_int_equal(array1->num_bytes,    array2->num_bytes);
+  assert_int_equal(array1->num_elements, array2->num_elements);
+  for(i = 0; i < array1->dim; i++)
+    assert_int_equal(array1->size[i],      array2->size[i]);
+  for(i = 0; i < array1->num_elements; i++)
+    assert_int_equal(array1->data_uint8[i], array2->data_uint8[i]);
+
+}
+
 static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
   switch (array->type){
     case GRAFEO_UINT8:  return fabs((double) array->data_uint8[index1]  - (double) array->data_uint8[index2]);break;
@@ -52,27 +65,38 @@ static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
   return 0;
 }
 
-static void helper_test_ift(const char* imagepath, const char* correctpath, double path_connectivity(double connectivity_value, double weight_value)){
+static void helper_test_ift(const char* imagepath, const char* correctpath, PathConnectivityFunc path_connectivity){
   // Load an image, its labels, connectivity and root maps
   // 8x8 image
-  uint8_t data[4]                = {000,000,    255,255};
-  uint8_t correct_predecessor[4] = {000,000,    003,003};
-  uint8_t correct_label[4]       = {000,000,    001,001};
-  uint8_t correct_connectivity[4]= {000,000,    000,000};
-  uint8_t correct_root[4]        = {000,000,    003,003};
+  uint8_t data[4]        = {000,000,    255,255};
+  uint8_t predecessor[4] = {000,000,    003,003};
+  uint8_t label[4]       = {000,000,    001,001};
+  uint8_t connectivity[4]= {000,000,    000,000};
+  uint8_t root[4]        = {000,000,    003,003};
 
   // Generate the image
   uint32_t size[3] = {2,2};
-  Array* image = array_from_data(data, 2, size);
+  Array* image                = array_from_data(data,         2, size, GRAFEO_UINT8);
+  Array* correct_predecessor  = array_from_data(predecessor,  2, size, GRAFEO_UINT8);
+  Array* correct_label        = array_from_data(label,        2, size, GRAFEO_UINT8);
+  Array* correct_connectivity = array_from_data(connectivity, 2, size, GRAFEO_UINT8);
+  Array* correct_root         = array_from_data(root,         2, size, GRAFEO_UINT8);
 
   // Run standard IFT
-  IFT*     ift     = ift_apply_array(image, GRAFEO_NEIGHBOR_4, weight_diff, path_connectivity);
+  IFT*     ift     = ift_apply_array(image, GRAFEO_NEIGHBOR_4, GRAFEO_IFT_MIN, weight_diff, path_connectivity);
+
+  assert_non_null(ift);
+  assert_non_null(ift->connectivity);
+  assert_non_null(ift->label);
+  assert_non_null(ift->original);
+  assert_non_null(ift->predecessors);
+  assert_non_null(ift->root);
 
   // Check Values
   assert_array_equal(ift_get_label(ift)       , correct_label);
   assert_array_equal(ift_get_root(ift)        , correct_root);
   assert_array_equal(ift_get_connectivity(ift), correct_connectivity);
-  assert_array_equal(ift_get_predecessor(ift) , correct_predecessor);
+  assert_array_equal(ift_get_predecessors(ift) , correct_predecessor);
 
   ift_free(ift);
   array_free(image);

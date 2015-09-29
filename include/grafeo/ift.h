@@ -28,7 +28,7 @@
 #ifndef IFT_ARRAY_H
 #define IFT_ARRAY_H
 #include <grafeo/array.h>
-#include <grafeo/queue.h>
+#include <grafeo/pqueue.h>
 /**
   * @brief Structure for managing IFT data
   */
@@ -39,6 +39,37 @@ typedef struct _IFT{
   Array* connectivity;
   Array* root;
 }IFT;
+
+/**
+  * @brief Optimization type for IFT: Minimization (Primal) or Maximization (Dual)
+  */
+typedef enum _IFTOptimization{
+  GRAFEO_IFT_MIN,
+  GRAFEO_IFT_MAX
+} IFTOptimization;
+
+/**
+ * Function to calculate weights between elements of an array.
+ * Probably general graphs won't be using this function, because they will have
+ * edges instances with weight values.
+ */
+typedef double
+(*WeightFunc)(Array* array, uint64_t index1, uint64_t index2);
+
+/**
+ * @brief Path connectivity (just the non-trivial cases).
+ *
+ * The trivial cases should be addressed at initialization routines. This doesn't modify
+ * the IFT structure. For euclidian connectivity, you can use the ift->root map to get `r`.
+ *
+ * @param ift             data structure for IFT to be used for calculating connectivity
+ * @param index_s         the end of current path  <r...s>
+ * @param index_t         the end of extended path <r...s,t>
+ * @param weight_function some path connectivity functions use the weights of edges (s,t)
+ */
+typedef double
+(*PathConnectivityFunc)(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+
 /* ====================== *
  *    IFT ALGORITHMS
  * ====================== */
@@ -47,11 +78,24 @@ typedef struct _IFT{
  * @return the instance
  */
 IFT*   ift_new();
-IFT*   ift_apply_array(Array* array, Adjacency adjacency, double (*weight_function)(Array* array, uint64_t index1, uint64_t index2),double (*path_connectivity)(double connectivity_value, double weight_value));
-void   path_connectivity_sum();
-void   path_connectivity_max();
-void   path_connectivity_min();
-void   path_connectivity_euc();
+/**
+ * @brief Run IFT in an array
+ * @param array
+ * @param adjacency
+ * @param optimization_type
+ * @param weight_function
+ * @param path_connectivity
+ * @return
+ */
+IFT*   ift_apply_array(Array* array, 
+                       Adjacency adjacency,
+                       IFTOptimization optimization_type,
+                       WeightFunc weight_function,
+                       PathConnectivityFunc path_connectivity);
+double path_connectivity_sum(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+double path_connectivity_max(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+double path_connectivity_min(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
 void   ift_free(IFT* ift);
 
 /* ====================== *
