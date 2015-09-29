@@ -42,6 +42,11 @@ typedef struct _IFT{
 /* ====================== *
  *    IFT ALGORITHMS
  * ====================== */
+/**
+ * @brief Allocates a new IFT structure instance
+ * @return the instance
+ */
+IFT*   ift_new();
 IFT*   ift_apply_array(Array* array, Adjacency adjacency, double (*weight_function)(Array* array, uint64_t index1, uint64_t index2),double (*path_connectivity)(double connectivity_value, double weight_value));
 void   path_connectivity_sum();
 void   path_connectivity_max();
@@ -57,30 +62,60 @@ void   ift_free(IFT* ift);
  * @param ift
  * @return
  */
-Array* ift_get_label(ift);
+Array* ift_get_label(IFT* ift);
 /**
  * @brief ift_get_predecessors
  * @param ift
  * @return
  */
-Array* ift_get_predecessors(ift);
+Array* ift_get_predecessors(IFT* ift);
 /**
  * @brief ift_get_connectivity
  * @param ift
  * @return
  */
-Array* ift_get_connectivity(ift);
+Array* ift_get_connectivity(IFT* ift);
 /**
  * @brief ift_get_root
  * @param ift
  * @return
  */
-Array* ift_get_root(ift);
+Array* ift_get_root(IFT* ift);
 /**
  * @brief ift_get_original
  * @param ift
  * @return
  */
 Array* ift_get_original(IFT* ift);
+/**
+ * @brief ift_set_label
+ * @param ift
+ * @param label
+ */
+void ift_set_label(IFT* ift, Array* label);
+/**
+ * @brief ift_set_connectivity
+ * @param ift
+ * @param connectivity
+ */
+void ift_set_connectivity(IFT* ift, Array* connectivity);
+/**
+ * @brief ift_set_original
+ * @param ift
+ * @param original
+ */
+void ift_set_original(IFT* ift, Array* original);
+/**
+ * @brief ift_set_predecessors
+ * @param ift
+ * @param predecessors
+ */
+void ift_set_predecessors(IFT* ift, Array* predecessors);
+/**
+ * @brief ift_set_root
+ * @param ift
+ * @param root
+ */
+void ift_set_root(IFT* ift, Array* root);
 
 #endif

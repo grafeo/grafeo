@@ -34,19 +34,20 @@
 #include <grafeo/array.h>
 #include <grafeo/image.h>
 #include <grafeo/ift.h>
+#include <math.h>
 
 static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
   switch (array->type){
-    case GRAFEO_UINT8:  return (double) array->data_uint8[index1]  - (double) array->data_uint8[index2];break;
-    case GRAFEO_UINT16: return (double) array->data_uint16[index1] - (double) array->data_uint16[index2];break;
-    case GRAFEO_UINT32: return (double) array->data_uint32[index1] - (double) array->data_uint32[index2];break;
-    case GRAFEO_UINT64: return (double) array->data_uint64[index1] - (double) array->data_uint64[index2];break;
-    case GRAFEO_INT8:   return (double) array->data_int8[index1]   - (double) array->data_int8[index2];break;
-    case GRAFEO_INT16:  return (double) array->data_int16[index1]  - (double) array->data_int16[index2];break;
-    case GRAFEO_INT32:  return (double) array->data_int32[index1]  - (double) array->data_int32[index2];break;
-    case GRAFEO_INT64:  return (double) array->data_int64[index1]  - (double) array->data_int64[index2];break;
-    case GRAFEO_FLOAT:  return (double) array->data_float[index1]  - (double) array->data_float[index2];break;
-    case GRAFEO_DOUBLE: return (double) array->data_double[index1] - (double) array->data_double[index2];break;
+    case GRAFEO_UINT8:  return fabs((double) array->data_uint8[index1]  - (double) array->data_uint8[index2]);break;
+    case GRAFEO_UINT16: return fabs((double) array->data_uint16[index1] - (double) array->data_uint16[index2]);break;
+    case GRAFEO_UINT32: return fabs((double) array->data_uint32[index1] - (double) array->data_uint32[index2]);break;
+    case GRAFEO_UINT64: return fabs((double) array->data_uint64[index1] - (double) array->data_uint64[index2]);break;
+    case GRAFEO_INT8:   return fabs((double) array->data_int8[index1]   - (double) array->data_int8[index2]);break;
+    case GRAFEO_INT16:  return fabs((double) array->data_int16[index1]  - (double) array->data_int16[index2]);break;
+    case GRAFEO_INT32:  return fabs((double) array->data_int32[index1]  - (double) array->data_int32[index2]);break;
+    case GRAFEO_INT64:  return fabs((double) array->data_int64[index1]  - (double) array->data_int64[index2]);break;
+    case GRAFEO_FLOAT:  return fabs((double) array->data_float[index1]  - (double) array->data_float[index2]);break;
+    case GRAFEO_DOUBLE: return fabs((double) array->data_double[index1] - (double) array->data_double[index2]);break;
   }
   return 0;
 }
@@ -54,63 +55,18 @@ static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
 static void helper_test_ift(const char* imagepath, const char* correctpath, double path_connectivity(double connectivity_value, double weight_value)){
   // Load an image, its labels, connectivity and root maps
   // 8x8 image
-  uint8_t data[64] = {000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,255,255,000,000,000,
-                      000,000,000,255,255,000,000,000,
-                      000,000,255,255,255,255,000,000,
-                      000,000,255,255,255,255,000,000,
-                      000,255,255,255,255,255,255,000,
-                      000,000,000,000,000,000,000,000};
-  uint8_t predecessors[64] = {
-                      000,000,001,002,003,004,005,006,
-                      000,008,009,010,011,012,013,014,
-                      008,000,000,255,255,000,000,000,
-                      016,000,000,255,255,000,000,000,
-                      024,000,255,255,255,255,000,000,
-                      032,000,255,255,255,255,000,000,
-                      040,255,255,255,255,255,255,000,
-                      048,000,000,000,000,000,000,000};
-  uint8_t label[64] = {000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,001,001,000,000,000,
-                      000,000,000,001,001,000,000,000,
-                      000,000,001,001,001,001,000,000,
-                      000,000,001,001,001,001,000,000,
-                      000,001,001,001,001,001,001,000,
-                      000,000,000,000,000,000,000,000};
-  uint8_t connectivity[64] = {
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000};
-  uint8_t root[64] = {000,000,000,000,000,000,000,000,
-                      000,000,000,000,000,000,000,000,
-                      000,000,000,044,044,000,000,000,
-                      000,000,000,044,044,000,000,000,
-                      000,000,044,044,044,044,000,000,
-                      000,000,044,044,044,044,000,000,
-                      000,044,044,044,044,044,044,000,
-                      000,000,000,000,000,000,000,000};
+  uint8_t data[4]                = {000,000,    255,255};
+  uint8_t correct_predecessor[4] = {000,000,    003,003};
+  uint8_t correct_label[4]       = {000,000,    001,001};
+  uint8_t correct_connectivity[4]= {000,000,    000,000};
+  uint8_t correct_root[4]        = {000,000,    003,003};
 
+  // Generate the image
+  uint32_t size[3] = {2,2};
+  Array* image = array_from_data(data, 2, size);
 
-
-  uint32_t size[3] = {8,8,1};
-  Array* image = array_from_data(data, 3, size);
-
-  // Apply original IFT with fsum
-  IFT*   ift    = ift_apply_array(image, GRAFEO_NEIGHBOR_4, weight_diff, path_connectivity);
-
-  // Load correct values (keys: label, root, connectivity, predecessor)
-  HashTable* correct = array_load(correctpath);
-  Array* correct_label        = hashtable_lookup(correct, "label");
-  Array* correct_root         = hashtable_lookup(correct, "root");
-  Array* correct_connectivity = hashtable_lookup(correct, "connectivity");
-  Array* correct_predecessor  = hashtable_lookup(correct, "predecessor");
+  // Run standard IFT
+  IFT*     ift     = ift_apply_array(image, GRAFEO_NEIGHBOR_4, weight_diff, path_connectivity);
 
   // Check Values
   assert_array_equal(ift_get_label(ift)       , correct_label);
@@ -118,10 +74,74 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, doub
   assert_array_equal(ift_get_connectivity(ift), correct_connectivity);
   assert_array_equal(ift_get_predecessor(ift) , correct_predecessor);
 
-  // Free memory
-  hashtable_free(correct);
   ift_free(ift);
   array_free(image);
+
+//  uint8_t data[64] = {000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,255,255,000,000,000,
+//                      000,000,000,255,255,000,000,000,
+//                      000,000,255,255,255,255,000,000,
+//                      000,000,255,255,255,255,000,000,
+//                      000,255,255,255,255,255,255,000,
+//                      000,000,000,000,000,000,000,000};
+//  uint8_t predecessors[64] = {
+//                      000,000,001,002,003,004,005,006,
+//                      000,008,009,010,011,012,013,014,
+//                      008,000,000,255,255,000,000,000,
+//                      016,000,000,255,255,000,000,000,
+//                      024,000,255,255,255,255,000,000,
+//                      032,000,255,255,255,255,000,000,
+//                      040,255,255,255,255,255,255,000,
+//                      048,000,000,000,000,000,000,000};
+//  uint8_t label[64] = {000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,001,001,000,000,000,
+//                      000,000,000,001,001,000,000,000,
+//                      000,000,001,001,001,001,000,000,
+//                      000,000,001,001,001,001,000,000,
+//                      000,001,001,001,001,001,001,000,
+//                      000,000,000,000,000,000,000,000};
+//  uint8_t connectivity[64] = {
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000};
+//  uint8_t root[64] = {000,000,000,000,000,000,000,000,
+//                      000,000,000,000,000,000,000,000,
+//                      000,000,000,044,044,000,000,000,
+//                      000,000,000,044,044,000,000,000,
+//                      000,000,044,044,044,044,000,000,
+//                      000,000,044,044,044,044,000,000,
+//                      000,044,044,044,044,044,044,000,
+//                      000,000,000,000,000,000,000,000};
+//  uint32_t size[3] = {8,8,1};
+//  Array* image = array_from_data(data, 3, size);
+
+//  // Apply original IFT with fsum
+//  IFT*   ift    = ift_apply_array(image, GRAFEO_NEIGHBOR_4, weight_diff, path_connectivity);
+
+//  // Load correct values (keys: label, root, connectivity, predecessor)
+//  HashTable* correct = array_load(correctpath);
+//  Array* correct_label        = hashtable_lookup(correct, "label");
+//  Array* correct_root         = hashtable_lookup(correct, "root");
+//  Array* correct_connectivity = hashtable_lookup(correct, "connectivity");
+//  Array* correct_predecessor  = hashtable_lookup(correct, "predecessor");
+
+//  // Check Values
+//  assert_array_equal(ift_get_label(ift)       , correct_label);
+//  assert_array_equal(ift_get_root(ift)        , correct_root);
+//  assert_array_equal(ift_get_connectivity(ift), correct_connectivity);
+//  assert_array_equal(ift_get_predecessor(ift) , correct_predecessor);
+
+//  // Free memory
+//  hashtable_free(correct);
+//  ift_free(ift);
+//  array_free(image);
 }
 
 static void test_ift_sum(void** state){

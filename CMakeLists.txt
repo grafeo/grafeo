@@ -116,13 +116,10 @@ set(GRAFEO_HDR
     include/grafeo/image.h
 )
 set(GRAFEO_SRC
-<<<<<<< HEAD
  src/ift.c
-=======
  src/pqueue.c
  src/bucket.c
  src/slist.c
->>>>>>> develop
  src/array.c
  src/list.c
  src/queue.c
@@ -202,6 +199,7 @@ if(BUILD_TESTING)
       slist
       queue
       pqueue
+      ift
     )
     include (CTest)
     foreach(testname ${TESTS_NAMES})

@@ -144,11 +144,19 @@ Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
     memset(array->data, 0, array->num_bytes);
     return array;
 }
+Array*    array_zeros_like(Array *array){
+  return array_zeros(array->dim, array->size, array->type);
+}
+
 Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type){
     Array* array = array_new_with_size_type(dim, sizes, type);
     array_fill(array,1);
     return array;
 }
+Array*    array_ones_like(Array *array){
+  return array_ones(array->dim, array->size, array->type);
+}
+
 void array_fill_max(Array *array){
   double values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,__INT16_MAX__,__INT32_MAX__,__INT64_MAX__,__FLT_MAX__,__DBL_MAX__};
   array_fill(array, values[array->type]);
