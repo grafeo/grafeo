@@ -498,6 +498,57 @@ static void test_array_ops(){
   array_free(result7);
 }
 
+static void test_array_indices_manip(void** state){
+  (void) state;
+  // Create an array
+  uint32_t sizes[2] = {2,2};
+  Array*  array    = array_zeros(2,sizes,GRAFEO_UINT8);
+
+  // Convert an valid ND index to 1D
+  int32_t indices1[2] = {0,1};
+  int64_t resp = array_index_1D(array, indices1);
+  assert_int_equal(resp, 1);
+
+  // Convert an invalid ND index to 1D
+  int32_t indices2[2] = {2,0};
+  resp = array_index_1D(array, indices2);
+  assert_int_equal(resp, 4);
+
+  int32_t indices3[2] = {-2,0};
+  resp = array_index_1D(array, indices3);
+  assert_int_equal(resp, -4);
+
+  // Convert an valid 1D index to ND
+  int32_t* respND = array_index(array, 2);
+  assert_int_equal(respND[0], 1);
+  assert_int_equal(respND[1], 0);
+  free(respND);
+
+  // Convert an invalid 1D index to ND
+  array_index(array, 8);
+  assert_int_equal(respND[0], 4);
+  assert_int_equal(respND[1], 0);
+  free(respND);
+
+  // Compare valid index to result of validation
+  resp = array_index_1D_is_valid(array, 2);
+  assert_int_equal(resp, 1);
+
+  // Compare invalid index to result of validation
+  resp = array_index_1D_is_valid(array, -5);
+  assert_int_equal(resp, 0);
+  resp = array_index_1D_is_valid(array, 8);
+  assert_int_equal(resp, 0);
+
+  // Modifying value at specified index
+  uint32_t indices1u[2] = {(uint32_t)indices1[0],(uint32_t)indices1[1]};
+  array_set_element(array, indices1u, 3);
+  uint8_t values[4] = {0,3,0,0};
+  uint8_t i;
+  for(i = 0; i < 4; i++) assert_int_equal(array->data_uint8[i], values[i]);
+  array_free(array);
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
@@ -516,6 +567,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_sub),
     cmocka_unit_test(test_array_reduce),
     cmocka_unit_test(test_array_ops),
+    cmocka_unit_test(test_array_indices_manip),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
