@@ -239,13 +239,13 @@ static void test_array_zeros(void** state){
     uint64_t num_elements;
     uint32_t sizes[4];
     DataType type;
-    for(i = 0; i < i_max; i++){
+    for(i = 0; i < i_max; i+=2){
         sizes[0] = i;
-        for(j = 0; j < j_max; j++){
+        for(j = 0; j < j_max; j+=2){
             sizes[1] = j;
-            for(k = 0; k < k_max; k++){
+            for(k = 0; k < k_max; k+=2){
                 sizes[2] = k;
-                for(l = 0; l < l_max; l++){
+                for(l = 0; l < l_max; l+=2){
                     sizes[3] = l;
                     num_elements = i*j*k*l;
                     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
@@ -283,13 +283,13 @@ static void test_array_ones(void** state){
     uint64_t num_elements;
     uint32_t sizes[4];
     DataType type;
-    for(i = 0; i < i_max; i++){
+    for(i = 0; i < i_max; i+=2){
         sizes[0] = i;
-        for(j = 0; j < j_max; j++){
+        for(j = 0; j < j_max; j+=2){
             sizes[1] = j;
-            for(k = 0; k < k_max; k++){
+            for(k = 0; k < k_max; k+=2){
                 sizes[2] = k;
-                for(l = 0; l < l_max; l++){
+                for(l = 0; l < l_max; l+=2){
                     sizes[3] = l;
                     num_elements = i*j*k*l;
                     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
