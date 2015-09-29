@@ -612,6 +612,11 @@ static void test_array_indices_manip(void** state){
   resp = array_index_1D_is_valid(array, 8);
   assert_int_equal(resp, 0);
 
+  // ND Indices are in valid range?
+  assert_true (array_index_is_valid(array, indices1));
+  assert_false(array_index_is_valid(array, indices2));
+  assert_false(array_index_is_valid(array, indices3));
+
   // Modifying value at specified index
   uint32_t indices1u[2] = {(uint32_t)indices1[0],(uint32_t)indices1[1]};
   array_set_element(array, indices1u, 3);

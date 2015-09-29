@@ -286,7 +286,10 @@ array_index_1D(Array* array, int32_t* indices){
 
 uint8_t
 array_index_is_valid(Array *array, int32_t *indices){
-  return 0;
+  uint8_t i;
+  for(i = 0; i < array->dim; i++)
+    if(indices[i] < 0 || indices[i] >= array->size[i]) return 0;
+  return 1;
 }
 
 uint8_t
