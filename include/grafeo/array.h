@@ -168,6 +168,15 @@ Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type);
  * @return     Submatrix
  */
 Array*    array_sub(Array* array, Range* ranges);
+/**
+ * @brief Encapsulate data as an Array
+ * @param data
+ * @param dim
+ * @param size
+ * @param type
+ * @return
+ */
+Array*    array_from_data(void* data, uint16_t dim, uint32_t* size, DataType type);
 
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
@@ -340,6 +349,41 @@ uint8_t   array_get_bitsize(Array* array);
  * @return     { description_of_the_return_value }
  */
 uint64_t  array_get_num_bytes(Array* array);
+/**
+ * @brief array_index
+ * @param array
+ * @param index
+ * @return
+ */
+int32_t*  array_index(Array* array, int64_t  index);
+/**
+ * @brief array_index_1D
+ * @param array
+ * @param indices
+ * @return
+ */
+int64_t   array_index_1D(Array* array, int32_t* indices);
+/**
+ * @brief array_index_1D_is_valid
+ * @param array
+ * @param index
+ * @return
+ */
+uint8_t   array_index_1D_is_valid(Array* array, int64_t index);
+/**
+ * @brief array_index_is_valid
+ * @param array
+ * @param indices
+ * @return
+ */
+uint8_t   array_index_is_valid(Array* array, int32_t* indices);
+/**
+ * @brief array_set_element
+ * @param array
+ * @param indices
+ * @param value
+ */
+void      array_set_element(Array* array, uint32_t* indices, double value);
 /*-----------------------------------
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/

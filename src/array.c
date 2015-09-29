@@ -27,6 +27,23 @@
 # ===================================================================*/
 #include <grafeo/array.h>
 #include <limits.h>
+
+size_t calculate_bitsize(DataType type){
+  switch(type){
+      case GRAFEO_UINT8:  return sizeof(uint8_t); break;
+      case GRAFEO_UINT16: return sizeof(uint16_t);break;
+      case GRAFEO_UINT32: return sizeof(uint32_t);break;
+      case GRAFEO_UINT64: return sizeof(uint64_t);break;
+      case GRAFEO_INT8:   return sizeof(int8_t);  break;
+      case GRAFEO_INT16:  return sizeof(int16_t); break;
+      case GRAFEO_INT32:  return sizeof(int32_t); break;
+      case GRAFEO_INT64:  return sizeof(int64_t); break;
+      case GRAFEO_FLOAT:  return sizeof(float);   break;
+      case GRAFEO_DOUBLE: return sizeof(double);  break;
+  }
+  return 0;
+}
+
 Array*    array_new(){
     Array* array = malloc(sizeof(Array));
     array->dim = 0;
@@ -48,36 +65,30 @@ Array*    array_new_with_dim(uint16_t dim){
     array->step         = malloc(sizeof(uint64_t) * dim);
     return array;
 }
+
 Array*    array_new_with_size(uint16_t dim, uint32_t* size){
     return array_new_with_size_type(dim, size, GRAFEO_UINT8);
 }
 
+void array_fill_header(Array* array, uint32_t* size, DataType type){
+  uint16_t i;
+  array->num_elements = 1;
+  array->step[array->dim-1] = 1;
+  uint64_t step = 1;
+  for(i = 0; i < array->dim; step*=size[array->dim-(i++)-1]){
+      array->size[i]        = size[i];
+      array->step[array->dim-i-1]  = step;
+      array->num_elements  *= size[i];
+  }
+  array->bitsize      = calculate_bitsize(type);
+  array->num_bytes    = array->bitsize * array->num_elements;
+  array->type         = type;
+}
+
 Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type){
     Array* array        = array_new_with_dim(dim);
-    uint16_t i;
-    array->num_elements = 1;
-    array->step[dim-1] = 1;
-    uint64_t step = 1;
-    for(i = 0; i < dim; step*=size[dim-(i++)-1]){
-        array->size[i]        = size[i];
-        array->step[dim-i-1]  = step;
-        array->num_elements  *= size[i];
-    }
-    switch(type){
-        case GRAFEO_UINT8:  array->bitsize = sizeof(uint8_t); break;
-        case GRAFEO_UINT16: array->bitsize = sizeof(uint16_t);break;
-        case GRAFEO_UINT32: array->bitsize = sizeof(uint32_t);break;
-        case GRAFEO_UINT64: array->bitsize = sizeof(uint64_t);break;
-        case GRAFEO_INT8:   array->bitsize = sizeof(int8_t);  break;
-        case GRAFEO_INT16:  array->bitsize = sizeof(int16_t); break;
-        case GRAFEO_INT32:  array->bitsize = sizeof(int32_t); break;
-        case GRAFEO_INT64:  array->bitsize = sizeof(int64_t); break;
-        case GRAFEO_FLOAT:  array->bitsize = sizeof(float);   break;
-        case GRAFEO_DOUBLE: array->bitsize = sizeof(double);  break;
-    }
-    array->num_bytes    = array->bitsize * array->num_elements;
+    array_fill_header(array, size, type);
     array->data         = malloc(array->num_bytes);
-    array->type         = type;
     return array;
 }
 
@@ -85,6 +96,7 @@ Array*    array_new_1D(uint32_t size1){
     Array* array        = array_new_with_size(1, &size1);
     return array;
 }
+
 Array*    array_new_2D(uint32_t size1, uint32_t size2){
     uint32_t sizes[2]; 
     sizes[0]            = size1;
@@ -92,6 +104,7 @@ Array*    array_new_2D(uint32_t size1, uint32_t size2){
     Array* array        = array_new_with_size(2, sizes);
     return array;
 }
+
 Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
     uint32_t sizes[3]; 
     sizes[0]            = size1;
@@ -100,6 +113,7 @@ Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
     Array* array        = array_new_with_size(3, sizes);
     return array;
 }
+
 Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4){
     uint32_t sizes[4]; 
     sizes[0]            = size1;
@@ -113,6 +127,7 @@ Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t 
 Array*    array_new_1D_type(uint32_t size1, DataType type){
     return array_new_with_size_type(1, &size1, type);
 }
+
 Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type){
     uint32_t sizes[2]; 
     sizes[0]            = size1;
@@ -120,6 +135,7 @@ Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type){
     return array_new_with_size_type(2, sizes, type);
 
 }
+
 Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, DataType type){
     uint32_t sizes[3]; 
     sizes[0]            = size1;
@@ -127,7 +143,9 @@ Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, Data
     sizes[2]            = size3;
     return array_new_with_size_type(3, sizes, type);
 }
-Array*    array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type){
+
+Array*
+array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type){
     uint32_t sizes[4]; 
     sizes[0]            = size1;
     sizes[1]            = size2;
@@ -135,30 +153,40 @@ Array*    array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint
     sizes[3]            = size4;
     return array_new_with_size_type(4, sizes, type);
 }
-Array*    array_new_like(Array* array){
+
+Array*
+array_new_like(Array* array){
   return array_new_with_size_type(array->dim, array->size, array->type);
 }
 
-Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
+Array*
+array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
     Array* array = array_new_with_size_type(dim, sizes, type);
     memset(array->data, 0, array->num_bytes);
     return array;
 }
-Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type){
+
+Array*
+array_ones(uint16_t dim, uint32_t* sizes, DataType type){
     Array* array = array_new_with_size_type(dim, sizes, type);
     array_fill(array,1);
     return array;
 }
-void array_fill_max(Array *array){
+
+void
+array_fill_max(Array *array){
   double values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,__INT16_MAX__,__INT32_MAX__,__INT64_MAX__,__FLT_MAX__,__DBL_MAX__};
   array_fill(array, values[array->type]);
 }
-void array_fill_min(Array *array){
+
+void
+array_fill_min(Array *array){
   double values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
   array_fill(array, values[array->type]);
 }
 
-void array_fill(Array* array, double value){
+void
+array_fill(Array* array, double value){
     uint64_t i, ii, index_1d;
     uint16_t* indices, atual, anterior;
     if(!array->contiguous){
@@ -201,28 +229,75 @@ void array_fill(Array* array, double value){
     if(!array->contiguous) free(indices);
 }
 
-uint64_t array_get_num_elements(Array* array){
+uint64_t
+array_get_num_elements(Array* array){
     return array->num_elements;
 }
-DataType  array_get_type(Array* array){
+
+DataType
+array_get_type(Array* array){
     return array->type;
 }
-uint16_t array_get_dim(Array* array){
+
+uint16_t
+array_get_dim(Array* array){
     return array->dim;
 }
-uint32_t*array_get_size(Array* array){
+
+uint32_t*
+array_get_size(Array* array){
     return array->size;
 }
-void* array_get_data(Array* array){
+
+void*
+array_get_data(Array* array){
     return array->data;
 }
-uint8_t array_get_bitsize(Array* array){
+
+uint8_t
+array_get_bitsize(Array* array){
     return array->bitsize;
 }
-uint64_t  array_get_num_bytes(Array* array){
+
+uint64_t
+array_get_num_bytes(Array* array){
     return array->num_bytes;
 }
-void*     array_get_element(Array* array, uint32_t* indices){
+
+int32_t*
+array_index(Array* array, int64_t index){
+  int32_t* indices = malloc(sizeof(int32_t) * array->dim);
+  uint8_t i;
+  div_t division;
+  for(i = 0; i < array->dim; i++){
+    division   = div(index, array->step[i]);
+    indices[i] = division.quot;
+    index      = division.rem;
+  }
+  return indices;
+}
+
+int64_t
+array_index_1D(Array* array, int32_t* indices){
+  int64_t x = 0, i;
+  for(i = 0; i < array->dim; x += indices[i] * array->step[i], i++);
+  return x;
+}
+
+uint8_t
+array_index_is_valid(Array *array, int32_t *indices){
+  uint8_t i;
+  for(i = 0; i < array->dim; i++)
+    if(indices[i] < 0 || indices[i] >= array->size[i]) return 0;
+  return 1;
+}
+
+uint8_t
+array_index_1D_is_valid(Array *array, int64_t index){
+  return index >= 0 && index < array->num_elements;
+}
+void*
+array_get_element(Array* array, uint32_t* indices){
     uint8_t* x = array->data_uint8;
     int i;
     for(i = 0; i < array->dim; i++){
@@ -230,17 +305,42 @@ void*     array_get_element(Array* array, uint32_t* indices){
     }
     return x;
 }
-uint64_t* array_get_step(Array* array){
+uint64_t*
+array_get_step(Array* array){
     return array->step;
 }
-void      array_free(Array* array){
+
+void
+array_set_element(Array* array, uint32_t* indices, double value){
+  uint64_t x = 0;
+  uint8_t i;
+  for(i = 0; i < array->dim; i++)
+       x += indices[i] * array->step[i];
+  switch(array->type){
+    case GRAFEO_UINT8:  array->data_uint8[x] = (uint8_t)value; break;
+    case GRAFEO_UINT16: array->data_uint16[x] = (uint16_t)value; break;
+    case GRAFEO_UINT32: array->data_uint32[x] = (uint32_t)value; break;
+    case GRAFEO_UINT64: array->data_uint64[x] = (uint64_t)value; break;
+    case GRAFEO_INT8:   array->data_int8[x] = (int8_t)value; break;
+    case GRAFEO_INT16:  array->data_int16[x] = (int16_t)value; break;
+    case GRAFEO_INT32:  array->data_int32[x] = (int32_t)value; break;
+    case GRAFEO_INT64:  array->data_int64[x] = (int64_t)value; break;
+    case GRAFEO_FLOAT:  array->data_float[x] = (float)value; break;
+    case GRAFEO_DOUBLE: array->data_double[x] = (double)value; break;
+  }
+
+}
+
+void
+array_free(Array* array){
     if(array->data && array->owns_data) free(array->data);
     if(array->size) free(array->size);
     if(array->step) free(array->step);
     free(array);
 }
 
-Array*    array_sub(Array* array, Range* ranges){
+Array*
+array_sub(Array* array, Range* ranges){
     Array* subarray = array_new_with_dim(array_get_dim(array));
     subarray->type = array->type;
     subarray->bitsize = array->bitsize;
@@ -267,23 +367,38 @@ Array*    array_sub(Array* array, Range* ranges){
     return subarray;
 }
 
-Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size){
+Array*
+array_from_data(void* data, uint16_t dim, uint32_t* size, DataType type){
+  Array* array = array_new_with_dim(dim);
+  array_fill_header(array, size, type);
+  array->owns_data = 0;
+  array->data      = data;
+  return array;
+}
+
+Array*
+array_reduce_min(Array* array, int16_t* axes, uint16_t size){
   return array_reduce(array, axes, size, GRAFEO_MIN);
 }
-Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size){
+Array*
+array_reduce_max(Array* array, int16_t* axes, uint16_t size){
   return array_reduce(array, axes, size, GRAFEO_MAX);
 }
-Array*    array_reduce_std(Array* array, int16_t* axes, uint16_t size){
+Array*
+array_reduce_std(Array* array, int16_t* axes, uint16_t size){
   return array_reduce(array, axes, size, GRAFEO_STD);
 }
-Array*    array_reduce_mult(Array* array, int16_t* axes, uint16_t size){
+Array*
+array_reduce_mult(Array* array, int16_t* axes, uint16_t size){
   return array_reduce(array, axes, size, GRAFEO_MULT);
 }
-Array*    array_reduce_sum(Array* array, int16_t* axes, uint16_t size){
+Array*
+array_reduce_sum(Array* array, int16_t* axes, uint16_t size){
   return array_reduce(array, axes, size, GRAFEO_SUM);
 }
 
-Array* array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operation){
+Array*
+array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operation){
   // Calculate size of reduced array
   uint16_t  original_dim  = array_get_dim(array);
   uint32_t* original_size = array_get_size(array);
