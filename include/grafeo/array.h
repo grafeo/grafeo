@@ -156,6 +156,13 @@ Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type);
  */
 Array*    array_zeros_like(Array* array);
 /**
+ * @brief array_zeros_like_type
+ * @param array
+ * @param type
+ * @return
+ */
+Array*    array_zeros_like_type(Array* array, DataType type);
+/**
  * @brief Create a new array filled with ones (each elem has type `type`)
  * 
  * @param dim ...
@@ -170,6 +177,13 @@ Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type);
  * @return
  */
 Array*    array_ones_like(Array* array);
+/**
+ * @brief array_ones_like_type
+ * @param array
+ * @param type
+ * @return
+ */
+Array*    array_ones_like_type(Array* array, DataType type);
 /**
  * @brief      Get a submatrix based on ranges
  *
