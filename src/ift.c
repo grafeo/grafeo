@@ -6,10 +6,10 @@ IFT* ift_new(){
 
 IFT* ift_new_from_array(Array* array){
   IFT* ift = ift_new();
-  ift->label        = array_zeros_like(array);
-  ift->predecessors = array_zeros_like(array);
-  ift->connectivity = array_zeros_like(array);
-  ift->root         = array_zeros_like(array);
+  ift->label        = array_zeros_like_type(array, GRAFEO_UINT16);
+  ift->predecessors = array_zeros_like_type(array, GRAFEO_UINT64);
+  ift->connectivity = array_zeros_like_type(array, GRAFEO_INT64);
+  ift->root         = array_zeros_like_type(array, GRAFEO_UINT64);
   ift->original     = array;
   return ift;
 }

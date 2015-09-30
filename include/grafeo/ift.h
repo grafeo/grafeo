@@ -29,6 +29,9 @@
 #define IFT_ARRAY_H
 #include <grafeo/array.h>
 #include <grafeo/pqueue.h>
+#include <grafeo/macro.h>
+
+BEGIN_DECLS
 
 /**
   * @brief Structure for managing IFT data
@@ -162,5 +165,7 @@ void ift_set_predecessors(IFT* ift, Array* predecessors);
  * @param root
  */
 void ift_set_root(IFT* ift, Array* root);
+
+END_DECLS
 
 #endif
