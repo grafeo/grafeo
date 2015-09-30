@@ -36,15 +36,17 @@
  * @param pqueue The priority queue
  * @param bucket The bucket key
  * @param value The value to be inserted in a bucket list
+ * @param compare_function the function to be used to insert sorted buckets
  */
-void  pqueue_append_at(Queue* pqueue, void* bucket, void* value);
+void  pqueue_append_at(Queue* pqueue, void* bucket, void* value, CompareFunc compare_function);
 /**
  * @brief Prepend a value in a bucket list.
  * @param pqueue The priority queue
  * @param bucket The bucket key
  * @param value The value to be inserted in a bucket list
+ * @param compare_function the function to be used to insert sorted buckets
  */
-void  pqueue_prepend_at(Queue* pqueue, void* bucket, void* value);
+void  pqueue_prepend_at(Queue* pqueue, void* bucket, void* value, CompareFunc compare_function);
 /**
  * @brief Remove the first item of the bucket list
  * @param pqueue

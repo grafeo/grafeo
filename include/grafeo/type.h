@@ -88,6 +88,9 @@ typedef int8_t (*CompareFunc)    (void* data1, void* data2);
 typedef int8_t (*CompareDataFunc)(void* data1, void* data2, void* user_data);
 typedef void (*DataFunc)       (void* data1, void* user_data);
 
+int8_t int64_compare_function_r(void* value1, void* value2);
+int8_t int64_compare_function  (void* value1, void* value2);
+
 #define INT8_TO_POINTER(i)   ((void*)(int64_t)(i))
 #define INT16_TO_POINTER(i)  ((void*)(int64_t)(i))
 #define INT32_TO_POINTER(i)  ((void*)(int64_t)(i))

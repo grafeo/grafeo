@@ -24,11 +24,11 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
 
   // Initialize maps
   if(optimization_type == GRAFEO_IFT_MIN){
-    array_fill_max(ift->connectivity);
+    array_fill_min(ift->connectivity);
     // update seed connectivity
 
   }else if(optimization_type == GRAFEO_IFT_MAX){
-    array_fill_min(ift->connectivity);
+    array_fill_max(ift->connectivity);
     // update seed connectivity
 
   }
@@ -50,8 +50,10 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
     index = POINTER_TO_UINT64(pqueue_bucket_at(queue,0,0));
     pqueue_remove_begin(queue);
 
+    uint32_t* index_nd = (uint32_t*)array_index(array, (int64_t)index);
+
     // Do not process this node again
-    array_set_value(visited, index, 1);
+    array_set_element(visited, index_nd, 1);
 
     // Process all neighbors
     for(i = 0; i < num_neighbors; i++){
@@ -73,23 +75,31 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
           int64_t* old_connectivity = (int64_t*)array_get_element(ift->connectivity, neighbor_index_nd);
           if(connectivity < *old_connectivity){
 
-            // remove if from queue if it's a seed
-            if(optimization_type == GRAFEO_IFT_MIN && *old_connectivity == INT64_MAX ||
-               optimization_type == GRAFEO_IFT_MAX && *old_connectivity == 0)
-              pqueue_remove(queue,neighbor_index);
+            // remove it from queue if it's a seed
+            if((optimization_type == GRAFEO_IFT_MIN && *old_connectivity == 0) ||
+               (optimization_type == GRAFEO_IFT_MAX && *old_connectivity == INT64_MAX))
+            {
+              Bucket* bucket      = (Bucket*)list_value(queue_begin(queue));
+              queue_remove(bucket_queue(bucket),INT64_TO_POINTER(neighbor_index));
+            }
+
 
             // Update predecessors, connectivity, labels and roots
-            array_set_element(ift->predecessors, neighbor_index, index);
-            array_set_element(ift->connectivity, neighbor_index, connectivity);
-            array_set_element(ift->label,        neighbor_index, array_get_element(ift->label, index));
-            array_set_element(ift->root,         neighbor_index, array_get_element(ift->root,  index));
+            array_set_element(ift->predecessors, neighbor_index_nd, index);
+            array_set_element(ift->connectivity, neighbor_index_nd, connectivity);
+            array_set_element(ift->label,        neighbor_index_nd, *(uint8_t*) array_get_element(ift->label, index_nd));
+            array_set_element(ift->root,         neighbor_index_nd, *(uint64_t*) array_get_element(ift->root,  index_nd));
 
             // (re)insert unvisited neighbors
-            queue_insert(queue, neighbor_index);
+            if(optimization_type == GRAFEO_IFT_MIN)
+              pqueue_append_at(queue, UINT8_TO_POINTER(connectivity), neighbor_index_nd, int64_compare_function_r);
+            else if(optimization_type == GRAFEO_IFT_MAX)
+              pqueue_append_at(queue, UINT8_TO_POINTER(connectivity), neighbor_index_nd, int64_compare_function);
           }
         }
       }
     }
+    free(index_nd);
   }
 
   array_free(visited);

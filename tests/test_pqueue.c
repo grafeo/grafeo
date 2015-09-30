@@ -57,7 +57,7 @@ static void test_pqueue_adding_removing(void ** state){
   Queue* pqueue  = queue_new();
 #define IP(x) INT8_TO_POINTER(x)
   // Appending a value in a bucket
-  pqueue_append_at(pqueue,IP(7), IP(5));
+  pqueue_append_at(pqueue,IP(7), IP(5), int64_compare_function);
   uint8_t  buckets1[1]        = {7};
   uint8_t  bucketslists011[1]  = {5};
   uint8_t* bucketslists1[1]   = {bucketslists011};
@@ -65,14 +65,14 @@ static void test_pqueue_adding_removing(void ** state){
   helper_pqueue_elements(pqueue, buckets1, bucketslists1, 1, bucketslengths1);
 
   // Appending another value in a bucket
-  pqueue_append_at(pqueue,IP(7), IP(3));
+  pqueue_append_at(pqueue,IP(7), IP(3), int64_compare_function);
   uint8_t  bucketslists21[2]  = {5,3};
   uint8_t* bucketslists2[1]   = {bucketslists21};
   uint8_t  bucketslengths2[1] = {2};
   helper_pqueue_elements(pqueue, buckets1, bucketslists2, 1, bucketslengths2);
 
   // Appending another value in another bucket
-  pqueue_append_at(pqueue,IP(9), IP(6));
+  pqueue_append_at(pqueue,IP(9), IP(6), int64_compare_function);
   uint8_t  buckets3[2]        = {7,9};
   uint8_t  bucketslists31[2]  = {5,3};
   uint8_t  bucketslists32[1]  = {6};
@@ -81,7 +81,7 @@ static void test_pqueue_adding_removing(void ** state){
   helper_pqueue_elements(pqueue, buckets3, bucketslists3, 2, bucketslengths3);
 
   // Prepending a value in a new bucket
-  pqueue_prepend_at(pqueue, IP(3), IP(4));
+  pqueue_prepend_at(pqueue, IP(3), IP(4), int64_compare_function);
   uint8_t  buckets4[3]        = {3,7,9};
   uint8_t  bucketslists41[1]  = {4};
   uint8_t  bucketslists42[2]  = {5,3};
@@ -91,7 +91,7 @@ static void test_pqueue_adding_removing(void ** state){
   helper_pqueue_elements(pqueue, buckets4, bucketslists4, 3, bucketslengths4);
 
   // Prepending a value in a existante bucket
-  pqueue_prepend_at(pqueue, IP(7), IP(4));
+  pqueue_prepend_at(pqueue, IP(7), IP(4), int64_compare_function);
   uint8_t  bucketslists52[3]  = {4,5,3};
   uint8_t* bucketslists5[3]   = {bucketslists41,bucketslists52,bucketslists43};
   uint8_t  bucketslengths5[3] = {1,3,1};
@@ -118,13 +118,13 @@ static void test_pqueue_adding_removing(void ** state){
   helper_pqueue_elements(pqueue, buckets4, bucketslists7, 3, bucketslengths7);
 
   // Adding a value in the empty bucket
-  pqueue_prepend_at(pqueue, IP(3), IP(10));
+  pqueue_prepend_at(pqueue, IP(3), IP(10), int64_compare_function);
   uint8_t  bucketslists81[1]  = {10};
   uint8_t* bucketslists8[3]   = {bucketslists81,bucketslists72,bucketslists43};
   helper_pqueue_elements(pqueue, buckets4, bucketslists8, 3, bucketslengths6);
 
   // Adding another value in the empty bucket
-  pqueue_prepend_at(pqueue, IP(3), IP(11));
+  pqueue_prepend_at(pqueue, IP(3), IP(11), int64_compare_function);
   uint8_t  bucketslists91[2]  = {11,10};
   uint8_t* bucketslists9[3]   = {bucketslists91,bucketslists72,bucketslists43};
   uint8_t  bucketslengths9[3] = {2,1,1};

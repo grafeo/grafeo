@@ -27,18 +27,19 @@
 # ===================================================================*/
 #include <grafeo/pqueue.h>
 
-void pqueue_append_at(Queue *pqueue, void *value_bucket, void *value){
+void pqueue_append_at(Queue *pqueue, void *value_bucket, void *value, CompareFunc compare_func){
   List* bucket_item = NULL;
   uint8_t is_new    = 1;
   for(bucket_item = queue_begin(pqueue); bucket_item; bucket_item = list_next(bucket_item)){
     Bucket* bucket = (Bucket*)list_value(bucket_item);
     // Found the bucket
-    if(bucket_value(bucket) == value_bucket){
+    uint8_t comparison = compare_func(bucket_value(bucket), value_bucket);
+    if(comparison == 0){
       queue_append(bucket_queue(bucket), value);
       is_new = 0;
       break;
     }
-    else if(bucket_value(bucket) > value_bucket) break;
+    else if(comparison == 1) break;
   }
   // Insert the new bucket if found proper place
   if(is_new){
@@ -52,19 +53,20 @@ void pqueue_append_at(Queue *pqueue, void *value_bucket, void *value){
 }
 
 // Adicionar na lista de bucket o valor
-void  pqueue_prepend_at(Queue* pqueue, void* value_bucket, void* value){
+void  pqueue_prepend_at(Queue* pqueue, void* value_bucket, void* value, CompareFunc compare_func){
   List* bucket_item = NULL;
   uint8_t is_new    = 1;
   // Procura pelo bucket
   for(bucket_item = queue_begin(pqueue); bucket_item; bucket_item = list_next(bucket_item)){
     Bucket* bucket = (Bucket*)list_value(bucket_item);
     // Found the bucket
-    if(bucket_value(bucket) == value_bucket){
+    uint8_t comparison = compare_func(bucket_value(bucket), value_bucket);
+    if(comparison == 0){
       queue_prepend(bucket_queue(bucket), value);
       is_new = 0;
       break;
     }
-    else if(bucket_value(bucket) > value_bucket) break;
+    else if(comparison == 1) break;
   }
   if(is_new){
     Bucket* new_bucket = bucket_new();

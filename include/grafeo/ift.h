@@ -29,6 +29,7 @@
 #define IFT_ARRAY_H
 #include <grafeo/array.h>
 #include <grafeo/pqueue.h>
+
 /**
   * @brief Structure for managing IFT data
   */

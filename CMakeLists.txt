@@ -110,6 +110,7 @@ set(GRAFEO_HDR
     include/grafeo/slist.h
     include/grafeo/list.h
     include/grafeo/type.h
+    include/grafeo/macro.h
     include/grafeo/array.h
     include/grafeo/queue.h
     include/grafeo/range.h
@@ -120,6 +121,7 @@ set(GRAFEO_SRC
  src/pqueue.c
  src/bucket.c
  src/slist.c
+ src/type.c
  src/array.c
  src/list.c
  src/queue.c
