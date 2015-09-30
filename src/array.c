@@ -167,11 +167,22 @@ array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
 }
 
 Array*
+array_zeros_like_type(Array* array, DataType type){
+  return array_zeros(array->dim, array->size, type);
+}
+
+Array*
 array_ones(uint16_t dim, uint32_t* sizes, DataType type){
     Array* array = array_new_with_size_type(dim, sizes, type);
     array_fill(array,1);
     return array;
 }
+
+Array*
+array_ones_like_type(Array* array, DataType type){
+  return array_ones(array->dim, array->size, type);
+}
+
 
 void
 array_fill_max(Array *array){
