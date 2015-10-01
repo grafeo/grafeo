@@ -720,6 +720,22 @@ static void test_array_io_csv(void** state){
   Array* arrayw2 = array_read_csv("test_array_write_csv_uint8_2.csv");
   assert_array_equal(arrayw2, array2);
 
+static void test_array_get_long_double(void** state){
+  (void) state;
+
+  // Setup
+  uint32_t sizes[3] = {2,4,8};
+  Array* array = array_zeros(3,sizes,GRAFEO_UINT8);
+  uint32_t indices[3] = {1,3,5};
+  array_set_element(array,indices,45);
+
+  // Test
+  long double value = array_get_long_double_1D(array, 0);
+  assert_int_equal(value, 0);
+  value = array_get_long_double_1D(array, 5 + 3*8 + 1*32);
+  assert_int_equal(value, 45);
+
+  array_free(array);
 }
 
 int main(int argc, char** argv){
@@ -742,6 +758,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_reduce),
     cmocka_unit_test(test_array_ops),
     cmocka_unit_test(test_array_indices_manip),
+    cmocka_unit_test(test_array_get_long_double),
     cmocka_unit_test(test_array_io_csv),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);

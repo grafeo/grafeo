@@ -398,6 +398,13 @@ uint8_t   array_index_is_valid(Array* array, int32_t* indices);
  * @param value
  */
 void      array_set_element(Array* array, uint32_t* indices, double value);
+/**
+ * @brief array_get_long_double_1D
+ * @param array1
+ * @param i
+ * @return
+ */
+long double array_get_long_double_1D(Array* array1, uint64_t i);
 /*-----------------------------------
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/
