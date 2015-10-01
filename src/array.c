@@ -731,19 +731,4 @@ long double array_square_euclidian_distance(Array* array1, Array* array2){
   return sum;
 }
 
-long double array_get_long_double_1D(Array* array1, uint64_t i){
-  long double value1;
-  switch(array1->type){
-    case GRAFEO_UINT8: value1 = (long double)array1->data_uint8[i];break;
-    case GRAFEO_UINT16: value1 = (long double)array1->data_uint16[i];break;
-    case GRAFEO_UINT32: value1 = (long double)array1->data_uint32[i];break;
-    case GRAFEO_UINT64: value1 = (long double)array1->data_uint64[i];break;
-    case GRAFEO_INT8: value1 = (long double)array1->data_int8[i];break;
-    case GRAFEO_INT16: value1 = (long double)array1->data_int16[i];break;
-    case GRAFEO_INT32: value1 = (long double)array1->data_int32[i];break;
-    case GRAFEO_INT64: value1 = (long double)array1->data_int64[i];break;
-    case GRAFEO_FLOAT: value1 = (long double)array1->data_float[i];break;
-    case GRAFEO_DOUBLE: value1 = (long double)array1->data_double[i];break;
-  }
-  return value1;
-}
+
