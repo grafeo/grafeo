@@ -36,17 +36,33 @@
 #include <grafeo/ift.h>
 #include <math.h>
 
+long double get_value(Array* array1, uint64_t i){
+  long double value1;
+  switch(array1->type){
+    case GRAFEO_UINT8: value1 = (long double)array1->data_uint8[i];break;
+    case GRAFEO_UINT16: value1 = (long double)array1->data_uint16[i];break;
+    case GRAFEO_UINT32: value1 = (long double)array1->data_uint32[i];break;
+    case GRAFEO_UINT64: value1 = (long double)array1->data_uint64[i];break;
+    case GRAFEO_INT8: value1 = (long double)array1->data_int8[i];break;
+    case GRAFEO_INT16: value1 = (long double)array1->data_int16[i];break;
+    case GRAFEO_INT32: value1 = (long double)array1->data_int32[i];break;
+    case GRAFEO_INT64: value1 = (long double)array1->data_int64[i];break;
+    case GRAFEO_FLOAT: value1 = (long double)array1->data_float[i];break;
+    case GRAFEO_DOUBLE: value1 = (long double)array1->data_double[i];break;
+  }
+  return value1;
+}
+
 static void assert_array_equal(Array* array1, Array* array2){
   uint64_t i;
   assert_int_equal(array1->dim,          array2->dim);
-  assert_int_equal(array1->type,         array2->type);
-  assert_int_equal(array1->num_bytes,    array2->num_bytes);
+  //assert_int_equal(array1->type,         array2->type);
+  //assert_int_equal(array1->num_bytes,    array2->num_bytes);
   assert_int_equal(array1->num_elements, array2->num_elements);
   for(i = 0; i < array1->dim; i++)
     assert_int_equal(array1->size[i],      array2->size[i]);
   for(i = 0; i < array1->num_elements; i++)
-    assert_int_equal(array1->data_uint8[i], array2->data_uint8[i]);
-
+    assert_true(get_value(array1,i) == get_value(array2,i));
 }
 
 static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
@@ -65,7 +81,7 @@ static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
   return 0;
 }
 
-static void helper_test_ift(const char* imagepath, const char* correctpath, PathConnectivityFunc path_connectivity){
+static void helper_test_ift(const char* imagepath, const char* correctpath, PathConnectivityFunc path_connectivity, IFTOptimization ift_optimization){
   // Load an image, its labels, connectivity and root maps
   // 8x8 image
   uint8_t data[4]        = {000,000,    255,255};
@@ -73,6 +89,15 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, Path
   uint8_t label[4]       = {000,000,    001,001};
   uint8_t connectivity[4]= {000,000,    000,000};
   uint8_t root[4]        = {000,000,    003,003};
+
+  // Define seeds
+  Array* seeds_labels    = array_new_1D_type(2,GRAFEO_UINT16);
+  Array* seeds_indices   = array_new_1D_type(2,GRAFEO_UINT64);
+
+  seeds_labels->data_uint16[0]  = 0;
+  seeds_labels->data_uint16[1]  = 1;
+  seeds_indices->data_uint64[0] = 0;
+  seeds_indices->data_uint64[1] = 3;
 
   // Generate the image
   uint32_t size[3] = {2,2};
@@ -83,7 +108,7 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, Path
   Array* correct_root         = array_from_data(root,         2, size, GRAFEO_UINT8);
 
   // Run standard IFT
-  IFT*     ift     = ift_apply_array(image, GRAFEO_NEIGHBOR_4, GRAFEO_IFT_MIN, weight_diff, path_connectivity);
+  IFT*     ift     = ift_apply_array(image, GRAFEO_NEIGHBOR_4, ift_optimization, weight_diff, path_connectivity, seeds_indices, seeds_labels);
 
   assert_non_null(ift);
   assert_non_null(ift->connectivity);
@@ -170,19 +195,19 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, Path
 
 static void test_ift_sum(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_sum.zip", path_connectivity_sum);
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_sum.zip", path_connectivity_sum, GRAFEO_IFT_MIN);
 }
 static void test_ift_max(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_max.zip", path_connectivity_max);
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_max.zip", path_connectivity_max, GRAFEO_IFT_MIN);
 }
 static void test_ift_min(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_min.zip", path_connectivity_min);
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_min.zip", path_connectivity_min, GRAFEO_IFT_MAX);
 }
 static void test_ift_euc(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_euc.zip", path_connectivity_euc);
+  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_euc.zip", path_connectivity_euc, GRAFEO_IFT_MIN);
 }
 
 int main(int argc, char** argv){

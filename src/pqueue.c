@@ -79,6 +79,20 @@ void  pqueue_prepend_at(Queue* pqueue, void* value_bucket, void* value, CompareF
     else            queue_append(pqueue, new_bucket);
   }
 }
+void  pqueue_remove_at(Queue* pqueue, void *value_bucket, void* value){
+  Bucket* bucket      = pqueue_bucket_of(pqueue, value_bucket);
+  queue_remove(bucket_queue(bucket),value);
+}
+
+Bucket* pqueue_bucket_of(Queue* pqueue, void* value_bucket){
+  for(List* item=pqueue->begin;item;item = list_next(item)){
+    Bucket* bucket = (Bucket*)list_value(item);
+    if(bucket_value(bucket)==value_bucket)
+      return bucket;
+  }
+  return NULL;
+}
+
 void  pqueue_remove_begin_at(Queue* pqueue, void* value_bucket){
   List* bucket_item = NULL;
   for(bucket_item = queue_begin(pqueue); bucket_item; bucket_item = list_next(bucket_item)){
@@ -108,11 +122,14 @@ void  pqueue_remove_end(Queue* pqueue){
   queue_remove_end(bucket_queue((Bucket*)list_value(queue_begin(pqueue))));
 }
 void  pqueue_shrink(Queue* pqueue){
-  Bucket* bucket = (Bucket*)list_value(queue_begin(pqueue));
-  if(queue_is_empty(bucket_queue(bucket))){
-    queue_free(bucket_queue(bucket));
-    bucket_free(bucket);
-    queue_remove_begin(pqueue);
+  while(!queue_is_empty(pqueue)){
+    Bucket* bucket = (Bucket*)list_value(queue_begin(pqueue));
+    if(queue_is_empty(bucket_queue(bucket))){
+      queue_free(bucket_queue(bucket));
+      bucket_free(bucket);
+      queue_remove_begin(pqueue);
+    }
+    else break;
   }
 }
 void* pqueue_at(Queue* pqueue, uint32_t index){

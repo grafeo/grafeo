@@ -211,7 +211,7 @@ Array*    array_from_data(void* data, uint16_t dim, uint32_t* size, DataType typ
  * Fill existing array with a value
  * @memberof Array
  */
-void      array_fill(Array* array, double value);
+void      array_fill(Array* array, long double value);
 /**
  * @brief array_fill_max
  * @param array
@@ -350,6 +350,13 @@ void*     array_get_data(Array* array);
  * @return     { description_of_the_return_value }
  */
 void*     array_get_element(Array* array, uint32_t* indices);
+/**
+ * @brief array_get_element_1D
+ * @param array
+ * @param index
+ * @return
+ */
+void*     array_get_element_1D(Array* array, uint64_t index);
 /**
  * @brief      { function_description }
  *

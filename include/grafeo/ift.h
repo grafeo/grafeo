@@ -89,13 +89,17 @@ IFT*   ift_new();
  * @param optimization_type
  * @param weight_function
  * @param path_connectivity
+ * @param seeds_indices
+ * @param seeds_labels
  * @return
  */
 IFT*   ift_apply_array(Array* array, 
                        Adjacency adjacency,
                        IFTOptimization optimization_type,
                        WeightFunc weight_function,
-                       PathConnectivityFunc path_connectivity);
+                       PathConnectivityFunc path_connectivity,
+                       Array* seeds_indices,
+                       Array* seeds_labels);
 double path_connectivity_sum(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
 double path_connectivity_max(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
 double path_connectivity_min(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);

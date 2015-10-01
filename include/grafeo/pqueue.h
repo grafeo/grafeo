@@ -60,6 +60,13 @@ void  pqueue_remove_begin_at(Queue* pqueue, void* bucket);
  */
 void  pqueue_remove_end_at  (Queue* pqueue, void* bucket);
 /**
+ * @brief pqueue_remove_at
+ * @param pqueue
+ * @param bucket_value
+ * @param value
+ */
+void  pqueue_remove_at(Queue* pqueue, void *bucket_value, void* value);
+/**
  * @brief Remove the first item of the current bucket
  * @param pqueue The priority queue
  */
@@ -89,5 +96,11 @@ void* pqueue_at(Queue* pqueue, uint32_t bucket_index);
  * @return value
  */
 void* pqueue_bucket_at(Queue* pqueue, uint32_t bucket_index, uint32_t index);
-
+/**
+ * @brief pqueue_bucket_of
+ * @param pqueue
+ * @param bucket_value
+ * @return
+ */
+Bucket* pqueue_bucket_of(Queue* pqueue, void* bucket_value);
 #endif

@@ -166,7 +166,7 @@ array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
     return array;
 }
 Array*    array_zeros_like(Array *array){
-  return array_zeros(array->dim, array->size, array->type);
+  return array_zeros_like_type(array,array->type);
 }
 
 Array*
@@ -181,7 +181,7 @@ array_ones(uint16_t dim, uint32_t* sizes, DataType type){
     return array;
 }
 Array*    array_ones_like(Array *array){
-  return array_ones(array->dim, array->size, array->type);
+  return array_ones_like_type(array, array->type);
 }
 
 Array*
@@ -192,18 +192,18 @@ array_ones_like_type(Array* array, DataType type){
 
 void
 array_fill_max(Array *array){
-  double values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,__INT16_MAX__,__INT32_MAX__,__INT64_MAX__,__FLT_MAX__,__DBL_MAX__};
+  long double values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,__INT16_MAX__,__INT32_MAX__,__INT64_MAX__,__FLT_MAX__,__DBL_MAX__};
   array_fill(array, values[array->type]);
 }
 
 void
 array_fill_min(Array *array){
-  double values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
+  long double values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
   array_fill(array, values[array->type]);
 }
 
 void
-array_fill(Array* array, double value){
+array_fill(Array* array, long double value){
     uint64_t i, ii, index_1d;
     uint16_t* indices, atual, anterior;
     if(!array->contiguous){
@@ -322,6 +322,11 @@ array_get_element(Array* array, uint32_t* indices){
     }
     return x;
 }
+void*
+array_get_element_1D(Array* array, uint64_t index){
+  return array->data_uint8 + index * array->bitsize;
+}
+
 uint64_t*
 array_get_step(Array* array){
     return array->step;
