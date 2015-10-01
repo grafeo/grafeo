@@ -177,8 +177,6 @@ void ift_set_root(IFT* ift, Array* root){
   ift->root         = root;
 }
 
-
-
 double path_connectivity_sum(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
   return ift->connectivity->data_int64[index_s] + weight_function(ift->original, index_s, index_t);
 }
@@ -192,7 +190,13 @@ double path_connectivity_min(IFT* ift, uint64_t index_s, uint64_t index_t, Weigh
 }
 
 double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
-  return 0;
+  (void) weight_function;
+  uint64_t index_r = ift->root->data_uint64[index_s];
+  uint32_t size = (uint32_t)ift->original->dim;
+  Array* array_r = array_from_data(array_index(ift->original,index_r),1,&size,GRAFEO_INT32);
+  Array* array_t = array_from_data(array_index(ift->original,index_t),1,&size,GRAFEO_INT32);
+
+  return array_euclidian_distance(array_r, array_t);
 }
 
 void   ift_free(IFT* ift){

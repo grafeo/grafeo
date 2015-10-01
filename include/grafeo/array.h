@@ -30,6 +30,7 @@
 
 #include <grafeo/type.h>
 #include <grafeo/range.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -311,7 +312,20 @@ Array*    array_mult_to(Array* array1, Array* array2, Array* new_array);
  * @return
  */
 Array*    array_divide_to(Array* array1, Array* array2, Array* new_array);
-
+/**
+ * @brief array_euclidian_distance
+ * @param array1
+ * @param array2
+ * @return
+ */
+long double array_euclidian_distance(Array* array1, Array* array2);
+/**
+ * @brief array_square_euclidian_distance
+ * @param array1
+ * @param array2
+ * @return
+ */
+long double array_square_euclidian_distance(Array* array1, Array* array2);
 /*-----------------------------------
  *   ARRAY ACCESSOR FUNCTIONS
  *-----------------------------------*/
@@ -417,6 +431,14 @@ uint8_t   array_index_is_valid(Array* array, int32_t* indices);
  * @param value
  */
 void      array_set_element(Array* array, uint32_t* indices, double value);
+/**
+ * @brief array_get_long_double_1D
+ * @param array1
+ * @param i
+ * @return
+ */
+long double array_get_long_double_1D(Array* array1, uint64_t i);
+
 /*-----------------------------------
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/
