@@ -664,6 +664,64 @@ static void test_array_indices_manip(void** state){
   array_free(array);
 }
 
+static void assert_array_equal(Array* array1, Array* array2){
+  uint64_t i;
+  assert_non_null(array1);
+  assert_non_null(array2);
+  assert_int_equal(array1->type, array2->type);
+  assert_int_equal(array1->dim, array2->dim);
+  assert_int_equal(array1->num_elements, array1->num_elements);
+  for(i = 0; i < array1->dim; i++)
+    assert_int_equal(array1->size[i],array2->size[i]);
+  for(i = 0; i < array1->num_elements; i++)
+    assert_int_equal(array_get_long_double_1D(array1,i),
+                     array_get_long_double_1D(array2,i));
+}
+
+static void test_array_io_csv(void** state){
+  uint64_t i,j;
+
+  // Loading CSV
+  // 1D (just one line)
+  uint8_t ground_data1[8] = {1,2,3,4,5,6,7,8};
+  Array* array = array_read_csv("test_array_read_csv_uint8_1.csv");
+  assert_non_null(array);
+  assert_int_equal(array->type, GRAFEO_UINT8);
+  assert_int_equal(array->dim, 1);
+  assert_int_equal(array->size[0],8);
+  assert_int_equal(array->num_elements, 8);
+  for(i = 0; i < array->num_elements;i++)
+    assert_int_equal(array->data_uint8[i], ground_data1[i]);
+
+  // 2D (several lines)
+  uint8_t ground_data2[10][8];
+  for(i = 0; i < 10; i++)
+    for(j = 0; j < 8; j++)
+      ground_data2[i][j] = i*8+j;
+  Array* array2 = array_read_csv("test_array_read_csv_uint8_2.csv");
+  assert_non_null(array2);
+  assert_int_equal(array2->type, GRAFEO_UINT8);
+  assert_int_equal(array2->dim, 2);
+  assert_int_equal(array2->size[0],10);
+  assert_int_equal(array2->size[1],8);
+  assert_int_equal(array2->num_elements, 80);
+  for(i = 0; i < 10; i++)
+    for(j = 0; j < 8; j++)
+      assert_int_equal(array2->data_uint8[i*8+j], ground_data2[i][j]);
+
+  // Write CSV
+  // 1D (just one line)
+  array_write_csv(array, "test_array_write_csv_uint8_1.csv");
+  Array* arrayw = array_read_csv("test_array_write_csv_uint8_1.csv");
+  assert_array_equal(arrayw, array);
+
+  // 2D (several lines)
+  array_write_csv(array2, "test_array_write_csv_uint8_2.csv");
+  Array* arrayw2 = array_read_csv("test_array_write_csv_uint8_2.csv");
+  assert_array_equal(arrayw2, array2);
+
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
@@ -684,6 +742,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_reduce),
     cmocka_unit_test(test_array_ops),
     cmocka_unit_test(test_array_indices_manip),
+    cmocka_unit_test(test_array_io_csv),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

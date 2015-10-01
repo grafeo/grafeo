@@ -465,5 +465,20 @@ Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
  */
 Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
 
+/*-----------------------------------
+ *       ARRAY IO FUNCTIONS
+ *-----------------------------------*/
+/**
+ * @brief array_read_csv
+ * @param filename
+ * @return
+ */
+Array* array_read_csv(const char* filename);
+/**
+ * @brief array_write_csv
+ * @param array
+ * @param filename
+ */
+void array_write_csv(Array* array, const char* filename);
 
 #endif

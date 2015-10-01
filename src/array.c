@@ -703,3 +703,14 @@ Array* array_divide_to(Array* array1, Array* array2, Array* new_array){
   }
   return new_array;
 }
+
+/*-----------------------------------
+ *       ARRAY IO FUNCTIONS
+ *-----------------------------------*/
+Array* array_read_csv(const char* filename){
+  return NULL;
+}
+
+void array_write_csv(Array* array, const char* filename){
+
+}
