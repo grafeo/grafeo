@@ -85,7 +85,8 @@ void  pqueue_remove_at(Queue* pqueue, void *value_bucket, void* value){
 }
 
 Bucket* pqueue_bucket_of(Queue* pqueue, void* value_bucket){
-  for(List* item=pqueue->begin;item;item = list_next(item)){
+  List* item;
+  for(item=pqueue->begin;item;item = list_next(item)){
     Bucket* bucket = (Bucket*)list_value(item);
     if(bucket_value(bucket)==value_bucket)
       return bucket;

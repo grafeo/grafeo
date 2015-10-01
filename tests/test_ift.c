@@ -38,6 +38,8 @@
 
 static void assert_array_equal(Array* array1, Array* array2){
   uint64_t i;
+  assert_non_null(array1);
+  assert_non_null(array2);
   assert_int_equal(array1->dim,          array2->dim);
   //assert_int_equal(array1->type,         array2->type);
   //assert_int_equal(array1->num_bytes,    array2->num_bytes);
@@ -63,15 +65,33 @@ static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
   }
   return 0;
 }
+static void helper_test_ift_img(const char* imagepath,
+                                const char* labels_filename,
+                                const char* seeds_indices_filename,
+                                const char* seeds_labels_filename,
+                                PathConnectivityFunc path_connectivity, IFTOptimization ift_optimization){
+  // Load images and seeds
+  Array* image        = image_read(imagepath);
+  Array* labels       = image_read(labels_filename);
 
-static void helper_test_ift(const char* imagepath, const char* correctpath, PathConnectivityFunc path_connectivity, IFTOptimization ift_optimization){
+  Array* seeds_labels  = array_load_csv(seeds_labels_filename);
+  Array* seeds_indices = array_load_csv(seeds_indices_filename);
+
+  IFT* ift = ift_apply_array(image, GRAFEO_NEIGHBOR_4, ift_optimization, weight_diff, path_connectivity, seeds_indices, seeds_labels);
+
+  assert_non_null(ift);
+
+  assert_array_equal(ift_get_label(ift)        , labels);
+}
+
+static void helper_test_ift(PathConnectivityFunc path_connectivity, IFTOptimization ift_optimization){
   // Load an image, its labels, connectivity and root maps
   // 8x8 image
-  uint8_t data[4]        = {000,000,    255,255};
-  uint8_t predecessor[4] = {000,000,    003,003};
-  uint8_t label[4]       = {000,000,    001,001};
-  uint8_t connectivity[4]= {000,000,    000,000};
-  uint8_t root[4]        = {000,000,    003,003};
+  uint8_t data[4]            = {000,000,    255,255};
+  uint8_t predecessor[4]     = {000,000,    003,003};
+  uint8_t label[4]           = {000,000,    001,001};
+  uint8_t connectivity[4]    = {000,000,    000,000};
+  uint8_t root[4]            = {000,000,    003,003};
 
   uint8_t predecessor_min[4] = {000,003,    000,003};
   uint8_t label_min[4]       = {000,001,    000,001};
@@ -84,8 +104,8 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, Path
   uint8_t root_euc[4]        = {000,000,    000,003};
 
   // Define seeds
-  Array* seeds_labels    = array_new_1D_type(2,GRAFEO_UINT16);
-  Array* seeds_indices   = array_new_1D_type(2,GRAFEO_UINT64);
+  Array* seeds_labels           = array_new_1D_type(2,GRAFEO_UINT16);
+  Array* seeds_indices          = array_new_1D_type(2,GRAFEO_UINT64);
 
   seeds_labels->data_uint16[0]  = 0;
   seeds_labels->data_uint16[1]  = 1;
@@ -93,8 +113,8 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, Path
   seeds_indices->data_uint64[1] = 3;
 
   // Generate the image
-  uint32_t size[3] = {2,2};
-  Array* image     = array_from_data(data, 2, size, GRAFEO_UINT8);
+  uint32_t size[2] = {2,2};
+  Array*   image   = array_from_data(data, 2, size, GRAFEO_UINT8);
 
   // Run standard IFT
   IFT*     ift     = ift_apply_array(image, GRAFEO_NEIGHBOR_4, ift_optimization, weight_diff, path_connectivity, seeds_indices, seeds_labels);
@@ -105,8 +125,6 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, Path
   assert_non_null(ift->original);
   assert_non_null(ift->predecessors);
   assert_non_null(ift->root);
-
-
 
   // Check Values
   if(ift_optimization == GRAFEO_IFT_MIN){
@@ -148,19 +166,39 @@ static void helper_test_ift(const char* imagepath, const char* correctpath, Path
 
 static void test_ift_sum(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_sum.zip", path_connectivity_sum, GRAFEO_IFT_MIN);
+  helper_test_ift(path_connectivity_sum, GRAFEO_IFT_MIN);
+  helper_test_ift_img("../data/starbw.png",
+                      "../data/starbw_labels.png",
+                      "../data/starbw_seeds_indices.csv",
+                      "../data/starbw_seeds_labels.csv",
+                      path_connectivity_sum, GRAFEO_IFT_MIN);
 }
 static void test_ift_max(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_max.zip", path_connectivity_max, GRAFEO_IFT_MIN);
+  helper_test_ift(path_connectivity_max, GRAFEO_IFT_MIN);
+  helper_test_ift_img("../data/starbw.png",
+                      "../data/starbw_labels.png",
+                      "../data/starbw_seeds_indices.csv",
+                      "../data/starbw_seeds_labels.csv",
+                      path_connectivity_max, GRAFEO_IFT_MIN);
 }
 static void test_ift_min(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_min.zip", path_connectivity_min, GRAFEO_IFT_MAX);
+  helper_test_ift(path_connectivity_min, GRAFEO_IFT_MAX);
+  helper_test_ift_img("../data/starbw.png",
+                      "../data/starbw_labels.png",
+                      "../data/starbw_seeds_indices.csv",
+                      "../data/starbw_seeds_labels.csv",
+                      path_connectivity_min, GRAFEO_IFT_MAX);
 }
 static void test_ift_euc(void** state){
   (void) state;
-  helper_test_ift("../data/trianglebw.png","../data/trianglebw_ift_euc.zip", path_connectivity_euc, GRAFEO_IFT_MIN);
+  helper_test_ift(path_connectivity_euc, GRAFEO_IFT_MIN);
+  helper_test_ift_img("../data/starbw.png",
+                      "../data/starbw_labels.png",
+                      "../data/starbw_seeds_indices.csv",
+                      "../data/starbw_seeds_labels.csv",
+                      path_connectivity_euc, GRAFEO_IFT_MIN);
 }
 
 int main(int argc, char** argv){
