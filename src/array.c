@@ -26,7 +26,6 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/array.h>
-#include <limits.h>
 
 size_t calculate_bitsize(DataType type){
   switch(type){
@@ -710,30 +709,180 @@ Array* array_read_csv(const char* filename){
   FILE* file = fopen(filename, "r");
   char* record, *line;
 
-  Array* array = array_new();
+  // Temporary buffers
+  char         buffer[1024];
+  uint16_t     N       = 1024;
+  long double* data    = malloc(N*sizeof(long double));
 
-
-  char buffer[1024];
-  uint16_t N = 1024;
-  long double* data = malloc(N*sizeof(long double));
+  // Some informations to be extracted while traversing file
+  uint64_t i           = 0; // Current number of elements
+  uint32_t height      = 0; // Number of lines
+  uint32_t width       = 0; // Number of columns
+  uint8_t  first_line  = 1; // To calculate width once
+  uint8_t  dim         = 1; // if height=1, the array is 1D
+  uint32_t size[2]     = {0,0};// Array size
+  uint8_t  is_integer  = 1; // If all numbers are integers, the
+                            // array type reduces from float to int
+  uint8_t  is_unsigned = 1; // If all numbers are positive, the
+                            // array type is unsigned (to save
+                            // memory)
+  DataType type;            // Array type
+  long double maximum  = __DBL_MIN__; // Maximum value
 
   // For each line
-  uint64_t i = 0;
   while((line=fgets(buffer, sizeof(buffer),file))!=NULL){
-    // For each entry on line
-    while((record = strtok(line,";")) != NULL){
+    // For each entry/token on line
+    record = strtok(line,";");
+    while(record != NULL){
+      // Define array width
+      if(first_line) width++;
+      // Convert string to number
       data[i] = strtod(record, NULL);
+      // Is unsigned?
+      if(data[i] < 0) is_unsigned = 0;
+      // Is maximum?
+      if(maximum < data[i]) maximum = data[i];
+      // Is integer?
+      if(rintl(data[i]) != data[i]) is_integer = 0;
+      // Does it need expansion?
+      i++;
       if(i >= N){
         N <<= 1;
         // duplicate array size
         data = realloc(data,N*sizeof(long double));
       }
+      // Get next entry/token
+      record = strtok(NULL,";");
+    }
+    // Define array height
+    height++;
+    // Finish defining width
+    first_line = 0;
+  }
+  // Convert to 1D
+  if(height == 1){
+    dim     = 1;
+    size[0] = width;
+  }else{
+    dim     = 2;
+    size[0] = height;
+    size[1] = width;
+  }
+
+  // Get type of Array
+  if(is_integer){
+    if(is_unsigned){
+      if(maximum <= __UINT64_MAX__){
+        type = GRAFEO_UINT64;
+        if(maximum <= __UINT32_MAX__){
+          type = GRAFEO_UINT32;
+          if(maximum <= __UINT16_MAX__){
+            type = GRAFEO_UINT16;
+            if(maximum <= __UINT8_MAX__){
+              type = GRAFEO_UINT8;
+            }
+          }
+        }
+      }
+    }
+    else{
+      if(maximum <= __INT64_MAX__){
+        type = GRAFEO_INT64;
+        if(maximum <= __INT32_MAX__){
+          type = GRAFEO_INT32;
+          if(maximum <= __INT16_MAX__){
+            type = GRAFEO_INT16;
+            if(maximum <= __INT8_MAX__){
+              type = GRAFEO_INT8;
+            }
+          }
+        }
+      }
+    }
+  }
+  else{
+    if(maximum <= __FLT_MAX__)
+      type = GRAFEO_FLOAT;
+    else
+      type = GRAFEO_DOUBLE;
+  }
+
+  // Create the array
+  Array* array = array_new_with_size_type(dim, size, type);
+  for(i = 0; i < array->num_elements; i++){
+    switch(type){
+      case GRAFEO_UINT8:  array->data_uint8[i]  = (uint8_t)  data[i];break;
+      case GRAFEO_UINT16: array->data_uint16[i] = (uint16_t) data[i];break;
+      case GRAFEO_UINT32: array->data_uint32[i] = (uint32_t) data[i];break;
+      case GRAFEO_UINT64: array->data_uint64[i] = (uint64_t) data[i];break;
+      case GRAFEO_INT8:   array->data_int8[i]   = (int8_t)   data[i];break;
+      case GRAFEO_INT16:  array->data_int16[i]  = (int16_t)  data[i];break;
+      case GRAFEO_INT32:  array->data_int32[i]  = (int32_t)  data[i];break;
+      case GRAFEO_INT64:  array->data_int64[i]  = (int64_t)  data[i];break;
+      case GRAFEO_FLOAT:  array->data_float[i]  = (float)    data[i];break;
+      case GRAFEO_DOUBLE: array->data_double[i] = (double)   data[i];break;
     }
   }
 
+  free(data);
   fclose(file);
   return array;
 }
 void array_write_csv(Array* array, const char* filename){
+  FILE* file = fopen(filename, "w");
+  char* line;
+  if(array->dim == 1) line = array_join(array, ";");
+  else                line = array_join(array,"\n;");
+  fprintf(file,line);
+  free(line);
+  fclose(file);
+}
 
+char* array_join(Array* array, const char* delimiters){
+  char* text, *cur_text;
+  uint8_t d = 0;
+  uint64_t i;
+
+  // Initial allocation of text
+  uint64_t N = 1024;
+  uint64_t N2 = N >> 1;
+  uint64_t cur_length = 0;
+  text = malloc(N);
+  cur_text = text;
+
+  for(i = 0; i < array->num_elements; i++){
+    // Resize data if needed
+    if(cur_length > N2){
+      N2 = N;
+      N <<= 1;
+      text = realloc(text, N);
+    }
+
+    // If last line item
+    if(array->dim > 1){
+      if(!((i+1) % array->size[1])) d = 0;
+      else                          d = 1;
+    }
+    else if(!((i+1) % array->size[0])) d = 1;
+    else d = 0;
+    // Print data and delimiter
+    switch(array->type){
+      case GRAFEO_UINT8:  cur_length += sprintf(cur_text,"%hhu%c",array->data_uint8[i] , delimiters[d]);break;
+      case GRAFEO_UINT16: cur_length += sprintf(cur_text,"%hu%c" ,array->data_uint16[i], delimiters[d]);break;
+      case GRAFEO_UINT32: cur_length += sprintf(cur_text,"%u%c"  ,array->data_uint32[i], delimiters[d]);break;
+      case GRAFEO_UINT64: cur_length += sprintf(cur_text,"%lu%c" ,array->data_uint64[i], delimiters[d]);break;
+      case GRAFEO_INT8:   cur_length += sprintf(cur_text,"%hhd%c",array->data_int8[i]  , delimiters[d]);break;
+      case GRAFEO_INT16:  cur_length += sprintf(cur_text,"%hd%c" ,array->data_int16[i] , delimiters[d]);break;
+      case GRAFEO_INT32:  cur_length += sprintf(cur_text,"%d%c"  ,array->data_int32[i] , delimiters[d]);break;
+      case GRAFEO_INT64:  cur_length += sprintf(cur_text,"%ld%c" ,array->data_int64[i] , delimiters[d]);break;
+      case GRAFEO_FLOAT:  cur_length += sprintf(cur_text,"%f%c"  ,array->data_float[i] , delimiters[d]);break;
+      case GRAFEO_DOUBLE: cur_length += sprintf(cur_text,"%lf%c" ,array->data_double[i], delimiters[d]);break;
+    }
+    cur_text    = text + cur_length;
+  }
+  // Remove last delimiter
+  cur_text--;cur_length--;
+  *cur_text = '\0';
+  text = realloc(text,cur_length);
+  return text;
 }

@@ -683,6 +683,7 @@ static void test_array_io_csv(void** state){
   uint64_t i,j;
 
   // Loading CSV
+  // UINT8
   // 1D (just one line)
   uint8_t ground_data1[8] = {1,2,3,4,5,6,7,8};
   Array* array = array_read_csv("../data/test_array_read_csv_uint8_1.csv");
@@ -710,7 +711,36 @@ static void test_array_io_csv(void** state){
     for(j = 0; j < 8; j++)
       assert_int_equal(array2->data_uint8[i*8+j], ground_data2[i][j]);
 
+  // UINT16
+  // 1D (just one line)
+  uint16_t ground_data3[15] = {1,2,3,4,5,6,7,8,23,64,128,256,512,1,6};
+  Array* array3 = array_read_csv("../data/test_array_read_csv_uint16_1.csv");
+  assert_non_null(array3);
+  assert_int_equal(array3->type, GRAFEO_UINT16);
+  assert_int_equal(array3->dim, 1);
+  assert_int_equal(array3->size[0],15);
+  assert_int_equal(array3->num_elements, 15);
+  for(i = 0; i < array3->num_elements;i++)
+    assert_int_equal(array3->data_uint16[i], ground_data3[i]);
+
+  // 2D (several lines)
+  uint16_t ground_data4[50][8];
+  for(i = 0; i < 50; i++)
+    for(j = 0; j < 8; j++)
+      ground_data4[i][j] = i*8+j;
+  Array* array4 = array_read_csv("../data/test_array_read_csv_uint16_2.csv");
+  assert_non_null(array4);
+  assert_int_equal(array4->type, GRAFEO_UINT16);
+  assert_int_equal(array4->dim, 2);
+  assert_int_equal(array4->size[0],50);
+  assert_int_equal(array4->size[1],8);
+  assert_int_equal(array4->num_elements, 400);
+  for(i = 0; i < 50; i++)
+    for(j = 0; j < 8; j++)
+      assert_int_equal(array4->data_uint16[i*8+j], ground_data4[i][j]);
+
   // Write CSV
+  // UINT8
   // 1D (just one line)
   array_write_csv(array, "test_array_write_csv_uint8_1.csv");
   Array* arrayw = array_read_csv("test_array_write_csv_uint8_1.csv");
@@ -720,6 +750,17 @@ static void test_array_io_csv(void** state){
   array_write_csv(array2, "test_array_write_csv_uint8_2.csv");
   Array* arrayw2 = array_read_csv("test_array_write_csv_uint8_2.csv");
   assert_array_equal(arrayw2, array2);
+
+  // UINT16
+  // 1D (just one line)
+  array_write_csv(array3, "test_array_write_csv_uint16_1.csv");
+  Array* arrayw3 = array_read_csv("test_array_write_csv_uint16_1.csv");
+  assert_array_equal(arrayw3, array3);
+
+  // 2D (several lines)
+  array_write_csv(array4, "test_array_write_csv_uint16_2.csv");
+  Array* arrayw4 = array_read_csv("test_array_write_csv_uint16_2.csv");
+  assert_array_equal(arrayw4, array4);
 }
 
 static void test_array_get_long_double(void** state){
@@ -744,23 +785,23 @@ int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-//    cmocka_unit_test(test_array_new),
-//    cmocka_unit_test(test_array_new_1D),
-//    cmocka_unit_test(test_array_new_2D),
-//    cmocka_unit_test(test_array_new_3D),
-//    cmocka_unit_test(test_array_new_4D),
-//    cmocka_unit_test(test_array_new_1D_type),
-//    cmocka_unit_test(test_array_new_2D_type),
-//    cmocka_unit_test(test_array_new_3D_type),
-//    cmocka_unit_test(test_array_new_4D_type),
-//    cmocka_unit_test(test_array_from_data),
-//    cmocka_unit_test(test_array_zeros),
-//    cmocka_unit_test(test_array_ones),
-//    cmocka_unit_test(test_array_sub),
-//    cmocka_unit_test(test_array_reduce),
-//    cmocka_unit_test(test_array_ops),
-//    cmocka_unit_test(test_array_indices_manip),
-//    cmocka_unit_test(test_array_get_long_double),
+    cmocka_unit_test(test_array_new),
+    cmocka_unit_test(test_array_new_1D),
+    cmocka_unit_test(test_array_new_2D),
+    cmocka_unit_test(test_array_new_3D),
+    cmocka_unit_test(test_array_new_4D),
+    cmocka_unit_test(test_array_new_1D_type),
+    cmocka_unit_test(test_array_new_2D_type),
+    cmocka_unit_test(test_array_new_3D_type),
+    cmocka_unit_test(test_array_new_4D_type),
+    cmocka_unit_test(test_array_from_data),
+    cmocka_unit_test(test_array_zeros),
+    cmocka_unit_test(test_array_ones),
+    cmocka_unit_test(test_array_sub),
+    cmocka_unit_test(test_array_reduce),
+    cmocka_unit_test(test_array_ops),
+    cmocka_unit_test(test_array_indices_manip),
+    cmocka_unit_test(test_array_get_long_double),
     cmocka_unit_test(test_array_io_csv),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
