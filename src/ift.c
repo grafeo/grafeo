@@ -202,3 +202,19 @@ double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, Weigh
 void   ift_free(IFT* ift){
   free(ift);
 }
+
+double weight_diff(Array *array, uint64_t index1, uint64_t index2){
+  switch (array->type){
+    case GRAFEO_UINT8:  return fabs((double) array->data_uint8[index1]  - (double) array->data_uint8[index2]);break;
+    case GRAFEO_UINT16: return fabs((double) array->data_uint16[index1] - (double) array->data_uint16[index2]);break;
+    case GRAFEO_UINT32: return fabs((double) array->data_uint32[index1] - (double) array->data_uint32[index2]);break;
+    case GRAFEO_UINT64: return fabs((double) array->data_uint64[index1] - (double) array->data_uint64[index2]);break;
+    case GRAFEO_INT8:   return fabs((double) array->data_int8[index1]   - (double) array->data_int8[index2]);break;
+    case GRAFEO_INT16:  return fabs((double) array->data_int16[index1]  - (double) array->data_int16[index2]);break;
+    case GRAFEO_INT32:  return fabs((double) array->data_int32[index1]  - (double) array->data_int32[index2]);break;
+    case GRAFEO_INT64:  return fabs((double) array->data_int64[index1]  - (double) array->data_int64[index2]);break;
+    case GRAFEO_FLOAT:  return fabs((double) array->data_float[index1]  - (double) array->data_float[index2]);break;
+    case GRAFEO_DOUBLE: return fabs((double) array->data_double[index1] - (double) array->data_double[index2]);break;
+  }
+  return 0;
+}

@@ -50,21 +50,6 @@ static void assert_array_equal(Array* array1, Array* array2){
     assert_true(array_get_long_double_1D(array1,i) == array_get_long_double_1D(array2,i));
 }
 
-static double weight_diff(Array *array, uint64_t index1, uint64_t index2){
-  switch (array->type){
-    case GRAFEO_UINT8:  return fabs((double) array->data_uint8[index1]  - (double) array->data_uint8[index2]);break;
-    case GRAFEO_UINT16: return fabs((double) array->data_uint16[index1] - (double) array->data_uint16[index2]);break;
-    case GRAFEO_UINT32: return fabs((double) array->data_uint32[index1] - (double) array->data_uint32[index2]);break;
-    case GRAFEO_UINT64: return fabs((double) array->data_uint64[index1] - (double) array->data_uint64[index2]);break;
-    case GRAFEO_INT8:   return fabs((double) array->data_int8[index1]   - (double) array->data_int8[index2]);break;
-    case GRAFEO_INT16:  return fabs((double) array->data_int16[index1]  - (double) array->data_int16[index2]);break;
-    case GRAFEO_INT32:  return fabs((double) array->data_int32[index1]  - (double) array->data_int32[index2]);break;
-    case GRAFEO_INT64:  return fabs((double) array->data_int64[index1]  - (double) array->data_int64[index2]);break;
-    case GRAFEO_FLOAT:  return fabs((double) array->data_float[index1]  - (double) array->data_float[index2]);break;
-    case GRAFEO_DOUBLE: return fabs((double) array->data_double[index1] - (double) array->data_double[index2]);break;
-  }
-  return 0;
-}
 static void helper_test_ift_img(const char* imagepath,
                                 const char* labels_filename,
                                 const char* seeds_indices_filename,
@@ -78,6 +63,12 @@ static void helper_test_ift_img(const char* imagepath,
   Array* seeds_indices        = array_read_csv_type(seeds_indices_filename, GRAFEO_UINT64);
 
   IFT* ift = ift_apply_array(image, GRAFEO_NEIGHBOR_4, ift_optimization, weight_diff, path_connectivity, seeds_indices, seeds_labels);
+  Array* label_output = array_mult_scalar(ift->label, 128);
+  Array* label_output_uint8 = array_as_type(label_output, GRAFEO_UINT8);
+  array_free(label_output);
+
+  image_write(label_output_uint8, "label_output.png");
+  array_free(label_output_uint8);
 
   assert_non_null(ift);
 
@@ -205,9 +196,9 @@ int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-    cmocka_unit_test(test_ift_sum),
+    //cmocka_unit_test(test_ift_sum),
     cmocka_unit_test(test_ift_max),
-    cmocka_unit_test(test_ift_min),
+    //cmocka_unit_test(test_ift_min),
     cmocka_unit_test(test_ift_euc),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);

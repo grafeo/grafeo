@@ -100,10 +100,54 @@ IFT*   ift_apply_array(Array* array,
                        PathConnectivityFunc path_connectivity,
                        Array* seeds_indices,
                        Array* seeds_labels);
+/**
+ * @brief path_connectivity_sum
+ * @param ift
+ * @param index_s
+ * @param index_t
+ * @param weight_function
+ * @return
+ */
 double path_connectivity_sum(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+/**
+ * @brief path_connectivity_max
+ * @param ift
+ * @param index_s
+ * @param index_t
+ * @param weight_function
+ * @return
+ */
 double path_connectivity_max(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+/**
+ * @brief path_connectivity_min
+ * @param ift
+ * @param index_s
+ * @param index_t
+ * @param weight_function
+ * @return
+ */
 double path_connectivity_min(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+/**
+ * @brief path_connectivity_euc
+ * @param ift
+ * @param index_s
+ * @param index_t
+ * @param weight_function
+ * @return
+ */
 double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function);
+/**
+ * @brief weight_diff
+ * @param array
+ * @param index1
+ * @param index2
+ * @return
+ */
+double weight_diff(Array *array, uint64_t index1, uint64_t index2);
+/**
+ * @brief ift_free
+ * @param ift
+ */
 void   ift_free(IFT* ift);
 
 /* ====================== *
