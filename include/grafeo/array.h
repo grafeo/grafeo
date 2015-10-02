@@ -33,6 +33,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <math.h>
 
 /**
  * Array Structure:
@@ -431,7 +433,13 @@ uint8_t   array_index_is_valid(Array* array, int32_t* indices);
  * @param value
  */
 void      array_set_element(Array* array, uint32_t* indices, double value);
-
+/**
+ * @brief array_get_long_double_1D
+ * @param array1
+ * @param i
+ * @return
+ */
+long double array_get_long_double_1D(Array* array1, uint64_t i);
 /*-----------------------------------
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/
@@ -499,5 +507,26 @@ Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
  */
 Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
 
-
+/*-----------------------------------
+ *       ARRAY IO FUNCTIONS
+ *-----------------------------------*/
+/**
+ * @brief array_read_csv
+ * @param filename
+ * @return
+ */
+Array* array_read_csv(const char* filename);
+/**
+ * @brief array_write_csv
+ * @param array
+ * @param filename
+ */
+void array_write_csv(Array* array, const char* filename);
+/**
+ * @brief array_join
+ * @param array
+ * @param delimiters
+ * @return
+ */
+char* array_join(Array* array, const char* delimiters);
 #endif
