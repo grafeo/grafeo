@@ -32,6 +32,8 @@
 #include <grafeo/range.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include <math.h>
 
 /**
  * Array Structure:
@@ -472,5 +474,26 @@ Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
  */
 Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
 
-
+/*-----------------------------------
+ *       ARRAY IO FUNCTIONS
+ *-----------------------------------*/
+/**
+ * @brief array_read_csv
+ * @param filename
+ * @return
+ */
+Array* array_read_csv(const char* filename);
+/**
+ * @brief array_write_csv
+ * @param array
+ * @param filename
+ */
+void array_write_csv(Array* array, const char* filename);
+/**
+ * @brief array_join
+ * @param array
+ * @param delimiters
+ * @return
+ */
+char* array_join(Array* array, const char* delimiters);
 #endif
