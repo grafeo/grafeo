@@ -739,6 +739,18 @@ static void test_array_io_csv(void** state){
     for(j = 0; j < 8; j++)
       assert_int_equal(array4->data_uint16[i*8+j], ground_data4[i][j]);
 
+  // Float
+  float ground_data5[8] = {3.2     , 231.123,453.234,10234.999,
+                            34.00001, 1.111,  0.0001, 999.99999};
+  Array* array5 = array_read_csv_type("../data/test_array_read_csv_float_1.csv", GRAFEO_FLOAT);
+  assert_non_null(array5);
+  assert_int_equal(array5->type, GRAFEO_FLOAT);
+  assert_int_equal(array5->dim, 1);
+  assert_int_equal(array5->size[0],8);
+  assert_int_equal(array5->num_elements, 8);
+  for(i = 0; i < array5->num_elements;i++)
+    assert_int_equal(array5->data_float[i], ground_data5[i]);
+
   // Write CSV
   // UINT8
   // 1D (just one line)
@@ -761,6 +773,16 @@ static void test_array_io_csv(void** state){
   array_write_csv(array4, "test_array_write_csv_uint16_2.csv");
   Array* arrayw4 = array_read_csv("test_array_write_csv_uint16_2.csv");
   assert_array_equal(arrayw4, array4);
+
+  array_free(array);
+  array_free(array2);
+  array_free(array3);
+  array_free(array4);
+  array_free(array5);
+  array_free(arrayw);
+  array_free(arrayw2);
+  array_free(arrayw3);
+  array_free(arrayw4);
 }
 
 static void test_array_get_long_double(void** state){
@@ -785,23 +807,23 @@ int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-    cmocka_unit_test(test_array_new),
-    cmocka_unit_test(test_array_new_1D),
-    cmocka_unit_test(test_array_new_2D),
-    cmocka_unit_test(test_array_new_3D),
-    cmocka_unit_test(test_array_new_4D),
-    cmocka_unit_test(test_array_new_1D_type),
-    cmocka_unit_test(test_array_new_2D_type),
-    cmocka_unit_test(test_array_new_3D_type),
-    cmocka_unit_test(test_array_new_4D_type),
-    cmocka_unit_test(test_array_from_data),
-    cmocka_unit_test(test_array_zeros),
-    cmocka_unit_test(test_array_ones),
-    cmocka_unit_test(test_array_sub),
-    cmocka_unit_test(test_array_reduce),
-    cmocka_unit_test(test_array_ops),
-    cmocka_unit_test(test_array_indices_manip),
-    cmocka_unit_test(test_array_get_long_double),
+//    cmocka_unit_test(test_array_new),
+//    cmocka_unit_test(test_array_new_1D),
+//    cmocka_unit_test(test_array_new_2D),
+//    cmocka_unit_test(test_array_new_3D),
+//    cmocka_unit_test(test_array_new_4D),
+//    cmocka_unit_test(test_array_new_1D_type),
+//    cmocka_unit_test(test_array_new_2D_type),
+//    cmocka_unit_test(test_array_new_3D_type),
+//    cmocka_unit_test(test_array_new_4D_type),
+//    cmocka_unit_test(test_array_from_data),
+//    cmocka_unit_test(test_array_zeros),
+//    cmocka_unit_test(test_array_ones),
+//    cmocka_unit_test(test_array_sub),
+//    cmocka_unit_test(test_array_reduce),
+//    cmocka_unit_test(test_array_ops),
+//    cmocka_unit_test(test_array_indices_manip),
+//    cmocka_unit_test(test_array_get_long_double),
     cmocka_unit_test(test_array_io_csv),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
