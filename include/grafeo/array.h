@@ -484,6 +484,13 @@ Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
  */
 Array* array_read_csv(const char* filename);
 /**
+ * @brief array_read_csv_type
+ * @param filename
+ * @param type
+ * @return
+ */
+Array* array_read_csv_type(const char* filename, DataType type);
+/**
  * @brief array_write_csv
  * @param array
  * @param filename

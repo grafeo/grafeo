@@ -704,8 +704,7 @@ Array* array_divide_to(Array* array1, Array* array2, Array* new_array){
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
  *-----------------------------------*/
-
-Array* array_read_csv(const char* filename){
+static Array* array_read_csv_type_minimum(const char* filename, DataType type, uint8_t automatic){
   FILE* file = fopen(filename, "r");
   char* record, *line;
 
@@ -726,7 +725,6 @@ Array* array_read_csv(const char* filename){
   uint8_t  is_unsigned = 1; // If all numbers are positive, the
                             // array type is unsigned (to save
                             // memory)
-  DataType type;            // Array type
   long double maximum  = __DBL_MIN__; // Maximum value
 
   // For each line
@@ -768,43 +766,44 @@ Array* array_read_csv(const char* filename){
     size[0] = height;
     size[1] = width;
   }
-
-  // Get type of Array
-  if(is_integer){
-    if(is_unsigned){
-      if(maximum <= __UINT64_MAX__){
-        type = GRAFEO_UINT64;
-        if(maximum <= __UINT32_MAX__){
-          type = GRAFEO_UINT32;
-          if(maximum <= __UINT16_MAX__){
-            type = GRAFEO_UINT16;
-            if(maximum <= __UINT8_MAX__){
-              type = GRAFEO_UINT8;
+  if(automatic){
+    // Get type of Array
+    if(is_integer){
+      if(is_unsigned){
+        if(maximum <= __UINT64_MAX__){
+          type = GRAFEO_UINT64;
+          if(maximum <= __UINT32_MAX__){
+            type = GRAFEO_UINT32;
+            if(maximum <= __UINT16_MAX__){
+              type = GRAFEO_UINT16;
+              if(maximum <= __UINT8_MAX__){
+                type = GRAFEO_UINT8;
+              }
+            }
+          }
+        }
+      }
+      else{
+        if(maximum <= __INT64_MAX__){
+          type = GRAFEO_INT64;
+          if(maximum <= __INT32_MAX__){
+            type = GRAFEO_INT32;
+            if(maximum <= __INT16_MAX__){
+              type = GRAFEO_INT16;
+              if(maximum <= __INT8_MAX__){
+                type = GRAFEO_INT8;
+              }
             }
           }
         }
       }
     }
     else{
-      if(maximum <= __INT64_MAX__){
-        type = GRAFEO_INT64;
-        if(maximum <= __INT32_MAX__){
-          type = GRAFEO_INT32;
-          if(maximum <= __INT16_MAX__){
-            type = GRAFEO_INT16;
-            if(maximum <= __INT8_MAX__){
-              type = GRAFEO_INT8;
-            }
-          }
-        }
-      }
+      if(maximum <= __FLT_MAX__)
+        type = GRAFEO_FLOAT;
+      else
+        type = GRAFEO_DOUBLE;
     }
-  }
-  else{
-    if(maximum <= __FLT_MAX__)
-      type = GRAFEO_FLOAT;
-    else
-      type = GRAFEO_DOUBLE;
   }
 
   // Create the array
@@ -828,6 +827,14 @@ Array* array_read_csv(const char* filename){
   fclose(file);
   return array;
 }
+
+Array* array_read_csv(const char* filename){
+  return array_read_csv_type_minimum(filename, GRAFEO_UINT32, 1);
+}
+Array* array_read_csv_type(const char* filename, DataType type){
+  return array_read_csv_type_minimum(filename, type, 0);
+}
+
 void array_write_csv(Array* array, const char* filename){
   FILE* file = fopen(filename, "w");
   char* line;
