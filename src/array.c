@@ -307,19 +307,22 @@ array_set_element(Array* array, uint32_t* indices, double value){
   uint8_t i;
   for(i = 0; i < array->dim; i++)
        x += indices[i] * array->step[i];
-  switch(array->type){
-    case GRAFEO_UINT8:  array->data_uint8[x] = (uint8_t)value; break;
-    case GRAFEO_UINT16: array->data_uint16[x] = (uint16_t)value; break;
-    case GRAFEO_UINT32: array->data_uint32[x] = (uint32_t)value; break;
-    case GRAFEO_UINT64: array->data_uint64[x] = (uint64_t)value; break;
-    case GRAFEO_INT8:   array->data_int8[x] = (int8_t)value; break;
-    case GRAFEO_INT16:  array->data_int16[x] = (int16_t)value; break;
-    case GRAFEO_INT32:  array->data_int32[x] = (int32_t)value; break;
-    case GRAFEO_INT64:  array->data_int64[x] = (int64_t)value; break;
-    case GRAFEO_FLOAT:  array->data_float[x] = (float)value; break;
-    case GRAFEO_DOUBLE: array->data_double[x] = (double)value; break;
-  }
+  array_set_element_1D(array, x, value);
+}
 
+void array_set_element_1D(Array* array, uint64_t i, double value){
+  switch(array->type){
+    case GRAFEO_UINT8:  array->data_uint8[i] = (uint8_t)value; break;
+    case GRAFEO_UINT16: array->data_uint16[i] = (uint16_t)value; break;
+    case GRAFEO_UINT32: array->data_uint32[i] = (uint32_t)value; break;
+    case GRAFEO_UINT64: array->data_uint64[i] = (uint64_t)value; break;
+    case GRAFEO_INT8:   array->data_int8[i] = (int8_t)value; break;
+    case GRAFEO_INT16:  array->data_int16[i] = (int16_t)value; break;
+    case GRAFEO_INT32:  array->data_int32[i] = (int32_t)value; break;
+    case GRAFEO_INT64:  array->data_int64[i] = (int64_t)value; break;
+    case GRAFEO_FLOAT:  array->data_float[i] = (float)value; break;
+    case GRAFEO_DOUBLE: array->data_double[i] = (double)value; break;
+  }
 }
 
 long double array_get_long_double_1D(Array* array1, uint64_t i){
@@ -382,6 +385,14 @@ array_from_data(void* data, uint16_t dim, uint32_t* size, DataType type){
   array->owns_data = 0;
   array->data      = data;
   return array;
+}
+Array*
+array_as_type(Array* array, DataType type){
+  Array* array2 = array_new_with_size_type(array->dim, array->size, type);
+  uint64_t i;
+  for(i = 0; i < array->num_elements; i++)
+    array_set_element_1D(array2, i, array_get_long_double_1D(array,i));
+  return array2;
 }
 
 Array*
