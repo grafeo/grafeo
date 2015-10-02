@@ -74,8 +74,8 @@ static void helper_test_ift_img(const char* imagepath,
   Array* image        = image_read(imagepath);
   Array* labels       = image_read(labels_filename);
 
-  Array* seeds_labels  = array_load_csv(seeds_labels_filename);
-  Array* seeds_indices = array_load_csv(seeds_indices_filename);
+  Array* seeds_labels         = array_read_csv(seeds_labels_filename);
+  Array* seeds_indices        = array_read_csv_type(seeds_indices_filename, GRAFEO_UINT64);
 
   IFT* ift = ift_apply_array(image, GRAFEO_NEIGHBOR_4, ift_optimization, weight_diff, path_connectivity, seeds_indices, seeds_labels);
 
