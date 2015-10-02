@@ -44,6 +44,9 @@ size_t calculate_bitsize(DataType type){
   return 0;
 }
 
+/*-----------------------------------
+ *     ARRAY CREATION FUNCTIONS
+ *-----------------------------------*/
 Array*    array_new(){
     Array* array = malloc(sizeof(Array));
     array->dim = 0;
@@ -57,7 +60,6 @@ Array*    array_new(){
     array->owns_data  = 1;
     return array;
 }
-
 Array*    array_new_with_dim(uint16_t dim){
     Array* array        = array_new();
     array->dim          = dim;
@@ -65,12 +67,10 @@ Array*    array_new_with_dim(uint16_t dim){
     array->step         = malloc(sizeof(uint64_t) * dim);
     return array;
 }
-
 Array*    array_new_with_size(uint16_t dim, uint32_t* size){
     return array_new_with_size_type(dim, size, GRAFEO_UINT8);
 }
-
-void array_fill_header(Array* array, uint32_t* size, DataType type){
+void      array_fill_header(Array* array, uint32_t* size, DataType type){
   uint16_t i;
   array->num_elements = 1;
   array->step[array->dim-1] = 1;
@@ -84,19 +84,16 @@ void array_fill_header(Array* array, uint32_t* size, DataType type){
   array->num_bytes    = array->bitsize * array->num_elements;
   array->type         = type;
 }
-
 Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type){
     Array* array        = array_new_with_dim(dim);
     array_fill_header(array, size, type);
     array->data         = malloc(array->num_bytes);
     return array;
 }
-
 Array*    array_new_1D(uint32_t size1){
     Array* array        = array_new_with_size(1, &size1);
     return array;
 }
-
 Array*    array_new_2D(uint32_t size1, uint32_t size2){
     uint32_t sizes[2]; 
     sizes[0]            = size1;
@@ -104,7 +101,6 @@ Array*    array_new_2D(uint32_t size1, uint32_t size2){
     Array* array        = array_new_with_size(2, sizes);
     return array;
 }
-
 Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
     uint32_t sizes[3]; 
     sizes[0]            = size1;
@@ -113,7 +109,6 @@ Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
     Array* array        = array_new_with_size(3, sizes);
     return array;
 }
-
 Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4){
     uint32_t sizes[4]; 
     sizes[0]            = size1;
@@ -123,11 +118,9 @@ Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t 
     Array* array        = array_new_with_size(4, sizes);
     return array;
 }
-
 Array*    array_new_1D_type(uint32_t size1, DataType type){
     return array_new_with_size_type(1, &size1, type);
 }
-
 Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type){
     uint32_t sizes[2]; 
     sizes[0]            = size1;
@@ -135,7 +128,6 @@ Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type){
     return array_new_with_size_type(2, sizes, type);
 
 }
-
 Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, DataType type){
     uint32_t sizes[3]; 
     sizes[0]            = size1;
@@ -143,7 +135,6 @@ Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, Data
     sizes[2]            = size3;
     return array_new_with_size_type(3, sizes, type);
 }
-
 Array*
 array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type){
     uint32_t sizes[4]; 
@@ -153,49 +144,43 @@ array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4
     sizes[3]            = size4;
     return array_new_with_size_type(4, sizes, type);
 }
-
 Array*
 array_new_like(Array* array){
   return array_new_with_size_type(array->dim, array->size, array->type);
 }
-
 Array*
 array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
     Array* array = array_new_with_size_type(dim, sizes, type);
     memset(array->data, 0, array->num_bytes);
     return array;
 }
-
 Array*
 array_zeros_like_type(Array* array, DataType type){
   return array_zeros(array->dim, array->size, type);
 }
-
 Array*
 array_ones(uint16_t dim, uint32_t* sizes, DataType type){
     Array* array = array_new_with_size_type(dim, sizes, type);
     array_fill(array,1);
     return array;
 }
-
 Array*
 array_ones_like_type(Array* array, DataType type){
   return array_ones(array->dim, array->size, type);
 }
-
-
+/*-----------------------------------
+ *   ARRAY OPERATIONS FUNCTIONS
+ *-----------------------------------*/
 void
 array_fill_max(Array *array){
   double values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,__INT16_MAX__,__INT32_MAX__,__INT64_MAX__,__FLT_MAX__,__DBL_MAX__};
   array_fill(array, values[array->type]);
 }
-
 void
 array_fill_min(Array *array){
   double values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
   array_fill(array, values[array->type]);
 }
-
 void
 array_fill(Array* array, double value){
     uint64_t i, ii, index_1d;
@@ -239,37 +224,33 @@ array_fill(Array* array, double value){
     }
     if(!array->contiguous) free(indices);
 }
-
+/*-----------------------------------
+ *   ARRAY ACCESSOR FUNCTIONS
+ *-----------------------------------*/
 uint64_t
 array_get_num_elements(Array* array){
     return array->num_elements;
 }
-
 DataType
 array_get_type(Array* array){
     return array->type;
 }
-
 uint16_t
 array_get_dim(Array* array){
     return array->dim;
 }
-
 uint32_t*
 array_get_size(Array* array){
     return array->size;
 }
-
 void*
 array_get_data(Array* array){
     return array->data;
 }
-
 uint8_t
 array_get_bitsize(Array* array){
     return array->bitsize;
 }
-
 uint64_t
 array_get_num_bytes(Array* array){
     return array->num_bytes;
@@ -724,10 +705,35 @@ Array* array_divide_to(Array* array1, Array* array2, Array* new_array){
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
  *-----------------------------------*/
-Array* array_read_csv(const char* filename){
-  return NULL;
-}
 
+Array* array_read_csv(const char* filename){
+  FILE* file = fopen(filename, "r");
+  char* record, *line;
+
+  Array* array = array_new();
+
+
+  char buffer[1024];
+  uint16_t N = 1024;
+  long double* data = malloc(N*sizeof(long double));
+
+  // For each line
+  uint64_t i = 0;
+  while((line=fgets(buffer, sizeof(buffer),file))!=NULL){
+    // For each entry on line
+    while((record = strtok(line,";")) != NULL){
+      data[i] = strtod(record, NULL);
+      if(i >= N){
+        N <<= 1;
+        // duplicate array size
+        data = realloc(data,N*sizeof(long double));
+      }
+    }
+  }
+
+  fclose(file);
+  return array;
+}
 void array_write_csv(Array* array, const char* filename){
 
 }
