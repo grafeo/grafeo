@@ -193,7 +193,13 @@ Array*    array_sub(Array* array, Range* ranges);
  * @return
  */
 Array*    array_from_data(void* data, uint16_t dim, uint32_t* size, DataType type);
-
+/**
+ * @brief array_as_type
+ * @param array
+ * @param type
+ * @return
+ */
+Array*    array_as_type(Array* array, DataType type);
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
  *-----------------------------------*/
@@ -407,6 +413,13 @@ void      array_set_element(Array* array, uint32_t* indices, double value);
  * @return
  */
 long double array_get_long_double_1D(Array* array1, uint64_t i);
+/**
+ * @brief array_set_element_1D
+ * @param array
+ * @param i
+ * @param value
+ */
+void array_set_element_1D(Array* array, uint64_t i, double value);
 /*-----------------------------------
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/

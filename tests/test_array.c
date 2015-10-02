@@ -803,28 +803,52 @@ static void test_array_get_long_double(void** state){
   array_free(array);
 }
 
+static void test_array_conversion(void** state){
+  (void) state;
+  uint8_t data[8] = {1,2,3,4,5,6,7,8};
+  uint32_t size   = 8;
+  uint64_t i;
+  Array* array    = array_from_data(data,1,&size,GRAFEO_UINT8);
+
+  // To UINT16
+  Array* array2   = array_as_type(array, GRAFEO_UINT16);
+  assert_non_null(array2);
+  assert_int_equal(array2->type, GRAFEO_UINT16);
+  for(i = 0; i < array2->num_elements; i++){
+    assert_int_equal(array_get_long_double_1D(array2,i),data[i]);
+  }
+  // To FLOAT
+  Array* array3   = array_as_type(array, GRAFEO_FLOAT);
+  assert_non_null(array3);
+  assert_int_equal(array3->type, GRAFEO_FLOAT);
+  for(i = 0; i < array2->num_elements; i++){
+    assert_int_equal(array_get_long_double_1D(array3,i),data[i]);
+  }
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-//    cmocka_unit_test(test_array_new),
-//    cmocka_unit_test(test_array_new_1D),
-//    cmocka_unit_test(test_array_new_2D),
-//    cmocka_unit_test(test_array_new_3D),
-//    cmocka_unit_test(test_array_new_4D),
-//    cmocka_unit_test(test_array_new_1D_type),
-//    cmocka_unit_test(test_array_new_2D_type),
-//    cmocka_unit_test(test_array_new_3D_type),
-//    cmocka_unit_test(test_array_new_4D_type),
-//    cmocka_unit_test(test_array_from_data),
-//    cmocka_unit_test(test_array_zeros),
-//    cmocka_unit_test(test_array_ones),
-//    cmocka_unit_test(test_array_sub),
-//    cmocka_unit_test(test_array_reduce),
-//    cmocka_unit_test(test_array_ops),
-//    cmocka_unit_test(test_array_indices_manip),
-//    cmocka_unit_test(test_array_get_long_double),
+    cmocka_unit_test(test_array_new),
+    cmocka_unit_test(test_array_new_1D),
+    cmocka_unit_test(test_array_new_2D),
+    cmocka_unit_test(test_array_new_3D),
+    cmocka_unit_test(test_array_new_4D),
+    cmocka_unit_test(test_array_new_1D_type),
+    cmocka_unit_test(test_array_new_2D_type),
+    cmocka_unit_test(test_array_new_3D_type),
+    cmocka_unit_test(test_array_new_4D_type),
+    cmocka_unit_test(test_array_from_data),
+    cmocka_unit_test(test_array_zeros),
+    cmocka_unit_test(test_array_ones),
+    cmocka_unit_test(test_array_sub),
+    cmocka_unit_test(test_array_reduce),
+    cmocka_unit_test(test_array_ops),
+    cmocka_unit_test(test_array_indices_manip),
+    cmocka_unit_test(test_array_get_long_double),
     cmocka_unit_test(test_array_io_csv),
+    cmocka_unit_test(test_array_conversion),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
