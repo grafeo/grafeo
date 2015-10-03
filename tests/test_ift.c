@@ -197,9 +197,9 @@ int main(int argc, char** argv){
   (void)argv;
   const struct CMUnitTest tests[]={
     //cmocka_unit_test(test_ift_sum),
-    cmocka_unit_test(test_ift_max),
-    //cmocka_unit_test(test_ift_min),
-    cmocka_unit_test(test_ift_euc),
+    //cmocka_unit_test(test_ift_max),
+    cmocka_unit_test(test_ift_min),
+    //cmocka_unit_test(test_ift_euc),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
