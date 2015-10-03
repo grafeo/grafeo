@@ -59,16 +59,19 @@ static void helper_test_ift_img(const char* imagepath,
   Array* image        = image_read(imagepath);
   Array* labels       = image_read(labels_filename);
 
-  Array* seeds_labels         = array_read_csv(seeds_labels_filename);
+  image->dim = 2;
+  labels->dim = 2;
+
+  Array* seeds_labels         = array_read_csv_type(seeds_labels_filename,  GRAFEO_UINT16);
   Array* seeds_indices        = array_read_csv_type(seeds_indices_filename, GRAFEO_UINT64);
 
   IFT* ift = ift_apply_array(image, GRAFEO_NEIGHBOR_4, ift_optimization, weight_diff, path_connectivity, seeds_indices, seeds_labels);
-  Array* label_output = array_mult_scalar(ift->label, 128);
-  Array* label_output_uint8 = array_as_type(label_output, GRAFEO_UINT8);
-  array_free(label_output);
 
-  image_write(label_output_uint8, "label_output.png");
-  array_free(label_output_uint8);
+  Array* label  = array_as_type(ift->label, GRAFEO_UINT8);
+  Array* output = array_mult_scalar(label, 255);
+  image_write(output,"label_output.png");
+  array_free(label);
+  array_free(output);
 
   assert_non_null(ift);
 
@@ -196,9 +199,9 @@ int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
-    //cmocka_unit_test(test_ift_sum),
-    //cmocka_unit_test(test_ift_max),
-    cmocka_unit_test(test_ift_min),
+    cmocka_unit_test(test_ift_sum),
+    cmocka_unit_test(test_ift_max),
+    //cmocka_unit_test(test_ift_min),
     //cmocka_unit_test(test_ift_euc),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
