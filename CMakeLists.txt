@@ -77,6 +77,8 @@ if(Doxygen_FOUND)
           COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/tutorials
             ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+        SET_DIRECTORY_PROPERTIES(PROPERTIES  
+          ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/doc/*") 
     endif(BUILD_DOCS)
 endif(Doxygen_FOUND)
 #================================================================ PNG

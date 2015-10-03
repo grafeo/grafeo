@@ -61,6 +61,9 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
   if     (adjacency == GRAFEO_NEIGHBOR_4) num_neighbors = 4;
   else if(adjacency == GRAFEO_NEIGHBOR_8) num_neighbors = 8;
 
+  int32_t*  index_t_nd   = malloc(sizeof(int32_t)*array->dim);
+  uint32_t* index_t_nd_u = malloc(sizeof(uint32_t)*array->dim);
+
   while(!queue_is_empty(queue)){
 
     // Get node of minimum connectivity value (remove it from queue)
@@ -77,7 +80,6 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
     for(i = 0; i < num_neighbors; i++){
 
       // Calculate neighbor index
-      int32_t* index_t_nd = malloc(sizeof(int32_t)*array->dim);
       uint8_t j;
       for(j = 0; j < array->dim; j++)
         index_t_nd[j] = (int32_t)index_nd[j] + neighbors_relative[i][j];
@@ -85,7 +87,7 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
       // Verify if it's valid (inside array region)
       if(array_index_is_valid(visited, index_t_nd)){
 
-        uint32_t* index_t_nd_u = malloc(sizeof(uint32_t)*array->dim);
+
         for(j = 0; j < array->dim; j++)
           index_t_nd_u[j] = (uint32_t)index_t_nd[j];
 
@@ -114,7 +116,7 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
             // Update predecessors, connectivity, labels and roots
             array_set_element(ift->predecessors, index_t_nd_u, index_s);
             array_set_element(ift->connectivity, index_t_nd_u, connectivity);
-            array_set_element(ift->label,        index_t_nd_u, *(uint8_t*) array_get_element(ift->label, index_nd));
+            array_set_element(ift->label,        index_t_nd_u, *(uint16_t*) array_get_element(ift->label, index_nd));
             array_set_element(ift->root,         index_t_nd_u, *(uint64_t*) array_get_element(ift->root,  index_nd));
 
             // (re)insert unvisited neighbors
@@ -123,13 +125,13 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
             else if(optimization_type == GRAFEO_IFT_MAX)
               pqueue_append_at(queue, INT64_TO_POINTER(connectivity), UINT64_TO_POINTER(index_t), int64_compare_function_r);
           }
-        }
-        free(index_t_nd_u);
-      }
-      free(index_t_nd);
+        } 
+      }    
     }
     free(index_nd);
   }
+  free(index_t_nd_u);
+  free(index_t_nd);
 
   array_free(visited);
   queue_free(queue);
