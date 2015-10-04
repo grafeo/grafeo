@@ -519,7 +519,18 @@ Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
  * @return     { description_of_the_return_value }
  */
 Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
-
+/**
+ * @brief array_squeeze
+ * @param array
+ */
+void array_squeeze(Array* array);
+/**
+ * @brief array_squeeze_axis
+ * @param num_axis
+ * @param array
+ * @param axis
+ */
+void array_squeeze_axis(Array* array, uint8_t num_axis, uint16_t* axis);
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
  *-----------------------------------*/

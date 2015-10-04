@@ -863,6 +863,40 @@ static void test_array_conversion(void** state){
   }
 }
 
+static void test_array_squeeze(void** state){
+  (void) state;
+  uint32_t N1=10,N2=20;
+  // Remove all single-dimensional axis
+  uint32_t size[4] = {1,N1,N2,1};
+  Array* array = array_new_with_size(4,size);
+  array_squeeze(array);
+  assert_int_equal(array->dim, 2);
+  assert_int_equal(array->size[0], N1);
+  assert_int_equal(array->size[1], N2);
+  array_free(array);
+
+  // Remove specific single-dimensional axis
+  array = array_new_with_size(4,size);
+  uint16_t axis[1] = {0};
+  array_squeeze_axis(array, 1, axis);
+  assert_int_equal(array->dim, 3);
+  assert_int_equal(array->size[0], N1);
+  assert_int_equal(array->size[1], N2);
+  assert_int_equal(array->size[2], 1);
+  array_free(array);
+
+  array = array_new_with_size(4,size);
+  axis[0] = 3;
+  array_squeeze_axis(array, 1, axis);
+  assert_int_equal(array->dim, 3);
+  assert_int_equal(array->size[0], 1);
+  assert_int_equal(array->size[1], N1);
+  assert_int_equal(array->size[2], N2);
+  array_free(array);
+
+
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
@@ -886,6 +920,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_get_long_double),
     cmocka_unit_test(test_array_io_csv),
     cmocka_unit_test(test_array_conversion),
+    cmocka_unit_test(test_array_squeeze),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

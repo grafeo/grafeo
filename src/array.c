@@ -559,6 +559,31 @@ array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operatio
   return reduced;
 }
 
+void array_squeeze(Array* array){
+  uint16_t current_pos = 0,i;
+  for(i = current_pos; i < array->dim; i++){
+    if(array->size[i] != 1) array->size[current_pos++] = array->size[i];
+  }
+  array->dim = current_pos;
+  array->size = realloc(array->size, current_pos * sizeof(uint32_t));
+}
+
+void array_squeeze_axis(Array* array, uint8_t num_axis, uint16_t* axis){
+  uint16_t current_pos = axis[0], current_axis_pos = 0,i;
+  for(i = current_pos; i < array->dim; i++){
+    // Copy whether non single-dimension or not indicated by axis
+    if(current_axis_pos       == num_axis || // Traversed all indicated axis?
+       array->size[i]         != 1 ||        // Non single-dimension?
+       axis[current_axis_pos] != i)          // Is not an indicated axis?
+      array->size[current_pos++] = array->size[i];
+    // If indicated, don't copy, just see next indicated axis
+    else if(i == axis[current_axis_pos])
+      current_axis_pos++;
+  }
+  array->dim = current_pos;
+  array->size = realloc(array->size, current_pos * sizeof(uint32_t));
+}
+
 Array* array_sum_scalar(Array *array, double value){
   Array* new_array = array_new_like(array);
   uint64_t i;
