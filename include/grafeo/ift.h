@@ -145,6 +145,14 @@ double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, Weigh
  */
 double weight_diff(Array *array, uint64_t index1, uint64_t index2);
 /**
+ * @brief weight_diff_3
+ * @param array
+ * @param index1
+ * @param index2
+ * @return
+ */
+double weight_diff_3(Array* array, uint64_t index1, uint64_t index2);
+/**
  * @brief ift_free
  * @param ift
  */

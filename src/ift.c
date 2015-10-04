@@ -220,3 +220,9 @@ double weight_diff(Array *array, uint64_t index1, uint64_t index2){
   }
   return 0;
 }
+
+double weight_diff_3(Array* array, uint64_t index1, uint64_t index2){
+  return  pow(array_get_long_double_1D(array, index1)   - array_get_long_double_1D(array, index2),2)   +
+          pow(array_get_long_double_1D(array, index1+1) - array_get_long_double_1D(array, index2+1),2) +
+          pow(array_get_long_double_1D(array, index1+2) - array_get_long_double_1D(array, index2+2),2);
+}

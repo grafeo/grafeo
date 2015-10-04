@@ -156,6 +156,23 @@ static void helper_test_ift(PathConnectivityFunc path_connectivity, IFTOptimizat
   array_free(image);
 }
 
+static void helper_test_ift_rgb(PathConnectivityFunc connectivity_function, IFTOptimization optimization){
+  uint32_t size[3]              = {2,2,3}; // 2x2 RGB
+  uint32_t seeds_size[1]        = {2};
+  uint8_t  data[12]             = {  0,  0, 0,  20, 12, 23,
+                                   128,200,50, 230,130,124};
+  uint64_t seeds_indices_data[2]= {};
+  uint16_t seeds_labels_data[2] = {};
+  uint8_t  labels_data[4]       = {  0,        0,
+                                     1,        1};
+  Array*   image                = array_from_data(data              , 3, size      , GRAFEO_UINT8);
+  Array*   correct_labels       = array_from_data(labels_data       , 2, size      , GRAFEO_UINT16);
+  Array*   seeds_indices        = array_from_data(seeds_indices_data, 1, seeds_size, GRAFEO_UINT64);
+  Array*   seeds_labels         = array_from_data(seeds_labels_data , 1, seeds_size, GRAFEO_UINT16);
+  IFT* ift = ift_apply_array(image,GRAFEO_NEIGHBOR_4,optimization, weight_diff_3, connectivity_function, seeds_indices, seeds_labels);
+  assert_array_equal(ift_get_label(ift), correct_labels);
+}
+
 static void test_ift_sum(void** state){
   (void) state;
   helper_test_ift(path_connectivity_sum, GRAFEO_IFT_MIN);
@@ -193,12 +210,23 @@ static void test_ift_euc(void** state){
                       path_connectivity_euc, GRAFEO_IFT_MIN);
 }
 
+static void test_ift_max_rgb(void** state){
+  (void) state;
+  helper_test_ift_rgb(path_connectivity_max, GRAFEO_IFT_MIN);
+  helper_test_ift_img("../data/starrgb.png",
+                      "../data/starrgb_labels.png",
+                      "../data/starrgb_seeds_indices.csv",
+                      "../data/starrgb_seeds_labels.csv",
+                      path_connectivity_euc, GRAFEO_IFT_MIN);
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
     cmocka_unit_test(test_ift_sum),
     cmocka_unit_test(test_ift_max),
+    cmocka_unit_test(test_ift_max_rgb),
     //cmocka_unit_test(test_ift_min),
     //cmocka_unit_test(test_ift_euc),
   };
