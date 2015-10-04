@@ -30,6 +30,7 @@
 
 #include <grafeo/type.h>
 #include <grafeo/range.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
@@ -152,6 +153,12 @@ Array*    array_new_like(Array* array);
  */
 Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type);
 /**
+ * @brief array_zeros_like
+ * @param array
+ * @return
+ */
+Array*    array_zeros_like(Array* array);
+/**
  * @brief array_zeros_like_type
  * @param array
  * @param type
@@ -168,7 +175,13 @@ Array*    array_zeros_like_type(Array* array, DataType type);
  */
 Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type);
 /**
- * @brief array_zeros_like_type
+ * @brief array_ones_like
+ * @param array
+ * @return
+ */
+Array*    array_ones_like(Array* array);
+/**
+ * @brief array_ones_like_type
  * @param array
  * @param type
  * @return
@@ -207,7 +220,7 @@ Array*    array_as_type(Array* array, DataType type);
  * Fill existing array with a value
  * @memberof Array
  */
-void      array_fill(Array* array, double value);
+void      array_fill(Array* array, long double value);
 /**
  * @brief array_fill_max
  * @param array
@@ -307,7 +320,20 @@ Array*    array_mult_to(Array* array1, Array* array2, Array* new_array);
  * @return
  */
 Array*    array_divide_to(Array* array1, Array* array2, Array* new_array);
-
+/**
+ * @brief array_euclidian_distance
+ * @param array1
+ * @param array2
+ * @return
+ */
+long double array_euclidian_distance(Array* array1, Array* array2);
+/**
+ * @brief array_square_euclidian_distance
+ * @param array1
+ * @param array2
+ * @return
+ */
+long double array_square_euclidian_distance(Array* array1, Array* array2);
 /*-----------------------------------
  *   ARRAY ACCESSOR FUNCTIONS
  *-----------------------------------*/
@@ -346,6 +372,13 @@ void*     array_get_data(Array* array);
  * @return     { description_of_the_return_value }
  */
 void*     array_get_element(Array* array, uint32_t* indices);
+/**
+ * @brief array_get_element_1D
+ * @param array
+ * @param index
+ * @return
+ */
+void*     array_get_element_1D(Array* array, uint64_t index);
 /**
  * @brief      { function_description }
  *

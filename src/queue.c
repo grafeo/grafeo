@@ -195,8 +195,9 @@ void* queue_remove_at(Queue* queue, uint32_t index){
 // Remove first element
 void* queue_remove_begin(Queue* queue){
   if(queue_is_empty(queue)) return NULL;
-  void* value = list_value(queue->begin);
+  void* value  = list_value(queue->begin);
   queue->begin = list_remove_begin(queue->begin);
+  if(!queue->begin) queue->end = NULL;
   queue->length--;
   return value;
 }

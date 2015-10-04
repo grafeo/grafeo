@@ -77,6 +77,8 @@ if(Doxygen_FOUND)
           COMMAND ${CMAKE_COMMAND} -E copy_directory
             ${CMAKE_CURRENT_SOURCE_DIR}/tutorials
             ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+        SET_DIRECTORY_PROPERTIES(PROPERTIES  
+          ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/doc/*") 
     endif(BUILD_DOCS)
 endif(Doxygen_FOUND)
 #================================================================ PNG
@@ -104,20 +106,24 @@ endif(BUILD_TESTING)
 #============================================================ LIBRARY
 include_directories(include)
 set(GRAFEO_HDR
+    include/grafeo/ift.h
     include/grafeo/pqueue.h
     include/grafeo/bucket.h
     include/grafeo/slist.h
     include/grafeo/list.h
     include/grafeo/type.h
+    include/grafeo/macro.h
     include/grafeo/array.h
     include/grafeo/queue.h
     include/grafeo/range.h
     include/grafeo/image.h
 )
 set(GRAFEO_SRC
+ src/ift.c
  src/pqueue.c
  src/bucket.c
  src/slist.c
+ src/type.c
  src/array.c
  src/list.c
  src/queue.c
@@ -197,6 +203,7 @@ if(BUILD_TESTING)
       slist
       queue
       pqueue
+      ift
     )
     include (CTest)
     foreach(testname ${TESTS_NAMES})

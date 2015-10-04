@@ -52,4 +52,5 @@ src/.tags_sorted_by_file
 *.user
 *.autosave
 *.~
+*.*~
 *.swp

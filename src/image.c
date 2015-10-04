@@ -183,7 +183,7 @@ void image_write_png(Array* array, const char* filename){
 
   uint8_t**buffer   = (uint8_t**)malloc(sizeof(uint8_t*) * array->size[0]);
   uint32_t i;
-  for(i = 0; i < array->size[0]; i++) buffer[i] = array->data_uint8 + array->step[0] * i;
+  for(i = 0; i < array->size[0]; i++) buffer[i] = array->data_uint8 + array->step[0] * i * array->bitsize;
   png_write_image(png_ptr, buffer);
 
   /* end write */

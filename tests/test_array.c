@@ -332,6 +332,24 @@ static void test_array_zeros(void** state){
                             }
                         }
 
+                        Array* array_like = array_zeros_like(array);
+                        for(n = num_elements-1; n < num_elements; n++){
+                            switch(type){
+                                case GRAFEO_UINT8:  assert_int_equal(array_like->data_uint8[n],  0);break;
+                                case GRAFEO_UINT16: assert_int_equal(array_like->data_uint16[n], 0);break;
+                                case GRAFEO_UINT32: assert_int_equal(array_like->data_uint32[n], 0);break;
+                                case GRAFEO_UINT64: assert_int_equal(array_like->data_uint64[n], 0);break;
+                                case GRAFEO_INT8:   assert_int_equal(array_like->data_int8[n],   0);break;
+                                case GRAFEO_INT16:  assert_int_equal(array_like->data_int16[n],  0);break;
+                                case GRAFEO_INT32:  assert_int_equal(array_like->data_int32[n],  0);break;
+                                case GRAFEO_INT64:  assert_int_equal(array_like->data_int64[n],  0);break;
+                                case GRAFEO_FLOAT:  assert_int_equal(array_like->data_float[n],  0);break;
+                                case GRAFEO_DOUBLE: assert_int_equal(array_like->data_double[n], 0);break;
+                            }
+                        }
+                        helper_testing_array(array_like, num_elements, type, 4, sizes);
+
+                        array_free(array_like);
                         DataType type2 = GRAFEO_DOUBLE-type;
                         Array* array2 = array_zeros_like_type(array, type2);
                         helper_testing_array(array2, num_elements, type2, 4, sizes);
@@ -395,6 +413,25 @@ static void test_array_ones(void** state){
                                 case GRAFEO_DOUBLE: assert_true(array->data_double[n] == 1.0);break;
                             }
                         }
+
+                        Array* array_like = array_ones_like(array);
+                        helper_testing_array(array_like, num_elements, type, 4, sizes);
+                        for(n = num_elements-1; n < num_elements; n++){
+                            switch(type){
+                                case GRAFEO_UINT8:  assert_int_equal(array_like->data_uint8[n],  1);break;
+                                case GRAFEO_UINT16: assert_int_equal(array_like->data_uint16[n], 1);break;
+                                case GRAFEO_UINT32: assert_int_equal(array_like->data_uint32[n], 1);break;
+                                case GRAFEO_UINT64: assert_int_equal(array_like->data_uint64[n], 1);break;
+                                case GRAFEO_INT8:   assert_int_equal(array_like->data_int8[n],   1);break;
+                                case GRAFEO_INT16:  assert_int_equal(array_like->data_int16[n],  1);break;
+                                case GRAFEO_INT32:  assert_int_equal(array_like->data_int32[n],  1);break;
+                                case GRAFEO_INT64:  assert_int_equal(array_like->data_int64[n],  1);break;
+                                case GRAFEO_FLOAT:  assert_true(array_like->data_float[n] == 1.0);break;
+                                case GRAFEO_DOUBLE: assert_true(array_like->data_double[n] == 1.0);break;
+                            }
+                        }
+
+                        array_free(array_like);
                         DataType type2 = GRAFEO_DOUBLE - type;
                         Array* array2 = array_ones_like_type(array, type2);
                         helper_testing_array(array2, num_elements, type2, 4, sizes);
