@@ -24,12 +24,12 @@ Graph Library for C and Python
 $ mkdir build
 $ cd build
 $ cmake ..
-$ make && make install
+$ make && sudo make install
 ~~~
 
-## Usage
+## Learn by doing
 
-See [documentation](http://grafeo.github.io/documentation/) to learn how to use it. Tutorials are available.
+There are some [tutorials](@ref md_tutorials) to grasp all the resources of Grafeo.
 
 ## Contact
 

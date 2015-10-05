@@ -28,6 +28,9 @@
 #ifndef GRAFEO_TYPE_H
 #define GRAFEO_TYPE_H
 #include <inttypes.h>
+#include <grafeo/macro.h>
+
+BEGIN_DECLS
 
 /**
  * @brief Enumeration for data types
@@ -108,5 +111,7 @@ int8_t int64_compare_function  (void* value1, void* value2);
 #define POINTER_TO_UINT16(i) ((uint16_t)(uint64_t)(i))
 #define POINTER_TO_UINT32(i) ((uint32_t)(uint64_t)(i))
 #define POINTER_TO_UINT64(i) ((uint64_t)(uint64_t)(i))
+
+END_DECLS
 
 #endif

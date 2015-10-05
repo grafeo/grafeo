@@ -28,6 +28,9 @@
 #ifndef GRAFEO_QUEUE_H
 #define GRAFEO_QUEUE_H
 #include <grafeo/list.h>
+
+BEGIN_DECLS
+
 /**
   * @brief Queue structure
   */
@@ -223,5 +226,7 @@ void queue_prepend_sorted(Queue* queue, CompareFunc compare_function, void* valu
  * @param user_data
  */
 void queue_prepend_sorted_with_data(Queue* queue, CompareDataFunc compare_function, void* value, void* user_data);
+
+END_DECLS
 
 #endif

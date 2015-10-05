@@ -29,23 +29,23 @@
 #define IFT_ARRAY_H
 #include <grafeo/array.h>
 #include <grafeo/pqueue.h>
-#include <grafeo/macro.h>
 
 BEGIN_DECLS
 
 /**
-  * @brief Structure for managing IFT data
-  */
+ * @brief Structure for managing IFT data
+ */
 typedef struct _IFT{
-  Array* original;
-  Array* label;
-  Array* predecessors;
-  Array* connectivity;
-  Array* root;
+  Array* original;    /**< Original array */
+  Array* label;       /**< Label map */
+  Array* predecessors;/**< Predecessors map */
+  Array* connectivity;/**< Connectivity map */
+  Array* root;        /**< Root map */
 }IFT;
 
 /**
   * @brief Optimization type for IFT: Minimization (Primal) or Maximization (Dual)
+  * @memberof IFT
   */
 typedef enum _IFTOptimization{
   GRAFEO_IFT_MIN,
@@ -80,6 +80,7 @@ typedef double
 /**
  * @brief Allocates a new IFT structure instance
  * @return the instance
+ * @memberof IFT
  */
 IFT*   ift_new();
 /**
@@ -87,6 +88,7 @@ IFT*   ift_new();
  * @param array
  * @param map_dimension
  * @return
+ * @memberof IFT
  */
 IFT*   ift_new_from_array(Array* array, uint8_t map_dimension);
 /**
@@ -100,6 +102,7 @@ IFT*   ift_new_from_array(Array* array, uint8_t map_dimension);
  * @param seeds_indices
  * @param seeds_labels
  * @return
+ * @memberof IFT
  */
 IFT*   ift_apply_array(Array* array, 
                        uint16_t map_dimension,
@@ -164,6 +167,7 @@ double weight_diff_3(Array* array, uint64_t index1, uint64_t index2);
 /**
  * @brief ift_free
  * @param ift
+ * @memberof IFT
  */
 void   ift_free(IFT* ift);
 
@@ -171,63 +175,71 @@ void   ift_free(IFT* ift);
  * IFT ACCESSOR FUNCTIONS
  * ====================== */
 /**
- * @brief ift_get_label
+ * @brief Get the label map of the IFT
  * @param ift
  * @return
+ * @memberof IFT
  */
 Array* ift_get_label(IFT* ift);
 /**
- * @brief ift_get_predecessors
+ * @brief Get the predecessors map of the IFT
  * @param ift
  * @return
  */
 Array* ift_get_predecessors(IFT* ift);
 /**
- * @brief ift_get_connectivity
+ * @brief Get connectivity map of the IFT
  * @param ift
  * @return
+ * @memberof IFT
  */
 Array* ift_get_connectivity(IFT* ift);
 /**
- * @brief ift_get_root
+ * @brief Get root map of the IFT
  * @param ift
  * @return
  */
 Array* ift_get_root(IFT* ift);
 /**
- * @brief ift_get_original
+ * @brief Get original array (e.g. image) of the IFT
  * @param ift
  * @return
+ * @memberof IFT
  */
 Array* ift_get_original(IFT* ift);
 /**
- * @brief ift_set_label
+ * @brief Set label map of the IFT
  * @param ift
  * @param label
+ * @memberof IFT
  */
 void ift_set_label(IFT* ift, Array* label);
 /**
- * @brief ift_set_connectivity
+ * @brief Set connectivity map of the IFT
  * @param ift
  * @param connectivity
+ * @memberof IFT
  */
 void ift_set_connectivity(IFT* ift, Array* connectivity);
 /**
- * @brief ift_set_original
+ * @brief Set original array of the IFT
  * @param ift
  * @param original
+ * @memberof IFT
  */
 void ift_set_original(IFT* ift, Array* original);
 /**
- * @brief ift_set_predecessors
+ * @brief Set predecessors map of the IFT
  * @param ift
  * @param predecessors
+ * @memberof IFT
  */
 void ift_set_predecessors(IFT* ift, Array* predecessors);
 /**
- * @brief ift_set_root
+ * @brief Set root map of the IFT
  * @param ift
  * @param root
+ * @memberof IFT
  */
 void ift_set_root(IFT* ift, Array* root);
 

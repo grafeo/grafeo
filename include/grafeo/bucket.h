@@ -28,6 +28,8 @@
 #ifndef GRAFEO_BUCKET_H
 #define GRAFEO_BUCKET_H
 #include <grafeo/queue.h>
+
+BEGIN_DECLS
 /**
  * @brief Bucket structure, just a queue with an additional attribute which
  * is the same for every item
@@ -73,5 +75,7 @@ void    bucket_set_value(Bucket* bucket, void* value);
  * @param bucket
  */
 void    bucket_free(Bucket* bucket);
+
+END_DECLS
 
 #endif

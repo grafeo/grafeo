@@ -27,16 +27,26 @@
 # ===================================================================*/
 #ifndef GRAFEO_RANGE_H
 #define GRAFEO_RANGE_H
+#include <grafeo/macro.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+BEGIN_DECLS
+
+/**
+ * @brief End of a range
+ */
 typedef struct _RangeItem{
-	int64_t value;
+  int64_t value; /**< Value of object representing an range end */
 }RangeItem;
 
+/**
+ * @brief Range structure
+ */
 typedef struct _Range{
-	RangeItem* from;
-	RangeItem* to;
+  RangeItem* from; /**< Start of range */
+  RangeItem* to;   /**< End (exclusive) of range */
 }Range;
 
 /**
@@ -70,4 +80,7 @@ void range_to(Range* range, int64_t to);
  * @param      range  { parameter_description }
  */
 void range_all(Range* range);
+
+END_DECLS
+
 #endif

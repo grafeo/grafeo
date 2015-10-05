@@ -36,6 +36,8 @@
 #include <png.h>
 #include <jpeglib.h>
 
+BEGIN_DECLS
+
 
 /**
  * @brief      Read an image and generate an Array (for now, PNG or JPG)
@@ -102,5 +104,6 @@ typedef enum _ImageError{
   GRAFEO_ERROR_FILE_OPEN = 0
 }ImageError;
 
+END_DECLS
 
 #endif

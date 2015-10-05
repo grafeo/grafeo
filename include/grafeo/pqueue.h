@@ -31,6 +31,8 @@
 #include <grafeo/bucket.h>
 #include <grafeo/queue.h>
 
+BEGIN_DECLS
+
 /**
  * @brief Append a value in a bucket list.
  * @param pqueue The priority queue
@@ -103,4 +105,7 @@ void* pqueue_bucket_at(Queue* pqueue, uint32_t bucket_index, uint32_t index);
  * @return
  */
 Bucket* pqueue_bucket_of(Queue* pqueue, void* bucket_value);
+
+END_DECLS
+
 #endif

@@ -30,9 +30,15 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <grafeo/type.h>
+
+BEGIN_DECLS
+
+/**
+ * @brief Single-Linked List
+ */
 typedef struct _SList{
-  void* value;
-  struct _SList* next;
+  void* value;        /**< Value of an item of the list */
+  struct _SList* next;/**< Link to the next list item */
 }SList;
 /**
  * @brief slist_new
@@ -366,4 +372,7 @@ void    slist_set_next(SList* list, SList* item);
  * @param value
  */
 void slist_set_value(SList* list, void* value);
+
+END_DECLS
+
 #endif

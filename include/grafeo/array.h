@@ -36,12 +36,16 @@
 #include <limits.h>
 #include <math.h>
 
+BEGIN_DECLS
+
 /**
- * Array Structure:
+ * @brief Array Structure
+ *
  * Each array will have its own data
+ *
  * Each array will have its own size vector
+ *
  * Support multidimensional arrays (dim > 2)
- * TODO 0.2: make different arrays have same data
  */
 typedef struct 
 _Array{
@@ -560,4 +564,7 @@ void array_write_csv(Array* array, const char* filename);
  * @return
  */
 char* array_join(Array* array, const char* delimiters);
+
+END_DECLS
+
 #endif

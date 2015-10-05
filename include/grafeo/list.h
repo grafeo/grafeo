@@ -31,6 +31,9 @@
 #include <stdlib.h>
 #include <grafeo/type.h>
 #include <grafeo/slist.h>
+
+BEGIN_DECLS
+
 /**
   * @brief List structure
   */
@@ -392,4 +395,7 @@ void* list_value(List* item);
  * @return
  */
 List* list_new_with_value(void* value);
+
+END_DECLS
+
 #endif
