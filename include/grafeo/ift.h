@@ -83,8 +83,16 @@ typedef double
  */
 IFT*   ift_new();
 /**
+ * @brief ift_new_from_array
+ * @param array
+ * @param map_dimension
+ * @return
+ */
+IFT*   ift_new_from_array(Array* array, uint8_t map_dimension);
+/**
  * @brief Run IFT in an array
  * @param array
+ * @param map_dimension
  * @param adjacency
  * @param optimization_type
  * @param weight_function
@@ -94,6 +102,7 @@ IFT*   ift_new();
  * @return
  */
 IFT*   ift_apply_array(Array* array, 
+                       uint16_t map_dimension,
                        Adjacency adjacency,
                        IFTOptimization optimization_type,
                        WeightFunc weight_function,

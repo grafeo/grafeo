@@ -4,22 +4,22 @@ IFT* ift_new(){
   return malloc(sizeof(IFT));
 }
 
-IFT* ift_new_from_array(Array* array){
+IFT* ift_new_from_array(Array* array, uint8_t map_dimension){
   IFT* ift = ift_new();
-  ift->label        = array_zeros_like_type(array, GRAFEO_UINT16);
-  ift->predecessors = array_zeros_like_type(array, GRAFEO_UINT64);
-  ift->connectivity = array_zeros_like_type(array, GRAFEO_INT64);
-  ift->root         = array_zeros_like_type(array, GRAFEO_UINT64);
+  ift->label        = array_zeros(map_dimension, array->size, GRAFEO_UINT16);
+  ift->predecessors = array_zeros(map_dimension, array->size, GRAFEO_UINT64);
+  ift->connectivity = array_zeros(map_dimension, array->size, GRAFEO_INT64);
+  ift->root         = array_zeros(map_dimension, array->size, GRAFEO_UINT64);
   ift->original     = array;
   return ift;
 }
 
-IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimization_type, WeightFunc weight_function, PathConnectivityFunc path_connectivity, Array* seeds_indices, Array* seeds_labels){
+IFT*   ift_apply_array(Array *array, uint16_t map_dimension, Adjacency adjacency, IFTOptimization optimization_type, WeightFunc weight_function, PathConnectivityFunc path_connectivity, Array* seeds_indices, Array* seeds_labels){
   // IFT structure
-  IFT* ift          = ift_new_from_array(array);
+  IFT* ift          = ift_new_from_array(array, map_dimension);
 
   // Auxiliary structures
-  Array* visited    = array_zeros_like_type(array, GRAFEO_UINT8);
+  Array* visited    = array_zeros(map_dimension, array->size, GRAFEO_UINT8);
   Queue* queue      = queue_new();
 
 
@@ -54,15 +54,15 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
 
   // Process all nodes
   uint64_t index_s; // indices for nodes s and t
-  int64_t index_t;
+  int64_t  index_t;
   uint8_t  i,num_neighbors;       // for iterating neighbors
   int64_t  connectivity;            // connectivity for extended path <r...s,t>
 
   if     (adjacency == GRAFEO_NEIGHBOR_4) num_neighbors = 4;
   else if(adjacency == GRAFEO_NEIGHBOR_8) num_neighbors = 8;
 
-  int32_t*  index_t_nd   = malloc(sizeof(int32_t)*array->dim);
-  uint32_t* index_t_nd_u = malloc(sizeof(uint32_t)*array->dim);
+  int32_t*  index_t_nd   = malloc(sizeof(int32_t)*ift->label->dim);
+  uint32_t* index_t_nd_u = malloc(sizeof(uint32_t)*ift->label->dim);
 
   while(!queue_is_empty(queue)){
 
@@ -71,7 +71,7 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
     pqueue_remove_begin(queue);
     pqueue_shrink(queue);
 
-    uint32_t* index_nd = (uint32_t*)array_index(array, (int64_t)index_s);
+    uint32_t* index_nd = (uint32_t*)array_index(ift->label, (int64_t)index_s);
 
     // Do not process this node again
     array_set_element(visited, index_nd, 1);
@@ -81,17 +81,17 @@ IFT*   ift_apply_array(Array *array, Adjacency adjacency, IFTOptimization optimi
 
       // Calculate neighbor index
       uint8_t j;
-      for(j = 0; j < array->dim; j++)
+      for(j = 0; j < ift->label->dim; j++)
         index_t_nd[j] = (int32_t)index_nd[j] + neighbors_relative[i][j];
 
       // Verify if it's valid (inside array region)
       if(array_index_is_valid(visited, index_t_nd)){
 
 
-        for(j = 0; j < array->dim; j++)
+        for(j = 0; j < ift->label->dim; j++)
           index_t_nd_u[j] = (uint32_t)index_t_nd[j];
 
-        index_t = array_index_1D(array, index_t_nd);
+        index_t = array_index_1D(ift->label, index_t_nd);
 
         // If it's not visited
         uint8_t*  element           = (uint8_t*)  array_get_element(visited, index_t_nd_u);
@@ -180,15 +180,24 @@ void ift_set_root(IFT* ift, Array* root){
 }
 
 double path_connectivity_sum(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
-  return ift->connectivity->data_int64[index_s] + weight_function(ift->original, index_s, index_t);
+  return ift->connectivity->data_int64[index_s] +
+         weight_function(ift->original,
+                         index_s*ift->original->step[ift->label->dim-1],
+                         index_t*ift->original->step[ift->label->dim-1]);
 }
 
 double path_connectivity_max(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
-  return max(ift->connectivity->data_int64[index_s], weight_function(ift->original, index_s, index_t));
+  return max(ift->connectivity->data_int64[index_s],
+             weight_function(ift->original,
+                             index_s*ift->original->step[ift->label->dim-1],
+                             index_t*ift->original->step[ift->label->dim-1]));
 }
 
 double path_connectivity_min(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
-  return min(ift->connectivity->data_int64[index_s], weight_function(ift->original, index_s, index_t));
+  return min(ift->connectivity->data_int64[index_s],
+             weight_function(ift->original,
+                             index_s*ift->original->step[ift->label->dim-1],
+                             index_t*ift->original->step[ift->label->dim-1]));
 }
 
 double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
@@ -222,7 +231,9 @@ double weight_diff(Array *array, uint64_t index1, uint64_t index2){
 }
 
 double weight_diff_3(Array* array, uint64_t index1, uint64_t index2){
-  return  pow(array_get_long_double_1D(array, index1)   - array_get_long_double_1D(array, index2),2)   +
-          pow(array_get_long_double_1D(array, index1+1) - array_get_long_double_1D(array, index2+1),2) +
-          pow(array_get_long_double_1D(array, index1+2) - array_get_long_double_1D(array, index2+2),2);
+  long double value1 = array_get_long_double_1D(array, index1  )   - array_get_long_double_1D(array, index2),
+              value2 = array_get_long_double_1D(array, index1+1)   - array_get_long_double_1D(array, index2+1),
+              value3 = array_get_long_double_1D(array, index1+2)   - array_get_long_double_1D(array, index2+2);
+  double result = sqrt(value1*value1 + value2*value2 + value3*value3);
+  return result;
 }
