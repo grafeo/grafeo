@@ -164,15 +164,20 @@ static void helper_test_ift_rgb(PathConnectivityFunc connectivity_function, IFTO
   uint32_t size[3]              = {2,2,3}; // 2x2 RGB
   uint32_t seeds_size[1]        = {2};
   uint8_t  data[12]             = {  0,  0, 0,  20, 12, 23,
-                                   128,200,50, 230,130,124};
+                                   128,200,150, 230,130,124};
   uint64_t seeds_indices_data[2]= {0,3};
+  uint64_t seeds_indices_data_3D[2]= {0,10};
   uint16_t seeds_labels_data[2] = {0,1};
-  uint16_t  labels_data[4]       = {  0,        0,
-                                      1,        1};
-  Array*   image                = array_from_data(data              , image_dim+1 , size      , GRAFEO_UINT8);
-  Array*   correct_labels       = array_from_data(labels_data       , image_dim   , size      , GRAFEO_UINT16);
-  Array*   seeds_indices        = array_from_data(seeds_indices_data, 1           , seeds_size, GRAFEO_UINT64);
-  Array*   seeds_labels         = array_from_data(seeds_labels_data , 1           , seeds_size, GRAFEO_UINT16);
+
+
+  uint16_t  labels_data[4]       = {  0,0,1,1};
+  uint16_t  labels_data_3D[12]       = {  0,0,0, 0,0,0, 1,1,1, 1,1,1};
+  Array*   image                = array_from_data(data                 , image_dim+1 , size      , GRAFEO_UINT8);
+  Array*   correct_labels       = array_from_data(labels_data          , image_dim   , size      , GRAFEO_UINT16);
+  Array*   correct_labels_3D    = array_from_data(labels_data_3D       , image_dim+1 , size      , GRAFEO_UINT16);
+  Array*   seeds_indices        = array_from_data(seeds_indices_data   , 1           , seeds_size, GRAFEO_UINT64);
+  Array*   seeds_indices_3D     = array_from_data(seeds_indices_data_3D, 1           , seeds_size, GRAFEO_UINT64);
+  Array*   seeds_labels         = array_from_data(seeds_labels_data    , 1           , seeds_size, GRAFEO_UINT16);
   IFT* ift = ift_apply_array(image,                 // Array
                              image_dim,             // Dimension of IFT Maps
                              GRAFEO_NEIGHBOR_4,     // Adjacency
@@ -181,13 +186,25 @@ static void helper_test_ift_rgb(PathConnectivityFunc connectivity_function, IFTO
                              connectivity_function, // Path connectivity functions
                              seeds_indices,         // Indices for seeds
                              seeds_labels);         // Labels of seeds
+  IFT* ift_3D = ift_apply_array(image,                 // Array
+                                image_dim+1,           // Dimension of IFT Maps
+                                GRAFEO_NEIGHBOR_6,     // Adjacency
+                                optimization,          // Maximization or Minimization
+                                weight_diff,           // Formula for edge weights
+                                connectivity_function, // Path connectivity functions
+                                seeds_indices_3D,      // Indices for seeds
+                                seeds_labels);         // Labels of seeds
   assert_array_equal(ift_get_label(ift), correct_labels);
+  assert_array_equal(ift_get_label(ift_3D), correct_labels_3D);
 
   array_free(image);
   array_free(correct_labels);
+  array_free(correct_labels_3D);
   array_free(seeds_indices);
+  array_free(seeds_indices_3D);
   array_free(seeds_labels);
   ift_free(ift);
+  ift_free(ift_3D);
 }
 
 static void test_ift_sum(void** state){
