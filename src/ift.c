@@ -50,7 +50,19 @@ IFT*   ift_apply_array(Array *array, uint16_t map_dimension, Adjacency adjacency
   }
 
   // Standard neighbors
-  int32_t neighbors_relative[8][2] = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{-1,1},{1,-1},{1,1}};
+  int32_t neighbors_relative_2D[8][2] = {{-1,0},{1,0},{0,-1},{0,1},{-1,-1},{-1,1},{1,-1},{1,1}};
+  int32_t neighbors_relative_3D[26][3] = {// neighbor-6
+                                          {-1,0,0},{1,0,0},{0,-1,0},{0,1,0},{0,0,-1},{0,0,1},
+                                          // neighbor-18
+                                          {-1,-1, 0},{-1,1,0},{1,-1, 0},{1, 1,0},{-1,0,-1},{-1,0,1},
+                                          { 1, 0,-1},{ 1,0,1},{0,-1,-1},{0,-1,1},{ 0,1,-1},{ 0,1,1},
+                                          // neighbor-26
+                                          {-1,-1,-1},{-1,-1,1},{-1,1,-1},{-1,1,1},
+                                          { 1,-1,-1},{ 1,-1,1},{ 1,1,-1},{ 1,1,1}};
+
+//  int32_t** neighbors_relative;
+//  if(map_dimension == 2) neighbors_relative = neighbors_relative_2D;
+//  else                   neighbors_relative = neighbors_relative_3D;
 
   // Process all nodes
   uint64_t index_s; // indices for nodes s and t
@@ -58,8 +70,13 @@ IFT*   ift_apply_array(Array *array, uint16_t map_dimension, Adjacency adjacency
   uint8_t  i,num_neighbors;       // for iterating neighbors
   int64_t  connectivity;            // connectivity for extended path <r...s,t>
 
-  if     (adjacency == GRAFEO_NEIGHBOR_4) num_neighbors = 4;
-  else if(adjacency == GRAFEO_NEIGHBOR_8) num_neighbors = 8;
+  switch(adjacency){
+    case GRAFEO_NEIGHBOR_4:num_neighbors = 4;break;
+    case GRAFEO_NEIGHBOR_8:num_neighbors = 4;break;
+    case GRAFEO_NEIGHBOR_6:num_neighbors = 6;break;
+    case GRAFEO_NEIGHBOR_18:num_neighbors = 18;break;
+    case GRAFEO_NEIGHBOR_26:num_neighbors = 26;break;
+  }
 
   int32_t*  index_t_nd   = malloc(sizeof(int32_t)*ift->label->dim);
   uint32_t* index_t_nd_u = malloc(sizeof(uint32_t)*ift->label->dim);
@@ -82,11 +99,13 @@ IFT*   ift_apply_array(Array *array, uint16_t map_dimension, Adjacency adjacency
       // Calculate neighbor index
       uint8_t j;
       for(j = 0; j < ift->label->dim; j++)
-        index_t_nd[j] = (int32_t)index_nd[j] + neighbors_relative[i][j];
+        if(map_dimension == 2)
+          index_t_nd[j] = (int32_t)index_nd[j] + neighbors_relative_2D[i][j];
+        else
+          index_t_nd[j] = (int32_t)index_nd[j] + neighbors_relative_3D[i][j];
 
       // Verify if it's valid (inside array region)
       if(array_index_is_valid(visited, index_t_nd)){
-
 
         for(j = 0; j < ift->label->dim; j++)
           index_t_nd_u[j] = (uint32_t)index_t_nd[j];
