@@ -83,8 +83,16 @@ typedef double
  */
 IFT*   ift_new();
 /**
+ * @brief ift_new_from_array
+ * @param array
+ * @param map_dimension
+ * @return
+ */
+IFT*   ift_new_from_array(Array* array, uint8_t map_dimension);
+/**
  * @brief Run IFT in an array
  * @param array
+ * @param map_dimension
  * @param adjacency
  * @param optimization_type
  * @param weight_function
@@ -94,6 +102,7 @@ IFT*   ift_new();
  * @return
  */
 IFT*   ift_apply_array(Array* array, 
+                       uint16_t map_dimension,
                        Adjacency adjacency,
                        IFTOptimization optimization_type,
                        WeightFunc weight_function,
@@ -144,6 +153,14 @@ double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, Weigh
  * @return
  */
 double weight_diff(Array *array, uint64_t index1, uint64_t index2);
+/**
+ * @brief weight_diff_3
+ * @param array
+ * @param index1
+ * @param index2
+ * @return
+ */
+double weight_diff_3(Array* array, uint64_t index1, uint64_t index2);
 /**
  * @brief ift_free
  * @param ift

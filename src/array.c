@@ -401,11 +401,14 @@ array_from_data(void* data, uint16_t dim, uint32_t* size, DataType type){
 }
 Array*
 array_as_type(Array* array, DataType type){
-  Array* array2 = array_new_with_size_type(array->dim, array->size, type);
-  uint64_t i;
-  for(i = 0; i < array->num_elements; i++)
-    array_set_element_1D(array2, i, array_get_long_double_1D(array,i));
-  return array2;
+  if(type != array->type){
+    Array* array2 = array_new_with_size_type(array->dim, array->size, type);
+    uint64_t i;
+    for(i = 0; i < array->num_elements; i++)
+      array_set_element_1D(array2, i, array_get_long_double_1D(array,i));
+    return array2;
+  }
+  return array;
 }
 
 Array*
