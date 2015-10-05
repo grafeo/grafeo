@@ -105,21 +105,24 @@ if(BUILD_TESTING)
 endif(BUILD_TESTING)
 #============================================================ LIBRARY
 include_directories(include)
-set(GRAFEO_HDR
-    include/grafeo/ift.h
-    include/grafeo/pqueue.h
-    include/grafeo/bucket.h
-    include/grafeo/slist.h
-    include/grafeo/list.h
-    include/grafeo/type.h
-    include/grafeo/macro.h
-    include/grafeo/array.h
-    include/grafeo/queue.h
-    include/grafeo/range.h
-    include/grafeo/image.h
+SET(GRAFEO_STRUCTURE_HDR
+  include/grafeo/pqueue.h
+  include/grafeo/bucket.h
+  include/grafeo/slist.h
+  include/grafeo/list.h
+  include/grafeo/type.h
+  include/grafeo/macro.h
+  include/grafeo/array.h
+  include/grafeo/queue.h
+  include/grafeo/range.h
 )
-set(GRAFEO_SRC
- src/ift.c
+SET(GRAFEO_IMGPROC_HDR
+  include/grafeo/image.h
+)
+SET(GRAFEO_IFT_HDR
+  include/grafeo/ift.h
+)
+SET(GRAFEO_STRUCTURE_SRC
  src/pqueue.c
  src/bucket.c
  src/slist.c
@@ -128,23 +131,31 @@ set(GRAFEO_SRC
  src/list.c
  src/queue.c
  src/range.c
- src/image.c)
-add_library(grafeo SHARED ${GRAFEO_SRC} ${GRAFEO_HDR})
-set(MYLIB_VERSION_MAJOR 0)
-set(MYLIB_VERSION_MINOR 0)
-set(MYLIB_VERSION_PATCH 6)
-set(MYLIB_VERSION_STRING ${MYLIB_VERSION_MAJOR}.${MYLIB_VERSION_MINOR}.${MYLIB_VERSION_PATCH})
+)
+SET(GRAFEO_IMGPROC_SRC
+ src/image.c
+)
+SET(GRAFEO_IFT_SRC
+ src/ift.c
+)
+SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC})
 
-set_target_properties(grafeo PROPERTIES VERSION ${MYLIB_VERSION_STRING}
-                                       SOVERSION ${MYLIB_VERSION_MAJOR})
-#set(GENERIC_LIB_VERSION "0.0.6")
-#set(GENERIC_LIB_SOVERSION "0.0")
-#set_target_properties(grafeo PROPERTIES
-#  VERSION ${GENERIC_LIB_VERSION}
-#  SOVERSION ${GENERIC_LIB_SOVERSION}
-#)
+add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
+add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
+add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
+set(GRAFEO_VERSION_MAJOR 0)
+set(GRAFEO_VERSION_MINOR 0)
+set(GRAFEO_VERSION_PATCH 6)
+set(GRAFEO_VERSION_STRING ${GRAFEO_VERSION_MAJOR}.${GRAFEO_VERSION_MINOR}.${GRAFEO_VERSION_PATCH})
+
+set_target_properties(grafeo_structure PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+set_target_properties(grafeo_imgproc   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+set_target_properties(grafeo_ift       PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
-install(TARGETS grafeo LIBRARY DESTINATION lib)
+install(TARGETS grafeo_structure LIBRARY DESTINATION lib)
+install(TARGETS grafeo_imgproc   LIBRARY DESTINATION lib)
+install(TARGETS grafeo_ift       LIBRARY DESTINATION lib)
 
 #========================================================= DEBUG INFO
 option(DEBUG_INFO "Compile Grafeo with debug information?" ON)
@@ -209,7 +220,7 @@ if(BUILD_TESTING)
     add_definitions(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
-    list(APPEND TESTS_NAMES
+    set(TESTS_NAMES
       array
       image
       list
@@ -218,19 +229,36 @@ if(BUILD_TESTING)
       pqueue
       ift
     )
+    set(test_array_deps grafeo_structure)
+    set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
+    set(test_list_deps grafeo_structure)
+    set(test_slist_deps grafeo_structure)
+    set(test_queue_deps grafeo_structure)
+    set(test_pqueue_deps grafeo_structure)
+    set(test_ift_deps grafeo_structure grafeo_imgproc grafeo_ift png jpeg)
+    
     include (CTest)
-    foreach(testname ${TESTS_NAMES})
-        if(NOT CMOCKA_FOUND)
-            include_directories(${EXTERNAL_INCLUDE_DIR})
-            #link_directories(${CMAKE_SOURCE_DIR}/external/lib)
-            add_executable       (test_${testname} tests/test_${testname}.c)
-            target_link_libraries(test_${testname} grafeo cmocka png jpeg m)
-            add_dependencies     (test_${testname} cmockaDownload)
-            #target_link_libraries(test_array grafeo cmocka m)
-        else()
-            add_executable       (test_${testname} tests/test_${testname}.c)
-            target_link_libraries(test_${testname} grafeo cmocka png jpeg m)
-        endif(NOT CMOCKA_FOUND)
-        add_test             (test_${testname}       test_${testname})
-    endforeach()    
+    list(LENGTH TESTS_NAMES len1)
+      message(STATUS ${len1})
+
+    math(EXPR len2 "${len1}-1")
+
+    foreach(val RANGE ${len2})
+      list(GET TESTS_NAMES ${val} testname)
+      set(test_deps test_${testname}_deps)
+      
+      if(NOT CMOCKA_FOUND)
+          include_directories(${EXTERNAL_INCLUDE_DIR})
+          #link_directories(${CMAKE_SOURCE_DIR}/external/lib)
+          add_executable       (test_${testname} tests/test_${testname}.c)
+          
+          target_link_libraries(test_${testname} ${${test_deps}} cmocka m)
+          add_dependencies     (test_${testname} cmockaDownload)
+          #target_link_libraries(test_array grafeo cmocka m)
+      else()
+          add_executable       (test_${testname} tests/test_${testname}.c)
+          target_link_libraries(test_${testname} ${${test_deps}} cmocka m)
+      endif(NOT CMOCKA_FOUND)
+      add_test             (test_${testname}       test_${testname})
+    endforeach()
 endif(BUILD_TESTING)
