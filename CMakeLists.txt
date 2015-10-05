@@ -228,15 +228,14 @@ if(BUILD_TESTING)
       pqueue
       ift
     )
-    set(TESTS_DEPENDENCIES
-      "-lgrafeo_structure"
-      "-lgrafeo_structure -lgrafeo_imgproc -lpng -ljpeg"
-      "-lgrafeo_structure"
-      "-lgrafeo_structure"
-      "-lgrafeo_structure"
-      "-lgrafeo_structure"
-      "-lgrafeo_structure -lgrafeo_imgproc -lgrafeo_ift -lpng -ljpeg"
-    )
+    set(test_array_deps grafeo_structure)
+    set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
+    set(test_list_deps grafeo_structure)
+    set(test_slist_deps grafeo_structure)
+    set(test_queue_deps grafeo_structure)
+    set(test_pqueue_deps grafeo_structure)
+    set(test_ift_deps grafeo_structure grafeo_imgproc grafeo_ift png jpeg)
+    
     include (CTest)
     list(LENGTH TESTS_NAMES len1)
       message(STATUS ${len1})
@@ -245,19 +244,19 @@ if(BUILD_TESTING)
 
     foreach(val RANGE ${len2})
       list(GET TESTS_NAMES ${val} testname)
-      list(GET TESTS_DEPENDENCIES ${val} testdeps)
-      message(STATUS ${val})
-
+      set(test_deps test_${testname}_deps)
+      
       if(NOT CMOCKA_FOUND)
           include_directories(${EXTERNAL_INCLUDE_DIR})
           #link_directories(${CMAKE_SOURCE_DIR}/external/lib)
           add_executable       (test_${testname} tests/test_${testname}.c)
-          target_link_libraries(test_${testname} ${testdeps} cmocka m)
+          
+          target_link_libraries(test_${testname} ${${test_deps}} cmocka m)
           add_dependencies     (test_${testname} cmockaDownload)
           #target_link_libraries(test_array grafeo cmocka m)
       else()
           add_executable       (test_${testname} tests/test_${testname}.c)
-          target_link_libraries(test_${testname} ${testdeps} cmocka m)
+          target_link_libraries(test_${testname} ${${test_deps}} cmocka m)
       endif(NOT CMOCKA_FOUND)
       add_test             (test_${testname}       test_${testname})
     endforeach()
