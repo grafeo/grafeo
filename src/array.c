@@ -410,6 +410,55 @@ array_as_type(Array* array, DataType type){
   }
   return array;
 }
+Array*    array_circular_indices(uint16_t dim, float radius){
+  int32_t dz, dy, dx, r2, i;
+  uint32_t n;
+
+  // Discover number of pixels
+  n  = 0;
+  r2 = (int32_t)(radius*radius + 0.5);
+  for(dy=-radius;dy<=radius;dy++)
+    for(dx=-radius;dx<=radius;dx++)
+      if(dim == 2){
+        if(((dx*dx)+(dy*dy)) <= r2) n++;
+      }
+      else if(dim == 3){
+        for(dz=-radius;dz<=radius;dz++)
+          if(((dx*dx)+(dy*dy)+(dz*dz)) <= r2) n++;
+      }
+  // Create the array
+  uint32_t size[2] = {n-1,dim};
+  Array* indices = array_new_with_size_type(2,size,GRAFEO_INT64);
+
+  // Fill the array
+  i = 0;
+  for(dy=-radius;dy<=radius;dy++){
+    for(dx=-radius;dx<=radius;dx++){
+      if(dim == 2){
+        if(((dx*dx)+(dy*dy)) <= r2){
+          if ((dx != 0)||(dy != 0)){
+            indices->data_int64[i++] = dy;
+            indices->data_int64[i++] = dx;
+          }
+        }
+      }
+      else if(dim == 3){
+        for(dz=-radius;dz<=radius;dz++){
+          if(((dx*dx)+(dy*dy)+(dz*dz)) <= r2){
+            if ((dx != 0)||(dy != 0)||(dz != 0)){
+              indices->data_int64[i++] = dz;
+              indices->data_int64[i++] = dy;
+              indices->data_int64[i++] = dx;
+            }
+          }
+        }
+      }
+    }
+  }
+
+
+  return indices;
+}
 
 Array*
 array_reduce_min(Array* array, int16_t* axes, uint16_t size){
