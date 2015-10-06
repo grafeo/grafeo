@@ -217,6 +217,13 @@ Array*    array_from_data(void* data, uint16_t dim, uint32_t* size, DataType typ
  * @return
  */
 Array*    array_as_type(Array* array, DataType type);
+/**
+ * @brief array_circular_indices
+ * @param dim
+ * @param radius
+ * @return
+ */
+Array*    array_circular_indices(uint16_t dim, float radius);
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
  *-----------------------------------*/

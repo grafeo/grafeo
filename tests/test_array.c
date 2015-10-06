@@ -151,7 +151,7 @@ static void test_array_new_1D_type(void ** state){
     (void) state;
     DataType type;
     uint32_t i, i_max=100;
-    for(i = 0; i < i_max; i++){
+    for(i = 0; i < i_max; i+=2){
         for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
             Array* array = array_new_1D_type(i, type);
             helper_testing_array(array, i, type, 1, &i);
@@ -166,9 +166,9 @@ static void test_array_new_2D_type(void** state){
              j, j_max = 50;
     uint32_t sizes[2];
     DataType type;
-    for(i = 0; i < i_max; i++){
+    for(i = 0; i < i_max; i+=2){
         sizes[0] = i;
-        for(j = 0; j < j_max; j++){
+        for(j = 0; j < j_max; j+=2){
             sizes[1] = j;
             for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
                 Array* array = array_new_2D_type(i, j, type);
@@ -186,11 +186,11 @@ static void test_array_new_3D_type(void** state){
              k, k_max = 50;
     uint32_t sizes[3];
     DataType type;
-    for(i = 0; i < i_max; i++){
+    for(i = 0; i < i_max; i+=2){
         sizes[0] = i;
-        for(j = 0; j < j_max; j++){
+        for(j = 0; j < j_max; j+=2){
             sizes[1] = j;
-            for(k = 0; k < k_max; k++){
+            for(k = 0; k < k_max; k+=2){
                 sizes[2] = k;
                 for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
                     Array* array = array_new_3D_type(i, j, k, type);
@@ -210,13 +210,13 @@ static void test_array_new_4D_type(void** state){
              l, l_max = 25;
     uint32_t sizes[4];
     DataType type;
-    for(i = 0; i < i_max; i++){
+    for(i = 0; i < i_max; i+=2){
         sizes[0] = i;
-        for(j = 0; j < j_max; j++){
+        for(j = 0; j < j_max; j+=2){
             sizes[1] = j;
-            for(k = 0; k < k_max; k++){
+            for(k = 0; k < k_max; k+=2){
                 sizes[2] = k;
-                for(l = 0; l < l_max; l++){
+                for(l = 0; l < l_max; l+=2){
                     sizes[3] = l;
                     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
                         Array* array = array_new_4D_type(i, j, k, l, type);
@@ -305,13 +305,13 @@ static void test_array_zeros(void** state){
     uint64_t num_elements;
     uint32_t sizes[4];
     DataType type;
-    for(i = 0; i < i_max; i+=2){
+    for(i = 0; i < i_max; i+=4){
         sizes[0] = i;
-        for(j = 0; j < j_max; j+=2){
+        for(j = 0; j < j_max; j+=4){
             sizes[1] = j;
-            for(k = 0; k < k_max; k+=2){
+            for(k = 0; k < k_max; k+=4){
                 sizes[2] = k;
-                for(l = 0; l < l_max; l+=2){
+                for(l = 0; l < l_max; l+=4){
                     sizes[3] = l;
                     num_elements = i*j*k*l;
                     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
@@ -387,13 +387,13 @@ static void test_array_ones(void** state){
     uint64_t num_elements;
     uint32_t sizes[4];
     DataType type;
-    for(i = 0; i < i_max; i+=2){
+    for(i = 0; i < i_max; i+=4){
         sizes[0] = i;
-        for(j = 0; j < j_max; j+=2){
+        for(j = 0; j < j_max; j+=4){
             sizes[1] = j;
-            for(k = 0; k < k_max; k+=2){
+            for(k = 0; k < k_max; k+=4){
                 sizes[2] = k;
-                for(l = 0; l < l_max; l+=2){
+                for(l = 0; l < l_max; l+=4){
                     sizes[3] = l;
                     num_elements = i*j*k*l;
                     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
@@ -893,8 +893,51 @@ static void test_array_squeeze(void** state){
   assert_int_equal(array->size[1], N1);
   assert_int_equal(array->size[2], N2);
   array_free(array);
+}
 
+static void test_array_circular_indices(void** state){
+  (void)state;
+  uint16_t dim;
+  float radius;
 
+  // 2D
+  dim = 2; radius = 1.0;
+  Array* array = array_circular_indices(dim, radius);
+  assert_non_null(array);
+  assert_int_equal(array->dim, 2); // (# Neighbors, dim)
+  assert_int_equal(array->size[0], 4);// 4 neighbors
+  assert_int_equal(array->size[1], 2);// 2D each neighbor
+  array_free(array);
+  radius = 1.5;
+  array = array_circular_indices(dim, radius);
+  assert_non_null(array);
+  assert_int_equal(array->dim, 2); // (# Neighbors, dim)
+  assert_int_equal(array->size[0], 8);// 4 neighbors
+  assert_int_equal(array->size[1], 2);// 2D each neighbor
+  array_free(array);
+
+  // 3D
+  dim = 3; radius = 1.0;
+  array = array_circular_indices(dim, radius);
+  assert_non_null(array);
+  assert_int_equal(array->dim, 2); // (# Neighbors, dim)
+  assert_int_equal(array->size[0], 6);// 4 neighbors
+  assert_int_equal(array->size[1], 3);// 2D each neighbor
+  array_free(array);
+  radius = 1.5;
+  array = array_circular_indices(dim, radius);
+  assert_non_null(array);
+  assert_int_equal(array->dim, 2); // (# Neighbors, dim)
+  assert_int_equal(array->size[0], 18);// 18 neighbors
+  assert_int_equal(array->size[1], 3);// 2D each neighbor
+  array_free(array);
+  radius = 1.8;
+  array = array_circular_indices(dim, radius);
+  assert_non_null(array);
+  assert_int_equal(array->dim, 2); // (# Neighbors, dim)
+  assert_int_equal(array->size[0], 26);// 26 neighbors
+  assert_int_equal(array->size[1], 3);// 2D each neighbor
+  array_free(array);
 }
 
 int main(int argc, char** argv){
@@ -921,6 +964,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_io_csv),
     cmocka_unit_test(test_array_conversion),
     cmocka_unit_test(test_array_squeeze),
+    cmocka_unit_test(test_array_circular_indices),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
