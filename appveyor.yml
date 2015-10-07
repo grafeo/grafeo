@@ -1,0 +1,61 @@
+version: 1.0.{build}
+environment:
+  COVERALLS_REPO_TOKEN: jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL
+  
+os: Visual Studio 2015
+
+platform:
+  - Win32
+  - x64
+
+branches:
+  only:
+  - master
+
+configuration:
+  - Debug
+  - Release
+
+init:
+  - cmd: cmake --version
+  - msbuild /version
+
+clone_folder: c:\dev\grafeo
+  
+#install:
+#  - ps: cd "C:\
+  # to install downloader do: "cinst wget -x86"
+  # the format is: "wget -q URL -O c:\path-to-file\file_name"
+  # special format is: "wget -q --no-check-certificate URL -O c:\path-to-file\file_name"
+  # that accounts for downloading from e.g. https://googledrive.com/host/$HASH
+  # -
+  # to install unzipper do: "cinst 7zip.commandline -x86"
+  # the format is: "7z x c:\path-to-archive\archive.zip -oc:\path-where-unzip -y > nul" 
+  #- cd c:\dev
+  #- ps: Start-FileDownload 'https://github.com/grafeo/grafeorobotology/ycm/releases/download/v0.1.0/YCM-0.1.0-win32.msi'
+  #- cmd: c:\dev\YCM-0.1.0-win32.msi 
+
+before_build:
+  - cmd: cd C:\dev\grafeo
+  - cmd: md build
+  - cmd: cd build
+  - cmd: if "%platform%"=="Win32" set CMAKE_GENERATOR_NAME=Visual Studio 12
+  - cmd: if "%platform%"=="x64"   set CMAKE_GENERATOR_NAME=Visual Studio 12 Win64
+  - cmd: cmake -G "%CMAKE_GENERATOR_NAME%" -DBUILD_TESTING=ON -DBUILD_DOCS=OFF -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug ..
+build:
+  project: C:\dev\grafeo\build\grafeo.sln
+  parallel: true
+  verbosity: quiet
+  
+#build_script:
+#  - cd c:\dev\lib-template-cmake
+#  - md build
+#  - cd build
+#  - cmake -DCREATE_TESTS:BOOL=ON -DCMAKE_CXX_FLAGS:STRING="/W4" -G"Visual Studio 11" ..
+#  - msbuild /m /p:Configuration=Release /p:Platform="Win32" LibTemplateCMake.sln
+
+#after_build:
+#  - cmd: cmake --build C:\dev\lib-template-cmake\build --target INSTALL
+  
+test_script:
+  - cmd: ctest --build-config %configuration% --extra-verbose --output-on-failure
