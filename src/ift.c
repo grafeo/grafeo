@@ -229,6 +229,26 @@ double path_connectivity_euc(IFT* ift, uint64_t index_s, uint64_t index_t, Weigh
   return array_euclidian_distance(array_r, array_t);
 }
 
+double _path_connectivity_norm(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function, NormType norm_type){
+  (void) weight_function;
+  uint64_t index_r = ift->root->data_uint64[index_s];
+  uint32_t size = (uint32_t)ift->original->dim;
+  Array* array_r = array_from_data(array_index(ift->original,index_r),1,&size,GRAFEO_INT32);
+  Array* array_t = array_from_data(array_index(ift->original,index_t),1,&size,GRAFEO_INT32);
+
+  return array_norm_relative(array_r, array_t, norm_type);
+}
+
+double path_connectivity_norm_l1(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_L1);
+}
+double path_connectivity_norm_l2(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_L1);
+}
+double path_connectivity_norm_inf(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_INF);
+}
+
 void   ift_free(IFT* ift){
   free(ift);
 }
@@ -255,4 +275,40 @@ double weight_diff_3(Array* array, uint64_t index1, uint64_t index2){
               value3 = array_get_long_double_1D(array, index1+2)   - array_get_long_double_1D(array, index2+2);
   double result = sqrt(value1*value1 + value2*value2 + value3*value3);
   return result;
+}
+
+
+Array* ift_distance_transform(Array* array, NormType norm_type){
+
+  // Define Path Connectivity
+  PathConnectivityFunc path_connectivity;
+  switch(norm_type){
+    case GRAFEO_NORM_L1:  path_connectivity = path_connectivity_norm_l1 ; break;
+    case GRAFEO_NORM_L2:  path_connectivity = path_connectivity_norm_l2 ; break;
+    case GRAFEO_NORM_INF: path_connectivity = path_connectivity_norm_inf; break;
+  }
+
+  // Get seeds
+  uint64_t seed_indices_data[array->num_elements];
+  uint32_t i, s;
+  for(i = 0; i < array->num_elements; i++)
+    if(array_get_long_double_1D(array, i)) seed_indices_data[s++] = i;
+  Array* seed_indices = array_from_data(seed_indices_data, 1, &s, GRAFEO_UINT64);
+  Array* seed_labels  = array_ones(1, &s, GRAFEO_UINT16);
+
+  IFT*   ift   = ift_apply_array(array,                 // Array
+                                 2,                     // Map dimension
+                                 GRAFEO_NEIGHBOR_4,     // Adjacency
+                                 GRAFEO_IFT_MIN,        // Optimization
+                                 weight_diff,           // Weighting Function
+                                 path_connectivity,     // Connectivity
+                                 seed_indices,          // Indices of seeds
+                                 seed_labels            // Indices of seeds
+                                 );
+  // Send results
+  Array* connectivity = array_as_type(ift->connectivity, GRAFEO_UINT8);
+  array_free(seed_indices);
+  array_free(seed_labels);
+  ift_free(ift);
+  return connectivity;
 }
