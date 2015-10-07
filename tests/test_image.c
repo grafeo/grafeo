@@ -194,6 +194,34 @@ static void test_image_write_pgm(void** state){
   array_free(input_image);
 }
 
+static void test_image_read_ppm(void** state){
+  (void)state;
+  Array* image;
+  // Color image
+  uint32_t correct_sizes[3] = {8,8,3};
+  image = image_read_ppm("../data/chess.ppm");
+  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1,3);
+  array_free(image);
+}
+
+static void test_image_write_ppm(void** state){
+  (void)state;
+  const char* outfile = "imagem.pgm";
+  // Remove the file if it exists
+  remove(outfile);
+
+  // Define the image
+  Array* input_image = image_read_ppm("../data/chess.ppm");
+
+  // Save the image
+  image_write_ppm(input_image,outfile);
+
+  // See if the file exists
+  assert_int_equal(access(outfile, F_OK), 0);
+
+  array_free(input_image);
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
@@ -201,10 +229,12 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_image_read_jpg),
     cmocka_unit_test(test_image_read_png),
     cmocka_unit_test(test_image_read_pgm),
+    cmocka_unit_test(test_image_read_ppm),
     cmocka_unit_test(test_image_read),
     cmocka_unit_test(test_image_write_jpg),
     cmocka_unit_test(test_image_write_png),
     cmocka_unit_test(test_image_write_pgm),
+    cmocka_unit_test(test_image_write_ppm),
     cmocka_unit_test(test_image_write),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
