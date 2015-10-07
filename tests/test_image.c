@@ -166,15 +166,57 @@ static void test_image_write(void** state){
   // Test if the file has the same data as the array
 }
 
+static void test_image_read_pgm(void** state){
+  (void)state;
+  Array* image;
+  // Color image
+  uint32_t correct_sizes[3] = {8,8,3};
+  image = image_read_pgm("../data/chess.pgm");
+  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1);
+  array_free(image);
+
+  // Gray image
+  uint32_t correct_sizes_gray[3] = {8,8,1};
+  image = image_read_pgm("../data/chessgray.pgm");
+  helper_test_image_read(image, correct_sizes_gray, GRAFEO_UINT8, 1);
+  array_free(image);
+}
+
+static void test_image_write_pgm(void** state){
+  (void)state;
+  const char* outfile = "imagem.pgm";
+  const char* outfile_gray = "imagemgray.pgm";
+  // Remove the file if it exists
+  remove(outfile);
+  remove(outfile_gray);
+
+  // Define the image
+  Array* input_image = image_read_pgm("../data/chess.pgm");
+  Array* input_image_gray = image_read_pgm("../data/chessgray.pgm");
+
+  // Save the image
+  image_write_pgm(input_image,outfile);
+  image_write_pgm(input_image_gray,outfile_gray);
+
+  // See if the file exists
+  assert_int_equal(access(outfile, F_OK), 0);
+  assert_int_equal(access(outfile_gray, F_OK), 0);
+
+  array_free(input_image);
+  array_free(input_image_gray);
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[]={
     cmocka_unit_test(test_image_read_jpg),
     cmocka_unit_test(test_image_read_png),
+    cmocka_unit_test(test_image_read_pgm),
     cmocka_unit_test(test_image_read),
     cmocka_unit_test(test_image_write_jpg),
     cmocka_unit_test(test_image_write_png),
+    cmocka_unit_test(test_image_write_pgm),
     cmocka_unit_test(test_image_write),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);

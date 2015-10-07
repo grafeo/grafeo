@@ -143,6 +143,39 @@ Array* image_read_jpg(const char* filename){
   free(buffer);
   return array;
 }
+
+static void _image_read_pgm_skip_comments(char* s, size_t m, FILE* fp){
+  while(fgets(s,m,fp) != NULL)
+    if(s[0]!='#' && s[0]!='\n') break;
+}
+
+Array* image_read_pgm(const char* filename){
+  char version[4];
+  char line[256];
+  uint64_t i;
+  uint32_t width, height;
+  uint64_t max_gray;
+  FILE* fp     = fopen(filename,"rb");
+  Array* array = NULL;
+
+  fgets(version, sizeof(version), fp);
+  if(version[0] == 'P' && (version[1] == '5' || version[1] == '2')){
+    _image_read_pgm_skip_comments(line,256,fp);
+    sscanf(line, "%d %d\n", &width, &height);
+    _image_read_pgm_skip_comments(line,256,fp);
+    sscanf(line, "%lu", &max_gray);
+    uint32_t size[2] = {height, width};
+    array = array_new_with_size_type(2, size, GRAFEO_UINT8);
+    if(version[1] == '5')
+      fread(array->data_uint8, sizeof(uint8_t), width*height,fp);
+    else
+      for(i = 0; i < array->num_elements; i++)
+        fscanf(fp, "%cu", &array->data_uint8[i]);
+  }
+  fclose(fp);
+  return array;
+}
+
 void image_write(Array* array, const char* filename){
   const char* ext = strrchr(filename, '.') + 1;
   if     (strcasecmp(ext, "png") == 0) image_write_png(array,filename);
@@ -224,6 +257,17 @@ void image_write_jpg(Array* array, const char* filename){
   fclose(outfile);
   jpeg_destroy_compress(&cinfo);
 }
+void   image_write_pgm(Array* array, const char* filename){
+  FILE* fp;
+  uint8_t i_max = (uint8_t) array_max(array);
+  fp = fopen(filename, "wb");
+  fprintf(fp, "P5\n");
+  fprintf(fp,"%d %d\n", array->size[1], array->size[0]);
+  fprintf(fp, "%d\n",i_max);
+  fwrite(array->data_uint8,sizeof(uint8_t),array->num_elements,fp);
+  fclose(fp);
+}
+
 Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
   return array;
 }

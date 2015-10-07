@@ -67,6 +67,13 @@ Array* image_read_png(const char* filename);
 Array* image_read_jpg(const char* filename);
 
 /**
+ * @brief image_read_pgm
+ * @param filename
+ * @return
+ */
+Array* image_read_pgm(const char* filename);
+
+/**
  * @brief      Generates a file with name `filename` from an Array
  *
  * @param      array     Matriz de dados (height,
@@ -89,6 +96,13 @@ void   image_write_png(Array* array, const char* filename);
  * @param[in]  filename  name of file
  */
 void   image_write_jpg(Array* array, const char* filename);
+
+/**
+ * @brief image_write_pgm
+ * @param array
+ * @param filename
+ */
+void   image_write_pgm(Array* array, const char* filename);
 
 /**
  * @brief      Convert an image from a color space to another

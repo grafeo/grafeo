@@ -468,7 +468,10 @@ void array_set_element_1D(Array* array, uint64_t i, double value);
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/
 /**
- * @brief array_reduce
+ * @brief Reduce an array to another array of smaller size (with axes removed)
+ *
+ * If axes are all axes [0,...,N-1], then an array is reduced to an 1D array with size 1
+ *
  * @param array
  * @param axes
  * @param size
