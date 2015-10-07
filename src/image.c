@@ -259,7 +259,7 @@ void image_write_jpg(Array* array, const char* filename){
 }
 void   image_write_pgm(Array* array, const char* filename){
   FILE* fp;
-  uint8_t i_max = (uint8_t) array_max(array);
+  uint32_t i_max = (uint32_t) array_reduce_max_num(array);
   fp = fopen(filename, "wb");
   fprintf(fp, "P5\n");
   fprintf(fp,"%d %d\n", array->size[1], array->size[0]);

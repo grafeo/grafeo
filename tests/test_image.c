@@ -33,16 +33,16 @@
 #include <errno.h>
 #include <grafeo/image.h>
 
-void helper_test_image_read(Array* array, uint32_t* correct_sizes, DataType correct_type, uint8_t correct_bitsize){
-  assert_int_equal(array_get_dim(array), 3);
+void helper_test_image_read(Array* array, uint32_t* correct_sizes, DataType correct_type, uint8_t correct_bitsize, uint8_t correct_dim){
+  assert_int_equal(array_get_dim(array), correct_dim);
   uint32_t* sizes = array_get_size(array);
   assert_non_null(sizes);
   assert_int_equal(sizes[0], correct_sizes[0]);
   assert_int_equal(sizes[1], correct_sizes[1]);
-  assert_int_equal(sizes[2], correct_sizes[2]);
+  if(correct_dim > 2) assert_int_equal(sizes[2], correct_sizes[2]);
   uint64_t i;
   uint64_t correct_num_elements = 1;
-  for(i = 0; i < 3; i++) correct_num_elements *= correct_sizes[i];
+  for(i = 0; i < correct_dim; i++) correct_num_elements *= correct_sizes[i];
   assert_int_equal(array_get_type(array), correct_type);
   assert_int_equal(array_get_num_elements(array), correct_num_elements);
   assert_int_equal(array_get_num_bytes(array), correct_num_elements * correct_bitsize);
@@ -62,13 +62,13 @@ static void test_image_read_jpg(void ** state){
   // Color image
   uint32_t correct_sizes[3] = {8,8,3};
   image = image_read_jpg("../data/chess.jpg");
-  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1);
+  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1,3);
   array_free(image);
 
   // Gray image
   uint32_t correct_sizes_gray[3] = {8,8,1};
   image = image_read_jpg("../data/chessgray.jpg");
-  helper_test_image_read(image, correct_sizes_gray, GRAFEO_UINT8, 1);
+  helper_test_image_read(image, correct_sizes_gray, GRAFEO_UINT8, 1,3);
   array_free(image);
 }
 
@@ -78,13 +78,13 @@ static void test_image_read_png(void ** state){
   // Color image
   uint32_t correct_sizes[3] = {8,8,3};
   image = image_read_png("../data/chess.png");
-  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1);
+  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1,3);
   array_free(image);
 
   // Gray image
   uint32_t correct_sizes_gray[3] = {8,8,1};
   image = image_read_png("../data/chessgray.png");
-  helper_test_image_read(image, correct_sizes_gray, GRAFEO_UINT8, 1);
+  helper_test_image_read(image, correct_sizes_gray, GRAFEO_UINT8, 1,3);
   array_free(image);
 }
 
@@ -146,7 +146,7 @@ static void test_image_read(void** state){
   for(i = 0; i < 4; i++){
     correct_sizes[2] = correct_channels[i];
     array = image_read(image_names[i]);
-    helper_test_image_read(array, correct_sizes,GRAFEO_UINT8, 1);
+    helper_test_image_read(array, correct_sizes,GRAFEO_UINT8, 1,3);
     array_free(array);
   }
 }
@@ -170,40 +170,28 @@ static void test_image_read_pgm(void** state){
   (void)state;
   Array* image;
   // Color image
-  uint32_t correct_sizes[3] = {8,8,3};
+  uint32_t correct_sizes[2] = {8,8};
   image = image_read_pgm("../data/chess.pgm");
-  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1);
-  array_free(image);
-
-  // Gray image
-  uint32_t correct_sizes_gray[3] = {8,8,1};
-  image = image_read_pgm("../data/chessgray.pgm");
-  helper_test_image_read(image, correct_sizes_gray, GRAFEO_UINT8, 1);
+  helper_test_image_read(image, correct_sizes,GRAFEO_UINT8, 1,2);
   array_free(image);
 }
 
 static void test_image_write_pgm(void** state){
   (void)state;
   const char* outfile = "imagem.pgm";
-  const char* outfile_gray = "imagemgray.pgm";
   // Remove the file if it exists
   remove(outfile);
-  remove(outfile_gray);
 
   // Define the image
   Array* input_image = image_read_pgm("../data/chess.pgm");
-  Array* input_image_gray = image_read_pgm("../data/chessgray.pgm");
 
   // Save the image
   image_write_pgm(input_image,outfile);
-  image_write_pgm(input_image_gray,outfile_gray);
 
   // See if the file exists
   assert_int_equal(access(outfile, F_OK), 0);
-  assert_int_equal(access(outfile_gray, F_OK), 0);
 
   array_free(input_image);
-  array_free(input_image_gray);
 }
 
 int main(int argc, char** argv){
