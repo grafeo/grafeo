@@ -182,9 +182,7 @@ if(BUILD_TESTING)
     endif(COVERALLS)
 
     find_package(CMocka QUIET)
-    message(STATUS ${CMOCKA_INCLUDE_DIR})
-    message(STATUS ${CMOCKA_LIBRARY})
-    message(STATUS ${CMOCKA_FOUND})
+    message(STATUS Cmocka Found:${CMOCKA_FOUND})
 
     if(NOT CMOCKA_FOUND)
         # Tell message
