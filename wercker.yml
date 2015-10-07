@@ -21,6 +21,9 @@ build:
     # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     - script:
-        name: echo
+        name: bulding
         code: |
-          echo "hello world!"
+          mkdir build
+          cd build
+          cmake ..
+          make
