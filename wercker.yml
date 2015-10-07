@@ -21,7 +21,7 @@ build:
     # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     - install-packages:
-        packages: "cmake"
+        packages: "cmake gcc ruby-coveralls"
     - script:
         name: bulding
         code: |
