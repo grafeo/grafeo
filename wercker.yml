@@ -21,11 +21,15 @@ build:
     # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     - install-packages:
-        packages: "cmake gcc ruby-coveralls"
+        packages: "cmake gcc g++ cmocka"
+    - pip-install:
+        requirements_file: ""
+        packages_list: "cpp-coveralls"
     - script:
         name: bulding
         code: |
           mkdir build
           cd build
-          cmake ..
+          cmake -DBUILD_TESTING=ON -DBUILD_DOCS=OFF -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug ..
           make
+          make coveralls
