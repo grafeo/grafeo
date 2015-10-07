@@ -305,7 +305,7 @@ static void test_queue_comparisons(void** state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[]={
+  const struct CMUnitTest tests[4]={
     cmocka_unit_test(test_queue_adding_removing),
     cmocka_unit_test(test_queue_accessors),
     cmocka_unit_test(test_queue_operations),

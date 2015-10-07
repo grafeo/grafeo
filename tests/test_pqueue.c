@@ -163,7 +163,7 @@ static void test_pqueue_adding_removing(void ** state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[]={
+  const struct CMUnitTest tests[1]={
     cmocka_unit_test(test_pqueue_adding_removing),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);

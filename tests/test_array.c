@@ -950,7 +950,7 @@ static void test_array_circular_indices(void** state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[]={
+  const struct CMUnitTest tests[21]={
     cmocka_unit_test(test_array_new),
     cmocka_unit_test(test_array_new_1D),
     cmocka_unit_test(test_array_new_2D),
