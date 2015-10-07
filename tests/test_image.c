@@ -225,7 +225,7 @@ static void test_image_write_ppm(void** state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[]={
+  const struct CMUnitTest tests[10]={
     cmocka_unit_test(test_image_read_jpg),
     cmocka_unit_test(test_image_read_png),
     cmocka_unit_test(test_image_read_pgm),

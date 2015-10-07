@@ -298,7 +298,7 @@ static void test_ift_euc(void** state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[]={
+  const struct CMUnitTest tests[2]={
     cmocka_unit_test(test_ift_sum),
     cmocka_unit_test(test_ift_max),
     //cmocka_unit_test(test_ift_min),

@@ -302,7 +302,7 @@ static void test_slist_comparisons(void** state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[]={
+  const struct CMUnitTest tests[4]={
     cmocka_unit_test(test_slist_adding_removing),
     cmocka_unit_test(test_slist_accessors),
     cmocka_unit_test(test_slist_operations),

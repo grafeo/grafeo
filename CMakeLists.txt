@@ -182,6 +182,7 @@ if(BUILD_TESTING)
     endif(COVERALLS)
 
     find_package(CMocka QUIET)
+    message(STATUS Cmocka Found:${CMOCKA_FOUND})
 
     if(NOT CMOCKA_FOUND)
         # Tell message
