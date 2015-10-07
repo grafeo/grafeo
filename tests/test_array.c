@@ -557,6 +557,7 @@ static void test_array_reduce(void** state){
     uint16_t dim = 4;
     uint32_t sizes[4] = {10,10,10,10};
     Array* array, *result;
+    long double result_1D;
     DataType type;
 
     for(type = GRAFEO_UINT8; type <= GRAFEO_DOUBLE; type++){
@@ -566,6 +567,8 @@ static void test_array_reduce(void** state){
       int16_t eixos[2] = {1,2};
       result = array_reduce_sum(array, eixos, 2);
       assert_int_equal(array_get_dim(result), 2);
+      result_1D = array_reduce_sum_num(array);
+      assert_int_equal(result_1D, 100000);
       array_free(result);
       // Agregated product
       result = array_reduce_mult(array, eixos, 2);
@@ -578,10 +581,14 @@ static void test_array_reduce(void** state){
       // Agregated maximum
       result = array_reduce_max(array, eixos, 2);
       assert_int_equal(array_get_dim(result), 2);
+      result_1D = array_reduce_max_num(array);
+      assert_int_equal(result_1D, 10);
       array_free(result);
       // Agregated minimum
       result = array_reduce_min(array, eixos, 2);
       assert_int_equal(array_get_dim(result), 2);
+      result_1D = array_reduce_min_num(array);
+      assert_int_equal(result_1D, 10);
       array_free(result);
     }
 
