@@ -148,32 +148,41 @@ static void _image_read_pgm_skip_comments(char* s, size_t m, FILE* fp){
   while(fgets(s,m,fp) != NULL)
     if(s[0]!='#' && s[0]!='\n') break;
 }
-
-Array* image_read_pgm(const char* filename){
+static Array* _image_read_ppm_pgm(const char* filename){
   char version[4];
   char line[256];
   uint64_t i;
   uint32_t width, height;
+  uint16_t dim;
   uint64_t max_gray;
   FILE* fp     = fopen(filename,"rb");
   Array* array = NULL;
 
   fgets(version, sizeof(version), fp);
-  if(version[0] == 'P' && (version[1] == '5' || version[1] == '2')){
+  if(version[0] == 'P' && (version[1] == '5' || version[1] == '2' || version[1] == '6')){
+    if(version[1] == '6') dim = 3;
+    else                  dim = 2;
     _image_read_pgm_skip_comments(line,256,fp);
     sscanf(line, "%d %d\n", &width, &height);
     _image_read_pgm_skip_comments(line,256,fp);
     sscanf(line, "%lu", &max_gray);
-    uint32_t size[2] = {height, width};
-    array = array_new_with_size_type(2, size, GRAFEO_UINT8);
-    if(version[1] == '5')
-      fread(array->data_uint8, sizeof(uint8_t), width*height,fp);
-    else
+    uint32_t size[3] = {height, width,3};
+    array = array_new_with_size_type(dim, size, GRAFEO_UINT8);
+    if(version[1] == '2')
       for(i = 0; i < array->num_elements; i++)
         fscanf(fp, "%cu", &array->data_uint8[i]);
+    else
+      fread(array->data_uint8, sizeof(uint8_t), array->num_elements,fp);
   }
   fclose(fp);
   return array;
+}
+
+Array* image_read_pgm(const char* filename){
+  return _image_read_ppm_pgm(filename);
+}
+Array* image_read_ppm(const char* filename){
+  return _image_read_ppm_pgm(filename);
 }
 
 void image_write(Array* array, const char* filename){
@@ -257,15 +266,24 @@ void image_write_jpg(Array* array, const char* filename){
   fclose(outfile);
   jpeg_destroy_compress(&cinfo);
 }
-void   image_write_pgm(Array* array, const char* filename){
+
+static void _image_write_ppm_pgm(Array* array, const char* filename, char format){
   FILE* fp;
   uint32_t i_max = (uint32_t) array_reduce_max_num(array);
   fp = fopen(filename, "wb");
-  fprintf(fp, "P5\n");
+  fprintf(fp, "P%c\n",format);
   fprintf(fp,"%d %d\n", array->size[1], array->size[0]);
   fprintf(fp, "%d\n",i_max);
   fwrite(array->data_uint8,sizeof(uint8_t),array->num_elements,fp);
   fclose(fp);
+}
+
+void   image_write_pgm(Array* array, const char* filename){
+  _image_write_ppm_pgm(array, filename, 5);
+}
+
+void   image_write_ppm(Array* array, const char* filename){
+  _image_write_ppm_pgm(array, filename, 6);
 }
 
 Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){

@@ -72,6 +72,12 @@ Array* image_read_jpg(const char* filename);
  * @return
  */
 Array* image_read_pgm(const char* filename);
+/**
+ * @brief image_read_ppm
+ * @param filename
+ * @return
+ */
+Array* image_read_ppm(const char* filename);
 
 /**
  * @brief      Generates a file with name `filename` from an Array
@@ -103,6 +109,12 @@ void   image_write_jpg(Array* array, const char* filename);
  * @param filename
  */
 void   image_write_pgm(Array* array, const char* filename);
+/**
+ * @brief image_write_ppm
+ * @param array
+ * @param filename
+ */
+void   image_write_ppm(Array* array, const char* filename);
 
 /**
  * @brief      Convert an image from a color space to another
