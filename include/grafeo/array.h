@@ -534,6 +534,24 @@ Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
  */
 Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
 /**
+ * @brief array_reduce_sum_num
+ * @param array
+ * @return
+ */
+long double array_reduce_sum_num(Array* array);
+/**
+ * @brief array_reduce_max_num
+ * @param array
+ * @return
+ */
+long double array_reduce_max_num(Array* array);
+/**
+ * @brief array_reduce_min_num
+ * @param array
+ * @return
+ */
+long double array_reduce_min_num(Array* array);
+/**
  * @brief array_squeeze
  * @param array
  */

@@ -725,6 +725,28 @@ Array* array_mult(Array *array1, Array *array2){
 Array* array_divide(Array *array1, Array *array2){
   return array_divide_to(array1, array2, NULL);
 }
+long double array_reduce_sum_num(Array* array){
+  long double sum = 0;
+  uint64_t i;
+  for(i = 0; i < array->num_elements; i++)
+    sum += array_get_long_double_1D(array,i);
+  return sum;
+}
+long double array_reduce_max_num(Array* array){
+  long double num_max = __LDBL_MIN__;
+  uint64_t i;
+  for(i = 0; i < array->num_elements; i++)
+    num_max = max(num_max,array_get_long_double_1D(array,i));
+  return num_max;
+}
+long double array_reduce_min_num(Array* array){
+  long double num_min = __LDBL_MAX__;
+  uint64_t i;
+  for(i = 0; i < array->num_elements; i++)
+    num_min = min(num_min,array_get_long_double_1D(array,i));
+  return num_min;
+}
+
 Array* array_sum_to(Array* array1, Array* array2, Array* new_array){
   if(!new_array) new_array = array_new_like(array1);
   uint64_t i;
