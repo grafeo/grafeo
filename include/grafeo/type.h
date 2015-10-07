@@ -77,6 +77,12 @@ typedef enum _Adjacency{
   GRAFEO_NEIGHBOR_26
 }Adjacency;
 
+typedef enum _NormType{
+  GRAFEO_NORM_L1,
+  GRAFEO_NORM_L2,
+  GRAFEO_NORM_INF
+}NormType;
+
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
        __typeof__ (b) _b = (b); \
