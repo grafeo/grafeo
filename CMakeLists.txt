@@ -29,7 +29,7 @@ cmake_minimum_required(VERSION 2.8)
 project(grafeo)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
     "${CMAKE_SOURCE_DIR}/cmake/")
-
+message(STATUS ${CMAKE_MODULE_PATH})
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
 
