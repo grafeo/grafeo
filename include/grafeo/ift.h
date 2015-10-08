@@ -242,6 +242,16 @@ void ift_set_predecessors(IFT* ift, Array* predecessors);
  * @memberof IFT
  */
 void ift_set_root(IFT* ift, Array* root);
+/* ====================== *
+ *     IFT OPERATIONS
+ * ====================== */
+/**
+ * @brief ift_distance_transform
+ * @param array
+ * @param norm_type
+ * @return
+ */
+Array* ift_distance_transform(Array* array, NormType norm_type);
 
 END_DECLS
 
