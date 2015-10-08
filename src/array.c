@@ -840,6 +840,28 @@ long double array_square_euclidian_distance(Array* array1, Array* array2){
   return sum;
 }
 
+double array_norm_difference(Array* array1, Array* array2, NormType norm_type){
+  long double value1;
+  long double value2;
+  long double value;
+  double accum = 0;
+  uint64_t i;
+  for(i = 0; i < array1->num_elements;i++){
+    value1  = array_get_long_double_1D(array1,i);
+    value2  = array_get_long_double_1D(array2,i);
+    value   = fabs(value2-value1);
+    switch(norm_type){
+      case GRAFEO_NORM_L1:    accum += value;break;
+      case GRAFEO_NORM_L2:
+      case GRAFEO_NORM_L2SQR: accum += value*value;break;
+      case GRAFEO_NORM_INF:   accum  = max(accum, value); break;
+    default: break;
+    }
+  }
+  if(norm_type == GRAFEO_NORM_L2) accum = sqrt(accum);
+  return accum;
+}
+
 
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
