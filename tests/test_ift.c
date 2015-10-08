@@ -297,16 +297,17 @@ static void test_ift_euc(void** state){
 
 static void test_ift_distance_transform(void** state){
   (void) state;
-  Array* image = image_read_pgm("distance_transform_input.pgm");
+  Array* image = image_read_pgm("../data/distance_transform_input.pgm");
+
   Array* result = ift_distance_transform(image, GRAFEO_NORM_L2);
-  image_write_pgm(result,"distance_transform_output.pgm");
+  image_write_png(result,"distance_transform_output.png");
   array_free(result);
 }
 
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[2]={
+  const struct CMUnitTest tests[3]={
     cmocka_unit_test(test_ift_sum),
     cmocka_unit_test(test_ift_max),
     cmocka_unit_test(test_ift_distance_transform),

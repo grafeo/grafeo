@@ -236,14 +236,17 @@ double _path_connectivity_norm(IFT* ift, uint64_t index_s, uint64_t index_t, Wei
   Array* array_r = array_from_data(array_index(ift->original,index_r),1,&size,GRAFEO_INT32);
   Array* array_t = array_from_data(array_index(ift->original,index_t),1,&size,GRAFEO_INT32);
 
-  return array_norm_relative(array_r, array_t, norm_type);
+  return array_norm_difference(array_r, array_t, norm_type);
 }
 
 double path_connectivity_norm_l1(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
   return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_L1);
 }
 double path_connectivity_norm_l2(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
-  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_L1);
+  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_L2);
+}
+double path_connectivity_norm_l2sqr(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
+  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_L2SQR);
 }
 double path_connectivity_norm_inf(IFT* ift, uint64_t index_s, uint64_t index_t, WeightFunc weight_function){
   return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRAFEO_NORM_INF);
@@ -283,14 +286,16 @@ Array* ift_distance_transform(Array* array, NormType norm_type){
   // Define Path Connectivity
   PathConnectivityFunc path_connectivity;
   switch(norm_type){
-    case GRAFEO_NORM_L1:  path_connectivity = path_connectivity_norm_l1 ; break;
-    case GRAFEO_NORM_L2:  path_connectivity = path_connectivity_norm_l2 ; break;
-    case GRAFEO_NORM_INF: path_connectivity = path_connectivity_norm_inf; break;
+    case GRAFEO_NORM_L1:     path_connectivity = path_connectivity_norm_l1    ; break;
+    case GRAFEO_NORM_L2:     path_connectivity = path_connectivity_norm_l2    ; break;
+    case GRAFEO_NORM_L2SQR:  path_connectivity = path_connectivity_norm_l2sqr ; break;
+    case GRAFEO_NORM_INF:    path_connectivity = path_connectivity_norm_inf   ; break;
+    default: break;
   }
 
   // Get seeds
   uint64_t seed_indices_data[array->num_elements];
-  uint32_t i, s;
+  uint32_t i, s = 0;
   for(i = 0; i < array->num_elements; i++)
     if(array_get_long_double_1D(array, i)) seed_indices_data[s++] = i;
   Array* seed_indices = array_from_data(seed_indices_data, 1, &s, GRAFEO_UINT64);
