@@ -78,9 +78,15 @@ typedef enum _Adjacency{
 }Adjacency;
 
 typedef enum _NormType{
-  GRAFEO_NORM_L1,
-  GRAFEO_NORM_L2,
-  GRAFEO_NORM_INF
+  GRAFEO_NORM_L1         = 1,
+  GRAFEO_NORM_L2         = 2,
+  GRAFEO_NORM_L2SQR      = 3,
+  GRAFEO_NORM_INF        = 4,
+  GRAFEO_NORM_HAMMING    = 5,
+  GRAFEO_NORM_HAMMING2   = 6,
+  GRAFEO_NORM_TYPE_MASK  = 6,
+  GRAFEO_NORM_RELATIVE   = 7,
+  GRAFEO_NORM_MINMAX     = 8,
 }NormType;
 
 #define max(a,b) \

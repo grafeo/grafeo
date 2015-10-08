@@ -345,6 +345,14 @@ long double array_euclidian_distance(Array* array1, Array* array2);
  * @return
  */
 long double array_square_euclidian_distance(Array* array1, Array* array2);
+/**
+ * @brief array_norm_relative
+ * @param array1
+ * @param array2
+ * @param norm_type
+ * @return
+ */
+double array_norm_difference(Array* array1, Array* array2, NormType norm_type);
 /*-----------------------------------
  *   ARRAY ACCESSOR FUNCTIONS
  *-----------------------------------*/
