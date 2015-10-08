@@ -947,10 +947,36 @@ static void test_array_circular_indices(void** state){
   array_free(array);
 }
 
+static void test_array_norm(void** state){
+  (void) state;
+  uint32_t size[2] = {10,10};
+  Array* array1 = array_ones(2,size,GRAFEO_UINT8);
+  Array* array2 = array_zeros(2,size,GRAFEO_UINT8);
+  // L1-Norm
+  double result = array_norm_difference(array1, array2, GRAFEO_NORM_L1);
+  assert_int_equal(result, 100);
+
+  // L2-Norm
+  result = array_norm_difference(array1, array2, GRAFEO_NORM_L2);
+  assert_int_equal(result, 10);
+
+  // L2-squared-norm
+  result = array_norm_difference(array1, array2, GRAFEO_NORM_L2SQR);
+  assert_int_equal(result, 100);
+
+  // Inf-Norm
+  result = array_norm_difference(array1, array2, GRAFEO_NORM_INF);
+  assert_int_equal(result, 1);
+
+  array_free(array1);
+  array_free(array2);
+}
+
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[21]={
+  const struct CMUnitTest tests[22]={
     cmocka_unit_test(test_array_new),
     cmocka_unit_test(test_array_new_1D),
     cmocka_unit_test(test_array_new_2D),
@@ -972,6 +998,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_conversion),
     cmocka_unit_test(test_array_squeeze),
     cmocka_unit_test(test_array_circular_indices),
+    cmocka_unit_test(test_array_norm),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

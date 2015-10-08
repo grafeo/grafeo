@@ -113,8 +113,9 @@ static void test_image_write_jpg(void ** state){
 
 static void test_image_write_png(void ** state){
   (void)state;
-  const char* outfile = "imagem.png";
+  const char* outfile      = "imagem.png";
   const char* outfile_gray = "imagemgray.png";
+  const char* outfile_2D   = "test_image_write_png_2D.png";
   // Remove the file if it exists
   remove(outfile);
   remove(outfile_gray);
@@ -131,8 +132,17 @@ static void test_image_write_png(void ** state){
   assert_int_equal(access(outfile, F_OK), 0);
   assert_int_equal(access(outfile_gray, F_OK), 0);
 
+  // Testing 2D image
+  uint8_t data[9] = {0,255,0,255,0,255,0,255,0};
+  uint32_t size[2] = {3,3};
+  Array* array_2D = array_from_data(data,2,size,GRAFEO_UINT8);
+  image_write_png(array_2D, outfile_2D);
+  assert_int_equal(access(outfile_2D, F_OK), 0);
+
+  // Memory
   array_free(input_image);
   array_free(input_image_gray);
+  array_free(array_2D);
 }
 
 static void test_image_read(void** state){

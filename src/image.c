@@ -53,6 +53,8 @@ Array* image_read(const char* filename){
   const char* ext = strrchr(filename, '.') + 1;
   if     (strcasecmp(ext, "png") == 0) return image_read_png(filename);
   else if(strcasecmp(ext, "jpg") == 0) return image_read_jpg(filename);
+  else if(strcasecmp(ext, "pgm") == 0) return image_read_pgm(filename);
+  else if(strcasecmp(ext, "ppm") == 0) return image_read_ppm(filename);
   return NULL;
 }
 Array* image_read_png(const char* filename){
@@ -189,6 +191,8 @@ void image_write(Array* array, const char* filename){
   const char* ext = strrchr(filename, '.') + 1;
   if     (strcasecmp(ext, "png") == 0) image_write_png(array,filename);
   else if(strcasecmp(ext, "jpg") == 0) image_write_jpg(array,filename);
+  else if(strcasecmp(ext, "pgm") == 0) image_write_pgm(array,filename);
+  else if(strcasecmp(ext, "ppm") == 0) image_write_ppm(array,filename);
 }
 void image_write_png(Array* array, const char* filename){
   /* create file */
@@ -212,7 +216,7 @@ void image_write_png(Array* array, const char* filename){
   if (setjmp(png_jmpbuf(png_ptr)))
     abort_("[write_png_file] Error during writing header");
 
-  int color_type = (array->size[2] == 3)?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_GRAY;
+  int color_type = (array->dim > 2 && array->size[2] == 3)?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_GRAY;
   png_set_IHDR(png_ptr, info_ptr, array->size[1], array->size[0],
                array->bitsize << 3, color_type, PNG_INTERLACE_NONE,
                PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
@@ -253,8 +257,8 @@ void image_write_jpg(Array* array, const char* filename){
   jpeg_stdio_dest(&cinfo, outfile);
   cinfo.image_width = array->size[1];
   cinfo.image_height = array->size[0];
-  cinfo.input_components = array->size[2];
-  cinfo.in_color_space = (array->size[2] == 3)?JCS_RGB:JCS_GRAYSCALE;
+  cinfo.input_components = (array->dim > 2)?array->size[2]:1;
+  cinfo.in_color_space = (array->dim > 2 && array->size[2] == 3)?JCS_RGB:JCS_GRAYSCALE;
   jpeg_set_defaults(&cinfo);
   jpeg_set_quality(&cinfo, 1, TRUE);
   jpeg_start_compress(&cinfo, TRUE);
