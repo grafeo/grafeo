@@ -972,6 +972,15 @@ static void test_array_norm(void** state){
   array_free(array2);
 }
 
+static void test_array_copy(void** state){
+  uint32_t data[8] = {0,1,2,3,4,5,6,7};
+  uint32_t size[3] = {2,2,2};
+  Array* array     = array_from_data(data,3,size,GRAFEO_UINT32);
+  Array* array2    = array_copy(array);
+  assert_array_equal(array, array2);
+  array_free(array);
+  array_free(array2);
+}
 
 int main(int argc, char** argv){
   (void)argc;
@@ -986,6 +995,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_new_2D_type),
     cmocka_unit_test(test_array_new_3D_type),
     cmocka_unit_test(test_array_new_4D_type),
+    cmocka_unit_test(test_array_copy),
     cmocka_unit_test(test_array_from_data),
     cmocka_unit_test(test_array_zeros),
     cmocka_unit_test(test_array_ones),
@@ -998,7 +1008,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_array_conversion),
     cmocka_unit_test(test_array_squeeze),
     cmocka_unit_test(test_array_circular_indices),
-    cmocka_unit_test(test_array_norm),
+    cmocka_unit_test(test_array_norm),    
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

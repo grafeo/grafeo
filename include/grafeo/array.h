@@ -224,6 +224,12 @@ Array*    array_as_type(Array* array, DataType type);
  * @return
  */
 Array*    array_circular_indices(uint16_t dim, float radius);
+/**
+ * @brief array_copy
+ * @param array
+ * @return
+ */
+Array*    array_copy(Array* array);
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
  *-----------------------------------*/
