@@ -461,6 +461,13 @@ Array*    array_circular_indices(uint16_t dim, float radius){
 }
 
 Array*
+array_copy(Array* array){
+  Array* array2 = array_new_like(array);
+  memcpy(array2->data,array->data,array->num_bytes);
+  return array2;
+}
+
+Array*
 array_reduce_min(Array* array, int16_t* axes, uint16_t size){
   return array_reduce(array, axes, size, GRAFEO_MIN);
 }
