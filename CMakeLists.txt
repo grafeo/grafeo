@@ -91,7 +91,10 @@ find_package(JPEG QUIET)
 if(NOT JPEG_FOUND)
 
 endif(NOT JPEG_FOUND)
-
+#================================================================ GTK
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
 #============================================= TESTS (BEFORE LIBRARY)
 include(CTest)
 option(COVERALLS "Generate coveralls data" OFF)
@@ -119,6 +122,10 @@ SET(GRAFEO_STRUCTURE_HDR
 SET(GRAFEO_IMGPROC_HDR
   include/grafeo/image.h
 )
+SET(GRAFEO_DISPLAY_HDR
+  include/grafeo/display.h
+  include/grafeo/imagewidget.h
+)
 SET(GRAFEO_IFT_HDR
   include/grafeo/ift.h
 )
@@ -138,12 +145,17 @@ SET(GRAFEO_IMGPROC_SRC
 SET(GRAFEO_IFT_SRC
  src/ift.c
 )
-SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC})
-SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR})
+SET(GRAFEO_DISPLAY_SRC
+ src/display.c
+ src/imagewidget.c
+)
+SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
+SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
 
 add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
 add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
 add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
+add_library(grafeo_display   SHARED ${GRAFEO_DISPLAY_SRC}   ${GRAFEO_DISPLAY_HDR})
 set(GRAFEO_VERSION_MAJOR 0)
 set(GRAFEO_VERSION_MINOR 0)
 set(GRAFEO_VERSION_PATCH 6)
@@ -152,11 +164,13 @@ set(GRAFEO_VERSION_STRING ${GRAFEO_VERSION_MAJOR}.${GRAFEO_VERSION_MINOR}.${GRAF
 set_target_properties(grafeo_structure PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
 set_target_properties(grafeo_imgproc   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
 set_target_properties(grafeo_ift       PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+set_target_properties(grafeo_display   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
 
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
 install(TARGETS grafeo_structure LIBRARY DESTINATION lib)
 install(TARGETS grafeo_imgproc   LIBRARY DESTINATION lib)
 install(TARGETS grafeo_ift       LIBRARY DESTINATION lib)
+install(TARGETS grafeo_display   LIBRARY DESTINATION lib)
 
 #========================================================= DEBUG INFO
 option(DEBUG_INFO "Compile Grafeo with debug information?" ON)
@@ -230,6 +244,7 @@ if(BUILD_TESTING)
       queue
       pqueue
       ift
+      display
     )
     set(test_array_deps grafeo_structure)
     set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
@@ -238,6 +253,7 @@ if(BUILD_TESTING)
     set(test_queue_deps grafeo_structure)
     set(test_pqueue_deps grafeo_structure)
     set(test_ift_deps grafeo_structure grafeo_imgproc grafeo_ift png jpeg)
+    set(test_display_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)
