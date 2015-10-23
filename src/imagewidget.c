@@ -27,104 +27,179 @@
 # ===================================================================*/
 #include <grafeo/imagewidget.h>
 
+/*=================================
+ * PRIVATE API
+ *=================================*/
 // Private information
-typedef struct {
-  Array* image_original;
-  Array* image_output;
+typedef struct _ImageWidgetPrivate{
+  Array*           image_original;
+  Array*           image_output;
+  cairo_surface_t* image_surface;
+  uint8_t          flags;
 } ImageWidgetPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(ImageWidget, imagewidget, GTK_TYPE_WIDGET)
 
-static void imagewidget_init(ImageWidget *imagewidget){
+// Local Forward Declarations
+static void
+imagewidget_get_preferred_width(GtkWidget *widget, gint *minimal_width, gint *natural_width);
+static void
+imagewidget_get_preferred_height(GtkWidget *widget, gint *minimal_height, gint *natural_height);
+static void
+imagewidget_size_allocate(GtkWidget *widget, GtkAllocation *allocation);
+static gboolean
+imagewidget_draw(GtkWidget* widget, cairo_t* cr);
+static void
+get_size(ImageWidget* widget, GtkOrientation direction, int *minimal, int* natural);
+
+// Initialize ImageWidget
+static void
+imagewidget_init(ImageWidget *imagewidget){
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
   priv->image_original = NULL;
   priv->image_output   = NULL;
+  priv->image_surface  = NULL;
+  priv->flags          = GRAFEO_WINDOW_NORMAL;
 }
 
-static void imagewidget_get_preferred_width(GtkWidget* widget, gint *minimal_width, gint *natural_width){
-  ImageWidget* imagewidget = GRAFEO_IMAGEWIDGET(widget);
+// Override Event Functions
+static void
+imagewidget_class_init(ImageWidgetClass *klass){
+  GtkWidgetClass* widget_class      = GTK_WIDGET_CLASS(klass);
+  widget_class->get_preferred_width = imagewidget_get_preferred_width;
+  widget_class->get_preferred_height= imagewidget_get_preferred_height;
+  widget_class->size_allocate       = imagewidget_size_allocate;
+  widget_class->draw                = imagewidget_draw;
+}
+
+// Get Width
+static void
+imagewidget_get_preferred_width(GtkWidget* widget,
+                                gint *minimal_width,
+                                gint *natural_width){
+  get_size(GRAFEO_IMAGEWIDGET(widget), GTK_ORIENTATION_HORIZONTAL, minimal_width, natural_width);
+}
+
+// Get Height
+static void
+imagewidget_get_preferred_height(GtkWidget* widget,
+                                 gint *minimal_height,
+                                 gint *natural_height){
+  get_size(GRAFEO_IMAGEWIDGET(widget), GTK_ORIENTATION_VERTICAL, minimal_height, natural_height);
+}
+
+// Allocate size
+static void
+imagewidget_size_allocate(GtkWidget *widget, GtkAllocation *allocation){
+  gtk_widget_set_allocation(widget, allocation);
+}
+
+// Draw image
+static gboolean
+imagewidget_draw(GtkWidget *widget, cairo_t *cr){
+  ImageWidget *imagewidget = GRAFEO_IMAGEWIDGET(widget);
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
-  if(priv->image_original != NULL){
-    *minimal_width = priv->image_original->size[1];
-  }
-  else{
-    *minimal_width = 320;
-  }
-  if(priv->image_output != NULL){
-    *natural_width = *minimal_width < priv->image_output->size[1] ? priv->image_output->size[1] : *minimal_width;
-  }
-  else{
-    *natural_width = *minimal_width;
-  }
-}
-static void imagewidget_get_preferred_height(GtkWidget* widget, gint *minimal_height, gint *natural_height){
-  ImageWidget* imagewidget = GRAFEO_IMAGEWIDGET(widget);
-  ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
-  if(priv->image_original != NULL){
-    *minimal_height = priv->image_original->size[1];
-  }
-  else{
-    *minimal_height = 240;
-  }
-  if(priv->image_output != NULL){
-    *natural_height = *minimal_height < priv->image_output->size[1] ? priv->image_output->size[2]:*minimal_height;
-  }
-  else{
-    *natural_height = *minimal_height;
-  }
+  cairo_set_source_surface(cr, priv->image_surface, 0, 0);
+  cairo_paint(cr);
+  cairo_fill(cr);
+  return FALSE;
 }
 
-static void imagewidget_realize(GtkWidget* widget){
-  GdkWindowAttr attributes;
-  gint          attributes_mask;
-  GtkAllocation allocation;
-  gtk_widget_get_allocation(widget, &allocation);
-  gtk_widget_set_realized(widget, TRUE);
-  attributes.x      = allocation.x;
-  attributes.y      = allocation.y;
-  attributes.width  = allocation.width;
-  attributes.height = allocation.height;
-  attributes.wclass = GDK_INPUT_OUTPUT;
-  attributes.window_type = GDK_WINDOW_CHILD;
-  attributes.event_mask  = gtk_widget_get_events(widget) |
-                           GDK_EXPOSURE_MASK |
-                           GDK_BUTTON_PRESS_MASK |
-                           GDK_BUTTON_RELEASE_MASK |
-                           GDK_POINTER_MOTION_MASK;
-  attributes.visual = gtk_widget_get_visual(widget);
-  attributes_mask = GDA_WA_X | GDA_WA_Y | GDA_WA_VISUAL;
-  gtk_widget_set_window(widget,gdk_window_new(gtk_widget_get_parent_window(widget),&attributes,attributes_mask));
-  gtk_widget_set_style(widget,gtk_style_attach(gtk_widget_get_style(widget),gtk_widget_get_window(widget)));
-  gdk_window_set_user_data(gtk_widget_get_window(widget),widget);
-  gtk_style_set_background(gtk_widgetget_style(widget),gtk_widget_get_window(widget),GTK_STATE_ACTIVE);
+// Get Preferred Size (Width or Height)
+static void
+get_size(ImageWidget* imagewidget, GtkOrientation direction, int* minimal, int* natural){
+  uint8_t             index;
+  uint16_t            size_min;
+  uint16_t            gdk_size;
+  GtkWidget         * widget         = GTK_WIDGET(imagewidget);
+  ImageWidgetPrivate* priv           = imagewidget_get_instance_private(imagewidget);
+  uint32_t          * size_original  = priv->image_original->size;
+  uint32_t          * size_output    = priv->image_original->size;
+  switch(direction){
+  case GTK_ORIENTATION_HORIZONTAL:
+    index = 1; size_min = 320; gdk_size = gdk_window_get_width(gtk_widget_get_window(widget));
+    break;
+  case GTK_ORIENTATION_VERTICAL:
+    index = 0; size_min = 240; gdk_size = gdk_window_get_height(gtk_widget_get_window(widget));
+    break;
+  }
+  if(priv->image_original != NULL)
+    *minimal = (priv->flags & GRAFEO_WINDOW_AUTOSIZE) != GRAFEO_WINDOW_AUTOSIZE ? gdk_size:size_original[index];
+  else
+    *minimal = size_min;
+  if(priv->image_output != NULL)
+    *natural = *minimal < size_output[index]?size_output[index]:*minimal;
+  else
+    *natural = *minimal;
 }
 
-static void imagewidget_size_allocate(GtkWidget* widget, GtkAllocation* allocation){
 
-}
+//static void imagewidget_realize(GtkWidget* widget){
+//  GdkWindowAttr attributes;
+//  gint          attributes_mask;
+//  GtkAllocation allocation;
+//  gtk_widget_get_allocation(widget, &allocation);
+//  gtk_widget_set_realized(widget, TRUE);
+//  attributes.x      = allocation.x;
+//  attributes.y      = allocation.y;
+//  attributes.width  = allocation.width;
+//  attributes.height = allocation.height;
+//  attributes.wclass = GDK_INPUT_OUTPUT;
+//  attributes.window_type = GDK_WINDOW_CHILD;
+//  attributes.event_mask  = gtk_widget_get_events(widget) |
+//                           GDK_EXPOSURE_MASK |
+//                           GDK_BUTTON_PRESS_MASK |
+//                           GDK_BUTTON_RELEASE_MASK |
+//                           GDK_POINTER_MOTION_MASK;
+//  attributes.visual = gtk_widget_get_visual(widget);
+//  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
+//  gtk_widget_set_window(widget,gdk_window_new(gtk_widget_get_parent_window(widget),&attributes,attributes_mask));
+//  //gtk_widget_set_style(widget,gtk_style_attach(gtk_widget_get_style(widget),gtk_widget_get_window(widget)));
+//  gdk_window_set_user_data(gtk_widget_get_window(widget),widget);
+//  //gtk_render_background(context, style_context_set_background(gtk_widget_get_style_context(widget),gtk_widget_get_window(widget));
+//  //gtk_style_set_background(gtk_widgetget_style(widget),gtk_widget_get_window(widget),GTK_STATE_ACTIVE);
+//}
 
-static void imagewidget_destroy(GtkWidget* object){
-  ImageWidgetPrivate* priv = imagewidget_get_instance_private(GRAFEO_IMAGEWIDGET(object));
+//static void imagewidget_size_allocate(GtkWidget* widget, GtkAllocation* allocation){
+//  gtk_widget_set_allocation(widget, allocation);
+//  ImageWidget* imagewidget = GRAFEO_IMAGEWIDGET(widget);
+//  ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
+//  if(priv->image_original){
 
-  array_free(priv->image_original);
-  array_free(priv->image_output);
-}
+//  }
+//}
 
-static void imagewidget_class_init(ImageWidgetClass* klass){
-  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-  widget_class->destroy              = imagewidget_destroy;
-  widget_class->get_preferred_width  = imagewidget_get_preferred_width;
-  widget_class->get_preferred_height = imagewidget_get_preferred_height;
-  widget_class->realize              = imagewidget_realize;
-  widget_class->size_allocate        = imagewidget_size_allocate;
-  widget_class->button_press_event   = NULL;
-  widget_class->button_release_event = NULL;
-  widget_class->motion_notify_event  = NULL;
-}
+//static void imagewidget_destroy(GtkWidget* object){
+//  ImageWidgetPrivate* priv = imagewidget_get_instance_private(GRAFEO_IMAGEWIDGET(object));
 
-GtkWidget* imagewidget_new(){
+//  array_free(priv->image_original);
+//  array_free(priv->image_output);
+//}
+
+//static void imagewidget_class_init(ImageWidgetClass* klass){
+//  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
+//  widget_class->destroy              = imagewidget_destroy;
+//  widget_class->get_preferred_width  = imagewidget_get_preferred_width;
+//  widget_class->get_preferred_height = imagewidget_get_preferred_height;
+//  widget_class->realize              = imagewidget_realize;
+//  widget_class->size_allocate        = imagewidget_size_allocate;
+//  widget_class->button_press_event   = NULL;
+//  widget_class->button_release_event = NULL;
+//  widget_class->motion_notify_event  = NULL;
+//}
+
+/*=================================
+ * PUBLIC API
+ *=================================*/
+// Creates a new ImageWidget
+GtkWidget*
+imagewidget_new(){
   return gtk_widget_new(GRAFEO_TYPE_IMAGEWIDGET, NULL);
 }
 
-
-
+// Update image
+void
+imagewidget_set_image(ImageWidget* widget, Array* image){
+  ImageWidgetPrivate* priv = imagewidget_get_instance_private(widget);
+  priv->image_original = image;
+}

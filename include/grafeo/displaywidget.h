@@ -25,31 +25,25 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/display.h>
-#include <setjmp.h>
-#include <cmocka.h>
-static void test_display(void** state){
-  uint8_t  key;
-  uint32_t size[2] = {640,480};
-  Array*   array   = array_zeros(2,size, GRAFEO_UINT8);
+#ifndef GRAFEO_DISPLAYWIDGET_H
+#define GRAFEO_DISPLAYWIDGET_H
+#include <grafeo/imagewidget.h>
+BEGIN_DECLS
 
-  display_init();
-  display_show(array);
-  key = display_wait_key();
-  printf("%d\n", key);
+#define GRAFEO_TYPE_DISPLAYWIDGET displaywidget_get_type()
+G_DECLARE_DERIVABLE_TYPE(DisplayWidget, displaywidget, GRAFEO, DISPLAYWIDGET, GtkWindow)
 
-  display_show(array);
-  key = display_wait_key();
-  printf("%d\n", key);
+/**
+  * @brief Class for DisplayWidget static properties and members
+  */
+typedef struct _DisplayWidgetClass{
+  GtkWindowClass parent_class;
+}DisplayWidgetClass;
 
-  array_free(array);
-}
+/**
+ * @brief Creates a new DisplayWidget
+ */
+DisplayWidget* displaywidget_new();
 
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_display)
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
-}
+END_DECLS
+#endif

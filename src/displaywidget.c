@@ -25,31 +25,15 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/display.h>
-#include <setjmp.h>
-#include <cmocka.h>
-static void test_display(void** state){
-  uint8_t  key;
-  uint32_t size[2] = {640,480};
-  Array*   array   = array_zeros(2,size, GRAFEO_UINT8);
+#include <grafeo/displaywidget.h>
 
-  display_init();
-  display_show(array);
-  key = display_wait_key();
-  printf("%d\n", key);
+typedef struct _DisplayWidgetPrivate{
+  ImageWidget* imagewidget;
+}DisplayWidgetPrivate;
 
-  display_show(array);
-  key = display_wait_key();
-  printf("%d\n", key);
+G_DEFINE_TYPE_WITH_PRIVATE(DisplayWidget, displaywidget, GTK_TYPE_WINDOW)
 
-  array_free(array);
+DisplayWidget* displaywidget_new(){
+  return gtk_widget_new(GRAFEO_TYPE_DISPLAYWIDGET, NULL);
 }
 
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_display)
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
-}

@@ -28,8 +28,10 @@
 #ifndef GRAFEO_IMAGEWIDGET_H
 #define GRAFEO_IMAGEWIDGET_H
 #include <grafeo/array.h>
+
 BEGIN_DECLS
 #include <gtk/gtk.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 
 #define GRAFEO_TYPE_IMAGEWIDGET imagewidget_get_type()
 G_DECLARE_DERIVABLE_TYPE(ImageWidget, imagewidget, GRAFEO, IMAGEWIDGET, GtkWidget)
@@ -38,7 +40,24 @@ struct _ImageWidgetClass{
   GtkWidgetClass parent_class;
 };
 
+typedef enum{
+  // Indices of list of window properties
+  GRAFEO_PROP_FULLSCREEN   = 0,
+  GRAFEO_PROP_AUTOSIZE     = 1,
+  GRAFEO_PROP_KEEPRATIO    = 2,
+  GRAFEO_PROP_OPENGL       = 3,
+
+  // Window flags
+  GRAFEO_WINDOW_NORMAL     = 0,
+  GRAFEO_WINDOW_AUTOSIZE   = 1,
+  GRAFEO_WINDOW_FULLSCREEN = 4,
+  GRAFEO_WINDOW_OPENGL     = 8,
+  GRAFEO_WINDOW_KEEPRATIO  = 16,
+  GRAFEO_WINDOW_FREERATIO  = 0,
+} WindowFlag;
+
 GtkWidget*   imagewidget_new();
+void         imagewidget_set_image(GtkWidget* widget, Array* image);
 
 END_DECLS
 #endif
