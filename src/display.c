@@ -79,7 +79,7 @@ Display* display_new(char* name){
     // Creation
     display = window_new();
     display->name        = name;
-    display->window      = gtk_window_new(GTK_WINDOW_POPUP);
+    display->window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     display->box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     display->imagewidget = imagewidget_new();
 
@@ -92,11 +92,12 @@ Display* display_new(char* name){
     // Some properties and signals
     gtk_window_set_title(GTK_WINDOW(display->window), name);
     gtk_widget_hide_on_delete(display->window);
+    gtk_window_set_decorated(GTK_WINDOW(display->window),FALSE);
     gtk_window_set_default_size(GTK_WINDOW(display->window), 200, 200);
 
     g_signal_connect(display->window,       "delete-event",    G_CALLBACK(window_delete_event), NULL);
     g_signal_connect(display->window,       "key_press_event", G_CALLBACK(window_key_press_event),NULL);
-    g_signal_connect(display->imagewidget,  "draw",            G_CALLBACK(display_image_draw), display);
+    //g_signal_connect(display->imagewidget,  "draw",            G_CALLBACK(display_image_draw), display);
 
     // Append to the list of displays
     queue_append(displays, display);

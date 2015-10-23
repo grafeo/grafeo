@@ -39,8 +39,6 @@ struct _ImageWidgetClass{
 };
 
 GtkWidget*   imagewidget_new();
-void         imagewidget_draw(GtkWidget* widget, cairo_t *cr, gpointer user_data);
-void         imagewidget_destroy(ImageWidget* imagewidget);
 
 END_DECLS
 #endif
