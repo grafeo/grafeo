@@ -244,8 +244,8 @@ static void test_image_cvt_color(void** state){
   assert_int_equal(array_rgb->bitsize   , array->bitsize);
   assert_int_equal(array_rgb->contiguous, array->contiguous);
   assert_int_equal(array_rgb->num_elements  , array->num_elements*3);
-
-  for(int i = 0; i < array->num_elements;i++){
+  uint64_t i;
+  for(i = 0; i < array->num_elements;i++){
     assert_int_equal(array->data_uint8[i],array_rgb->data_uint8[i*3]);
     assert_int_equal(array->data_uint8[i],array_rgb->data_uint8[i*3+1]);
     assert_int_equal(array->data_uint8[i],array_rgb->data_uint8[i*3+2]);
@@ -259,7 +259,7 @@ static void test_image_cvt_color(void** state){
   assert_int_equal(array_gray->bitsize     , array_rgb->bitsize);
   assert_int_equal(array_gray->contiguous  , array_rgb->contiguous);
   assert_int_equal(array_gray->num_elements, array->num_elements);
-  for(int i = 0; i < array_gray->num_elements;i++)
+  for(i = 0; i < array_gray->num_elements;i++)
     assert_int_equal(array_gray->data_uint8[i],array->data_uint8[i]);
 }
 
