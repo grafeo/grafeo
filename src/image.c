@@ -293,48 +293,66 @@ void   image_write_ppm(Array* array, const char* filename){
 Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
   Array* output;
   uint64_t i;
+
+  // Creating output array
   output = array;
-  if(origin == GRAFEO_GRAY && destiny == GRAFEO_RGB){
+  if(destiny == GRAFEO_RGB || destiny == GRAFEO_BGR)
     output = array_new_3D_type(array->size[0], array->size[1], 3, array->type);
-    for(i = 0; i < array->num_elements; i++){
-      output->data_uint8[3*i  ] = array->data_uint8[i];
-      output->data_uint8[3*i+1] = array->data_uint8[i];
-      output->data_uint8[3*i+2] = array->data_uint8[i];
-    }
-  }else if(origin == GRAFEO_RGB && destiny == GRAFEO_GRAY){
+  else if(destiny == GRAFEO_GRAY)
     output = array_new_2D_type(array->size[0], array->size[1], array->type);
-    for(i = 0; i < output->num_elements; i++){
-      output->data_uint8[i] = (uint8_t)(
-                              0.299*(double)array->data_uint8[3*i  ] +
-                              0.587*(double)array->data_uint8[3*i+1] +
-                              0.114*(double)array->data_uint8[3*i+2]);
-    }
-  }else if(origin == GRAFEO_RGB && destiny == GRAFEO_BGR){
-    output = array_copy(array);
-    uint64_t size_gray = output->num_elements/3;
-    uint8_t tmp;
-    for(i = 0; i < size_gray; i++){
-      tmp                       = output->data_uint8[3*i];
-      output->data_uint8[3*i]   = output->data_uint8[3*i+2];
-      output->data_uint8[3*i+2] = tmp;
-    }
-  }
-  else if(origin == GRAFEO_GRAY && destiny == GRAFEO_RGBA){
+  else if(destiny == GRAFEO_RGBA || destiny == GRAFEO_BGRA)
     output = array_new_3D_type(array->size[0], array->size[1], 4, array->type);
-    for(i = 0; i < array->num_elements; i++){
-      output->data_uint8[4*i  ] = array->data_uint8[i];
-      output->data_uint8[4*i+1] = array->data_uint8[i];
-      output->data_uint8[4*i+2] = array->data_uint8[i];
-      output->data_uint8[4*i+3] = 255;
+
+
+  // Filling array
+  if(origin == GRAFEO_GRAY){
+    if(destiny == GRAFEO_RGB){
+      for(i = 0; i < array->num_elements; i++){
+        output->data_uint8[3*i  ] = array->data_uint8[i];
+        output->data_uint8[3*i+1] = array->data_uint8[i];
+        output->data_uint8[3*i+2] = array->data_uint8[i];
+      }
+    }else if(destiny == GRAFEO_RGBA){
+      uint64_t i2;
+      for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
+        output->data_uint8[i2  ] = array->data_uint8[i];
+        output->data_uint8[i2+1] = array->data_uint8[i];
+        output->data_uint8[i2+2] = array->data_uint8[i];
+        output->data_uint8[i2+3] = 255;
+      }
     }
-  }else if(origin == GRAFEO_RGB && destiny == GRAFEO_RGBA){
-    output = array_new_3D_type(array->size[0], array->size[1], 4, array->type);
-    uint64_t size_gray = array->num_elements/3;
-    for(i = 0; i < size_gray; i++){
-      output->data_uint8[4*i  ] = array->data_uint8[3*i];
-      output->data_uint8[4*i+1] = array->data_uint8[3*i+1];
-      output->data_uint8[4*i+2] = array->data_uint8[3*i+2];
-      output->data_uint8[4*i+3] = 255;
+  }else if(origin == GRAFEO_RGB){
+    if(destiny == GRAFEO_GRAY){
+      for(i = 0; i < output->num_elements; i++){
+        output->data_uint8[i] = (uint8_t)(
+                                0.299*(double)array->data_uint8[3*i  ] +
+                                0.587*(double)array->data_uint8[3*i+1] +
+                                0.114*(double)array->data_uint8[3*i+2]);
+      }
+    }else if(destiny == GRAFEO_BGR){
+      uint64_t size_gray = output->num_elements/3;
+      for(i = 0; i < size_gray; i++){
+        output->data_uint8[3*i  ] = array->data_uint8[3*i+2];
+        output->data_uint8[3*i+1] = array->data_uint8[3*i+1];
+        output->data_uint8[3*i+2] = array->data_uint8[3*i  ];
+      }
+    }else if(destiny == GRAFEO_RGBA){
+      uint64_t size_gray = array->num_elements/3;
+      for(i = 0; i < size_gray; i++){
+        output->data_uint8[4*i  ] = array->data_uint8[3*i];
+        output->data_uint8[4*i+1] = array->data_uint8[3*i+1];
+        output->data_uint8[4*i+2] = array->data_uint8[3*i+2];
+        output->data_uint8[4*i+3] = 255;
+      }
+    }
+    else if(destiny == GRAFEO_BGRA){
+      uint64_t size_gray = array->num_elements/3, i2, i3;
+      for(i = 0, i2 = 0, i3 = 0; i < size_gray; i++, i2 = i << 2, i3 = (i<<1)+i){
+        output->data_uint8[i2  ] = array->data_uint8[i3+2];
+        output->data_uint8[i2+1] = array->data_uint8[i3+1];
+        output->data_uint8[i2+2] = array->data_uint8[i3];
+        output->data_uint8[i2+3] = 255;
+      }
     }
   }
   return output;
