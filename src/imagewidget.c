@@ -202,8 +202,9 @@ imagewidget_new(){
 void
 imagewidget_set_image(ImageWidget* widget, Array* image){
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(widget);
-  int stride = cairo_format_stride_for_width(CAIRO_FORMAT_A8,image->size[1]);
+  int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24,image->size[1]);
   priv->image_original = image;
-  priv->image_output   = image_cvt_color(array,GRAFEO_GRAY, GRAFEO_RGB);
-  priv->image_surface  = cairo_image_surface_create_for_data(priv->image_output->data_uint8,CAIRO_FORMAT_A8,priv->image_output->size[1],priv->image_output->size[0],stride);
+  if(image->dim == 2)
+    priv->image_output   = image_cvt_color(image,GRAFEO_GRAY, GRAFEO_RGB);
+  priv->image_surface  = cairo_image_surface_create_for_data(priv->image_output->data_uint8,CAIRO_FORMAT_RGB24,priv->image_output->size[1],priv->image_output->size[0],stride);
 }
