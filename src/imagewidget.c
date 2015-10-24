@@ -113,8 +113,8 @@ get_size(ImageWidget* imagewidget, GtkOrientation direction, int* minimal, int* 
   uint16_t            gdk_size;
   GtkWidget         * widget         = GTK_WIDGET(imagewidget);
   ImageWidgetPrivate* priv           = imagewidget_get_instance_private(imagewidget);
-  uint32_t          * size_original  = priv->image_original->size;
-  uint32_t          * size_output    = priv->image_original->size;
+  uint32_t          * size_original  = priv->image_original? priv->image_original->size: NULL;
+  uint32_t          * size_output    = priv->image_output  ? priv->image_output->size  : NULL;
   switch(direction){
   case GTK_ORIENTATION_HORIZONTAL:
     index = 1; size_min = 320; gdk_size = gdk_window_get_width(gtk_widget_get_window(widget));

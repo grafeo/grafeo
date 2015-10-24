@@ -247,6 +247,7 @@ if(BUILD_TESTING)
       pqueue
       ift
       display
+      imagewidget
     )
     set(test_array_deps grafeo_structure)
     set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
@@ -256,6 +257,7 @@ if(BUILD_TESTING)
     set(test_pqueue_deps grafeo_structure)
     set(test_ift_deps grafeo_structure grafeo_imgproc grafeo_ift png jpeg)
     set(test_display_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+    set(test_imagewidget_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)
