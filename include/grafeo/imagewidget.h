@@ -28,6 +28,7 @@
 #ifndef GRAFEO_IMAGEWIDGET_H
 #define GRAFEO_IMAGEWIDGET_H
 #include <grafeo/array.h>
+#include <grafeo/image.h>
 
 BEGIN_DECLS
 #include <gtk/gtk.h>

@@ -55,6 +55,7 @@ get_size(ImageWidget* widget, GtkOrientation direction, int *minimal, int* natur
 // Initialize ImageWidget
 static void
 imagewidget_init(ImageWidget *imagewidget){
+  gtk_widget_set_has_window(GTK_WIDGET(imagewidget), FALSE);
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
   priv->image_original = NULL;
   priv->image_output   = NULL;
@@ -117,10 +118,10 @@ get_size(ImageWidget* imagewidget, GtkOrientation direction, int* minimal, int* 
   uint32_t          * size_output    = priv->image_output  ? priv->image_output->size  : NULL;
   switch(direction){
   case GTK_ORIENTATION_HORIZONTAL:
-    index = 1; size_min = 320; gdk_size = gdk_window_get_width(gtk_widget_get_window(widget));
+    index = 1; size_min = 320; gdk_size = 320;//gdk_window_get_width(gtk_widget_get_window(widget));
     break;
   case GTK_ORIENTATION_VERTICAL:
-    index = 0; size_min = 240; gdk_size = gdk_window_get_height(gtk_widget_get_window(widget));
+    index = 0; size_min = 240; gdk_size = 240;//gdk_window_get_height(gtk_widget_get_window(widget));
     break;
   }
   if(priv->image_original != NULL)
@@ -201,6 +202,8 @@ imagewidget_new(){
 void
 imagewidget_set_image(ImageWidget* widget, Array* image){
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(widget);
+  int stride = cairo_format_stride_for_width(CAIRO_FORMAT_A8,image->size[1]);
   priv->image_original = image;
-  priv->image_output   = image;
+  priv->image_output   = image_cvt_color(array,GRAFEO_GRAY, GRAFEO_RGB);
+  priv->image_surface  = cairo_image_surface_create_for_data(priv->image_output->data_uint8,CAIRO_FORMAT_A8,priv->image_output->size[1],priv->image_output->size[0],stride);
 }
