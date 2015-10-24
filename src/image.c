@@ -319,5 +319,14 @@ Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
       output->data_uint8[3*i+2] = tmp;
     }
   }
+  else if(origin == GRAFEO_GRAY && destiny == GRAFEO_RGBA){
+    output = array_new_3D_type(array->size[0], array->size[1], 4, array->type);
+    for(i = 0; i < array->num_elements; i++){
+      output->data_uint8[4*i  ] = array->data_uint8[i];
+      output->data_uint8[4*i+1] = array->data_uint8[i];
+      output->data_uint8[4*i+2] = array->data_uint8[i];
+      output->data_uint8[4*i+3] = 255;
+    }
+  }
   return output;
 }
