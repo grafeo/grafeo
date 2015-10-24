@@ -294,10 +294,27 @@ static void test_image_cvt_color(void** state){
     assert_int_equal(array_rgba2->data_uint8[i*4+3],255);
   }
 
+  // From RGB to BGRA
+  Array* array_bgra = image_cvt_color(array_rgb, GRAFEO_RGB, GRAFEO_BGRA);
+  assert_int_equal(array_bgra->dim, 3);
+  assert_int_equal(array_bgra->size[0]      , array_rgb->size[0]);
+  assert_int_equal(array_bgra->size[1]      , array_rgb->size[1]);
+  assert_int_equal(array_bgra->size[2]      , 4);
+  assert_int_equal(array_bgra->bitsize       , array_rgb->bitsize);
+  assert_int_equal(array_bgra->contiguous    , array_rgb->contiguous);
+  assert_int_equal(array_bgra->num_elements  , array_rgb->num_elements*4/3);
+  for(i = 0; i < array->num_elements;i++){
+    assert_int_equal(array_bgra->data_uint8[i*4]  ,array_rgb->data_uint8[3*i+2]);
+    assert_int_equal(array_bgra->data_uint8[i*4+1],array_rgb->data_uint8[3*i+1]);
+    assert_int_equal(array_bgra->data_uint8[i*4+2],array_rgb->data_uint8[3*i]);
+    assert_int_equal(array_bgra->data_uint8[i*4+3],255);
+  }
+
   array_free(array_gray);
   array_free(array_rgb);
   array_free(array_rgba);
   array_free(array_rgba2);
+  array_free(array_bgra);
   array_free(array);
 }
 
