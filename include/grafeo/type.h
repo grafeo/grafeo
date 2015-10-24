@@ -67,6 +67,7 @@ typedef enum _ColorType{
   GRAFEO_YCBCR,
   GRAFEO_LUV,
   GRAFEO_LAB,
+  GRAFEO_BGR
 }ColorType;
 
 typedef enum _Adjacency{
