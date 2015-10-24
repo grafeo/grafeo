@@ -26,6 +26,7 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/display.h>
+#include <grafeo/displaywidget.h>
 #include <setjmp.h>
 #include <cmocka.h>
 static void test_display(void** state){
@@ -33,7 +34,7 @@ static void test_display(void** state){
   uint32_t size[2] = {640,480};
   Array*   array   = array_zeros(2,size, GRAFEO_UINT8);
 
-  display_init();
+  display_setup();
   display_show(array);
   key = display_wait_key();
   printf("%d\n", key);

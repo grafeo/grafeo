@@ -33,30 +33,37 @@
 #include <gtk/gtk.h>
 BEGIN_DECLS
 
-/**
-  * @brief Structure for the display
-  *
-  * This display will show an array
-  *
-  * It will not be destroyed when closed (by key or close button).
-  * It will just be hidden. So, when display_show is called, it will
-  * first find whether a display exists, to reduce the creation phase
-  *
-  * Contains:
-  *
-  * - a window widget,
-  * - a box layout to place the components in a vertical way
-  * - its name, to differentiate from other ones
-  * - last pressed key on the window
-  */
-typedef struct _Display
-{
-  GtkWidget   * window;
-  GtkWidget   * imagewidget;
-  GtkWidget   * box;
-  char        * name;
-  uint8_t       key_pressed;
-} Display;
+#define GRAFEO_TYPE_DISPLAY display_get_type()
+G_DECLARE_DERIVABLE_TYPE(Display, display, GRAFEO, DISPLAY, GObject)
+
+typedef struct _DisplayClass{
+  GObjectClass parent_class;
+}DisplayClass;
+
+///**
+//  * @brief Structure for the display
+//  *
+//  * This display will show an array
+//  *
+//  * It will not be destroyed when closed (by key or close button).
+//  * It will just be hidden. So, when display_show is called, it will
+//  * first find whether a display exists, to reduce the creation phase
+//  *
+//  * Contains:
+//  *
+//  * - a window widget,
+//  * - a box layout to place the components in a vertical way
+//  * - its name, to differentiate from other ones
+//  * - last pressed key on the window
+//  */
+//typedef struct _Display
+//{
+//  GtkWidget   * window;
+//  GtkWidget   * imagewidget;
+//  GtkWidget   * box;
+//  char        * name;
+//  uint8_t       key_pressed;
+//} Display;
 
 /**
  * @brief Show a window to display an array
@@ -71,6 +78,6 @@ uint8_t display_wait_key();
 /**
  * @brief Init some display information
  */
-void    display_init();
+void    display_setup();
 END_DECLS
 #endif

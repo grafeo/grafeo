@@ -202,4 +202,5 @@ void
 imagewidget_set_image(ImageWidget* widget, Array* image){
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(widget);
   priv->image_original = image;
+  priv->image_output   = image;
 }

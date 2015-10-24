@@ -56,8 +56,8 @@ typedef enum{
   GRAFEO_WINDOW_FREERATIO  = 0,
 } WindowFlag;
 
-GtkWidget*   imagewidget_new();
-void         imagewidget_set_image(GtkWidget* widget, Array* image);
+GtkWidget  * imagewidget_new();
+void         imagewidget_set_image(ImageWidget* widget, Array* image);
 
 END_DECLS
 #endif
