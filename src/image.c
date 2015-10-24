@@ -291,5 +291,33 @@ void   image_write_ppm(Array* array, const char* filename){
 }
 
 Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
-  return array;
+  Array* output;
+  uint64_t i;
+  output = array;
+  if(origin == GRAFEO_GRAY && destiny == GRAFEO_RGB){
+    output = array_new_3D_type(array->size[0], array->size[1], 3, array->type);
+    for(i = 0; i < array->num_elements; i++){
+      output->data_uint8[3*i  ] = array->data_uint8[i];
+      output->data_uint8[3*i+1] = array->data_uint8[i];
+      output->data_uint8[3*i+2] = array->data_uint8[i];
+    }
+  }else if(origin == GRAFEO_RGB && destiny == GRAFEO_GRAY){
+    output = array_new_2D_type(array->size[0], array->size[1], array->type);
+    for(i = 0; i < output->num_elements; i++){
+      output->data_uint8[i] = (uint8_t)(
+                              0.299*(double)array->data_uint8[3*i  ] +
+                              0.587*(double)array->data_uint8[3*i+1] +
+                              0.114*(double)array->data_uint8[3*i+2]);
+    }
+  }else if(origin == GRAFEO_RGB && destiny == GRAFEO_BGR){
+    output = array_copy(array);
+    uint64_t size_gray = output->num_elements/3;
+    uint8_t tmp;
+    for(i = 0; i < size_gray; i++){
+      tmp                       = output->data_uint8[3*i];
+      output->data_uint8[3*i]   = output->data_uint8[3*i+2];
+      output->data_uint8[3*i+2] = tmp;
+    }
+  }
+  return output;
 }

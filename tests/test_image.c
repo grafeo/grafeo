@@ -232,10 +232,41 @@ static void test_image_write_ppm(void** state){
   array_free(input_image);
 }
 
+static void test_image_cvt_color(void** state){
+  (void) state;
+  // From grayscale to RGB
+  Array* array     = image_read("../data/chess.pgm");
+  Array* array_rgb = image_cvt_color(array, GRAFEO_GRAY, GRAFEO_RGB);
+  assert_int_equal(array_rgb->dim       , 3);
+  assert_int_equal(array_rgb->size[0]   , array->size[0]);
+  assert_int_equal(array_rgb->size[1]   , array->size[1]);
+  assert_int_equal(array_rgb->size[2]   , 3);
+  assert_int_equal(array_rgb->bitsize   , array->bitsize);
+  assert_int_equal(array_rgb->contiguous, array->contiguous);
+  assert_int_equal(array_rgb->num_elements  , array->num_elements*3);
+  uint64_t i;
+  for(i = 0; i < array->num_elements;i++){
+    assert_int_equal(array->data_uint8[i],array_rgb->data_uint8[i*3]);
+    assert_int_equal(array->data_uint8[i],array_rgb->data_uint8[i*3+1]);
+    assert_int_equal(array->data_uint8[i],array_rgb->data_uint8[i*3+2]);
+  }
+
+  // From RGB to grayscale
+  Array* array_gray = image_cvt_color(array_rgb, GRAFEO_RGB, GRAFEO_GRAY);
+  assert_int_equal(array_gray->dim         , 2);
+  assert_int_equal(array_gray->size[0]     , array_rgb->size[0]);
+  assert_int_equal(array_gray->size[1]     , array_rgb->size[1]);
+  assert_int_equal(array_gray->bitsize     , array_rgb->bitsize);
+  assert_int_equal(array_gray->contiguous  , array_rgb->contiguous);
+  assert_int_equal(array_gray->num_elements, array->num_elements);
+  for(i = 0; i < array_gray->num_elements;i++)
+    assert_int_equal(array_gray->data_uint8[i],array->data_uint8[i]);
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[10]={
+  const struct CMUnitTest tests[11]={
     cmocka_unit_test(test_image_read_jpg),
     cmocka_unit_test(test_image_read_png),
     cmocka_unit_test(test_image_read_pgm),
@@ -246,6 +277,7 @@ int main(int argc, char** argv){
     cmocka_unit_test(test_image_write_pgm),
     cmocka_unit_test(test_image_write_ppm),
     cmocka_unit_test(test_image_write),
+    cmocka_unit_test(test_image_cvt_color),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
