@@ -30,19 +30,29 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
+static void imprimir(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+  printf("press\n");
+}
+static void soltar(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+  printf("soltar\n");
+}
+
 static void test_imagewidget_show(void**state){
   gtk_init(NULL, NULL);
   uint32_t size[2]       = {320,240};
-  // distance_transform_input.pgm trekkie-nerd.png
-  char* filenames[3] = {"trekkie-nerd.png","distance_transform_input.pgm","../data/trekkie-nerd.jpg"};
-  Array* array_gray      = image_read(filenames[2]);//trekkie-nerd.png");//array_ones(2,size,GRAFEO_UINT8);
+  char* filenames[3]     = {"trekkie-nerd.png",
+                            "distance_transform_input.pgm",
+                            "../data/trekkie-nerd.jpg"};
+  Array*     array_gray  = image_read(filenames[2]);//trekkie-nerd.png");//array_ones(2,size,GRAFEO_UINT8);
   GtkWidget* imagewidget = imagewidget_new();
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  GtkWidget* box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+
   imagewidget_set_image(GRAFEO_IMAGEWIDGET(imagewidget),array_gray);
-  //GtkWidget* box    = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-  //gtk_box_pack_start (GTK_BOX(box),imagewidget,TRUE,TRUE,0);
-  gtk_container_add  (GTK_CONTAINER(window), imagewidget);
-  g_signal_connect   (window, "destroy", G_CALLBACK(gtk_main_quit),NULL);
+
+  gtk_box_pack_start (GTK_BOX(box),imagewidget,TRUE,TRUE,0);
+  gtk_container_add  (GTK_CONTAINER(window), box);
+  g_signal_connect   (window     , "destroy"             , G_CALLBACK(gtk_main_quit),NULL);
   gtk_widget_show_all(window);
   gtk_main();
 }

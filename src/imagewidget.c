@@ -51,11 +51,19 @@ static gboolean
 imagewidget_draw(GtkWidget* widget, cairo_t* cr);
 static void
 get_size(ImageWidget* widget, GtkOrientation direction, int *minimal, int* natural);
+static gboolean
+imagewidget_button_press(GtkWidget* widget, GdkEventButton *event);
+static gboolean
+imagewidget_button_release(GtkWidget* widget, GdkEventButton *event);
+static void
+imagewidget_realize(GtkWidget* widget);
+static void
+imagewidget_set_size(GtkWidget* widget, int max_width, int max_height);
 
 // Initialize ImageWidget
 static void
 imagewidget_init(ImageWidget *imagewidget){
-  gtk_widget_set_has_window(GTK_WIDGET(imagewidget), FALSE);
+  //gtk_widget_set_has_window(GTK_WIDGET(imagewidget), FALSE);
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
   priv->image_original = NULL;
   priv->image_output   = NULL;
@@ -70,7 +78,21 @@ imagewidget_class_init(ImageWidgetClass *klass){
   widget_class->get_preferred_width = imagewidget_get_preferred_width;
   widget_class->get_preferred_height= imagewidget_get_preferred_height;
   widget_class->size_allocate       = imagewidget_size_allocate;
+  widget_class->realize             = imagewidget_realize;
   widget_class->draw                = imagewidget_draw;
+  widget_class->button_press_event  = imagewidget_button_press;
+  widget_class->button_release_event= imagewidget_button_release;
+}
+
+static gboolean
+imagewidget_button_press(GtkWidget* widget, GdkEventButton *event){
+  printf("pressionando/n");
+  return TRUE;
+}
+static gboolean
+imagewidget_button_release(GtkWidget* widget, GdkEventButton *event){
+  printf("soltando/n");
+  return FALSE;
 }
 
 // Get Width
@@ -93,6 +115,29 @@ imagewidget_get_preferred_height(GtkWidget* widget,
 static void
 imagewidget_size_allocate(GtkWidget *widget, GtkAllocation *allocation){
   gtk_widget_set_allocation(widget, allocation);
+  ImageWidget* imagewidget = GRAFEO_IMAGEWIDGET(widget);
+  ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
+  if((priv->flags & GRAFEO_WINDOW_AUTOSIZE) == 0 && priv->image_original){
+    imagewidget_set_size(widget, allocation->width, allocation->height);
+  }
+  if(gtk_widget_get_realized(widget)){
+    if(priv->image_original && (priv->flags & GRAFEO_WINDOW_AUTOSIZE)){
+      allocation->width = priv->image_output->size[1];
+      allocation->height = priv->image_output->size[0];
+      gtk_widget_set_allocation(widget, allocation);
+      gdk_window_move_resize(gtk_widget_get_window(widget),allocation->x, allocation->y, priv->image_original->size[1],priv->image_original->size[0]);
+    }else{
+      gdk_window_move_resize(gtk_widget_get_window(widget), allocation->x, allocation->y, allocation->width, allocation->height);
+    }
+  }
+}
+
+static void
+imagewidget_set_size(GtkWidget* widget, int max_width, int max_height){
+  ImageWidget* imagewidget = GRAFEO_IMAGEWIDGET(widget);
+  ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
+  if(priv->flags & GRAFEO_WINDOW_AUTOSIZE) return;
+  if(!priv->image_original) return;
 }
 
 // Draw image
@@ -104,6 +149,30 @@ imagewidget_draw(GtkWidget *widget, cairo_t *cr){
   cairo_paint(cr);
   cairo_fill(cr);
   return FALSE;
+}
+
+// Connect to GdkWindow to receive mouse events
+static void
+imagewidget_realize(GtkWidget* widget){
+  GdkWindowAttr attributes;
+  gint attributes_mask;
+  GtkAllocation allocation;
+  gtk_widget_get_allocation(widget, &allocation);
+  gtk_widget_set_realized(widget, TRUE);
+  attributes.x             = allocation.x;
+  attributes.y             = allocation.y;
+  attributes.width         = allocation.width;
+  attributes.height        = allocation.height;
+  attributes.wclass        = GDK_INPUT_OUTPUT;
+  attributes.window_type   = GDK_WINDOW_CHILD;
+  attributes.visual        = gtk_widget_get_visual (widget);
+  attributes.event_mask    = gtk_widget_get_events (widget) |
+      GDK_EXPOSURE_MASK       | GDK_BUTTON_PRESS_MASK       |
+      GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK;
+  attributes_mask = GDK_WA_X  | GDK_WA_Y | GDK_WA_VISUAL;
+  GdkWindow* window_parent = gtk_widget_get_parent_window(widget);
+  GdkWindow* window        = gdk_window_new(window_parent,&attributes, attributes_mask);
+  gtk_widget_set_window(widget,window);
 }
 
 // Get Preferred Size (Width or Height)
@@ -118,10 +187,10 @@ get_size(ImageWidget* imagewidget, GtkOrientation direction, int* minimal, int* 
   uint32_t          * size_output    = priv->image_output  ? priv->image_output->size  : NULL;
   switch(direction){
   case GTK_ORIENTATION_HORIZONTAL:
-    index = 1; size_min = 320; gdk_size = 320;//gdk_window_get_width(gtk_widget_get_window(widget));
+    index = 1; size_min = 320; gdk_size = gtk_widget_get_window(widget)?gdk_window_get_width(gtk_widget_get_window(widget)):320;
     break;
   case GTK_ORIENTATION_VERTICAL:
-    index = 0; size_min = 240; gdk_size = 240;//gdk_window_get_height(gtk_widget_get_window(widget));
+    index = 0; size_min = 240; gdk_size = gtk_widget_get_window(widget)?gdk_window_get_height(gtk_widget_get_window(widget)):240;
     break;
   }
   if(priv->image_original != NULL)
@@ -133,61 +202,6 @@ get_size(ImageWidget* imagewidget, GtkOrientation direction, int* minimal, int* 
   else
     *natural = *minimal;
 }
-
-
-//static void imagewidget_realize(GtkWidget* widget){
-//  GdkWindowAttr attributes;
-//  gint          attributes_mask;
-//  GtkAllocation allocation;
-//  gtk_widget_get_allocation(widget, &allocation);
-//  gtk_widget_set_realized(widget, TRUE);
-//  attributes.x      = allocation.x;
-//  attributes.y      = allocation.y;
-//  attributes.width  = allocation.width;
-//  attributes.height = allocation.height;
-//  attributes.wclass = GDK_INPUT_OUTPUT;
-//  attributes.window_type = GDK_WINDOW_CHILD;
-//  attributes.event_mask  = gtk_widget_get_events(widget) |
-//                           GDK_EXPOSURE_MASK |
-//                           GDK_BUTTON_PRESS_MASK |
-//                           GDK_BUTTON_RELEASE_MASK |
-//                           GDK_POINTER_MOTION_MASK;
-//  attributes.visual = gtk_widget_get_visual(widget);
-//  attributes_mask = GDK_WA_X | GDK_WA_Y | GDK_WA_VISUAL;
-//  gtk_widget_set_window(widget,gdk_window_new(gtk_widget_get_parent_window(widget),&attributes,attributes_mask));
-//  //gtk_widget_set_style(widget,gtk_style_attach(gtk_widget_get_style(widget),gtk_widget_get_window(widget)));
-//  gdk_window_set_user_data(gtk_widget_get_window(widget),widget);
-//  //gtk_render_background(context, style_context_set_background(gtk_widget_get_style_context(widget),gtk_widget_get_window(widget));
-//  //gtk_style_set_background(gtk_widgetget_style(widget),gtk_widget_get_window(widget),GTK_STATE_ACTIVE);
-//}
-
-//static void imagewidget_size_allocate(GtkWidget* widget, GtkAllocation* allocation){
-//  gtk_widget_set_allocation(widget, allocation);
-//  ImageWidget* imagewidget = GRAFEO_IMAGEWIDGET(widget);
-//  ImageWidgetPrivate* priv = imagewidget_get_instance_private(imagewidget);
-//  if(priv->image_original){
-
-//  }
-//}
-
-//static void imagewidget_destroy(GtkWidget* object){
-//  ImageWidgetPrivate* priv = imagewidget_get_instance_private(GRAFEO_IMAGEWIDGET(object));
-
-//  array_free(priv->image_original);
-//  array_free(priv->image_output);
-//}
-
-//static void imagewidget_class_init(ImageWidgetClass* klass){
-//  GtkWidgetClass *widget_class = GTK_WIDGET_CLASS(klass);
-//  widget_class->destroy              = imagewidget_destroy;
-//  widget_class->get_preferred_width  = imagewidget_get_preferred_width;
-//  widget_class->get_preferred_height = imagewidget_get_preferred_height;
-//  widget_class->realize              = imagewidget_realize;
-//  widget_class->size_allocate        = imagewidget_size_allocate;
-//  widget_class->button_press_event   = NULL;
-//  widget_class->button_release_event = NULL;
-//  widget_class->motion_notify_event  = NULL;
-//}
 
 /*=================================
  * PUBLIC API
@@ -203,10 +217,10 @@ void
 imagewidget_set_image(ImageWidget* widget, Array* image){
   ImageWidgetPrivate* priv = imagewidget_get_instance_private(widget);
   int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24,image->size[1]);
-  priv->image_original = image;
+  priv->image_original   = image;
   if(image->dim == 2 || image->size[2] == 1)
-    priv->image_output   = image_cvt_color(image,GRAFEO_GRAY, GRAFEO_RGBA);
+    priv->image_output   = image_cvt_color(image,GRAFEO_GRAY, GRAFEO_BGRA);
   else
-    priv->image_output   = image_cvt_color(image,GRAFEO_RGB, GRAFEO_RGBA);
-  priv->image_surface  = cairo_image_surface_create_for_data(priv->image_output->data_uint8,CAIRO_FORMAT_RGB24,priv->image_output->size[1],priv->image_output->size[0],stride);
+    priv->image_output   = image_cvt_color(image,GRAFEO_RGB, GRAFEO_BGRA);
+  priv->image_surface    = cairo_image_surface_create_for_data(priv->image_output->data_uint8,CAIRO_FORMAT_RGB24,priv->image_output->size[1],priv->image_output->size[0],stride);
 }
