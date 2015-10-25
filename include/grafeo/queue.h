@@ -25,207 +25,207 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_QUEUE_H
-#define GRAFEO_QUEUE_H
+#ifndef GRF_QUEUE_H
+#define GRF_QUEUE_H
 #include <grafeo/list.h>
 
 BEGIN_DECLS
 
 /**
-  * @brief Queue structure
+  * @brief GrfQueue structure
   */
-typedef struct _Queue{
+typedef struct _GrfQueue{
   uint32_t   length; /**< Number of elements */
-  List     * begin;  /**< Initial element */
-  List     * end;    /**< Final element */
-}Queue;
+  GrfList  * begin;  /**< Initial element */
+  GrfList  * end;    /**< Final element */
+}GrfQueue;
 
 /**
  * @brief Alocar uma fila
  * @return
  */
-Queue* queue_new();
+GrfQueue* grf_queue_new();
 /**
  * @brief Liberar a fila
  * @return
  */
-void queue_free(Queue* queue);
+void grf_queue_free(GrfQueue* queue);
 /**
  * @brief Adicionar no início
  * @return
  */
-void queue_prepend(Queue* queue, void* value);
+void grf_queue_prepend(GrfQueue* queue, void* value);
 /**
  * @brief Adicionar no final
  * @return
  */
-void queue_append(Queue* queue, void* value);
+void grf_queue_append(GrfQueue* queue, void* value);
 /**
  * @brief Adicionar antes de um item
  * @return
  */
-void queue_prepend_at(Queue* queue, List* item, void* value);
+void grf_queue_prepend_at(GrfQueue* queue, GrfList* item, void* value);
 /**
  * @brief Adicionar após um item
  * @return
  */
-void queue_append_at(Queue* queue, List* item, void* value);
+void grf_queue_append_at(GrfQueue* queue, GrfList* item, void* value);
 /**
  * @brief Adicionar antes de item especificado pela sua posição
  * @return
  */
-void queue_prepend_at_index(Queue* queue, uint32_t index, void* value);
+void grf_queue_prepend_at_index(GrfQueue* queue, uint32_t index, void* value);
 /**
  * @brief Adicionar após um item especificado pela sua posição
  * @return
  */
-void queue_append_at_index(Queue* queue, uint32_t index, void* value);
+void grf_queue_append_at_index(GrfQueue* queue, uint32_t index, void* value);
 /**
- * @brief Adicionar um item List no início da fila
+ * @brief Adicionar um item GrfList no início da fila
  * @return
  */
-void queue_prepend_item(Queue* queue, List* new_item);
+void grf_queue_prepend_item(GrfQueue* queue, GrfList* new_item);
 /**
- * @brief Adicionar um item List no fim da fila
+ * @brief Adicionar um item GrfList no fim da fila
  * @return
  */
-void queue_append_item(Queue* queue, List* new_item);
+void grf_queue_append_item(GrfQueue* queue, GrfList* new_item);
 /**
- * @brief Adicionar um item List antes de um item
+ * @brief Adicionar um item GrfList antes de um item
  * @return
  */
-void queue_prepend_item_at(Queue* queue, List* item, List* new_item);
+void grf_queue_prepend_item_at(GrfQueue* queue, GrfList* item, GrfList* new_item);
 /**
- * @brief Adicionar um item List depois de um item
+ * @brief Adicionar um item GrfList depois de um item
  * @return
  */
-void queue_append_item_at(Queue* queue, List* item, List* new_item);
+void grf_queue_append_item_at(GrfQueue* queue, GrfList* item, GrfList* new_item);
 /**
- * @brief Adicionar um item List antes de um item especificado pela sua posição
+ * @brief Adicionar um item GrfList antes de um item especificado pela sua posição
  * @return
  */
-void queue_prepend_item_at_index(Queue* queue, uint32_t index, List* new_item);
+void grf_queue_prepend_item_at_index(GrfQueue* queue, uint32_t index, GrfList* new_item);
 /**
- * @brief Adicionar um item List depois de um item especificado pela sua posição
+ * @brief Adicionar um item GrfList depois de um item especificado pela sua posição
  * @return
  */
-void queue_append_item_at_index(Queue* queue, uint32_t index, List* new_item);
+void grf_queue_append_item_at_index(GrfQueue* queue, uint32_t index, GrfList* new_item);
 /**
  * @brief Get first item
  * @return
  */
-List* queue_begin(Queue* queue);
+GrfList* grf_queue_begin(GrfQueue* queue);
 /**
  * @brief Get last item
  * @return
  */
-List* queue_end(Queue* queue);
+GrfList* grf_queue_end(GrfQueue* queue);
 /**
  * @brief True if length is zero
  * @return
  */
-uint8_t queue_is_empty(Queue* queue);
+uint8_t grf_queue_is_empty(GrfQueue* queue);
 /**
  * @brief Inverte a fila
  * @return
  */
-void queue_reverse(Queue* queue);
+void grf_queue_reverse(GrfQueue* queue);
 /**
  * @brief ordena a fila
  * @return
  */
-void queue_sort(Queue* queue, CompareDataFunc compare_function, void* data);
+void grf_queue_sort(GrfQueue* queue, GrfCompareDataFunc compare_function, void* data);
 /**
  * @brief copia a fila
  * @return
  */
-Queue* queue_copy(Queue* queue);
+GrfQueue* grf_queue_copy(GrfQueue* queue);
 /**
  * @brief vectorize a function within a queue
  * @return
  */
-void queue_foreach(Queue* queue, DataFunc func, void* data);
+void grf_queue_foreach(GrfQueue* queue, GrfDataFunc func, void* data);
 /**
  * @brief posição de um item especificado pelo seu valor
  * @return
  */
-int32_t queue_index_of(Queue* queue, void* value);
+int32_t grf_queue_index_of(GrfQueue* queue, void* value);
 /**
  * @brief obter um item a partir de sua posição
  * @return
  */
-List* queue_at(Queue* queue, uint32_t index);
+GrfList* grf_queue_at(GrfQueue* queue, uint32_t index);
 /**
  * @brief obter o valor do item a partir de sua posição
  * @return
  */
-void* queue_value_at(Queue* queue, uint32_t index);
+void* grf_queue_value_at(GrfQueue* queue, uint32_t index);
 /**
  * @brief obter o valor do item inicial
  * @return
  */
-void* queue_begin_value(Queue* queue);
+void* grf_queue_begin_value(GrfQueue* queue);
 /**
  * @brief obter o valor do item final
  * @return
  */
-void* queue_end_value(Queue* queue);
+void* grf_queue_end_value(GrfQueue* queue);
 /**
  * @brief Remover um item em uma fila
  * @return
  */
-void queue_remove(Queue* queue, void* value);
+void grf_queue_remove(GrfQueue* queue, void* value);
 /**
  * @brief Remover um item em uma fila baseado em sua posição
  * @return
  */
-void* queue_remove_at(Queue* queue, uint32_t index);
+void* grf_queue_remove_at(GrfQueue* queue, uint32_t index);
 /**
- * @brief queue_remove_begin
+ * @brief grf_queue_remove_begin
  * @param queue
  * @return
  */
-void* queue_remove_begin(Queue* queue);
+void* grf_queue_remove_begin(GrfQueue* queue);
 /**
- * @brief queue_remove_end
+ * @brief grf_queue_remove_end
  * @param queue
  * @return
  */
-void* queue_remove_end(Queue* queue);
+void* grf_queue_remove_end(GrfQueue* queue);
 /**
  * @brief Obter o número de elementos da fila
  * @return
  */
-uint32_t queue_length(Queue* queue);
+uint32_t grf_queue_length(GrfQueue* queue);
 /**
- * @brief queue_append_sorted
+ * @brief grf_queue_append_sorted
  * @param queue
  * @param compare_function
  * @param value
  */
-void queue_append_sorted(Queue* queue, CompareFunc compare_function, void* value);
+void grf_queue_append_sorted(GrfQueue* queue, GrfCompareFunc compare_function, void* value);
 /**
- * @brief queue_append_sorted_with_data
+ * @brief grf_queue_append_sorted_with_data
  * @param queue
  * @param compare_function
  * @param value
  */
-void queue_append_sorted_with_data(Queue* queue, CompareDataFunc compare_function, void* value, void* user_data);
+void grf_queue_append_sorted_with_data(GrfQueue* queue, GrfCompareDataFunc compare_function, void* value, void* user_data);
 /**
- * @brief queue_prepend_sorted
+ * @brief grf_queue_prepend_sorted
  * @param queue
  * @param compare_function
  * @param value
  */
-void queue_prepend_sorted(Queue* queue, CompareFunc compare_function, void* value);
+void grf_queue_prepend_sorted(GrfQueue* queue, GrfCompareFunc compare_function, void* value);
 /**
- * @brief queue_prepend_sorted_with_data
+ * @brief grf_queue_prepend_sorted_with_data
  * @param queue
  * @param compare_function
  * @param value
  * @param user_data
  */
-void queue_prepend_sorted_with_data(Queue* queue, CompareDataFunc compare_function, void* value, void* user_data);
+void grf_queue_prepend_sorted_with_data(GrfQueue* queue, GrfCompareDataFunc compare_function, void* value, void* user_data);
 
 END_DECLS
 

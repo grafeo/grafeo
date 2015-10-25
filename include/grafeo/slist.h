@@ -25,8 +25,8 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_SLIST_H
-#define GRAFEO_SLIST_H
+#ifndef GRF_SLIST_H
+#define GRF_SLIST_H
 #include <stdint.h>
 #include <stdlib.h>
 #include <grafeo/type.h>
@@ -34,344 +34,344 @@
 BEGIN_DECLS
 
 /**
- * @brief Single-Linked List
+ * @brief Single-Linked GrfList
  */
-typedef struct _SList{
+typedef struct _GrfSList{
   void* value;        /**< Value of an item of the list */
-  struct _SList* next;/**< Link to the next list item */
-}SList;
+  struct _GrfSList* next;/**< Link to the next list item */
+}GrfSList;
 /**
- * @brief slist_new
+ * @brief grf_slist_new
  * @return
  */
-SList*    slist_new();
+GrfSList*    grf_slist_new();
 /**
- * @brief slist_new_with_value
+ * @brief grf_slist_new_with_value
  * @param value
  * @return
  */
-SList*    slist_new_with_value(void* value);
+GrfSList*    grf_slist_new_with_value(void* value);
 /**
- * @brief slist_prepend
+ * @brief grf_slist_prepend
  * @param list
  * @param value
  * @return
  */
-SList*    slist_prepend(SList* list, void* value);
+GrfSList*    grf_slist_prepend(GrfSList* list, void* value);
 /**
- * @brief slist_append
+ * @brief grf_slist_append
  * @param list
  * @param value
  * @return
  */
-SList*    slist_append(SList* list, void* value);
+GrfSList*    grf_slist_append(GrfSList* list, void* value);
 /**
- * @brief slist_prepend_at
- * @param list
- * @param item
- * @param value
- * @return
- */
-SList*    slist_prepend_at_item(SList* list, SList* item, void* value);
-/**
- * @brief slist_append_at
+ * @brief grf_slist_prepend_at
  * @param list
  * @param item
  * @param value
  * @return
  */
-SList*    slist_append_at_item(SList* list, SList* item, void* value);
+GrfSList*    grf_slist_prepend_at_item(GrfSList* list, GrfSList* item, void* value);
 /**
- * @brief slist_prepend_at_index
+ * @brief grf_slist_append_at
+ * @param list
+ * @param item
+ * @param value
+ * @return
+ */
+GrfSList*    grf_slist_append_at_item(GrfSList* list, GrfSList* item, void* value);
+/**
+ * @brief grf_slist_prepend_at_index
  * @param list
  * @param index
  * @param value
  * @return
  */
-SList*    slist_prepend_at(SList* list, uint32_t index, void* value);
+GrfSList*    grf_slist_prepend_at(GrfSList* list, uint32_t index, void* value);
 /**
- * @brief slist_append_at_index
+ * @brief grf_slist_append_at_index
  * @param list
  * @param index
  * @param value
  * @return
  */
-SList*    slist_append_at(SList* list, uint32_t index, void* value);
+GrfSList*    grf_slist_append_at(GrfSList* list, uint32_t index, void* value);
 /**
- * @brief slist_append_item
+ * @brief grf_slist_append_item
  * @param list
  * @param new_item
  * @return
  */
-SList*    slist_append_item(SList* list, SList* new_item);
+GrfSList*    grf_slist_append_item(GrfSList* list, GrfSList* new_item);
 /**
- * @brief slist_append_item_at
+ * @brief grf_slist_append_item_at
  * @param list
  * @param index
  * @param new_item
  * @return
  */
-SList*    slist_append_item_at(SList* list, uint32_t index, SList* new_item);
+GrfSList*    grf_slist_append_item_at(GrfSList* list, uint32_t index, GrfSList* new_item);
 /**
- * @brief slist_append_item_at_item
+ * @brief grf_slist_append_item_at_item
  * @param list
  * @param item
  * @param new_item
  * @return
  */
-SList*    slist_append_item_at_item(SList* list, SList* item, SList* new_item);
+GrfSList*    grf_slist_append_item_at_item(GrfSList* list, GrfSList* item, GrfSList* new_item);
 /**
- * @brief slist_prepend_item
+ * @brief grf_slist_prepend_item
  * @param list
  * @param new_item
  * @return
  */
-SList*    slist_prepend_item(SList* list, SList* new_item);
+GrfSList*    grf_slist_prepend_item(GrfSList* list, GrfSList* new_item);
 /**
- * @brief slist_prepend_item_at
+ * @brief grf_slist_prepend_item_at
  * @param list
  * @param index
  * @param new_item
  * @return
  */
-SList*    slist_prepend_item_at(SList* list, uint32_t index, SList* new_item);
+GrfSList*    grf_slist_prepend_item_at(GrfSList* list, uint32_t index, GrfSList* new_item);
 /**
- * @brief slist_prepend_item_at_item
+ * @brief grf_slist_prepend_item_at_item
  * @param list
  * @param item
  * @param new_item
  * @return
  */
-SList*    slist_prepend_item_at_item(SList* list, SList* item, SList* new_item);
+GrfSList*    grf_slist_prepend_item_at_item(GrfSList* list, GrfSList* item, GrfSList* new_item);
 /**
- * @brief slist_remove
+ * @brief grf_slist_remove
  * @param list
  * @param item
  * @return
  */
-SList*    slist_remove_item(SList* list, SList* item);
+GrfSList*    grf_slist_remove_item(GrfSList* list, GrfSList* item);
 /**
- * @brief slist_remove_from_value
+ * @brief grf_slist_remove_from_value
  * @param list
  * @param value
  * @return
  */
-SList*    slist_remove(SList* list, void* value);
+GrfSList*    grf_slist_remove(GrfSList* list, void* value);
 /**
- * @brief slist_remove_after
+ * @brief grf_slist_remove_after
  * @param list
  * @param before
  * @return
  */
-SList*    slist_remove_after(SList* list, SList* before);
+GrfSList*    grf_slist_remove_after(GrfSList* list, GrfSList* before);
 /**
- * @brief slist_remove_at_index
+ * @brief grf_slist_remove_at_index
  * @param list
  * @param index
  * @return
  */
-SList*    slist_remove_at(SList* list, uint32_t index);
+GrfSList*    grf_slist_remove_at(GrfSList* list, uint32_t index);
 /**
- * @brief slist_remove_begin
+ * @brief grf_slist_remove_begin
  * @param list
  * @return
  */
-SList*    slist_remove_begin(SList* list);
+GrfSList*    grf_slist_remove_begin(GrfSList* list);
 /**
- * @brief slist_remove_end
+ * @brief grf_slist_remove_end
  * @param list
  * @return
  */
-SList*    slist_remove_end(SList* list);
+GrfSList*    grf_slist_remove_end(GrfSList* list);
 /**
- * @brief slist_free
+ * @brief grf_slist_free
  * @param list
  */
-void      slist_free(SList* list);
+void      grf_slist_free(GrfSList* list);
 /**
- * @brief slist_index_of
+ * @brief grf_slist_index_of
  * @param list
  * @param value
  * @return
  */
-int32_t   slist_index_of(SList* list, void* value);
+int32_t   grf_slist_index_of(GrfSList* list, void* value);
 /**
- * @brief slist_item_of
+ * @brief grf_slist_item_of
  * @param list
  * @param value
  * @return
  */
-SList*    slist_item_of(SList* list, void* value);
+GrfSList*    grf_slist_item_of(GrfSList* list, void* value);
 /**
- * @brief slist_end
+ * @brief grf_slist_end
  * @param list
  * @return
  */
-SList*    slist_item_end(SList* list);
+GrfSList*    grf_slist_item_end(GrfSList* list);
 /**
- * @brief slist_end
+ * @brief grf_slist_end
  * @param list
  * @return
  */
-void*     slist_end(SList* list);
+void*     grf_slist_end(GrfSList* list);
 /**
- * @brief slist_length
+ * @brief grf_slist_length
  * @param list
  * @return
  */
-uint32_t  slist_length(SList* list);
+uint32_t  grf_slist_length(GrfSList* list);
 /**
- * @brief slist_is_empty
+ * @brief grf_slist_is_empty
  * @param list
  * @return
  */
-uint8_t   slist_is_empty(SList* list);
+uint8_t   grf_slist_is_empty(GrfSList* list);
 /**
- * @brief slist_item_at
+ * @brief grf_slist_item_at
  * @param list
  * @param index
  * @return
  */
-SList*    slist_item_at(SList* list, uint32_t index);
+GrfSList*    grf_slist_item_at(GrfSList* list, uint32_t index);
 /**
- * @brief slist_at
+ * @brief grf_slist_at
  * @return
  */
-void*     slist_at(SList* list, uint32_t index);
+void*     grf_slist_at(GrfSList* list, uint32_t index);
 /**
- * @brief slist_next
+ * @brief grf_slist_next
  * @param list
  * @return
  */
-SList*    slist_next(SList* list);
+GrfSList*    grf_slist_next(GrfSList* list);
 /**
- * @brief slist_prev
+ * @brief grf_slist_prev
  * @param list
  * @param item
  * @return
  */
-SList*    slist_prev(SList* list, SList* item);
+GrfSList*    grf_slist_prev(GrfSList* list, GrfSList* item);
 /**
- * @brief slist_join
+ * @brief grf_slist_join
  * @param list1
  * @param list2
  * @return
  */
-SList*    slist_join(SList* list1, SList* list2);
+GrfSList*    grf_slist_join(GrfSList* list1, GrfSList* list2);
 /**
- * @brief slist_split_at
+ * @brief grf_slist_split_at
  * @param list
  * @param index
  * @return
  */
-SList*    slist_split_at(SList* list, uint32_t index);
+GrfSList*    grf_slist_split_at(GrfSList* list, uint32_t index);
 /**
- * @brief slist_swap
+ * @brief grf_slist_swap
  * @param list
  * @param item1
  * @param item2
  * @return
  */
-SList*    slist_swap(SList* list, SList* item1, SList* item2);
+GrfSList*    grf_slist_swap(GrfSList* list, GrfSList* item1, GrfSList* item2);
 /**
- * @brief slist_swap_at
+ * @brief grf_slist_swap_at
  * @param list
  * @param index1
  * @param index2
  * @return
  */
-SList*    slist_swap_at(SList* list, uint32_t index1, uint32_t index2);
+GrfSList*    grf_slist_swap_at(GrfSList* list, uint32_t index1, uint32_t index2);
 /**
- * @brief slist_swap_values
+ * @brief grf_slist_swap_values
  * @param list
  * @param item1
  * @param item2
  * @return
  */
-SList*    slist_swap_items(SList* list, SList* item1, SList* item2);
+GrfSList* grf_slist_swap_items(GrfSList* list, GrfSList* item1, GrfSList* item2);
 /**
- * @brief slist_swap_values_at
+ * @brief grf_slist_swap_values_at
  * @param list
  * @param index1
  * @param index2
  * @return
  */
-SList*    slist_swap_items_at(SList* list, uint32_t index1, uint32_t index2);
+GrfSList* grf_slist_swap_items_at(GrfSList* list, uint32_t index1, uint32_t index2);
 /**
- * @brief slist_copy
+ * @brief grf_slist_copy
  * @param list
  * @return
  */
-SList*    slist_copy(SList* list);
+GrfSList* grf_slist_copy(GrfSList* list);
 /**
- * @brief slist_replace
+ * @brief grf_slist_replace
  * @param list
  * @param item
  * @param item2
  * @return
  */
-SList*    slist_replace(SList* list, SList* item, SList* item2);
+GrfSList* grf_slist_replace(GrfSList* list, GrfSList* item, GrfSList* item2);
 /**
- * @brief slist_replace_at
+ * @brief grf_slist_replace_at
  * @param list
  * @param index
  * @param item2
  * @return
  */
-SList*    slist_replace_at(SList* list, uint32_t index, SList* item2);
+GrfSList* grf_slist_replace_at(GrfSList* list, uint32_t index, GrfSList* item2);
 /**
- * @brief slist_reverse
+ * @brief grf_slist_reverse
  * @param list
  * @return
  */
-SList*    slist_reverse(SList* list);
+GrfSList* grf_slist_reverse(GrfSList* list);
 /**
- * @brief slist_sort
+ * @brief grf_slist_sort
  * @param list
  * @return
  */
-SList*    slist_sort(SList* list, CompareFunc compare_function);
+GrfSList* grf_slist_sort(GrfSList* list, GrfCompareFunc compare_function);
 /**
- * @brief slist_sort_with_data
+ * @brief grf_slist_sort_with_data
  * @param list
  * @param compare_function
  * @param user_data
  * @return
  */
-SList*    slist_sort_with_data(SList* list, CompareDataFunc compare_function, void* user_data);
+GrfSList* grf_slist_sort_with_data(GrfSList* list, GrfCompareDataFunc compare_function, void* user_data);
 /**
- * @brief slist_is_different
+ * @brief grf_slist_is_different
  * @param list
  * @param list2
  * @return
  */
-uint8_t   slist_is_different(SList* list, SList* list2);
+uint8_t   grf_slist_is_different(GrfSList* list, GrfSList* list2);
 /**
- * @brief slist_is_equal
+ * @brief grf_slist_is_equal
  * @param list
  * @param list2
  * @return
  */
-uint8_t   slist_is_equal(SList* list, SList* list2);
+uint8_t   grf_slist_is_equal(GrfSList* list, GrfSList* list2);
 /**
- * @brief slist_value
+ * @brief grf_slist_value
  * @param list
  * @return
  */
-SList*    slist_value(SList* list);
+GrfSList* grf_slist_value(GrfSList* list);
 /**
- * @brief slist_set_next
+ * @brief grf_slist_set_next
  * @param list
  * @param item
  * @return
  */
-void    slist_set_next(SList* list, SList* item);
+void      grf_slist_set_next(GrfSList* list, GrfSList* item);
 /**
- * @brief slist_set_value
+ * @brief grf_slist_set_value
  * @param list
  * @param value
  */
-void slist_set_value(SList* list, void* value);
+void      grf_slist_set_value(GrfSList* list, void* value);
 
 END_DECLS
 

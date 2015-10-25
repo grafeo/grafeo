@@ -25,8 +25,8 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_TYPE_H
-#define GRAFEO_TYPE_H
+#ifndef GRF_TYPE_H
+#define GRF_TYPE_H
 #include <inttypes.h>
 #include <grafeo/macro.h>
 
@@ -36,61 +36,75 @@ BEGIN_DECLS
  * @brief Enumeration for data types
  * 
  */
-typedef enum _DataType{
-    GRAFEO_UINT8 = 0,
-    GRAFEO_UINT16,
-    GRAFEO_UINT32,
-    GRAFEO_UINT64,
-    GRAFEO_INT8,
-    GRAFEO_INT16,
-    GRAFEO_INT32,
-    GRAFEO_INT64,
-    GRAFEO_FLOAT,
-    GRAFEO_DOUBLE,
-}DataType;
+typedef enum _GrfDataType{
+  GRF_UINT8 = 0,
+  GRF_UINT16,
+  GRF_UINT32,
+  GRF_UINT64,
+  GRF_INT8,
+  GRF_INT16,
+  GRF_INT32,
+  GRF_INT64,
+  GRF_FLOAT,
+  GRF_DOUBLE,
+}GrfDataType;
 
-typedef enum _ArrayOperation{
-  GRAFEO_SUM = 0,
-  GRAFEO_MULT,
-  GRAFEO_MAX,
-  GRAFEO_MIN,
-  GRAFEO_STD,
-  GRAFEO_MEAN
-}ArrayOperation;
+typedef enum _GrfArrayOperation{
+  GRF_SUM = 0,
+  GRF_MULT,
+  GRF_MAX,
+  GRF_MIN,
+  GRF_STD,
+  GRF_MEAN
+}GrfArrayOperation;
 
-typedef enum _ColorType{
-  GRAFEO_BIN = 0,
-  GRAFEO_GRAY,
-  GRAFEO_RGB,
-  GRAFEO_XYZ,
-  GRAFEO_YUV,
-  GRAFEO_YCBCR,
-  GRAFEO_LUV,
-  GRAFEO_LAB,
-  GRAFEO_BGR,
-  GRAFEO_RGBA,
-  GRAFEO_BGRA,
-}ColorType;
+typedef enum _GrfColorType{
+  GRF_BIN = 0,
+  GRF_GRAY,
+  GRF_RGB,
+  GRF_XYZ,
+  GRF_YUV,
+  GRF_YCBCR,
+  GRF_LUV,
+  GRF_LAB,
+  GRF_BGR,
+  GRF_RGBA,
+  GRF_BGRA,
+}GrfColorType;
 
-typedef enum _Adjacency{
-  GRAFEO_NEIGHBOR_4,
-  GRAFEO_NEIGHBOR_6,
-  GRAFEO_NEIGHBOR_8,
-  GRAFEO_NEIGHBOR_18,
-  GRAFEO_NEIGHBOR_26
-}Adjacency;
+typedef enum _GrfAdjacency{
+  GRF_NEIGHBOR_4,
+  GRF_NEIGHBOR_6,
+  GRF_NEIGHBOR_8,
+  GRF_NEIGHBOR_18,
+  GRF_NEIGHBOR_26
+}GrfAdjacency;
 
-typedef enum _NormType{
-  GRAFEO_NORM_L1         = 1,
-  GRAFEO_NORM_L2         = 2,
-  GRAFEO_NORM_L2SQR      = 3,
-  GRAFEO_NORM_INF        = 4,
-  GRAFEO_NORM_HAMMING    = 5,
-  GRAFEO_NORM_HAMMING2   = 6,
-  GRAFEO_NORM_TYPE_MASK  = 6,
-  GRAFEO_NORM_RELATIVE   = 7,
-  GRAFEO_NORM_MINMAX     = 8,
-}NormType;
+typedef enum _GrfNormType{
+  GRF_NORM_L1         = 1,
+  GRF_NORM_L2         = 2,
+  GRF_NORM_L2SQR      = 3,
+  GRF_NORM_INF        = 4,
+  GRF_NORM_HAMMING    = 5,
+  GRF_NORM_HAMMING2   = 6,
+  GRF_NORM_TYPE_MASK  = 6,
+  GRF_NORM_RELATIVE   = 7,
+  GRF_NORM_MINMAX     = 8,
+}GrfNormType;
+
+typedef enum _GrfFittingMode{
+  GRF_FITTING_NONE,
+  GRF_FITTING_NORMAL,
+  GRF_FITTING_FULL,
+}GrfFittingMode;
+
+/**
+  * @brief Optimization type: Minimization or Maximization
+  */
+typedef enum _GrfOptimizationType{
+  GRF_MINIMIZATION,
+  GRF_MAXIMIZATION
+} GrfOptimizationType;
 
 #define max(a,b) \
    ({ __typeof__ (a) _a = (a); \
@@ -102,9 +116,9 @@ typedef enum _NormType{
        __typeof__ (b) _b = (b); \
      _a < _b ? _a : _b; })
 
-typedef int8_t (*CompareFunc)    (void* data1, void* data2);
-typedef int8_t (*CompareDataFunc)(void* data1, void* data2, void* user_data);
-typedef void (*DataFunc)       (void* data1, void* user_data);
+typedef int8_t (*GrfCompareFunc)    (void* data1, void* data2);
+typedef int8_t (*GrfCompareDataFunc)(void* data1, void* data2, void* user_data);
+typedef void (*GrfDataFunc)       (void* data1, void* user_data);
 
 int8_t int64_compare_function_r(void* value1, void* value2);
 int8_t int64_compare_function  (void* value1, void* value2);

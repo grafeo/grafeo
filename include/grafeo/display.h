@@ -25,16 +25,16 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_DISPLAY_H
-#define GRAFEO_DISPLAY_H
+#ifndef GRF_DISPLAY_H
+#define GRF_DISPLAY_H
 #include <grafeo/array.h>
 #include <grafeo/queue.h>
 #include <grafeo/imagewidget.h>
 #include <gtk/gtk.h>
 BEGIN_DECLS
 
-#define GRAFEO_TYPE_DISPLAY display_get_type()
-G_DECLARE_DERIVABLE_TYPE(Display, display, GRAFEO, DISPLAY, GObject)
+#define GRF_TYPE_DISPLAY display_get_type()
+G_DECLARE_DERIVABLE_TYPE(Display, display, GRF, DISPLAY, GObject)
 
 typedef struct _DisplayClass{
   GObjectClass parent_class;
@@ -69,7 +69,7 @@ typedef struct _DisplayClass{
  * @brief Show a window to display an array
  * @param array the array representing the image to be displayed
  */
-void    display_show(Array* array);
+void    display_show(GrfArray* array);
 /**
  * @brief Lock the flow until a user presses the key
  * @return

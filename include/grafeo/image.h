@@ -25,8 +25,8 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_IMAGE_H
-#define GRAFEO_IMAGE_H
+#ifndef GRF_IMAGE_H
+#define GRF_IMAGE_H
 
 #define PNG_SKIP_SETJMP_CHECK 1
 #include <stdarg.h>
@@ -40,52 +40,52 @@ BEGIN_DECLS
 
 
 /**
- * @brief      Read an image and generate an Array (for now, PNG or JPG)
+ * @brief      Read an image and generate an GrfArray (for now, PNG or JPG)
  *
  * @param[in]  filename  the name of the image
  *
- * @return     Array containing pixels data
+ * @return     GrfArray containing pixels data
  */
-Array* image_read(const char* filename);
+GrfArray* grf_image_read(const char* filename);
 
 /**
- * @brief      Read a PNG image and generate an Array
+ * @brief      Read a PNG image and generate an GrfArray
  *
  * @param[in]  filename  the name of the image
  *
- * @return     Array containing pixels data
+ * @return     GrfArray containing pixels data
  */
-Array* image_read_png(const char* filename);
+GrfArray* grf_image_read_png(const char* filename);
 
 /**
- * @brief      Read a JPG image and generate an Array
+ * @brief      Read a JPG image and generate an GrfArray
  *
  * @param[in]  filename  the name of the image
  *
- * @return     Array containing pixels data
+ * @return     GrfArray containing pixels data
  */
-Array* image_read_jpg(const char* filename);
+GrfArray* grf_image_read_jpg(const char* filename);
 
 /**
- * @brief image_read_pgm
+ * @brief grf_image_read_pgm
  * @param filename
  * @return
  */
-Array* image_read_pgm(const char* filename);
+GrfArray* grf_image_read_pgm(const char* filename);
 /**
- * @brief image_read_ppm
+ * @brief grf_image_read_ppm
  * @param filename
  * @return
  */
-Array* image_read_ppm(const char* filename);
+GrfArray* grf_image_read_ppm(const char* filename);
 
 /**
- * @brief      Generates a file with name `filename` from an Array
+ * @brief      Generates a file with name `filename` from an GrfArray
  *
  * @param      array     Matriz de dados (height,
  * @param[in]  filename  name of file
  */
-void   image_write(Array* array, const char* filename);
+void   grf_image_write(GrfArray* array, const char* filename);
 
 /**
  * @brief      Generate a PNG file with name `filename`
@@ -93,7 +93,7 @@ void   image_write(Array* array, const char* filename);
  * @param      array     data array (height, width, number of channels)
  * @param[in]  filename  name of file
  */
-void   image_write_png(Array* array, const char* filename);
+void   grf_image_write_png(GrfArray* array, const char* filename);
 
 /**
  * @brief      Generate a JPG file with name `filename`
@@ -101,20 +101,20 @@ void   image_write_png(Array* array, const char* filename);
  * @param      array     pixels data (height, width, number of channels)
  * @param[in]  filename  name of file
  */
-void   image_write_jpg(Array* array, const char* filename);
+void   grf_image_write_jpg(GrfArray* array, const char* filename);
 
 /**
- * @brief image_write_pgm
+ * @brief grf_image_write_pgm
  * @param array
  * @param filename
  */
-void   image_write_pgm(Array* array, const char* filename);
+void   grf_image_write_pgm(GrfArray* array, const char* filename);
 /**
- * @brief image_write_ppm
+ * @brief grf_image_write_ppm
  * @param array
  * @param filename
  */
-void   image_write_ppm(Array* array, const char* filename);
+void   grf_image_write_ppm(GrfArray* array, const char* filename);
 
 /**
  * @brief      Convert an image from a color space to another
@@ -122,13 +122,13 @@ void   image_write_ppm(Array* array, const char* filename);
  * @param      array    pixels data
  * @param[in]  origin   current color space
  * @param[in]  destiny  desired color space
- * @return     New Array based on desired color space
+ * @return     New GrfArray based on desired color space
  */
-Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny);
+GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType destiny);
 
-typedef enum _ImageError{
-  GRAFEO_ERROR_FILE_OPEN = 0
-}ImageError;
+typedef enum _GrfImageError{
+  GRF_ERROR_FILE_OPEN = 0
+}GrfImageError;
 
 END_DECLS
 

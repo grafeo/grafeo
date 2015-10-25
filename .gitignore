@@ -54,3 +54,5 @@ src/.tags_sorted_by_file
 *.~
 *.*~
 *.swp
+
+marshal.[hc]

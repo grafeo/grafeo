@@ -27,28 +27,28 @@
 # ===================================================================*/
 #include <grafeo/range.h>
 
-static RangeItem* rangeitem_new_with_value(int64_t value){
-	RangeItem* rangeitem = malloc(sizeof(RangeItem));
+static GrfRangeItem* rangeitem_new_with_value(int64_t value){
+	GrfRangeItem* rangeitem = malloc(sizeof(GrfRangeItem));
 	rangeitem->value = value;
 	return rangeitem;
 }
 
-void range_from_to(Range* range, int64_t from, int64_t to){
+void grf_range_from_to(GrfRange* range, int64_t from, int64_t to){
 	range->from = rangeitem_new_with_value(from);
 	range->to   = rangeitem_new_with_value(to);
 }
 
-void range_from(Range* range, int64_t from){
+void grf_range_from(GrfRange* range, int64_t from){
 	range->from = rangeitem_new_with_value(from);
 	range->to   = NULL;
 }
 
-void range_to(Range* range, int64_t to){
+void grf_range_to(GrfRange* range, int64_t to){
 	range->from = NULL;
 	range->to   = rangeitem_new_with_value(to);
 }
 
-void range_all(Range* range){
+void grf_range_all(GrfRange* range){
 	range->from = NULL;
 	range->to   = NULL;
 }

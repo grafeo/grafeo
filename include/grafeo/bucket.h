@@ -25,8 +25,8 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_BUCKET_H
-#define GRAFEO_BUCKET_H
+#ifndef GRF_BUCKET_H
+#define GRF_BUCKET_H
 #include <grafeo/queue.h>
 
 BEGIN_DECLS
@@ -37,44 +37,44 @@ BEGIN_DECLS
  * You can put additional attributes just by extending Bucket, or inserting
  * a struct of attributes in the `value` variable.
  */
-typedef struct _Bucket{
-  Queue* queue; /**< Queue of elements in the bucket */
+typedef struct _GrfBucket{
+  GrfQueue* queue; /**< GrfQueue of elements in the bucket */
   void*  value; /**< Unique attribute of the queue */
-}Bucket;
+}GrfBucket;
 /**
- * @brief bucket_new
+ * @brief grf_bucket_new
  * @return
  */
-Bucket* bucket_new();
+GrfBucket* grf_bucket_new();
 /**
- * @brief bucket_queue
+ * @brief grf_bucket_queue
  * @param bucket
  * @return
  */
-Queue*  bucket_queue(Bucket* bucket);
+GrfQueue*  grf_bucket_queue(GrfBucket* bucket);
 /**
- * @brief bucket_value
+ * @brief grf_bucket_value
  * @param bucket
  * @return
  */
-void*   bucket_value(Bucket* bucket);
+void*   grf_bucket_value(GrfBucket* bucket);
 /**
- * @brief bucket_set_queue
+ * @brief grf_bucket_set_queue
  * @param bucket
  * @param queue
  */
-void    bucket_set_queue(Bucket* bucket,Queue* queue);
+void    grf_bucket_set_queue(GrfBucket* bucket,GrfQueue* queue);
 /**
- * @brief bucket_set_value
+ * @brief grf_bucket_set_value
  * @param bucket
  * @param value
  */
-void    bucket_set_value(Bucket* bucket, void* value);
+void    grf_bucket_set_value(GrfBucket* bucket, void* value);
 /**
- * @brief bucket_free
+ * @brief grf_bucket_free
  * @param bucket
  */
-void    bucket_free(Bucket* bucket);
+void    grf_bucket_free(GrfBucket* bucket);
 
 END_DECLS
 

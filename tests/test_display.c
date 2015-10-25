@@ -32,7 +32,7 @@
 static void test_display(void** state){
   uint8_t  key;
   uint32_t size[2] = {640,480};
-  Array*   array   = array_zeros(2,size, GRAFEO_UINT8);
+  GrfArray*   array   = grf_array_zeros(2,size, GRF_UINT8);
 
   display_setup();
   display_show(array);
@@ -43,7 +43,7 @@ static void test_display(void** state){
   key = display_wait_key();
   printf("%d\n", key);
 
-  array_free(array);
+  grf_array_free(array);
 }
 
 int main(int argc, char** argv){

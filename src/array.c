@@ -27,18 +27,18 @@
 # ===================================================================*/
 #include <grafeo/array.h>
 
-size_t calculate_bitsize(DataType type){
+size_t calculate_bitsize(GrfDataType type){
   switch(type){
-      case GRAFEO_UINT8:  return sizeof(uint8_t); break;
-      case GRAFEO_UINT16: return sizeof(uint16_t);break;
-      case GRAFEO_UINT32: return sizeof(uint32_t);break;
-      case GRAFEO_UINT64: return sizeof(uint64_t);break;
-      case GRAFEO_INT8:   return sizeof(int8_t);  break;
-      case GRAFEO_INT16:  return sizeof(int16_t); break;
-      case GRAFEO_INT32:  return sizeof(int32_t); break;
-      case GRAFEO_INT64:  return sizeof(int64_t); break;
-      case GRAFEO_FLOAT:  return sizeof(float);   break;
-      case GRAFEO_DOUBLE: return sizeof(double);  break;
+      case GRF_UINT8:  return sizeof(uint8_t); break;
+      case GRF_UINT16: return sizeof(uint16_t);break;
+      case GRF_UINT32: return sizeof(uint32_t);break;
+      case GRF_UINT64: return sizeof(uint64_t);break;
+      case GRF_INT8:   return sizeof(int8_t);  break;
+      case GRF_INT16:  return sizeof(int16_t); break;
+      case GRF_INT32:  return sizeof(int32_t); break;
+      case GRF_INT64:  return sizeof(int64_t); break;
+      case GRF_FLOAT:  return sizeof(float);   break;
+      case GRF_DOUBLE: return sizeof(double);  break;
   }
   return 0;
 }
@@ -46,30 +46,30 @@ size_t calculate_bitsize(DataType type){
 /*-----------------------------------
  *     ARRAY CREATION FUNCTIONS
  *-----------------------------------*/
-Array*    array_new(){
-    Array* array = malloc(sizeof(Array));
+GrfArray*    grf_array_new(){
+    GrfArray* array = malloc(sizeof(GrfArray));
     array->dim = 0;
     array->size = NULL;
     array->num_elements = 0;
     array->num_bytes = 0;
     array->bitsize   = 0;
-    array->type = GRAFEO_UINT8;
+    array->type = GRF_UINT8;
     array->step = NULL;
     array->contiguous = 1;
     array->owns_data  = 1;
     return array;
 }
-Array*    array_new_with_dim(uint16_t dim){
-    Array* array        = array_new();
+GrfArray*    grf_array_new_with_dim(uint16_t dim){
+    GrfArray* array        = grf_array_new();
     array->dim          = dim;
     array->size         = malloc(sizeof(uint32_t) * dim);
     array->step         = malloc(sizeof(uint64_t) * dim);
     return array;
 }
-Array*    array_new_with_size(uint16_t dim, uint32_t* size){
-    return array_new_with_size_type(dim, size, GRAFEO_UINT8);
+GrfArray*    grf_array_new_with_size(uint16_t dim, uint32_t* size){
+    return grf_array_new_with_size_type(dim, size, GRF_UINT8);
 }
-void      array_fill_header(Array* array, uint32_t* size, DataType type){
+void      grf_array_fill_header(GrfArray* array, uint32_t* size, GrfDataType type){
   uint16_t i;
   array->num_elements = 1;
   array->step[array->dim-1] = 1;
@@ -83,113 +83,113 @@ void      array_fill_header(Array* array, uint32_t* size, DataType type){
   array->num_bytes    = array->bitsize * array->num_elements;
   array->type         = type;
 }
-Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type){
-    Array* array        = array_new_with_dim(dim);
-    array_fill_header(array, size, type);
+GrfArray*    grf_array_new_with_size_type(uint16_t dim, uint32_t* size, GrfDataType type){
+    GrfArray* array        = grf_array_new_with_dim(dim);
+    grf_array_fill_header(array, size, type);
     array->data         = malloc(array->num_bytes);
     return array;
 }
-Array*    array_new_1D(uint32_t size1){
-    Array* array        = array_new_with_size(1, &size1);
+GrfArray*    grf_array_new_1D(uint32_t size1){
+    GrfArray* array        = grf_array_new_with_size(1, &size1);
     return array;
 }
-Array*    array_new_2D(uint32_t size1, uint32_t size2){
+GrfArray*    grf_array_new_2D(uint32_t size1, uint32_t size2){
     uint32_t sizes[2]; 
     sizes[0]            = size1;
     sizes[1]            = size2;
-    Array* array        = array_new_with_size(2, sizes);
+    GrfArray* array        = grf_array_new_with_size(2, sizes);
     return array;
 }
-Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
+GrfArray*    grf_array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
     uint32_t sizes[3]; 
     sizes[0]            = size1;
     sizes[1]            = size2;
     sizes[2]            = size3;
-    Array* array        = array_new_with_size(3, sizes);
+    GrfArray* array        = grf_array_new_with_size(3, sizes);
     return array;
 }
-Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4){
+GrfArray*    grf_array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4){
     uint32_t sizes[4]; 
     sizes[0]            = size1;
     sizes[1]            = size2;
     sizes[2]            = size3;
     sizes[3]            = size4;
-    Array* array        = array_new_with_size(4, sizes);
+    GrfArray* array        = grf_array_new_with_size(4, sizes);
     return array;
 }
-Array*    array_new_1D_type(uint32_t size1, DataType type){
-    return array_new_with_size_type(1, &size1, type);
+GrfArray*    grf_array_new_1D_type(uint32_t size1, GrfDataType type){
+    return grf_array_new_with_size_type(1, &size1, type);
 }
-Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type){
+GrfArray*    grf_array_new_2D_type(uint32_t size1, uint32_t size2, GrfDataType type){
     uint32_t sizes[2]; 
     sizes[0]            = size1;
     sizes[1]            = size2;
-    return array_new_with_size_type(2, sizes, type);
+    return grf_array_new_with_size_type(2, sizes, type);
 
 }
-Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, DataType type){
+GrfArray*    grf_array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, GrfDataType type){
     uint32_t sizes[3]; 
     sizes[0]            = size1;
     sizes[1]            = size2;
     sizes[2]            = size3;
-    return array_new_with_size_type(3, sizes, type);
+    return grf_array_new_with_size_type(3, sizes, type);
 }
-Array*
-array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type){
+GrfArray*
+grf_array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, GrfDataType type){
     uint32_t sizes[4]; 
     sizes[0]            = size1;
     sizes[1]            = size2;
     sizes[2]            = size3;
     sizes[3]            = size4;
-    return array_new_with_size_type(4, sizes, type);
+    return grf_array_new_with_size_type(4, sizes, type);
 }
-Array*
-array_new_like(Array* array){
-  return array_new_with_size_type(array->dim, array->size, array->type);
+GrfArray*
+grf_array_new_like(GrfArray* array){
+  return grf_array_new_with_size_type(array->dim, array->size, array->type);
 }
-Array*
-array_zeros(uint16_t dim, uint32_t* sizes, DataType type){
-    Array* array = array_new_with_size_type(dim, sizes, type);
+GrfArray*
+grf_array_zeros(uint16_t dim, uint32_t* sizes, GrfDataType type){
+    GrfArray* array = grf_array_new_with_size_type(dim, sizes, type);
     memset(array->data, 0, array->num_bytes);
     return array;
 }
-Array*    array_zeros_like(Array *array){
-  return array_zeros_like_type(array,array->type);
+GrfArray*    grf_array_zeros_like(GrfArray *array){
+  return grf_array_zeros_like_type(array,array->type);
 }
 
-Array*
-array_zeros_like_type(Array* array, DataType type){
-  return array_zeros(array->dim, array->size, type);
+GrfArray*
+grf_array_zeros_like_type(GrfArray* array, GrfDataType type){
+  return grf_array_zeros(array->dim, array->size, type);
 }
-Array*
-array_ones(uint16_t dim, uint32_t* sizes, DataType type){
-    Array* array = array_new_with_size_type(dim, sizes, type);
-    array_fill(array,1);
+GrfArray*
+grf_array_ones(uint16_t dim, uint32_t* sizes, GrfDataType type){
+    GrfArray* array = grf_array_new_with_size_type(dim, sizes, type);
+    grf_array_fill(array,1);
     return array;
 }
-Array*    array_ones_like(Array *array){
-  return array_ones_like_type(array, array->type);
+GrfArray*    grf_array_ones_like(GrfArray *array){
+  return grf_array_ones_like_type(array, array->type);
 }
 
-Array*
-array_ones_like_type(Array* array, DataType type){
-  return array_ones(array->dim, array->size, type);
+GrfArray*
+grf_array_ones_like_type(GrfArray* array, GrfDataType type){
+  return grf_array_ones(array->dim, array->size, type);
 }
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
  *-----------------------------------*/
 void
-array_fill_max(Array *array){
+grf_array_fill_max(GrfArray *array){
   long double values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,__INT16_MAX__,__INT32_MAX__,__INT64_MAX__,__FLT_MAX__,__DBL_MAX__};
-  array_fill(array, values[array->type]);
+  grf_array_fill(array, values[array->type]);
 }
 void
-array_fill_min(Array *array){
+grf_array_fill_min(GrfArray *array){
   long double values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
-  array_fill(array, values[array->type]);
+  grf_array_fill(array, values[array->type]);
 }
 void
-array_fill(Array* array, long double value){
+grf_array_fill(GrfArray* array, long double value){
     uint64_t i, ii, index_1d;
     uint16_t* indices, atual, anterior;
     if(!array->contiguous){
@@ -216,16 +216,16 @@ array_fill(Array* array, long double value){
 
       // Update
       switch(array->type){
-        case GRAFEO_UINT8:  array->data_uint8[index_1d] = (uint8_t)value;break;
-        case GRAFEO_UINT16: array->data_uint16[index_1d] = (uint16_t)value;break;
-        case GRAFEO_UINT32: array->data_uint32[index_1d] = (uint32_t)value;break;
-        case GRAFEO_UINT64: array->data_uint64[index_1d] = (uint64_t)value;break;
-        case GRAFEO_INT8:   array->data_int8[index_1d] = (int8_t)value;break;
-        case GRAFEO_INT16:  array->data_int16[index_1d] = (int16_t)value;break;
-        case GRAFEO_INT32:  array->data_int32[index_1d] = (int32_t)value;break;
-        case GRAFEO_INT64:  array->data_int64[index_1d] = (int64_t)value;break;
-        case GRAFEO_FLOAT:  array->data_float[index_1d] = (float)value;break;
-        case GRAFEO_DOUBLE: array->data_double[index_1d] = (double)value;break;
+        case GRF_UINT8:  array->data_uint8[index_1d] = (uint8_t)value;break;
+        case GRF_UINT16: array->data_uint16[index_1d] = (uint16_t)value;break;
+        case GRF_UINT32: array->data_uint32[index_1d] = (uint32_t)value;break;
+        case GRF_UINT64: array->data_uint64[index_1d] = (uint64_t)value;break;
+        case GRF_INT8:   array->data_int8[index_1d] = (int8_t)value;break;
+        case GRF_INT16:  array->data_int16[index_1d] = (int16_t)value;break;
+        case GRF_INT32:  array->data_int32[index_1d] = (int32_t)value;break;
+        case GRF_INT64:  array->data_int64[index_1d] = (int64_t)value;break;
+        case GRF_FLOAT:  array->data_float[index_1d] = (float)value;break;
+        case GRF_DOUBLE: array->data_double[index_1d] = (double)value;break;
       }
       if(!array->contiguous) indices[array->dim-1]++;
     }
@@ -235,36 +235,36 @@ array_fill(Array* array, long double value){
  *   ARRAY ACCESSOR FUNCTIONS
  *-----------------------------------*/
 uint64_t
-array_get_num_elements(Array* array){
+grf_array_get_num_elements(GrfArray* array){
     return array->num_elements;
 }
-DataType
-array_get_type(Array* array){
+GrfDataType
+grf_array_get_type(GrfArray* array){
     return array->type;
 }
 uint16_t
-array_get_dim(Array* array){
+grf_array_get_dim(GrfArray* array){
     return array->dim;
 }
 uint32_t*
-array_get_size(Array* array){
+grf_array_get_size(GrfArray* array){
     return array->size;
 }
 void*
-array_get_data(Array* array){
+grf_array_get_data(GrfArray* array){
     return array->data;
 }
 uint8_t
-array_get_bitsize(Array* array){
+grf_array_get_bitsize(GrfArray* array){
     return array->bitsize;
 }
 uint64_t
-array_get_num_bytes(Array* array){
+grf_array_get_num_bytes(GrfArray* array){
     return array->num_bytes;
 }
 
 int32_t*
-array_index(Array* array, int64_t index){
+grf_array_index(GrfArray* array, int64_t index){
   int32_t* indices = malloc(sizeof(int32_t) * array->dim);
   uint8_t i;
   div_t division;
@@ -277,14 +277,14 @@ array_index(Array* array, int64_t index){
 }
 
 int64_t
-array_index_1D(Array* array, int32_t* indices){
+grf_array_index_1D(GrfArray* array, int32_t* indices){
   int64_t x = 0, i;
   for(i = 0; i < array->dim; x += indices[i] * array->step[i], i++);
   return x;
 }
 
 uint8_t
-array_index_is_valid(Array *array, int32_t *indices){
+grf_array_index_is_valid(GrfArray *array, int32_t *indices){
   uint8_t i;
   for(i = 0; i < array->dim; i++)
     if(indices[i] < 0 || indices[i] >= array->size[i]) return 0;
@@ -292,11 +292,11 @@ array_index_is_valid(Array *array, int32_t *indices){
 }
 
 uint8_t
-array_index_1D_is_valid(Array *array, int64_t index){
+grf_array_index_1D_is_valid(GrfArray *array, int64_t index){
   return index >= 0 && index < array->num_elements;
 }
 void*
-array_get_element(Array* array, uint32_t* indices){
+grf_array_get_element(GrfArray* array, uint32_t* indices){
     uint8_t* x = array->data_uint8;
     int i;
     for(i = 0; i < array->dim; i++){
@@ -305,67 +305,67 @@ array_get_element(Array* array, uint32_t* indices){
     return x;
 }
 void*
-array_get_element_1D(Array* array, uint64_t index){
+grf_array_get_element_1D(GrfArray* array, uint64_t index){
   return array->data_uint8 + index * array->bitsize;
 }
 
 uint64_t*
-array_get_step(Array* array){
+grf_array_get_step(GrfArray* array){
     return array->step;
 }
 
 void
-array_set_element(Array* array, uint32_t* indices, double value){
+grf_array_set_element(GrfArray* array, uint32_t* indices, double value){
   uint64_t x = 0;
   uint8_t i;
   for(i = 0; i < array->dim; i++)
        x += indices[i] * array->step[i];
-  array_set_element_1D(array, x, value);
+  grf_array_set_element_1D(array, x, value);
 }
 
-void array_set_element_1D(Array* array, uint64_t i, double value){
+void grf_array_set_element_1D(GrfArray* array, uint64_t i, double value){
   switch(array->type){
-    case GRAFEO_UINT8:  array->data_uint8[i] = (uint8_t)value; break;
-    case GRAFEO_UINT16: array->data_uint16[i] = (uint16_t)value; break;
-    case GRAFEO_UINT32: array->data_uint32[i] = (uint32_t)value; break;
-    case GRAFEO_UINT64: array->data_uint64[i] = (uint64_t)value; break;
-    case GRAFEO_INT8:   array->data_int8[i] = (int8_t)value; break;
-    case GRAFEO_INT16:  array->data_int16[i] = (int16_t)value; break;
-    case GRAFEO_INT32:  array->data_int32[i] = (int32_t)value; break;
-    case GRAFEO_INT64:  array->data_int64[i] = (int64_t)value; break;
-    case GRAFEO_FLOAT:  array->data_float[i] = (float)value; break;
-    case GRAFEO_DOUBLE: array->data_double[i] = (double)value; break;
+    case GRF_UINT8:  array->data_uint8[i] = (uint8_t)value; break;
+    case GRF_UINT16: array->data_uint16[i] = (uint16_t)value; break;
+    case GRF_UINT32: array->data_uint32[i] = (uint32_t)value; break;
+    case GRF_UINT64: array->data_uint64[i] = (uint64_t)value; break;
+    case GRF_INT8:   array->data_int8[i] = (int8_t)value; break;
+    case GRF_INT16:  array->data_int16[i] = (int16_t)value; break;
+    case GRF_INT32:  array->data_int32[i] = (int32_t)value; break;
+    case GRF_INT64:  array->data_int64[i] = (int64_t)value; break;
+    case GRF_FLOAT:  array->data_float[i] = (float)value; break;
+    case GRF_DOUBLE: array->data_double[i] = (double)value; break;
   }
 }
 
-long double array_get_long_double_1D(Array* array1, uint64_t i){
+long double grf_array_get_long_double_1D(GrfArray* array1, uint64_t i){
   long double value1;
   switch(array1->type){
-    case GRAFEO_UINT8: value1 = (long double)array1->data_uint8[i];break;
-    case GRAFEO_UINT16: value1 = (long double)array1->data_uint16[i];break;
-    case GRAFEO_UINT32: value1 = (long double)array1->data_uint32[i];break;
-    case GRAFEO_UINT64: value1 = (long double)array1->data_uint64[i];break;
-    case GRAFEO_INT8: value1 = (long double)array1->data_int8[i];break;
-    case GRAFEO_INT16: value1 = (long double)array1->data_int16[i];break;
-    case GRAFEO_INT32: value1 = (long double)array1->data_int32[i];break;
-    case GRAFEO_INT64: value1 = (long double)array1->data_int64[i];break;
-    case GRAFEO_FLOAT: value1 = (long double)array1->data_float[i];break;
-    case GRAFEO_DOUBLE: value1 = (long double)array1->data_double[i];break;
+    case GRF_UINT8: value1 = (long double)array1->data_uint8[i];break;
+    case GRF_UINT16: value1 = (long double)array1->data_uint16[i];break;
+    case GRF_UINT32: value1 = (long double)array1->data_uint32[i];break;
+    case GRF_UINT64: value1 = (long double)array1->data_uint64[i];break;
+    case GRF_INT8: value1 = (long double)array1->data_int8[i];break;
+    case GRF_INT16: value1 = (long double)array1->data_int16[i];break;
+    case GRF_INT32: value1 = (long double)array1->data_int32[i];break;
+    case GRF_INT64: value1 = (long double)array1->data_int64[i];break;
+    case GRF_FLOAT: value1 = (long double)array1->data_float[i];break;
+    case GRF_DOUBLE: value1 = (long double)array1->data_double[i];break;
   }
   return value1;
 }
 
 void
-array_free(Array* array){
+grf_array_free(GrfArray* array){
     if(array->data && array->owns_data) free(array->data);
     if(array->size) free(array->size);
     if(array->step) free(array->step);
     free(array);
 }
 
-Array*
-array_sub(Array* array, Range* ranges){
-    Array* subarray = array_new_with_dim(array_get_dim(array));
+GrfArray*
+grf_array_sub(GrfArray* array, GrfRange* ranges){
+    GrfArray* subarray = grf_array_new_with_dim(grf_array_get_dim(array));
     subarray->type = array->type;
     subarray->bitsize = array->bitsize;
     subarray->data = array->data;
@@ -391,26 +391,26 @@ array_sub(Array* array, Range* ranges){
     return subarray;
 }
 
-Array*
-array_from_data(void* data, uint16_t dim, uint32_t* size, DataType type){
-  Array* array = array_new_with_dim(dim);
-  array_fill_header(array, size, type);
+GrfArray*
+grf_array_from_data(void* data, uint16_t dim, uint32_t* size, GrfDataType type){
+  GrfArray* array = grf_array_new_with_dim(dim);
+  grf_array_fill_header(array, size, type);
   array->owns_data = 0;
   array->data      = data;
   return array;
 }
-Array*
-array_as_type(Array* array, DataType type){
+GrfArray*
+grf_array_as_type(GrfArray* array, GrfDataType type){
   if(type != array->type){
-    Array* array2 = array_new_with_size_type(array->dim, array->size, type);
+    GrfArray* array2 = grf_array_new_with_size_type(array->dim, array->size, type);
     uint64_t i;
     for(i = 0; i < array->num_elements; i++)
-      array_set_element_1D(array2, i, array_get_long_double_1D(array,i));
+      grf_array_set_element_1D(array2, i, grf_array_get_long_double_1D(array,i));
     return array2;
   }
   return array;
 }
-Array*    array_circular_indices(uint16_t dim, float radius){
+GrfArray*    grf_array_circular_indices(uint16_t dim, float radius){
   int32_t dz, dy, dx, r2, i;
   uint32_t n;
 
@@ -428,7 +428,7 @@ Array*    array_circular_indices(uint16_t dim, float radius){
       }
   // Create the array
   uint32_t size[2] = {n-1,dim};
-  Array* indices = array_new_with_size_type(2,size,GRAFEO_INT64);
+  GrfArray* indices = grf_array_new_with_size_type(2,size,GRF_INT64);
 
   // Fill the array
   i = 0;
@@ -460,39 +460,39 @@ Array*    array_circular_indices(uint16_t dim, float radius){
   return indices;
 }
 
-Array*
-array_copy(Array* array){
-  Array* array2 = array_new_like(array);
+GrfArray*
+grf_array_copy(GrfArray* array){
+  GrfArray* array2 = grf_array_new_like(array);
   memcpy(array2->data,array->data,array->num_bytes);
   return array2;
 }
 
-Array*
-array_reduce_min(Array* array, int16_t* axes, uint16_t size){
-  return array_reduce(array, axes, size, GRAFEO_MIN);
+GrfArray*
+grf_array_reduce_min(GrfArray* array, int16_t* axes, uint16_t size){
+  return grf_array_reduce(array, axes, size, GRF_MIN);
 }
-Array*
-array_reduce_max(Array* array, int16_t* axes, uint16_t size){
-  return array_reduce(array, axes, size, GRAFEO_MAX);
+GrfArray*
+grf_array_reduce_max(GrfArray* array, int16_t* axes, uint16_t size){
+  return grf_array_reduce(array, axes, size, GRF_MAX);
 }
-Array*
-array_reduce_std(Array* array, int16_t* axes, uint16_t size){
-  return array_reduce(array, axes, size, GRAFEO_STD);
+GrfArray*
+grf_array_reduce_std(GrfArray* array, int16_t* axes, uint16_t size){
+  return grf_array_reduce(array, axes, size, GRF_STD);
 }
-Array*
-array_reduce_mult(Array* array, int16_t* axes, uint16_t size){
-  return array_reduce(array, axes, size, GRAFEO_MULT);
+GrfArray*
+grf_array_reduce_mult(GrfArray* array, int16_t* axes, uint16_t size){
+  return grf_array_reduce(array, axes, size, GRF_MULT);
 }
-Array*
-array_reduce_sum(Array* array, int16_t* axes, uint16_t size){
-  return array_reduce(array, axes, size, GRAFEO_SUM);
+GrfArray*
+grf_array_reduce_sum(GrfArray* array, int16_t* axes, uint16_t size){
+  return grf_array_reduce(array, axes, size, GRF_SUM);
 }
 
-Array*
-array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operation){
+GrfArray*
+grf_array_reduce(GrfArray* array, int16_t* axes, uint16_t size, GrfArrayOperation operation){
   // Calculate size of reduced array
-  uint16_t  original_dim  = array_get_dim(array);
-  uint32_t* original_size = array_get_size(array);
+  uint16_t  original_dim  = grf_array_get_dim(array);
+  uint32_t* original_size = grf_array_get_size(array);
   uint16_t  reduced_dim   = original_dim-size;
   uint32_t* reduced_size  = malloc(sizeof(uint32_t)*reduced_dim);
   uint16_t* reduced_ind   = malloc(sizeof(uint16_t)*reduced_dim);
@@ -507,16 +507,16 @@ array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operatio
   for(i = 0; i < reduced_dim; i++) num_reduced *= original_size[axes[i]];
 
   // Allocate a new array
-  Array *reduced;
+  GrfArray *reduced;
   switch(operation){
-    case GRAFEO_SUM:
-    case GRAFEO_STD:
-    case GRAFEO_MEAN: reduced = array_zeros(reduced_dim,reduced_size,array_get_type(array));break;
-    case GRAFEO_MULT: reduced = array_ones(reduced_dim,reduced_size,array_get_type(array));break;
-    case GRAFEO_MAX:  reduced = array_new_with_size_type(reduced_dim, reduced_size, array_get_type(array));
-                      array_fill_min(reduced); break;
-    case GRAFEO_MIN:  reduced = array_new_with_size_type(reduced_dim, reduced_size, array_get_type(array));
-                      array_fill_max(reduced); break;
+    case GRF_SUM:
+    case GRF_STD:
+    case GRF_MEAN: reduced = grf_array_zeros(reduced_dim,reduced_size,grf_array_get_type(array));break;
+    case GRF_MULT: reduced = grf_array_ones(reduced_dim,reduced_size,grf_array_get_type(array));break;
+    case GRF_MAX:  reduced = grf_array_new_with_size_type(reduced_dim, reduced_size, grf_array_get_type(array));
+                      grf_array_fill_min(reduced); break;
+    case GRF_MIN:  reduced = grf_array_new_with_size_type(reduced_dim, reduced_size, grf_array_get_type(array));
+                      grf_array_fill_max(reduced); break;
   }
 
   // ND indices of original array
@@ -544,70 +544,70 @@ array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operatio
 
     // reduce
     switch(operation){
-    case GRAFEO_SUM:
-    case GRAFEO_MEAN:
+    case GRF_SUM:
+    case GRF_MEAN:
         switch(array->type){
-          case GRAFEO_UINT8:  reduced->data_uint8[reduced_1d]  += array->data_uint8[original_1d] ;break;
-          case GRAFEO_UINT16: reduced->data_uint16[reduced_1d] += array->data_uint16[original_1d];break;
-          case GRAFEO_UINT32: reduced->data_uint32[reduced_1d] += array->data_uint32[original_1d];break;
-          case GRAFEO_UINT64: reduced->data_uint64[reduced_1d] += array->data_uint64[original_1d];break;
-          case GRAFEO_INT8:   reduced->data_int8[reduced_1d]   += array->data_int8[original_1d]  ;break;
-          case GRAFEO_INT16:  reduced->data_int16[reduced_1d]  += array->data_int16[original_1d] ;break;
-          case GRAFEO_INT32:  reduced->data_int32[reduced_1d]  += array->data_int32[original_1d] ;break;
-          case GRAFEO_INT64:  reduced->data_int64[reduced_1d]  += array->data_int64[original_1d] ;break;
-          case GRAFEO_FLOAT:  reduced->data_float[reduced_1d]  += array->data_float[original_1d] ;break;
-          case GRAFEO_DOUBLE: reduced->data_double[reduced_1d] += array->data_double[original_1d];break;
+          case GRF_UINT8:  reduced->data_uint8[reduced_1d]  += array->data_uint8[original_1d] ;break;
+          case GRF_UINT16: reduced->data_uint16[reduced_1d] += array->data_uint16[original_1d];break;
+          case GRF_UINT32: reduced->data_uint32[reduced_1d] += array->data_uint32[original_1d];break;
+          case GRF_UINT64: reduced->data_uint64[reduced_1d] += array->data_uint64[original_1d];break;
+          case GRF_INT8:   reduced->data_int8[reduced_1d]   += array->data_int8[original_1d]  ;break;
+          case GRF_INT16:  reduced->data_int16[reduced_1d]  += array->data_int16[original_1d] ;break;
+          case GRF_INT32:  reduced->data_int32[reduced_1d]  += array->data_int32[original_1d] ;break;
+          case GRF_INT64:  reduced->data_int64[reduced_1d]  += array->data_int64[original_1d] ;break;
+          case GRF_FLOAT:  reduced->data_float[reduced_1d]  += array->data_float[original_1d] ;break;
+          case GRF_DOUBLE: reduced->data_double[reduced_1d] += array->data_double[original_1d];break;
         }
         break;
-    case GRAFEO_MIN:
+    case GRF_MIN:
         switch(array->type){
-          case GRAFEO_UINT8:  reduced->data_uint8[reduced_1d]  = min(reduced->data_uint8[reduced_1d],array->data_uint8[original_1d]) ;break;
-          case GRAFEO_UINT16: reduced->data_uint16[reduced_1d] = min(reduced->data_uint16[reduced_1d],array->data_uint16[original_1d]);break;
-          case GRAFEO_UINT32: reduced->data_uint32[reduced_1d] = min(reduced->data_uint32[reduced_1d],array->data_uint32[original_1d]);break;
-          case GRAFEO_UINT64: reduced->data_uint64[reduced_1d] = min(reduced->data_uint64[reduced_1d],array->data_uint64[original_1d]);break;
-          case GRAFEO_INT8:   reduced->data_int8[reduced_1d]   = min(reduced->data_int8[reduced_1d],array->data_int8[original_1d])  ;break;
-          case GRAFEO_INT16:  reduced->data_int16[reduced_1d]  = min(reduced->data_int16[reduced_1d],array->data_int16[original_1d]) ;break;
-          case GRAFEO_INT32:  reduced->data_int32[reduced_1d]  = min(reduced->data_int32[reduced_1d],array->data_int32[original_1d]) ;break;
-          case GRAFEO_INT64:  reduced->data_int64[reduced_1d]  = min(reduced->data_int64[reduced_1d],array->data_int64[original_1d]) ;break;
-          case GRAFEO_FLOAT:  reduced->data_float[reduced_1d]  = min(reduced->data_float[reduced_1d],array->data_float[original_1d]) ;break;
-          case GRAFEO_DOUBLE: reduced->data_double[reduced_1d] = min(reduced->data_double[reduced_1d],array->data_double[original_1d]);break;
+          case GRF_UINT8:  reduced->data_uint8[reduced_1d]  = min(reduced->data_uint8[reduced_1d],array->data_uint8[original_1d]) ;break;
+          case GRF_UINT16: reduced->data_uint16[reduced_1d] = min(reduced->data_uint16[reduced_1d],array->data_uint16[original_1d]);break;
+          case GRF_UINT32: reduced->data_uint32[reduced_1d] = min(reduced->data_uint32[reduced_1d],array->data_uint32[original_1d]);break;
+          case GRF_UINT64: reduced->data_uint64[reduced_1d] = min(reduced->data_uint64[reduced_1d],array->data_uint64[original_1d]);break;
+          case GRF_INT8:   reduced->data_int8[reduced_1d]   = min(reduced->data_int8[reduced_1d],array->data_int8[original_1d])  ;break;
+          case GRF_INT16:  reduced->data_int16[reduced_1d]  = min(reduced->data_int16[reduced_1d],array->data_int16[original_1d]) ;break;
+          case GRF_INT32:  reduced->data_int32[reduced_1d]  = min(reduced->data_int32[reduced_1d],array->data_int32[original_1d]) ;break;
+          case GRF_INT64:  reduced->data_int64[reduced_1d]  = min(reduced->data_int64[reduced_1d],array->data_int64[original_1d]) ;break;
+          case GRF_FLOAT:  reduced->data_float[reduced_1d]  = min(reduced->data_float[reduced_1d],array->data_float[original_1d]) ;break;
+          case GRF_DOUBLE: reduced->data_double[reduced_1d] = min(reduced->data_double[reduced_1d],array->data_double[original_1d]);break;
         }
         break;
-    case GRAFEO_MAX:
+    case GRF_MAX:
       switch(array->type){
-        case GRAFEO_UINT8:  reduced->data_uint8[reduced_1d]  = max(reduced->data_uint8[reduced_1d],array->data_uint8[original_1d]) ;break;
-        case GRAFEO_UINT16: reduced->data_uint16[reduced_1d] = max(reduced->data_uint16[reduced_1d],array->data_uint16[original_1d]);break;
-        case GRAFEO_UINT32: reduced->data_uint32[reduced_1d] = max(reduced->data_uint32[reduced_1d],array->data_uint32[original_1d]);break;
-        case GRAFEO_UINT64: reduced->data_uint64[reduced_1d] = max(reduced->data_uint64[reduced_1d],array->data_uint64[original_1d]);break;
-        case GRAFEO_INT8:   reduced->data_int8[reduced_1d]   = max(reduced->data_int8[reduced_1d],array->data_int8[original_1d])  ;break;
-        case GRAFEO_INT16:  reduced->data_int16[reduced_1d]  = max(reduced->data_int16[reduced_1d],array->data_int16[original_1d]) ;break;
-        case GRAFEO_INT32:  reduced->data_int32[reduced_1d]  = max(reduced->data_int32[reduced_1d],array->data_int32[original_1d]) ;break;
-        case GRAFEO_INT64:  reduced->data_int64[reduced_1d]  = max(reduced->data_int64[reduced_1d],array->data_int64[original_1d]) ;break;
-        case GRAFEO_FLOAT:  reduced->data_float[reduced_1d]  = max(reduced->data_float[reduced_1d],array->data_float[original_1d]) ;break;
-        case GRAFEO_DOUBLE: reduced->data_double[reduced_1d] = max(reduced->data_double[reduced_1d],array->data_double[original_1d]);break;
+        case GRF_UINT8:  reduced->data_uint8[reduced_1d]  = max(reduced->data_uint8[reduced_1d],array->data_uint8[original_1d]) ;break;
+        case GRF_UINT16: reduced->data_uint16[reduced_1d] = max(reduced->data_uint16[reduced_1d],array->data_uint16[original_1d]);break;
+        case GRF_UINT32: reduced->data_uint32[reduced_1d] = max(reduced->data_uint32[reduced_1d],array->data_uint32[original_1d]);break;
+        case GRF_UINT64: reduced->data_uint64[reduced_1d] = max(reduced->data_uint64[reduced_1d],array->data_uint64[original_1d]);break;
+        case GRF_INT8:   reduced->data_int8[reduced_1d]   = max(reduced->data_int8[reduced_1d],array->data_int8[original_1d])  ;break;
+        case GRF_INT16:  reduced->data_int16[reduced_1d]  = max(reduced->data_int16[reduced_1d],array->data_int16[original_1d]) ;break;
+        case GRF_INT32:  reduced->data_int32[reduced_1d]  = max(reduced->data_int32[reduced_1d],array->data_int32[original_1d]) ;break;
+        case GRF_INT64:  reduced->data_int64[reduced_1d]  = max(reduced->data_int64[reduced_1d],array->data_int64[original_1d]) ;break;
+        case GRF_FLOAT:  reduced->data_float[reduced_1d]  = max(reduced->data_float[reduced_1d],array->data_float[original_1d]) ;break;
+        case GRF_DOUBLE: reduced->data_double[reduced_1d] = max(reduced->data_double[reduced_1d],array->data_double[original_1d]);break;
       }
       break;
-    case GRAFEO_MULT:
+    case GRF_MULT:
       switch(array->type){
-        case GRAFEO_UINT8:  reduced->data_uint8[reduced_1d]  *= array->data_uint8[original_1d] ;break;
-        case GRAFEO_UINT16: reduced->data_uint16[reduced_1d] *= array->data_uint16[original_1d];break;
-        case GRAFEO_UINT32: reduced->data_uint32[reduced_1d] *= array->data_uint32[original_1d];break;
-        case GRAFEO_UINT64: reduced->data_uint64[reduced_1d] *= array->data_uint64[original_1d];break;
-        case GRAFEO_INT8:   reduced->data_int8[reduced_1d]   *= array->data_int8[original_1d]  ;break;
-        case GRAFEO_INT16:  reduced->data_int16[reduced_1d]  *= array->data_int16[original_1d] ;break;
-        case GRAFEO_INT32:  reduced->data_int32[reduced_1d]  *= array->data_int32[original_1d] ;break;
-        case GRAFEO_INT64:  reduced->data_int64[reduced_1d]  *= array->data_int64[original_1d] ;break;
-        case GRAFEO_FLOAT:  reduced->data_float[reduced_1d]  *= array->data_float[original_1d] ;break;
-        case GRAFEO_DOUBLE: reduced->data_double[reduced_1d] *= array->data_double[original_1d];break;
+        case GRF_UINT8:  reduced->data_uint8[reduced_1d]  *= array->data_uint8[original_1d] ;break;
+        case GRF_UINT16: reduced->data_uint16[reduced_1d] *= array->data_uint16[original_1d];break;
+        case GRF_UINT32: reduced->data_uint32[reduced_1d] *= array->data_uint32[original_1d];break;
+        case GRF_UINT64: reduced->data_uint64[reduced_1d] *= array->data_uint64[original_1d];break;
+        case GRF_INT8:   reduced->data_int8[reduced_1d]   *= array->data_int8[original_1d]  ;break;
+        case GRF_INT16:  reduced->data_int16[reduced_1d]  *= array->data_int16[original_1d] ;break;
+        case GRF_INT32:  reduced->data_int32[reduced_1d]  *= array->data_int32[original_1d] ;break;
+        case GRF_INT64:  reduced->data_int64[reduced_1d]  *= array->data_int64[original_1d] ;break;
+        case GRF_FLOAT:  reduced->data_float[reduced_1d]  *= array->data_float[original_1d] ;break;
+        case GRF_DOUBLE: reduced->data_double[reduced_1d] *= array->data_double[original_1d];break;
       }
       break;
-    case GRAFEO_STD:
+    case GRF_STD:
       break;
     }
   }
 
-  if(operation == GRAFEO_MEAN){
-    array_divide_scalar(reduced, num_reduced);
+  if(operation == GRF_MEAN){
+    grf_array_divide_scalar(reduced, num_reduced);
   }
 
   free(reduced_size);
@@ -618,7 +618,7 @@ array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operatio
   return reduced;
 }
 
-void array_squeeze(Array* array){
+void grf_array_squeeze(GrfArray* array){
   uint16_t current_pos = 0,i;
   for(i = current_pos; i < array->dim; i++){
     if(array->size[i] != 1) array->size[current_pos++] = array->size[i];
@@ -627,7 +627,7 @@ void array_squeeze(Array* array){
   array->size = realloc(array->size, current_pos * sizeof(uint32_t));
 }
 
-void array_squeeze_axis(Array* array, uint8_t num_axis, uint16_t* axis){
+void grf_array_squeeze_axis(GrfArray* array, uint8_t num_axis, uint16_t* axis){
   uint16_t current_pos = axis[0], current_axis_pos = 0,i;
   for(i = current_pos; i < array->dim; i++){
     // Copy whether non single-dimension or not indicated by axis
@@ -643,229 +643,229 @@ void array_squeeze_axis(Array* array, uint8_t num_axis, uint16_t* axis){
   array->size = realloc(array->size, current_pos * sizeof(uint32_t));
 }
 
-Array* array_sum_scalar(Array *array, double value){
-  Array* new_array = array_new_like(array);
+GrfArray* grf_array_sum_scalar(GrfArray *array, double value){
+  GrfArray* new_array = grf_array_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  + value; break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] + value; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] + value; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] + value; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   + value; break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  + value; break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  + value; break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  + value; break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  + value; break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] + value; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  + value; break;
+      case GRF_UINT16: new_array->data_uint16[i] = array->data_uint16[i] + value; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array->data_uint32[i] + value; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array->data_uint64[i] + value; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array->data_int8[i]   + value; break;
+      case GRF_INT16:  new_array->data_int16[i]  = array->data_int16[i]  + value; break;
+      case GRF_INT32:  new_array->data_int32[i]  = array->data_int32[i]  + value; break;
+      case GRF_INT64:  new_array->data_int64[i]  = array->data_int64[i]  + value; break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array->data_float[i]  + value; break;
+      case GRF_DOUBLE: new_array->data_double[i] = array->data_double[i] + value; break;
     }
   }
   return new_array;
 }
-Array* array_subtract_scalar(Array *array, double value){
-  Array* new_array = array_new_like(array);
+GrfArray* grf_array_subtract_scalar(GrfArray *array, double value){
+  GrfArray* new_array = grf_array_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  - value; break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] - value; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] - value; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] - value; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   - value; break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  - value; break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  - value; break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  - value; break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  - value; break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] - value; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  - value; break;
+      case GRF_UINT16: new_array->data_uint16[i] = array->data_uint16[i] - value; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array->data_uint32[i] - value; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array->data_uint64[i] - value; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array->data_int8[i]   - value; break;
+      case GRF_INT16:  new_array->data_int16[i]  = array->data_int16[i]  - value; break;
+      case GRF_INT32:  new_array->data_int32[i]  = array->data_int32[i]  - value; break;
+      case GRF_INT64:  new_array->data_int64[i]  = array->data_int64[i]  - value; break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array->data_float[i]  - value; break;
+      case GRF_DOUBLE: new_array->data_double[i] = array->data_double[i] - value; break;
     }
   }
   return new_array;
 }
-Array* array_mult_scalar(Array *array, double value){
-  Array* new_array = array_new_like(array);
+GrfArray* grf_array_mult_scalar(GrfArray *array, double value){
+  GrfArray* new_array = grf_array_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  * value; break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] * value; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] * value; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] * value; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   * value; break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  * value; break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  * value; break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  * value; break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  * value; break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] * value; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  * value; break;
+      case GRF_UINT16: new_array->data_uint16[i] = array->data_uint16[i] * value; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array->data_uint32[i] * value; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array->data_uint64[i] * value; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array->data_int8[i]   * value; break;
+      case GRF_INT16:  new_array->data_int16[i]  = array->data_int16[i]  * value; break;
+      case GRF_INT32:  new_array->data_int32[i]  = array->data_int32[i]  * value; break;
+      case GRF_INT64:  new_array->data_int64[i]  = array->data_int64[i]  * value; break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array->data_float[i]  * value; break;
+      case GRF_DOUBLE: new_array->data_double[i] = array->data_double[i] * value; break;
     }
   }
   return new_array;
 }
-Array* array_divide_scalar(Array *array, double value){
-  Array* new_array = array_new_like(array);
+GrfArray* grf_array_divide_scalar(GrfArray *array, double value){
+  GrfArray* new_array = grf_array_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  / value; break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array->data_uint16[i] / value; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array->data_uint32[i] / value; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array->data_uint64[i] / value; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array->data_int8[i]   / value; break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array->data_int16[i]  / value; break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array->data_int32[i]  / value; break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array->data_int64[i]  / value; break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array->data_float[i]  / value; break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array->data_double[i] / value; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array->data_uint8[i]  / value; break;
+      case GRF_UINT16: new_array->data_uint16[i] = array->data_uint16[i] / value; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array->data_uint32[i] / value; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array->data_uint64[i] / value; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array->data_int8[i]   / value; break;
+      case GRF_INT16:  new_array->data_int16[i]  = array->data_int16[i]  / value; break;
+      case GRF_INT32:  new_array->data_int32[i]  = array->data_int32[i]  / value; break;
+      case GRF_INT64:  new_array->data_int64[i]  = array->data_int64[i]  / value; break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array->data_float[i]  / value; break;
+      case GRF_DOUBLE: new_array->data_double[i] = array->data_double[i] / value; break;
     }
   }
   return new_array;
 }
 
-Array* array_sum(Array *array1, Array *array2){
-  return array_sum_to(array1, array2, NULL);
+GrfArray* grf_array_sum(GrfArray *array1, GrfArray *array2){
+  return grf_array_sum_to(array1, array2, NULL);
 }
-Array* array_subtract(Array *array1, Array *array2){
-  return array_subtract_to(array1, array2, NULL);
+GrfArray* grf_array_subtract(GrfArray *array1, GrfArray *array2){
+  return grf_array_subtract_to(array1, array2, NULL);
 }
-Array* array_mult(Array *array1, Array *array2){
-  return array_mult_to(array1, array2, NULL);
+GrfArray* grf_array_mult(GrfArray *array1, GrfArray *array2){
+  return grf_array_mult_to(array1, array2, NULL);
 }
-Array* array_divide(Array *array1, Array *array2){
-  return array_divide_to(array1, array2, NULL);
+GrfArray* grf_array_divide(GrfArray *array1, GrfArray *array2){
+  return grf_array_divide_to(array1, array2, NULL);
 }
-long double array_reduce_sum_num(Array* array){
+long double grf_array_reduce_sum_num(GrfArray* array){
   long double sum = 0;
   uint64_t i;
   for(i = 0; i < array->num_elements; i++)
-    sum += array_get_long_double_1D(array,i);
+    sum += grf_array_get_long_double_1D(array,i);
   return sum;
 }
-long double array_reduce_max_num(Array* array){
+long double grf_array_reduce_max_num(GrfArray* array){
   long double num_max = __LDBL_MIN__;
   uint64_t i;
   for(i = 0; i < array->num_elements; i++)
-    num_max = max(num_max,array_get_long_double_1D(array,i));
+    num_max = max(num_max,grf_array_get_long_double_1D(array,i));
   return num_max;
 }
-long double array_reduce_min_num(Array* array){
+long double grf_array_reduce_min_num(GrfArray* array){
   long double num_min = __LDBL_MAX__;
   uint64_t i;
   for(i = 0; i < array->num_elements; i++)
-    num_min = min(num_min,array_get_long_double_1D(array,i));
+    num_min = min(num_min,grf_array_get_long_double_1D(array,i));
   return num_min;
 }
 
-Array* array_sum_to(Array* array1, Array* array2, Array* new_array){
-  if(!new_array) new_array = array_new_like(array1);
+GrfArray* grf_array_sum_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
+  if(!new_array) new_array = grf_array_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  + array2->data_uint8[i];  break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] + array2->data_uint16[i]; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] + array2->data_uint32[i]; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] + array2->data_uint64[i]; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   + array2->data_int8[i];   break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  + array2->data_int16[i];  break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  + array2->data_int32[i];  break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  + array2->data_int64[i];  break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  + array2->data_float[i];  break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] + array2->data_double[i]; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  + array2->data_uint8[i];  break;
+      case GRF_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] + array2->data_uint16[i]; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] + array2->data_uint32[i]; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] + array2->data_uint64[i]; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   + array2->data_int8[i];   break;
+      case GRF_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  + array2->data_int16[i];  break;
+      case GRF_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  + array2->data_int32[i];  break;
+      case GRF_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  + array2->data_int64[i];  break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  + array2->data_float[i];  break;
+      case GRF_DOUBLE: new_array->data_double[i] = array1->data_double[i] + array2->data_double[i]; break;
     }
   }
   return new_array;
 }
-Array* array_subtract_to(Array* array1, Array* array2, Array* new_array){
-  if(!new_array) new_array = array_new_like(array1);
+GrfArray* grf_array_subtract_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
+  if(!new_array) new_array = grf_array_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  - array2->data_uint8[i];  break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] - array2->data_uint16[i]; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] - array2->data_uint32[i]; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] - array2->data_uint64[i]; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   - array2->data_int8[i];   break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  - array2->data_int16[i];  break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  - array2->data_int32[i];  break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  - array2->data_int64[i];  break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  - array2->data_float[i];  break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] - array2->data_double[i]; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  - array2->data_uint8[i];  break;
+      case GRF_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] - array2->data_uint16[i]; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] - array2->data_uint32[i]; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] - array2->data_uint64[i]; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   - array2->data_int8[i];   break;
+      case GRF_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  - array2->data_int16[i];  break;
+      case GRF_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  - array2->data_int32[i];  break;
+      case GRF_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  - array2->data_int64[i];  break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  - array2->data_float[i];  break;
+      case GRF_DOUBLE: new_array->data_double[i] = array1->data_double[i] - array2->data_double[i]; break;
     }
   }
   return new_array;
 }
-Array* array_mult_to(Array* array1, Array* array2, Array* new_array){
-  if(!new_array) new_array = array_new_like(array1);
+GrfArray* grf_array_mult_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
+  if(!new_array) new_array = grf_array_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  * array2->data_uint8[i];  break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] * array2->data_uint16[i]; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] * array2->data_uint32[i]; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] * array2->data_uint64[i]; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   * array2->data_int8[i];   break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  * array2->data_int16[i];  break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  * array2->data_int32[i];  break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  * array2->data_int64[i];  break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  * array2->data_float[i];  break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] * array2->data_double[i]; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  * array2->data_uint8[i];  break;
+      case GRF_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] * array2->data_uint16[i]; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] * array2->data_uint32[i]; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] * array2->data_uint64[i]; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   * array2->data_int8[i];   break;
+      case GRF_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  * array2->data_int16[i];  break;
+      case GRF_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  * array2->data_int32[i];  break;
+      case GRF_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  * array2->data_int64[i];  break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  * array2->data_float[i];  break;
+      case GRF_DOUBLE: new_array->data_double[i] = array1->data_double[i] * array2->data_double[i]; break;
     }
   }
   return new_array;
 }
-Array* array_divide_to(Array* array1, Array* array2, Array* new_array){
-  if(!new_array) new_array = array_new_like(array1);
+GrfArray* grf_array_divide_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
+  if(!new_array) new_array = grf_array_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
-      case GRAFEO_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  / array2->data_uint8[i];  break;
-      case GRAFEO_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] / array2->data_uint16[i]; break;
-      case GRAFEO_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] / array2->data_uint32[i]; break;
-      case GRAFEO_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] / array2->data_uint64[i]; break;
-      case GRAFEO_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   / array2->data_int8[i];   break;
-      case GRAFEO_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  / array2->data_int16[i];  break;
-      case GRAFEO_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  / array2->data_int32[i];  break;
-      case GRAFEO_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  / array2->data_int64[i];  break;
-      case GRAFEO_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  / array2->data_float[i];  break;
-      case GRAFEO_DOUBLE: new_array->data_double[i] = array1->data_double[i] / array2->data_double[i]; break;
+      case GRF_UINT8:  new_array->data_uint8[i]  = array1->data_uint8[i]  / array2->data_uint8[i];  break;
+      case GRF_UINT16: new_array->data_uint16[i] = array1->data_uint16[i] / array2->data_uint16[i]; break;
+      case GRF_UINT32: new_array->data_uint32[i] = array1->data_uint32[i] / array2->data_uint32[i]; break;
+      case GRF_UINT64: new_array->data_uint64[i] = array1->data_uint64[i] / array2->data_uint64[i]; break;
+      case GRF_INT8:   new_array->data_int8[i]   = array1->data_int8[i]   / array2->data_int8[i];   break;
+      case GRF_INT16:  new_array->data_int16[i]  = array1->data_int16[i]  / array2->data_int16[i];  break;
+      case GRF_INT32:  new_array->data_int32[i]  = array1->data_int32[i]  / array2->data_int32[i];  break;
+      case GRF_INT64:  new_array->data_int64[i]  = array1->data_int64[i]  / array2->data_int64[i];  break;
+      case GRF_FLOAT:  new_array->data_float[i]  = array1->data_float[i]  / array2->data_float[i];  break;
+      case GRF_DOUBLE: new_array->data_double[i] = array1->data_double[i] / array2->data_double[i]; break;
     }
   }
   return new_array;
 }
 
-long double array_euclidian_distance(Array* array1, Array* array2){
-  return sqrt(array_square_euclidian_distance(array1, array2));
+long double grf_array_euclidian_distance(GrfArray* array1, GrfArray* array2){
+  return sqrt(grf_array_square_euclidian_distance(array1, array2));
 }
 
-long double array_square_euclidian_distance(Array* array1, Array* array2){
+long double grf_array_square_euclidian_distance(GrfArray* array1, GrfArray* array2){
   long double sum = 0, value1, value2, value;
   uint64_t i;
   for(i = 0; i < array1->num_elements; i++){
-    value1 = array_get_long_double_1D(array1,i);
-    value2 = array_get_long_double_1D(array2,i);
+    value1 = grf_array_get_long_double_1D(array1,i);
+    value2 = grf_array_get_long_double_1D(array2,i);
     value  = value1-value2;
     sum   += value * value;
   }
   return sum;
 }
 
-double array_norm_difference(Array* array1, Array* array2, NormType norm_type){
+double grf_array_norm_difference(GrfArray* array1, GrfArray* array2, GrfNormType norm_type){
   long double value1;
   long double value2;
   long double value;
   double accum = 0;
   uint64_t i;
   for(i = 0; i < array1->num_elements;i++){
-    value1  = array_get_long_double_1D(array1,i);
-    value2  = array_get_long_double_1D(array2,i);
+    value1  = grf_array_get_long_double_1D(array1,i);
+    value2  = grf_array_get_long_double_1D(array2,i);
     value   = fabs(value2-value1);
     switch(norm_type){
-      case GRAFEO_NORM_L1:    accum += value;break;
-      case GRAFEO_NORM_L2:
-      case GRAFEO_NORM_L2SQR: accum += value*value;break;
-      case GRAFEO_NORM_INF:   accum  = max(accum, value); break;
+      case GRF_NORM_L1:    accum += value;break;
+      case GRF_NORM_L2:
+      case GRF_NORM_L2SQR: accum += value*value;break;
+      case GRF_NORM_INF:   accum  = max(accum, value); break;
     default: break;
     }
   }
-  if(norm_type == GRAFEO_NORM_L2) accum = sqrt(accum);
+  if(norm_type == GRF_NORM_L2) accum = sqrt(accum);
   return accum;
 }
 
@@ -873,7 +873,7 @@ double array_norm_difference(Array* array1, Array* array2, NormType norm_type){
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
  *-----------------------------------*/
-static Array* array_read_csv_type_minimum(const char* filename, DataType type, uint8_t automatic){
+static GrfArray* grf_array_read_csv_type_minimum(const char* filename, GrfDataType type, uint8_t automatic){
   FILE* file = fopen(filename, "r");
   char* record, *line;
 
@@ -888,7 +888,7 @@ static Array* array_read_csv_type_minimum(const char* filename, DataType type, u
   uint32_t width       = 0; // Number of columns
   uint8_t  first_line  = 1; // To calculate width once
   uint8_t  dim         = 1; // if height=1, the array is 1D
-  uint32_t size[2]     = {0,0};// Array size
+  uint32_t size[2]     = {0,0};// GrfArray size
   uint8_t  is_integer  = 1; // If all numbers are integers, the
                             // array type reduces from float to int
   uint8_t  is_unsigned = 1; // If all numbers are positive, the
@@ -936,17 +936,17 @@ static Array* array_read_csv_type_minimum(const char* filename, DataType type, u
     size[1] = width;
   }
   if(automatic){
-    // Get type of Array
+    // Get type of GrfArray
     if(is_integer){
       if(is_unsigned){
         if(maximum <= __UINT64_MAX__){
-          type = GRAFEO_UINT64;
+          type = GRF_UINT64;
           if(maximum <= __UINT32_MAX__){
-            type = GRAFEO_UINT32;
+            type = GRF_UINT32;
             if(maximum <= __UINT16_MAX__){
-              type = GRAFEO_UINT16;
+              type = GRF_UINT16;
               if(maximum <= __UINT8_MAX__){
-                type = GRAFEO_UINT8;
+                type = GRF_UINT8;
               }
             }
           }
@@ -954,13 +954,13 @@ static Array* array_read_csv_type_minimum(const char* filename, DataType type, u
       }
       else{
         if(maximum <= __INT64_MAX__){
-          type = GRAFEO_INT64;
+          type = GRF_INT64;
           if(maximum <= __INT32_MAX__){
-            type = GRAFEO_INT32;
+            type = GRF_INT32;
             if(maximum <= __INT16_MAX__){
-              type = GRAFEO_INT16;
+              type = GRF_INT16;
               if(maximum <= __INT8_MAX__){
-                type = GRAFEO_INT8;
+                type = GRF_INT8;
               }
             }
           }
@@ -969,26 +969,26 @@ static Array* array_read_csv_type_minimum(const char* filename, DataType type, u
     }
     else{
       if(maximum <= __FLT_MAX__)
-        type = GRAFEO_FLOAT;
+        type = GRF_FLOAT;
       else
-        type = GRAFEO_DOUBLE;
+        type = GRF_DOUBLE;
     }
   }
 
   // Create the array
-  Array* array = array_new_with_size_type(dim, size, type);
+  GrfArray* array = grf_array_new_with_size_type(dim, size, type);
   for(i = 0; i < array->num_elements; i++){
     switch(type){
-      case GRAFEO_UINT8:  array->data_uint8[i]  = (uint8_t)  data[i];break;
-      case GRAFEO_UINT16: array->data_uint16[i] = (uint16_t) data[i];break;
-      case GRAFEO_UINT32: array->data_uint32[i] = (uint32_t) data[i];break;
-      case GRAFEO_UINT64: array->data_uint64[i] = (uint64_t) data[i];break;
-      case GRAFEO_INT8:   array->data_int8[i]   = (int8_t)   data[i];break;
-      case GRAFEO_INT16:  array->data_int16[i]  = (int16_t)  data[i];break;
-      case GRAFEO_INT32:  array->data_int32[i]  = (int32_t)  data[i];break;
-      case GRAFEO_INT64:  array->data_int64[i]  = (int64_t)  data[i];break;
-      case GRAFEO_FLOAT:  array->data_float[i]  = (float)    data[i];break;
-      case GRAFEO_DOUBLE: array->data_double[i] = (double)   data[i];break;
+      case GRF_UINT8:  array->data_uint8[i]  = (uint8_t)  data[i];break;
+      case GRF_UINT16: array->data_uint16[i] = (uint16_t) data[i];break;
+      case GRF_UINT32: array->data_uint32[i] = (uint32_t) data[i];break;
+      case GRF_UINT64: array->data_uint64[i] = (uint64_t) data[i];break;
+      case GRF_INT8:   array->data_int8[i]   = (int8_t)   data[i];break;
+      case GRF_INT16:  array->data_int16[i]  = (int16_t)  data[i];break;
+      case GRF_INT32:  array->data_int32[i]  = (int32_t)  data[i];break;
+      case GRF_INT64:  array->data_int64[i]  = (int64_t)  data[i];break;
+      case GRF_FLOAT:  array->data_float[i]  = (float)    data[i];break;
+      case GRF_DOUBLE: array->data_double[i] = (double)   data[i];break;
     }
   }
 
@@ -997,24 +997,24 @@ static Array* array_read_csv_type_minimum(const char* filename, DataType type, u
   return array;
 }
 
-Array* array_read_csv(const char* filename){
-  return array_read_csv_type_minimum(filename, GRAFEO_UINT32, 1);
+GrfArray* grf_array_read_csv(const char* filename){
+  return grf_array_read_csv_type_minimum(filename, GRF_UINT32, 1);
 }
-Array* array_read_csv_type(const char* filename, DataType type){
-  return array_read_csv_type_minimum(filename, type, 0);
+GrfArray* grf_array_read_csv_type(const char* filename, GrfDataType type){
+  return grf_array_read_csv_type_minimum(filename, type, 0);
 }
 
-void array_write_csv(Array* array, const char* filename){
+void grf_array_write_csv(GrfArray* array, const char* filename){
   FILE* file = fopen(filename, "w");
   char* line;
-  if(array->dim == 1) line = array_join(array, ";");
-  else                line = array_join(array,"\n;");
+  if(array->dim == 1) line = grf_array_join(array, ";");
+  else                line = grf_array_join(array,"\n;");
   fprintf(file,line);
   free(line);
   fclose(file);
 }
 
-char* array_join(Array* array, const char* delimiters){
+char* grf_array_join(GrfArray* array, const char* delimiters){
   char* text, *cur_text;
   uint8_t d = 0;
   uint64_t i;
@@ -1043,16 +1043,16 @@ char* array_join(Array* array, const char* delimiters){
     else d = 0;
     // Print data and delimiter
     switch(array->type){
-      case GRAFEO_UINT8:  cur_length += sprintf(cur_text,"%hhu%c",array->data_uint8[i] , delimiters[d]);break;
-      case GRAFEO_UINT16: cur_length += sprintf(cur_text,"%hu%c" ,array->data_uint16[i], delimiters[d]);break;
-      case GRAFEO_UINT32: cur_length += sprintf(cur_text,"%u%c"  ,array->data_uint32[i], delimiters[d]);break;
-      case GRAFEO_UINT64: cur_length += sprintf(cur_text,"%lu%c" ,array->data_uint64[i], delimiters[d]);break;
-      case GRAFEO_INT8:   cur_length += sprintf(cur_text,"%hhd%c",array->data_int8[i]  , delimiters[d]);break;
-      case GRAFEO_INT16:  cur_length += sprintf(cur_text,"%hd%c" ,array->data_int16[i] , delimiters[d]);break;
-      case GRAFEO_INT32:  cur_length += sprintf(cur_text,"%d%c"  ,array->data_int32[i] , delimiters[d]);break;
-      case GRAFEO_INT64:  cur_length += sprintf(cur_text,"%ld%c" ,array->data_int64[i] , delimiters[d]);break;
-      case GRAFEO_FLOAT:  cur_length += sprintf(cur_text,"%f%c"  ,array->data_float[i] , delimiters[d]);break;
-      case GRAFEO_DOUBLE: cur_length += sprintf(cur_text,"%lf%c" ,array->data_double[i], delimiters[d]);break;
+      case GRF_UINT8:  cur_length += sprintf(cur_text,"%hhu%c",array->data_uint8[i] , delimiters[d]);break;
+      case GRF_UINT16: cur_length += sprintf(cur_text,"%hu%c" ,array->data_uint16[i], delimiters[d]);break;
+      case GRF_UINT32: cur_length += sprintf(cur_text,"%u%c"  ,array->data_uint32[i], delimiters[d]);break;
+      case GRF_UINT64: cur_length += sprintf(cur_text,"%lu%c" ,array->data_uint64[i], delimiters[d]);break;
+      case GRF_INT8:   cur_length += sprintf(cur_text,"%hhd%c",array->data_int8[i]  , delimiters[d]);break;
+      case GRF_INT16:  cur_length += sprintf(cur_text,"%hd%c" ,array->data_int16[i] , delimiters[d]);break;
+      case GRF_INT32:  cur_length += sprintf(cur_text,"%d%c"  ,array->data_int32[i] , delimiters[d]);break;
+      case GRF_INT64:  cur_length += sprintf(cur_text,"%ld%c" ,array->data_int64[i] , delimiters[d]);break;
+      case GRF_FLOAT:  cur_length += sprintf(cur_text,"%f%c"  ,array->data_float[i] , delimiters[d]);break;
+      case GRF_DOUBLE: cur_length += sprintf(cur_text,"%lf%c" ,array->data_double[i], delimiters[d]);break;
     }
     cur_text    = text + cur_length;
   }

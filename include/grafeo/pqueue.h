@@ -25,8 +25,8 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_PQUEUE_H
-#define GRAFEO_PQUEUE_H
+#ifndef GRF_PQUEUE_H
+#define GRF_PQUEUE_H
 
 #include <grafeo/bucket.h>
 #include <grafeo/queue.h>
@@ -40,7 +40,7 @@ BEGIN_DECLS
  * @param value The value to be inserted in a bucket list
  * @param compare_function the function to be used to insert sorted buckets
  */
-void  pqueue_append_at(Queue* pqueue, void* bucket, void* value, CompareFunc compare_function);
+void  grf_pqueue_append_at(GrfQueue* pqueue, void* bucket, void* value, GrfCompareFunc compare_function);
 /**
  * @brief Prepend a value in a bucket list.
  * @param pqueue The priority queue
@@ -48,63 +48,63 @@ void  pqueue_append_at(Queue* pqueue, void* bucket, void* value, CompareFunc com
  * @param value The value to be inserted in a bucket list
  * @param compare_function the function to be used to insert sorted buckets
  */
-void  pqueue_prepend_at(Queue* pqueue, void* bucket, void* value, CompareFunc compare_function);
+void  grf_pqueue_prepend_at(GrfQueue* pqueue, void* bucket, void* value, GrfCompareFunc compare_function);
 /**
  * @brief Remove the first item of the bucket list
  * @param pqueue
  * @param bucket
  */
-void  pqueue_remove_begin_at(Queue* pqueue, void* bucket);
+void  grf_pqueue_remove_begin_at(GrfQueue* pqueue, void* bucket);
 /**
  * @brief Remove the last item of the bucket list
  * @param pqueue The priority queue
  * @param bucket the bucket key
  */
-void  pqueue_remove_end_at  (Queue* pqueue, void* bucket);
+void  grf_pqueue_remove_end_at  (GrfQueue* pqueue, void* bucket);
 /**
- * @brief pqueue_remove_at
+ * @brief grf_pqueue_remove_at
  * @param pqueue
- * @param bucket_value
+ * @param grf_bucket_value
  * @param value
  */
-void  pqueue_remove_at(Queue* pqueue, void *bucket_value, void* value);
+void  grf_pqueue_remove_at(GrfQueue* pqueue, void *grf_bucket_value, void* value);
 /**
  * @brief Remove the first item of the current bucket
  * @param pqueue The priority queue
  */
-void  pqueue_remove_begin(Queue* pqueue);
+void  grf_pqueue_remove_begin(GrfQueue* pqueue);
 /**
  * @brief Remove the last item of the current
  * @param pqueue The priority queue
  */
-void  pqueue_remove_end(Queue* pqueue);
+void  grf_pqueue_remove_end(GrfQueue* pqueue);
 /**
  * @brief Remove current bucket if it's empty
  * @param pqueue The priority queue
  */
-void  pqueue_shrink(Queue* pqueue);
+void  grf_pqueue_shrink(GrfQueue* pqueue);
 /**
- * @brief Get key of nth bucket (n = bucket_index+1)
+ * @brief Get key of nth bucket (n = grf_bucket_index+1)
  * @param pqueue
- * @param bucket_index
+ * @param grf_bucket_index
  * @return
  */
-void* pqueue_at(Queue* pqueue, uint32_t bucket_index);
+void* grf_pqueue_at(GrfQueue* pqueue, uint32_t grf_bucket_index);
 /**
- * @brief Get ith value of nth bucket (n = bucket_index+1 | i = index+1)
+ * @brief Get ith value of nth bucket (n = grf_bucket_index+1 | i = index+1)
  * @param pqueue The priority queue
- * @param bucket_index the position of the bucket in the priority queue
+ * @param grf_bucket_index the position of the bucket in the priority queue
  * @param index The position of the value in the bucket list
  * @return value
  */
-void* pqueue_bucket_at(Queue* pqueue, uint32_t bucket_index, uint32_t index);
+void* grf_pqueue_grf_bucket_at(GrfQueue* pqueue, uint32_t grf_bucket_index, uint32_t index);
 /**
- * @brief pqueue_bucket_of
+ * @brief grf_pqueue_grf_bucket_of
  * @param pqueue
- * @param bucket_value
+ * @param grf_bucket_value
  * @return
  */
-Bucket* pqueue_bucket_of(Queue* pqueue, void* bucket_value);
+GrfBucket* grf_pqueue_grf_bucket_of(GrfQueue* pqueue, void* grf_bucket_value);
 
 END_DECLS
 

@@ -25,8 +25,8 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_ARRAY_H
-#define GRAFEO_ARRAY_H
+#ifndef GRF_ARRAY_H
+#define GRF_ARRAY_H
 
 #include <grafeo/type.h>
 #include <grafeo/range.h>
@@ -39,7 +39,7 @@
 BEGIN_DECLS
 
 /**
- * @brief Array Structure
+ * @brief GrfArray Structure
  *
  * Each array will have its own data
  *
@@ -54,7 +54,7 @@ _Array{
     uint64_t  num_elements; /**< number of elements of the array */
     size_t    num_bytes;    /**< total number of bytes */
     uint8_t   bitsize;      /**< number of bytes of each value*/
-    DataType  type;         /**< data type of each element */ 
+    GrfDataType  type;         /**< data type of each element */ 
     uint64_t* step;         /**< number of elements to increase an axis value */ 
     uint8_t   contiguous;   /**< it can be iterated using a common loop */
     uint8_t   owns_data;    /**< owner of its data */
@@ -72,322 +72,322 @@ _Array{
         double*        data_double;
         unsigned int*  data_int;
     };
-}Array;
+}GrfArray;
 /*-----------------------------------
  *     ARRAY CREATION FUNCTIONS
  *-----------------------------------*/
 /**
  * @brief Create a new array: just the structure, without
  * allocating data and size
- * @memberof Array
+ * @memberof GrfArray
  * $$\\sum_{i=1}^{N}\\frac{1}{i}$$
  */
-Array*    array_new();
+GrfArray*    grf_array_new();
 /**
  * @brief Create a new array: structure and space for size, without
  * allocating data and defining sizes
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_with_dim(uint16_t dim);
+GrfArray*    grf_array_new_with_dim(uint16_t dim);
 /**
  * @brief Create a new array with size (`sizeof(char)` bytes) and allocated 
  * data, without value.
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_with_size(uint16_t dim, uint32_t* size);
+GrfArray*    grf_array_new_with_size(uint16_t dim, uint32_t* size);
 /**
  * @brief Create a new array with size and allocated 
  * data, without value.
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_with_size_type(uint16_t dim, uint32_t* size, DataType type);
+GrfArray*    grf_array_new_with_size_type(uint16_t dim, uint32_t* size, GrfDataType type);
 /**
  * @brief Create a 1D array
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_1D(uint32_t size1);
+GrfArray*    grf_array_new_1D(uint32_t size1);
 /**
  * @brief Create a 2D array
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_2D(uint32_t size1, uint32_t size2);
+GrfArray*    grf_array_new_2D(uint32_t size1, uint32_t size2);
 /**
  * @brief Create a 3D array
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3);
+GrfArray*    grf_array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3);
 /**
  * @brief Create a 4D array
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4);
+GrfArray*    grf_array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4);
 /**
  * @brief Create a 1D array (each elem: sizeof(elementsize) bytes)
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_1D_type(uint32_t size1, DataType type);
+GrfArray*    grf_array_new_1D_type(uint32_t size1, GrfDataType type);
 /**
  * @brief Create a 2D array (each elem: sizeof(elementsize) bytes)
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_2D_type(uint32_t size1, uint32_t size2, DataType type);
+GrfArray*    grf_array_new_2D_type(uint32_t size1, uint32_t size2, GrfDataType type);
 /**
  * @brief Create a 3D array (each elem: sizeof(elementsize) bytes)
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, DataType type);
+GrfArray*    grf_array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, GrfDataType type);
 /**
  * @brief Create a 4D array (each elem: sizeof(elementsize) bytes)
- * @memberof Array
+ * @memberof GrfArray
  */
-Array*    array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, DataType type);
+GrfArray*    grf_array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, GrfDataType type);
 /**
  * @brief Create a new array with same type and size as input array
  * @param array
  * @return
  */
-Array*    array_new_like(Array* array);
+GrfArray*    grf_array_new_like(GrfArray* array);
 /**
  * @brief Create a new array filled with zeros (each elem has type `type`)
  * 
  * @param dim ...
  * @param size ...
  * @param type ...
- * @return Array*
+ * @return GrfArray*
  */
-Array*    array_zeros(uint16_t dim, uint32_t* sizes, DataType type);
+GrfArray*    grf_array_zeros(uint16_t dim, uint32_t* sizes, GrfDataType type);
 /**
- * @brief array_zeros_like
+ * @brief grf_array_zeros_like
  * @param array
  * @return
  */
-Array*    array_zeros_like(Array* array);
+GrfArray*    grf_array_zeros_like(GrfArray* array);
 /**
- * @brief array_zeros_like_type
+ * @brief grf_array_zeros_like_type
  * @param array
  * @param type
  * @return
  */
-Array*    array_zeros_like_type(Array* array, DataType type);
+GrfArray*    grf_array_zeros_like_type(GrfArray* array, GrfDataType type);
 /**
  * @brief Create a new array filled with ones (each elem has type `type`)
  * 
  * @param dim ...
  * @param size ...
  * @param type ...
- * @return Array*
+ * @return GrfArray*
  */
-Array*    array_ones(uint16_t dim, uint32_t* sizes, DataType type);
+GrfArray*    grf_array_ones(uint16_t dim, uint32_t* sizes, GrfDataType type);
 /**
- * @brief array_ones_like
+ * @brief grf_array_ones_like
  * @param array
  * @return
  */
-Array*    array_ones_like(Array* array);
+GrfArray*    grf_array_ones_like(GrfArray* array);
 /**
- * @brief array_ones_like_type
+ * @brief grf_array_ones_like_type
  * @param array
  * @param type
  * @return
  */
-Array*    array_ones_like_type(Array* array, DataType type);
+GrfArray*    grf_array_ones_like_type(GrfArray* array, GrfDataType type);
 /**
  * @brief      Get a submatrix based on ranges
  *
  * @param      array   original array
- * @param      ranges  list of ranges. Use `range_to`,
- *             `range_from`,`range_from_to` or RANGE_ALL
+ * @param      ranges  list of ranges. Use `grf_range_to`,
+ *             `grf_range_from`,`grf_range_from_to` or RANGE_ALL
  *
  * @return     Submatrix
  */
-Array*    array_sub(Array* array, Range* ranges);
+GrfArray*    grf_array_sub(GrfArray* array, GrfRange* ranges);
 /**
- * @brief Encapsulate data as an Array
+ * @brief Encapsulate data as an GrfArray
  * @param data
  * @param dim
  * @param size
  * @param type
  * @return
  */
-Array*    array_from_data(void* data, uint16_t dim, uint32_t* size, DataType type);
+GrfArray*    grf_array_from_data(void* data, uint16_t dim, uint32_t* size, GrfDataType type);
 /**
- * @brief array_as_type
+ * @brief grf_array_as_type
  * @param array
  * @param type
  * @return
  */
-Array*    array_as_type(Array* array, DataType type);
+GrfArray*    grf_array_as_type(GrfArray* array, GrfDataType type);
 /**
- * @brief array_circular_indices
+ * @brief grf_array_circular_indices
  * @param dim
  * @param radius
  * @return
  */
-Array*    array_circular_indices(uint16_t dim, float radius);
+GrfArray*    grf_array_circular_indices(uint16_t dim, float radius);
 /**
- * @brief array_copy
+ * @brief grf_array_copy
  * @param array
  * @return
  */
-Array*    array_copy(Array* array);
+GrfArray*    grf_array_copy(GrfArray* array);
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
  *-----------------------------------*/
 /**
  * Fill existing array with a value
- * @memberof Array
+ * @memberof GrfArray
  */
-void      array_fill(Array* array, long double value);
+void      grf_array_fill(GrfArray* array, long double value);
 /**
- * @brief array_fill_max
+ * @brief grf_array_fill_max
  * @param array
  */
-void      array_fill_max(Array* array);
+void      grf_array_fill_max(GrfArray* array);
 /**
- * @brief array_fill_min
+ * @brief grf_array_fill_min
  * @param array
  */
-void      array_fill_min(Array* array);
+void      grf_array_fill_min(GrfArray* array);
 /**
  * @brief Free array memory
- * @memberof Array
+ * @memberof GrfArray
  */
-void      array_free(Array* array);
+void      grf_array_free(GrfArray* array);
 /**
- * @brief array_sum_scalar
+ * @brief grf_array_sum_scalar
  * @param array
  * @param value
  */
-Array*    array_sum_scalar(Array* array, double value);
+GrfArray*    grf_array_sum_scalar(GrfArray* array, double value);
 /**
- * @brief array_subtract_scalar
+ * @brief grf_array_subtract_scalar
  * @param array
  * @param value
  */
-Array*    array_subtract_scalar(Array* array, double value);
+GrfArray*    grf_array_subtract_scalar(GrfArray* array, double value);
 /**
- * @brief array_mult_scalar
+ * @brief grf_array_mult_scalar
  * @param array
  * @param value
  */
-Array*    array_mult_scalar(Array* array, double value);
+GrfArray*    grf_array_mult_scalar(GrfArray* array, double value);
 /**
- * @brief array_divide_scalar
+ * @brief grf_array_divide_scalar
  * @param array
  * @param value
  */
-Array*    array_divide_scalar(Array* array, double value);
+GrfArray*    grf_array_divide_scalar(GrfArray* array, double value);
 /**
- * @brief array_sum
+ * @brief grf_array_sum
  * @param array1
  * @param array2
  * @return
  */
-Array*    array_sum(Array* array1, Array* array2);
+GrfArray*    grf_array_sum(GrfArray* array1, GrfArray* array2);
 /**
- * @brief array_subtract
+ * @brief grf_array_subtract
  * @param array1
  * @param array2
  * @return
  */
-Array*    array_subtract(Array* array1, Array* array2);
+GrfArray*    grf_array_subtract(GrfArray* array1, GrfArray* array2);
 /**
- * @brief array_mult
+ * @brief grf_array_mult
  * @param array1
  * @param array2
  * @return
  */
-Array*    array_mult(Array* array1, Array* array2);
+GrfArray*    grf_array_mult(GrfArray* array1, GrfArray* array2);
 /**
- * @brief array_divide
+ * @brief grf_array_divide
  * @param array1
  * @param array2
  * @return
  */
-Array*    array_divide(Array* array1, Array* array2);
+GrfArray*    grf_array_divide(GrfArray* array1, GrfArray* array2);
 /**
- * @brief array_sum_to
+ * @brief grf_array_sum_to
  * @param array1
  * @param array2
  * @param new_array
  * @return
  */
-Array*    array_sum_to(Array* array1, Array* array2, Array* new_array);
+GrfArray*    grf_array_sum_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array);
 /**
- * @brief array_subtract_to
+ * @brief grf_array_subtract_to
  * @param array1
  * @param array2
  * @param new_array
  * @return
  */
-Array*    array_subtract_to(Array* array1, Array* array2, Array* new_array);
+GrfArray*    grf_array_subtract_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array);
 /**
- * @brief array_mult_to
+ * @brief grf_array_mult_to
  * @param array1
  * @param array2
  * @param new_array
  * @return
  */
-Array*    array_mult_to(Array* array1, Array* array2, Array* new_array);
+GrfArray*    grf_array_mult_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array);
 /**
- * @brief array_divide_to
+ * @brief grf_array_divide_to
  * @param array1
  * @param array2
  * @param new_array
  * @return
  */
-Array*    array_divide_to(Array* array1, Array* array2, Array* new_array);
+GrfArray*    grf_array_divide_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array);
 /**
- * @brief array_euclidian_distance
+ * @brief grf_array_euclidian_distance
  * @param array1
  * @param array2
  * @return
  */
-long double array_euclidian_distance(Array* array1, Array* array2);
+long double grf_array_euclidian_distance(GrfArray* array1, GrfArray* array2);
 /**
- * @brief array_square_euclidian_distance
+ * @brief grf_array_square_euclidian_distance
  * @param array1
  * @param array2
  * @return
  */
-long double array_square_euclidian_distance(Array* array1, Array* array2);
+long double grf_array_square_euclidian_distance(GrfArray* array1, GrfArray* array2);
 /**
- * @brief array_norm_relative
+ * @brief grf_array_norm_relative
  * @param array1
  * @param array2
  * @param norm_type
  * @return
  */
-double array_norm_difference(Array* array1, Array* array2, NormType norm_type);
+double grf_array_norm_difference(GrfArray* array1, GrfArray* array2, GrfNormType norm_type);
 /*-----------------------------------
  *   ARRAY ACCESSOR FUNCTIONS
  *-----------------------------------*/
  /**
  * @brief Get total number of elements of an array
- * @memberof Array
+ * @memberof GrfArray
  */
-uint64_t  array_get_num_elements(Array* array);
+uint64_t  grf_array_get_num_elements(GrfArray* array);
 /**
  * @brief Get data type of the array
- * @memberof Array
+ * @memberof GrfArray
  */
-DataType  array_get_type(Array* array);
+GrfDataType  grf_array_get_type(GrfArray* array);
 /**
  * @brief Get number of dimensions of an array
- * @memberof Array
+ * @memberof GrfArray
  */
-uint16_t  array_get_dim(Array* array);
+uint16_t  grf_array_get_dim(GrfArray* array);
 /**
  * @brief Get vector of sizes of each dimension of
  *        the array
- * @memberof Array
+ * @memberof GrfArray
  */
-uint32_t* array_get_size(Array* array);
+uint32_t* grf_array_get_size(GrfArray* array);
 /**
  * @brief Get data vector of array
- * @memberof Array
+ * @memberof GrfArray
  */
-void*     array_get_data(Array* array);
+void*     grf_array_get_data(GrfArray* array);
 /**
  * @brief      Get an element from an array
  *
@@ -396,14 +396,14 @@ void*     array_get_data(Array* array);
  *
  * @return     { description_of_the_return_value }
  */
-void*     array_get_element(Array* array, uint32_t* indices);
+void*     grf_array_get_element(GrfArray* array, uint32_t* indices);
 /**
- * @brief array_get_element_1D
+ * @brief grf_array_get_element_1D
  * @param array
  * @param index
  * @return
  */
-void*     array_get_element_1D(Array* array, uint64_t index);
+void*     grf_array_get_element_1D(GrfArray* array, uint64_t index);
 /**
  * @brief      { function_description }
  *
@@ -411,7 +411,7 @@ void*     array_get_element_1D(Array* array, uint64_t index);
  *
  * @return     { description_of_the_return_value }
  */
-uint64_t* array_get_step(Array* array);
+uint64_t* grf_array_get_step(GrfArray* array);
 /**
  * @brief      Get the size in bytes of each value of the array
  *
@@ -419,7 +419,7 @@ uint64_t* array_get_step(Array* array);
  *
  * @return     Number of bytes of each value
  */
-uint8_t   array_get_bitsize(Array* array);
+uint8_t   grf_array_get_bitsize(GrfArray* array);
 
 /**
  * @brief      { function_description }
@@ -428,56 +428,56 @@ uint8_t   array_get_bitsize(Array* array);
  *
  * @return     { description_of_the_return_value }
  */
-uint64_t  array_get_num_bytes(Array* array);
+uint64_t  grf_array_get_num_bytes(GrfArray* array);
 /**
- * @brief array_index
+ * @brief grf_array_index
  * @param array
  * @param index
  * @return
  */
-int32_t*  array_index(Array* array, int64_t  index);
+int32_t*  grf_array_index(GrfArray* array, int64_t  index);
 /**
- * @brief array_index_1D
+ * @brief grf_array_index_1D
  * @param array
  * @param indices
  * @return
  */
-int64_t   array_index_1D(Array* array, int32_t* indices);
+int64_t   grf_array_index_1D(GrfArray* array, int32_t* indices);
 /**
- * @brief array_index_1D_is_valid
+ * @brief grf_array_index_1D_is_valid
  * @param array
  * @param index
  * @return
  */
-uint8_t   array_index_1D_is_valid(Array* array, int64_t index);
+uint8_t   grf_array_index_1D_is_valid(GrfArray* array, int64_t index);
 /**
- * @brief array_index_is_valid
+ * @brief grf_array_index_is_valid
  * @param array
  * @param indices
  * @return
  */
-uint8_t   array_index_is_valid(Array* array, int32_t* indices);
+uint8_t   grf_array_index_is_valid(GrfArray* array, int32_t* indices);
 /**
- * @brief array_set_element
+ * @brief grf_array_set_element
  * @param array
  * @param indices
  * @param value
  */
-void      array_set_element(Array* array, uint32_t* indices, double value);
+void      grf_array_set_element(GrfArray* array, uint32_t* indices, double value);
 /**
- * @brief array_get_long_double_1D
+ * @brief grf_array_get_long_double_1D
  * @param array1
  * @param i
  * @return
  */
-long double array_get_long_double_1D(Array* array1, uint64_t i);
+long double grf_array_get_long_double_1D(GrfArray* array1, uint64_t i);
 /**
- * @brief array_set_element_1D
+ * @brief grf_array_set_element_1D
  * @param array
  * @param i
  * @param value
  */
-void array_set_element_1D(Array* array, uint64_t i, double value);
+void grf_array_set_element_1D(GrfArray* array, uint64_t i, double value);
 /*-----------------------------------
  *   ARRAY REDUCTION FUNCTIONS
  *-----------------------------------*/
@@ -492,7 +492,7 @@ void array_set_element_1D(Array* array, uint64_t i, double value);
  * @param operation
  * @return
  */
-Array* array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation operation);
+GrfArray* grf_array_reduce(GrfArray* array, int16_t* axes, uint16_t size, GrfArrayOperation operation);
 /**
  * @brief      { function_description }
  *
@@ -502,7 +502,7 @@ Array* array_reduce(Array* array, int16_t* axes, uint16_t size, ArrayOperation o
  *
  * @return     { description_of_the_return_value }
  */
-Array*    array_reduce_sum(Array* array, int16_t* axes, uint16_t size);
+GrfArray*    grf_array_reduce_sum(GrfArray* array, int16_t* axes, uint16_t size);
 
 /**
  * @brief      { function_description }
@@ -513,7 +513,7 @@ Array*    array_reduce_sum(Array* array, int16_t* axes, uint16_t size);
  *
  * @return     { description_of_the_return_value }
  */
-Array*    array_reduce_mult(Array* array, int16_t* axes, uint16_t size);
+GrfArray*    grf_array_reduce_mult(GrfArray* array, int16_t* axes, uint16_t size);
 
 /**
  * @brief      { function_description }
@@ -524,7 +524,7 @@ Array*    array_reduce_mult(Array* array, int16_t* axes, uint16_t size);
  *
  * @return     { description_of_the_return_value }
  */
-Array*    array_reduce_std(Array* array, int16_t* axes, uint16_t size);
+GrfArray*    grf_array_reduce_std(GrfArray* array, int16_t* axes, uint16_t size);
 
 /**
  * @brief      { function_description }
@@ -535,7 +535,7 @@ Array*    array_reduce_std(Array* array, int16_t* axes, uint16_t size);
  *
  * @return     { description_of_the_return_value }
  */
-Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
+GrfArray*    grf_array_reduce_max(GrfArray* array, int16_t* axes, uint16_t size);
 
 /**
  * @brief      { function_description }
@@ -546,66 +546,66 @@ Array*    array_reduce_max(Array* array, int16_t* axes, uint16_t size);
  *
  * @return     { description_of_the_return_value }
  */
-Array*    array_reduce_min(Array* array, int16_t* axes, uint16_t size);
+GrfArray*    grf_array_reduce_min(GrfArray* array, int16_t* axes, uint16_t size);
 /**
- * @brief array_reduce_sum_num
+ * @brief grf_array_reduce_sum_num
  * @param array
  * @return
  */
-long double array_reduce_sum_num(Array* array);
+long double grf_array_reduce_sum_num(GrfArray* array);
 /**
- * @brief array_reduce_max_num
+ * @brief grf_array_reduce_max_num
  * @param array
  * @return
  */
-long double array_reduce_max_num(Array* array);
+long double grf_array_reduce_max_num(GrfArray* array);
 /**
- * @brief array_reduce_min_num
+ * @brief grf_array_reduce_min_num
  * @param array
  * @return
  */
-long double array_reduce_min_num(Array* array);
+long double grf_array_reduce_min_num(GrfArray* array);
 /**
- * @brief array_squeeze
+ * @brief grf_array_squeeze
  * @param array
  */
-void array_squeeze(Array* array);
+void grf_array_squeeze(GrfArray* array);
 /**
- * @brief array_squeeze_axis
+ * @brief grf_array_squeeze_axis
  * @param num_axis
  * @param array
  * @param axis
  */
-void array_squeeze_axis(Array* array, uint8_t num_axis, uint16_t* axis);
+void grf_array_squeeze_axis(GrfArray* array, uint8_t num_axis, uint16_t* axis);
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
  *-----------------------------------*/
 /**
- * @brief array_read_csv
+ * @brief grf_array_read_csv
  * @param filename
  * @return
  */
-Array* array_read_csv(const char* filename);
+GrfArray* grf_array_read_csv(const char* filename);
 /**
- * @brief array_read_csv_type
+ * @brief grf_array_read_csv_type
  * @param filename
  * @param type
  * @return
  */
-Array* array_read_csv_type(const char* filename, DataType type);
+GrfArray* grf_array_read_csv_type(const char* filename, GrfDataType type);
 /**
- * @brief array_write_csv
+ * @brief grf_array_write_csv
  * @param array
  * @param filename
  */
-void array_write_csv(Array* array, const char* filename);
+void grf_array_write_csv(GrfArray* array, const char* filename);
 /**
- * @brief array_join
+ * @brief grf_array_join
  * @param array
  * @param delimiters
  * @return
  */
-char* array_join(Array* array, const char* delimiters);
+char* grf_array_join(GrfArray* array, const char* delimiters);
 
 END_DECLS
 

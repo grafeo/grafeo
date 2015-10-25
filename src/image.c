@@ -49,15 +49,15 @@ my_error_exit(j_common_ptr cinfo){
   longjmp(myerr->setjmp_buffer, 1);
 }
 
-Array* image_read(const char* filename){
+GrfArray* grf_image_read(const char* filename){
   const char* ext = strrchr(filename, '.') + 1;
-  if     (strcasecmp(ext, "png") == 0) return image_read_png(filename);
-  else if(strcasecmp(ext, "jpg") == 0) return image_read_jpg(filename);
-  else if(strcasecmp(ext, "pgm") == 0) return image_read_pgm(filename);
-  else if(strcasecmp(ext, "ppm") == 0) return image_read_ppm(filename);
+  if     (strcasecmp(ext, "png") == 0) return grf_image_read_png(filename);
+  else if(strcasecmp(ext, "jpg") == 0) return grf_image_read_jpg(filename);
+  else if(strcasecmp(ext, "pgm") == 0) return grf_image_read_pgm(filename);
+  else if(strcasecmp(ext, "ppm") == 0) return grf_image_read_ppm(filename);
   return NULL;
 }
-Array* image_read_png(const char* filename){
+GrfArray* grf_image_read_png(const char* filename){
   png_structp png_ptr;
   png_infop info_ptr;
   unsigned char header[8];
@@ -89,14 +89,14 @@ Array* image_read_png(const char* filename){
   size[1] = png_get_image_width(png_ptr, info_ptr);
   size[2] = png_get_channels(png_ptr, info_ptr);
   uint8_t bit_depth = png_get_bit_depth(png_ptr, info_ptr);
-  DataType type;
+  GrfDataType type;
   switch (bit_depth) {
   case 16:
-    type = GRAFEO_UINT16; break;
+    type = GRF_UINT16; break;
   default:
-    type = GRAFEO_UINT8;  break;
+    type = GRF_UINT8;  break;
   }
-  Array* array = array_new_with_size_type(3, size, type);
+  GrfArray* array = grf_array_new_with_size_type(3, size, type);
   png_read_update_info(png_ptr, info_ptr);
 
   // Read file
@@ -110,7 +110,7 @@ Array* image_read_png(const char* filename){
   free(buffer);
   return array;
 }
-Array* image_read_jpg(const char* filename){
+GrfArray* grf_image_read_jpg(const char* filename){
   struct    jpeg_decompress_struct cinfo;
   struct    my_error_mgr jerr;
   FILE*     infile;
@@ -131,7 +131,7 @@ Array* image_read_jpg(const char* filename){
   jpeg_read_header(&cinfo, TRUE);
   jpeg_start_decompress(&cinfo);
   uint32_t size[3] = {cinfo.output_height, cinfo.output_width, cinfo.output_components};
-  Array* array     = array_new_with_size_type(3, size, GRAFEO_UINT8);
+  GrfArray* array     = grf_array_new_with_size_type(3, size, GRF_UINT8);
   row_stride       = size[1]*size[2];
   buffer           = (uint8_t**)malloc(sizeof(uint8_t*) * size[0]);
   uint32_t i;
@@ -146,11 +146,11 @@ Array* image_read_jpg(const char* filename){
   return array;
 }
 
-static void _image_read_pgm_skip_comments(char* s, size_t m, FILE* fp){
+static void _grf_image_read_pgm_skip_comments(char* s, size_t m, FILE* fp){
   while(fgets(s,m,fp) != NULL)
     if(s[0]!='#' && s[0]!='\n') break;
 }
-static Array* _image_read_ppm_pgm(const char* filename){
+static GrfArray* _grf_image_read_ppm_pgm(const char* filename){
   char version[4];
   char line[256];
   uint64_t i;
@@ -158,18 +158,18 @@ static Array* _image_read_ppm_pgm(const char* filename){
   uint16_t dim;
   uint64_t max_gray;
   FILE* fp     = fopen(filename,"rb");
-  Array* array = NULL;
+  GrfArray* array = NULL;
 
   fgets(version, sizeof(version), fp);
   if(version[0] == 'P' && (version[1] == '5' || version[1] == '2' || version[1] == '6')){
     if(version[1] == '6') dim = 3;
     else                  dim = 2;
-    _image_read_pgm_skip_comments(line,256,fp);
+    _grf_image_read_pgm_skip_comments(line,256,fp);
     sscanf(line, "%d %d\n", &width, &height);
-    _image_read_pgm_skip_comments(line,256,fp);
+    _grf_image_read_pgm_skip_comments(line,256,fp);
     sscanf(line, "%lu", &max_gray);
     uint32_t size[3] = {height, width,3};
-    array = array_new_with_size_type(dim, size, GRAFEO_UINT8);
+    array = grf_array_new_with_size_type(dim, size, GRF_UINT8);
     if(version[1] == '2')
       for(i = 0; i < array->num_elements; i++)
         fscanf(fp, "%cu", &array->data_uint8[i]);
@@ -180,21 +180,21 @@ static Array* _image_read_ppm_pgm(const char* filename){
   return array;
 }
 
-Array* image_read_pgm(const char* filename){
-  return _image_read_ppm_pgm(filename);
+GrfArray* grf_image_read_pgm(const char* filename){
+  return _grf_image_read_ppm_pgm(filename);
 }
-Array* image_read_ppm(const char* filename){
-  return _image_read_ppm_pgm(filename);
+GrfArray* grf_image_read_ppm(const char* filename){
+  return _grf_image_read_ppm_pgm(filename);
 }
 
-void image_write(Array* array, const char* filename){
+void grf_image_write(GrfArray* array, const char* filename){
   const char* ext = strrchr(filename, '.') + 1;
-  if     (strcasecmp(ext, "png") == 0) image_write_png(array,filename);
-  else if(strcasecmp(ext, "jpg") == 0) image_write_jpg(array,filename);
-  else if(strcasecmp(ext, "pgm") == 0) image_write_pgm(array,filename);
-  else if(strcasecmp(ext, "ppm") == 0) image_write_ppm(array,filename);
+  if     (strcasecmp(ext, "png") == 0) grf_image_write_png(array,filename);
+  else if(strcasecmp(ext, "jpg") == 0) grf_image_write_jpg(array,filename);
+  else if(strcasecmp(ext, "pgm") == 0) grf_image_write_pgm(array,filename);
+  else if(strcasecmp(ext, "ppm") == 0) grf_image_write_ppm(array,filename);
 }
-void image_write_png(Array* array, const char* filename){
+void grf_image_write_png(GrfArray* array, const char* filename){
   /* create file */
   FILE *outfile = fopen(filename, "wb");
   if (!outfile)
@@ -242,7 +242,7 @@ void image_write_png(Array* array, const char* filename){
   free(buffer);
   fclose(outfile);
 }
-void image_write_jpg(Array* array, const char* filename){
+void grf_image_write_jpg(GrfArray* array, const char* filename){
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
   FILE* outfile;
@@ -271,9 +271,9 @@ void image_write_jpg(Array* array, const char* filename){
   jpeg_destroy_compress(&cinfo);
 }
 
-static void _image_write_ppm_pgm(Array* array, const char* filename, char format){
+static void _grf_image_write_ppm_pgm(GrfArray* array, const char* filename, char format){
   FILE* fp;
-  uint32_t i_max = (uint32_t) array_reduce_max_num(array);
+  uint32_t i_max = (uint32_t) grf_array_reduce_max_num(array);
   fp = fopen(filename, "wb");
   fprintf(fp, "P%c\n",format);
   fprintf(fp,"%d %d\n", array->size[1], array->size[0]);
@@ -282,37 +282,37 @@ static void _image_write_ppm_pgm(Array* array, const char* filename, char format
   fclose(fp);
 }
 
-void   image_write_pgm(Array* array, const char* filename){
-  _image_write_ppm_pgm(array, filename, 5);
+void   grf_image_write_pgm(GrfArray* array, const char* filename){
+  _grf_image_write_ppm_pgm(array, filename, 5);
 }
 
-void   image_write_ppm(Array* array, const char* filename){
-  _image_write_ppm_pgm(array, filename, 6);
+void   grf_image_write_ppm(GrfArray* array, const char* filename){
+  _grf_image_write_ppm_pgm(array, filename, 6);
 }
 
-Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
-  Array* output;
+GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType destiny){
+  GrfArray* output;
   uint64_t i;
 
   // Creating output array
   output = array;
-  if(destiny == GRAFEO_RGB || destiny == GRAFEO_BGR)
-    output = array_new_3D_type(array->size[0], array->size[1], 3, array->type);
-  else if(destiny == GRAFEO_GRAY)
-    output = array_new_2D_type(array->size[0], array->size[1], array->type);
-  else if(destiny == GRAFEO_RGBA || destiny == GRAFEO_BGRA)
-    output = array_new_3D_type(array->size[0], array->size[1], 4, array->type);
+  if(destiny == GRF_RGB || destiny == GRF_BGR)
+    output = grf_array_new_3D_type(array->size[0], array->size[1], 3, array->type);
+  else if(destiny == GRF_GRAY)
+    output = grf_array_new_2D_type(array->size[0], array->size[1], array->type);
+  else if(destiny == GRF_RGBA || destiny == GRF_BGRA)
+    output = grf_array_new_3D_type(array->size[0], array->size[1], 4, array->type);
 
 
   // Filling array
-  if(origin == GRAFEO_GRAY){
-    if(destiny == GRAFEO_RGB){
+  if(origin == GRF_GRAY){
+    if(destiny == GRF_RGB){
       for(i = 0; i < array->num_elements; i++){
         output->data_uint8[3*i  ] = array->data_uint8[i];
         output->data_uint8[3*i+1] = array->data_uint8[i];
         output->data_uint8[3*i+2] = array->data_uint8[i];
       }
-    }else if(destiny == GRAFEO_RGBA){
+    }else if(destiny == GRF_RGBA){
       uint64_t i2;
       for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
         output->data_uint8[i2  ] = array->data_uint8[i];
@@ -321,22 +321,22 @@ Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
         output->data_uint8[i2+3] = 255;
       }
     }
-  }else if(origin == GRAFEO_RGB){
-    if(destiny == GRAFEO_GRAY){
+  }else if(origin == GRF_RGB){
+    if(destiny == GRF_GRAY){
       for(i = 0; i < output->num_elements; i++){
         output->data_uint8[i] = (uint8_t)(
                                 0.299*(double)array->data_uint8[3*i  ] +
                                 0.587*(double)array->data_uint8[3*i+1] +
                                 0.114*(double)array->data_uint8[3*i+2]);
       }
-    }else if(destiny == GRAFEO_BGR){
+    }else if(destiny == GRF_BGR){
       uint64_t size_gray = output->num_elements/3;
       for(i = 0; i < size_gray; i++){
         output->data_uint8[3*i  ] = array->data_uint8[3*i+2];
         output->data_uint8[3*i+1] = array->data_uint8[3*i+1];
         output->data_uint8[3*i+2] = array->data_uint8[3*i  ];
       }
-    }else if(destiny == GRAFEO_RGBA){
+    }else if(destiny == GRF_RGBA){
       uint64_t size_gray = array->num_elements/3;
       for(i = 0; i < size_gray; i++){
         output->data_uint8[4*i  ] = array->data_uint8[3*i];
@@ -345,7 +345,7 @@ Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
         output->data_uint8[4*i+3] = 255;
       }
     }
-    else if(destiny == GRAFEO_BGRA){
+    else if(destiny == GRF_BGRA){
       uint64_t size_gray = array->num_elements/3, i2, i3;
       for(i = 0, i2 = 0, i3 = 0; i < size_gray; i++, i2 = i << 2, i3 = (i<<1)+i){
         output->data_uint8[i2  ] = array->data_uint8[i3+2];

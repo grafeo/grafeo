@@ -40,7 +40,7 @@ G_DEFINE_TYPE_WITH_PRIVATE(Display, display, G_TYPE_OBJECT)
 static void
 display_init(Display* self){
   DisplayPrivate* priv = display_get_instance_private(self);
-  priv->imagewidget = imagewidget_new();
+  priv->imagewidget = grf_imagewidget_new();
   priv->toolbar     = gtk_toolbar_new();
   priv->window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   priv->box         = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
@@ -65,13 +65,13 @@ void display_setup(){
 }
 
 static Display* display_new(){
-  return GRAFEO_DISPLAY(g_object_new(GRAFEO_TYPE_DISPLAY,NULL));
+  return GRF_DISPLAY(g_object_new(GRF_TYPE_DISPLAY,NULL));
 }
 
-void    display_show(Array* array){
+void    display_show(GrfArray* array){
   Display       * display = display_new();
   DisplayPrivate* priv    = display_get_instance_private(display);
-  imagewidget_set_image(priv->imagewidget,array);
+  grf_imagewidget_set_image(priv->imagewidget,array);
   gtk_widget_show_all(priv->window);
 }
 
@@ -82,12 +82,12 @@ uint8_t display_wait_key(){
 
 
 //// Collection of displays
-//static Queue  * displays;
+//static GrfQueue  * displays;
 //static Display* cur_display;
 
 //// search window by name
 //Display* display_get_by_name(const char* name){
-//  List* current;
+//  GrfList* current;
 //  for(current = displays->begin; current; current = list_next(current))
 //  {
 //    Display* window = (Display*)list_value(current);
@@ -96,7 +96,7 @@ uint8_t display_wait_key(){
 //  return NULL;
 //}
 //Display* display_get_by_window(GtkWidget* window){
-//  List* current;
+//  GrfList* current;
 //  for(current = displays->begin; current; current = list_next(current))
 //  {
 //    Display* display = (Display*) list_value(current);
@@ -134,7 +134,7 @@ uint8_t display_wait_key(){
 //    display->name        = name;
 //    display->window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 //    display->box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
-//    display->imagewidget = imagewidget_new();
+//    display->imagewidget = grf_imagewidget_new();
 
 //    // Linking them
 //    gtk_box_pack_end(GTK_BOX(display->box), display->imagewidget, TRUE, TRUE, 0);
@@ -164,7 +164,7 @@ uint8_t display_wait_key(){
 
 
 
-//void    display_show(Array* array){
+//void    display_show(GrfArray* array){
 //  if(!display_num_windows()) cur_display = display_new("Figure 1");
 //  gtk_widget_show_all(cur_display->window);
 //}
