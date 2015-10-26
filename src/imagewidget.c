@@ -62,6 +62,14 @@ typedef enum{
   GRF_SIGNAL_IMAGEWIDGET_NONE,
 }GrfImageWidgetSignal;
 
+// Some macros used to manage signals
+#define g_signal_handlers_block_by_data(instance, data) \
+    g_signal_handlers_block_matched ((instance), G_SIGNAL_MATCH_DATA, \
+                                     0, 0, NULL, NULL, (data))
+#define g_signal_handlers_unblock_by_data(instance, data) \
+    g_signal_handlers_unblock_matched ((instance), G_SIGNAL_MATCH_DATA, \
+                                       0, 0, NULL, NULL, (data))
+
 // Array of signals
 static guint grf_imagewidget_signals[GRF_SIGNAL_IMAGEWIDGET_NONE] = {0};
 
@@ -77,8 +85,6 @@ static void
 grf_imagewidget_size_allocate       (GtkWidget *widget, GtkAllocation *allocation);
 static gboolean
 grf_imagewidget_draw                (GtkWidget* widget, cairo_t* cr);
-static void
-get_size                            (GrfImageWidget* widget, GtkOrientation direction, int *minimal, int* natural);
 static gboolean
 grf_imagewidget_button_press_event  (GtkWidget* widget, GdkEventButton *event);
 static gboolean
@@ -94,9 +100,25 @@ grf_imagewidget_set_size            (GtkWidget* widget, int max_width, int max_h
 static void
 grf_imagewidget_signals_init        (GrfImageWidgetClass *klass);
 static void
-grf_imagewidget_scroll              (GrfImageWidget* widget, GtkScrollType scroll_x, GtkScrollType scroll_y);
+grf_imagewidget_scroll              (GrfImageWidget* imagewidget, GtkScrollType scroll_x, GtkScrollType scroll_y);
 static void
-grf_imagewidget_zoom_to_fit         (GrfImageWidget* widget, gboolean is_allocating);
+grf_imagewidget_zoom_to_fit         (GrfImageWidget* imagewidget, gboolean is_allocating);
+static GrfSize2D
+grf_imagewidget_get_pixbuf_size     (GrfImageWidget* imagewidget);
+static GrfSize2D
+grf_imagewidget_get_allocated_size  (GrfImageWidget* imagewidget);
+static void
+grf_imagewidget_set_zoom_no_center  (GrfImageWidget* imagewidget, gboolean zoom, gboolean is_allocating);
+static GrfSize2D
+grf_imagewidget_get_zoomed_size     (GrfImageWidget* imagewidget);
+static void
+grf_imagewidget_set_zoom_with_center(GrfImageWidget* imagewidget, gboolean zoom, gdouble center_x, gdouble center_y, gboolean is_allocating);
+static void
+grf_imagewidget_clamp_offset        (GrfImageWidget* imagewidget, gdouble* x, gdouble* y);
+static void
+grf_imagewidget_update_adjustments  (GrfImageWidget* imagewidget);
+static void
+get_size                            (GrfImageWidget* imagewidget, GtkOrientation direction, int *minimal, int* natural);
 
 // Initialize GrfImageWidget
 static void
@@ -124,19 +146,19 @@ grf_imagewidget_init(GrfImageWidget *imagewidget){
 // Override Event Functions
 static void
 grf_imagewidget_class_init(GrfImageWidgetClass *klass){
-  grf_imagewidget_signals_init(klass);
+  //grf_imagewidget_signals_init(klass);
 
   GtkWidgetClass* widget_class      = GTK_WIDGET_CLASS(klass);
   widget_class->button_press_event  = grf_imagewidget_button_press_event;
   widget_class->button_release_event= grf_imagewidget_button_release_event;
   widget_class->motion_notify_event = grf_imagewidget_motion_notify_event;
   widget_class->realize             = grf_imagewidget_realize;
-  widget_class->size_allocate       = grf_imagewidget_size_allocate;
-  widget_class->unrealize           = grf_imagewidget_unrealize;
+//  widget_class->size_allocate       = grf_imagewidget_size_allocate;
+//  widget_class->unrealize           = grf_imagewidget_unrealize;
 
 //  widget_class->get_preferred_width = grf_imagewidget_get_preferred_width;
 //  widget_class->get_preferred_height= grf_imagewidget_get_preferred_height;
-//  widget_class->draw                = grf_imagewidget_draw;
+  widget_class->draw                = grf_imagewidget_draw;
 
   klass->zoom_in        = grf_imagewidget_zoom_in;
   klass->zoom_out       = grf_imagewidget_zoom_out;
@@ -219,6 +241,7 @@ grf_imagewidget_signals_init(GrfImageWidgetClass *klass){
 
 static gboolean
 grf_imagewidget_button_press_event(GtkWidget* widget, GdkEventButton *event){
+
   printf("pressionando/n");
   return TRUE;
 }
@@ -293,7 +316,8 @@ static gboolean
 grf_imagewidget_draw(GtkWidget *widget, cairo_t *cr){
   GrfImageWidget       * imagewidget = GRF_IMAGEWIDGET(widget);
   GrfImageWidgetPrivate*        priv = grf_imagewidget_get_instance_private(imagewidget);
-  cairo_set_source_surface(cr, priv->grf_image_surface, 0, 0);
+
+  cairo_set_source_surface(cr,priv->grf_image_surface,0,0);
   cairo_paint(cr);
   cairo_fill(cr);
   return TRUE;
@@ -303,10 +327,11 @@ grf_imagewidget_draw(GtkWidget *widget, cairo_t *cr){
 static void
 grf_imagewidget_realize(GtkWidget* widget){
   GdkWindowAttr attributes;
-  gint attributes_mask;
+  gint          attributes_mask;
   GtkAllocation allocation;
+
   gtk_widget_get_allocation(widget, &allocation);
-  gtk_widget_set_realized(widget, TRUE);
+
   attributes.x             = allocation.x;
   attributes.y             = allocation.y;
   attributes.width         = allocation.width;
@@ -321,6 +346,8 @@ grf_imagewidget_realize(GtkWidget* widget){
   GdkWindow* window_parent = gtk_widget_get_parent_window(widget);
   GdkWindow* window        = gdk_window_new(window_parent,&attributes, attributes_mask);
   gtk_widget_set_window(widget,window);
+  gtk_widget_register_window(widget, window);
+  gtk_widget_set_realized(widget, TRUE);
 }
 
 static void
@@ -376,7 +403,86 @@ grf_imagewidget_set_zoom_with_center(GrfImageWidget* imagewidget,
   y = (y < 0)?0:y;
 
   gdouble offset_x, offset_y;
+  offset_x = (priv->offset_x + center_x - (x>>1)) * zoom_ratio - center_x;
+  offset_y = (priv->offset_y + center_y - (y>>1)) * zoom_ratio - center_y;
+  priv->zoom = zoom;
 
+  grf_imagewidget_clamp_offset(imagewidget, &offset_x, &offset_y);
+  priv->offset_x = offset_x;
+  priv->offset_y = offset_y;
+  if(!is_allocating && zoom_ratio != 1.0){
+    priv->fitting = GRF_FITTING_NONE;
+    grf_imagewidget_update_adjustments(imagewidget);
+    gtk_widget_queue_draw(GTK_WIDGET(imagewidget));
+  }
+  g_signal_emit(G_OBJECT(imagewidget), grf_imagewidget_signals[GRF_SIGNAL_IMAGEWIDGET_ZOOM_CHANGED],0);
+}
+
+static void
+grf_imagewidget_clamp_offset(GrfImageWidget* imagewidget, gdouble* x, gdouble* y){
+  GrfSize2D alloc = grf_imagewidget_get_allocated_size(imagewidget);
+  GrfSize2D zoomed = grf_imagewidget_get_zoomed_size(imagewidget);
+  *x = MAX(MIN(*x,zoomed.size1 - alloc.size1),0);
+  *y = MAX(MIN(*y,zoomed.size2 - alloc.size2),0);
+}
+
+static void
+grf_imagewidget_update_adjustments(GrfImageWidget* imagewidget){
+  GrfSize2D zoomed = grf_imagewidget_get_zoomed_size(imagewidget);
+  GrfSize2D alloc = grf_imagewidget_get_allocated_size(imagewidget);
+
+  GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
+  gtk_adjustment_set_lower         (priv->hadj,0.0);
+  gtk_adjustment_set_upper         (priv->hadj,zoomed.size1);
+  gtk_adjustment_set_value         (priv->hadj,priv->offset_x);
+  gtk_adjustment_set_step_increment(priv->hadj,20.0);
+  gtk_adjustment_set_page_increment(priv->hadj,alloc.size1 >> 1);
+  gtk_adjustment_set_page_size     (priv->hadj,alloc.size1);
+
+  gtk_adjustment_set_lower         (priv->vadj,0.0);
+  gtk_adjustment_set_upper         (priv->vadj,zoomed.size1);
+  gtk_adjustment_set_value         (priv->vadj,priv->offset_x);
+  gtk_adjustment_set_step_increment(priv->vadj,20.0);
+  gtk_adjustment_set_page_increment(priv->vadj,alloc.size1 >> 1);
+  gtk_adjustment_set_page_size     (priv->vadj,alloc.size1);
+
+//  g_signal_handlers_block_by_data(G_OBJECT(priv->hadj), imagewidget);
+//  g_signal_handlers_block_by_data(G_OBJECT(priv->hadj), imagewidget);
+//  gtk_adjustment_changed(priv->hadj);
+//  gtk_adjustment_changed(priv->vadj);
+//  g_signal_handlers_unblock_by_data(G_OBJECT(priv->hadj), imagewidget);
+//  g_signal_handlers_unblock_by_data(G_OBJECT(priv->hadj), imagewidget);
+}
+
+static GrfSize2D
+grf_imagewidget_get_pixbuf_size(GrfImageWidget* imagewidget){
+  GrfSize2D s = {0,0};
+  GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
+
+  if(!priv->pixbuf) return s;
+  s.size1 = gdk_pixbuf_get_width(priv->pixbuf);
+  s.size2 = gdk_pixbuf_get_height(priv->pixbuf);
+  return s;
+}
+static GrfSize2D
+grf_imagewidget_get_allocated_size(GrfImageWidget* imagewidget){
+  GrfSize2D size;
+  GtkWidget* widget = GTK_WIDGET(imagewidget);
+  GtkAllocation alloc;
+  gtk_widget_get_allocation(widget, &alloc);
+  size.size1 = alloc.width;
+  size.size2 = alloc.height;
+  return size;
+}
+
+static GrfSize2D
+grf_imagewidget_get_zoomed_size(GrfImageWidget* imagewidget){
+  GrfSize2D size = grf_imagewidget_get_pixbuf_size(imagewidget);
+  GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
+
+  size.size1 = (uint32_t)(size.size1 * priv->zoom + 0.5);
+  size.size2 = (uint32_t)(size.size2 * priv->zoom + 0.5);
+  return size;
 }
 
 // Get Preferred Size (Width or Height)

@@ -730,7 +730,7 @@ static void test_grf_array_io_csv(void** state){
   // UINT8
   // 1D (just one line)
   uint8_t ground_data1[8] = {1,2,3,4,5,6,7,8};
-  GrfArray* array = grf_array_read_csv("../data/test_grf_array_read_csv_uint8_1.csv");
+  GrfArray* array = grf_array_read_csv("../data/test_array_read_csv_uint8_1.csv");
   assert_non_null(array);
   assert_int_equal(array->type, GRF_UINT8);
   assert_int_equal(array->dim, 1);
@@ -744,7 +744,7 @@ static void test_grf_array_io_csv(void** state){
   for(i = 0; i < 10; i++)
     for(j = 0; j < 8; j++)
       ground_data2[i][j] = i*8+j;
-  GrfArray* array2 = grf_array_read_csv("../data/test_grf_array_read_csv_uint8_2.csv");
+  GrfArray* array2 = grf_array_read_csv("../data/test_array_read_csv_uint8_2.csv");
   assert_non_null(array2);
   assert_int_equal(array2->type, GRF_UINT8);
   assert_int_equal(array2->dim, 2);
@@ -758,7 +758,7 @@ static void test_grf_array_io_csv(void** state){
   // UINT16
   // 1D (just one line)
   uint16_t ground_data3[15] = {1,2,3,4,5,6,7,8,23,64,128,256,512,1,6};
-  GrfArray* array3 = grf_array_read_csv("../data/test_grf_array_read_csv_uint16_1.csv");
+  GrfArray* array3 = grf_array_read_csv("../data/test_array_read_csv_uint16_1.csv");
   assert_non_null(array3);
   assert_int_equal(array3->type, GRF_UINT16);
   assert_int_equal(array3->dim, 1);
@@ -772,7 +772,7 @@ static void test_grf_array_io_csv(void** state){
   for(i = 0; i < 50; i++)
     for(j = 0; j < 8; j++)
       ground_data4[i][j] = i*8+j;
-  GrfArray* array4 = grf_array_read_csv("../data/test_grf_array_read_csv_uint16_2.csv");
+  GrfArray* array4 = grf_array_read_csv("../data/test_array_read_csv_uint16_2.csv");
   assert_non_null(array4);
   assert_int_equal(array4->type, GRF_UINT16);
   assert_int_equal(array4->dim, 2);
@@ -786,7 +786,7 @@ static void test_grf_array_io_csv(void** state){
   // Float
   float ground_data5[8] = {3.2     , 231.123,453.234,10234.999,
                             34.00001, 1.111,  0.0001, 999.99999};
-  GrfArray* array5 = grf_array_read_csv_type("../data/test_grf_array_read_csv_float_1.csv", GRF_FLOAT);
+  GrfArray* array5 = grf_array_read_csv_type("../data/test_array_read_csv_float_1.csv", GRF_FLOAT);
   assert_non_null(array5);
   assert_int_equal(array5->type, GRF_FLOAT);
   assert_int_equal(array5->dim, 1);
@@ -799,23 +799,23 @@ static void test_grf_array_io_csv(void** state){
   // UINT8
   // 1D (just one line)
   grf_array_write_csv(array, "test_grf_array_write_csv_uint8_1.csv");
-  GrfArray* arrayw = grf_array_read_csv("test_grf_array_write_csv_uint8_1.csv");
+  GrfArray* arrayw = grf_array_read_csv("test_array_write_csv_uint8_1.csv");
   assert_grf_array_equal(arrayw, array);
 
   // 2D (several lines)
   grf_array_write_csv(array2, "test_grf_array_write_csv_uint8_2.csv");
-  GrfArray* arrayw2 = grf_array_read_csv("test_grf_array_write_csv_uint8_2.csv");
+  GrfArray* arrayw2 = grf_array_read_csv("test_array_write_csv_uint8_2.csv");
   assert_grf_array_equal(arrayw2, array2);
 
   // UINT16
   // 1D (just one line)
   grf_array_write_csv(array3, "test_grf_array_write_csv_uint16_1.csv");
-  GrfArray* arrayw3 = grf_array_read_csv("test_grf_array_write_csv_uint16_1.csv");
+  GrfArray* arrayw3 = grf_array_read_csv("test_array_write_csv_uint16_1.csv");
   assert_grf_array_equal(arrayw3, array3);
 
   // 2D (several lines)
   grf_array_write_csv(array4, "test_grf_array_write_csv_uint16_2.csv");
-  GrfArray* arrayw4 = grf_array_read_csv("test_grf_array_write_csv_uint16_2.csv");
+  GrfArray* arrayw4 = grf_array_read_csv("test_array_write_csv_uint16_2.csv");
   assert_grf_array_equal(arrayw4, array4);
 
   grf_array_free(array);

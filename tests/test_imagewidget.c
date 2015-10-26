@@ -46,14 +46,14 @@ static void test_grf_imagewidget_show(void**state){
   char* filenames[3]     = {"trekkie-nerd.png",
                             "distance_transform_input.pgm",
                             "../data/trekkie-nerd.jpg"};
-  GrfArray*     grf_array_gray  = grf_image_read(filenames[2]);//trekkie-nerd.png");//grf_array_ones(2,size,GRF_UINT8);
+  GrfArray*  array_gray  = grf_image_read(filenames[2]);//trekkie-nerd.png");//grf_array_ones(2,size,GRF_UINT8);
   GtkWidget* imagewidget = grf_imagewidget_new();
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   GtkWidget* box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
 
   gtk_widget_add_events(imagewidget, GDK_BUTTON_RELEASE_MASK | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK);
 
-  grf_imagewidget_set_image(GRF_IMAGEWIDGET(imagewidget),grf_array_gray);
+  grf_imagewidget_set_image(GRF_IMAGEWIDGET(imagewidget),array_gray);
 
   gtk_box_pack_start (GTK_BOX(box),imagewidget,TRUE,TRUE,0);
   gtk_container_add  (GTK_CONTAINER(window), box);
