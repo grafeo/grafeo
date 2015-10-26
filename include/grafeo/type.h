@@ -109,6 +109,17 @@ typedef void (*DataFunc)       (void* data1, void* user_data);
 int8_t int64_compare_function_r(void* value1, void* value2);
 int8_t int64_compare_function  (void* value1, void* value2);
 
+typedef struct _GrfScalar2D{
+  int x;
+  int y;
+}GrfScalar2D;
+
+typedef struct _GrfScalar4D{
+  int x;
+  int y;
+  int z;
+}GrfScalar4D;
+
 #define INT8_TO_POINTER(i)   ((void*)(int64_t)(i))
 #define INT16_TO_POINTER(i)  ((void*)(int64_t)(i))
 #define INT32_TO_POINTER(i)  ((void*)(int64_t)(i))

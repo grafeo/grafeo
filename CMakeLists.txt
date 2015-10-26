@@ -118,6 +118,7 @@ SET(GRAFEO_STRUCTURE_HDR
 )
 SET(GRAFEO_IMGPROC_HDR
   include/grafeo/image.h
+  include/grafeo/drawing.h
 )
 SET(GRAFEO_IFT_HDR
   include/grafeo/ift.h
@@ -134,6 +135,7 @@ SET(GRAFEO_STRUCTURE_SRC
 )
 SET(GRAFEO_IMGPROC_SRC
  src/image.c
+ src/drawing.c
 )
 SET(GRAFEO_IFT_SRC
  src/ift.c
@@ -230,6 +232,7 @@ if(BUILD_TESTING)
       queue
       pqueue
       ift
+      drawing
     )
     set(test_array_deps grafeo_structure)
     set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
@@ -238,6 +241,7 @@ if(BUILD_TESTING)
     set(test_queue_deps grafeo_structure)
     set(test_pqueue_deps grafeo_structure)
     set(test_ift_deps grafeo_structure grafeo_imgproc grafeo_ift png jpeg)
+    set(test_drawing_deps grafeo_structure grafeo_imgproc png jpeg)
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)
