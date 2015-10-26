@@ -26,6 +26,7 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/imagewidget.h>
+#include <grafeo/size.h>
 
 /*=================================
  * PRIVATE API
@@ -94,6 +95,8 @@ static void
 grf_imagewidget_signals_init        (GrfImageWidgetClass *klass);
 static void
 grf_imagewidget_scroll              (GrfImageWidget* widget, GtkScrollType scroll_x, GtkScrollType scroll_y);
+static void
+grf_imagewidget_zoom_to_fit         (GrfImageWidget* widget, gboolean is_allocating);
 
 // Initialize GrfImageWidget
 static void
@@ -248,8 +251,18 @@ grf_imagewidget_get_preferred_height(GtkWidget* widget,
 // Allocate size
 static void
 grf_imagewidget_size_allocate(GtkWidget *widget, GtkAllocation *allocation){
-  gtk_widget_size_allocate(widget, allocation);
-  //gtk_widget_set_allocation(widget, allocation);
+  GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
+  GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
+  //gtk_widget_size_allocate(widget, allocation);
+  gtk_widget_set_allocation(widget, allocation);
+  if(priv->pixbuf && priv->fitting != GRF_FITTING_NONE)
+    grf_imagewidget_zoom_to_fit(imagewidget, TRUE);
+  grf_imagewidget_clamp_offset(imagewidget, &priv->offset_x, &priv->offset_x);
+  grf_imagewidget_update_adjustments(imagewidget);
+  if(gtk_widget_get_realized(widget))
+    gdk_window_move_resize(gtk_widget_get_window(widget),
+                           allocation->x    , allocation->y,
+                           allocation->width, allocation->height);
 //  GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
 //  ImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
 //  if((priv->flags & GRF_WINDOW_AUTOSIZE) == 0 && priv->grf_image_original){
@@ -315,6 +328,57 @@ grf_imagewidget_unrealize(GtkWidget* widget){
 
 }
 
+static void
+grf_imagewidget_scroll              (GrfImageWidget* widget, GtkScrollType scroll_x, GtkScrollType scroll_y){
+
+}
+
+#define GRF_ZOOM_MIN 0.02
+#define GRF_ZOOM_MAX 20.0
+
+static void
+grf_imagewidget_zoom_to_fit         (GrfImageWidget* widget, gboolean is_allocating){
+  GrfSize2D img   = grf_imagewidget_get_pixbuf_size(widget);
+  GrfSize2D alloc = grf_imagewidget_get_allocated_size(widget);
+  GrfImageWidgetPrivate *priv = grf_imagewidget_get_instance_private(widget);
+
+  gdouble ratio_x = (gdouble) alloc.size1/img.size1;
+  gdouble ratio_y = (gdouble) alloc.size2/img.size2;
+  gdouble zoom    = MIN(ratio_x, ratio_y);
+  if(priv->fitting == GRF_FITTING_NORMAL)
+    zoom = CLAMP(zoom, GRF_ZOOM_MIN , 1.0);
+  else if(priv->fitting == GRF_FITTING_FULL)
+    zoom = CLAMP(zoom, GRF_ZOOM_MIN, GRF_ZOOM_MAX);
+  grf_imagewidget_set_zoom_no_center(widget,zoom,is_allocating);
+}
+
+static void
+grf_imagewidget_set_zoom_no_center(GrfImageWidget* imagewidget, gboolean zoom, gboolean is_allocating){
+  GrfSize2D alloc = grf_imagewidget_get_allocated_size(imagewidget);
+  gdouble center_x = alloc.size1 >> 1;
+  gdouble center_y = alloc.size2 >> 2;
+  grf_imagewidget_set_zoom_with_center(imagewidget, zoom, center_x, center_y, is_allocating);
+}
+
+static void
+grf_imagewidget_set_zoom_with_center(GrfImageWidget* imagewidget,
+                                     gboolean zoom,
+                                     gdouble center_x, gdouble center_y,
+                                     gboolean is_allocating){
+  GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
+  gdouble zoom_ratio = zoom/priv->zoom;
+  GrfSize2D zoomed = grf_imagewidget_get_zoomed_size(imagewidget);
+  GrfSize2D alloc  = grf_imagewidget_get_allocated_size(imagewidget);
+  gint x, y;
+  x = alloc.size1 - zoomed.size1;
+  y = alloc.size2 - zoomed.size2;
+  x = (x < 0)?0:x;
+  y = (y < 0)?0:y;
+
+  gdouble offset_x, offset_y;
+
+}
+
 // Get Preferred Size (Width or Height)
 static void
 get_size(GrfImageWidget* imagewidget, GtkOrientation direction, int* minimal, int* natural){
@@ -364,10 +428,24 @@ grf_imagewidget_get_viewport (GrfImageWidget* widget, GdkRectangle* rect){
 
 void
 grf_imagewidget_set_fitting(GrfImageWidget *imagewidget, GrfFittingMode fitting){
-  int xstep = 0;
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
-  if(scroll_x == GTK_SCROLL_STEP_LEFT)
-    xstep = -priv->hadj->step_increment;
+  priv->fitting = fitting;
+  gtk_widget_queue_resize(GTK_WIDGET(imagewidget));
+}
+
+void
+grf_imagewidget_zoom_in      (GrfImageWidget* widget){
+
+}
+
+void
+grf_imagewidget_zoom_out     (GrfImageWidget* widget){
+
+}
+
+void
+grf_imagewidget_set_zoom     (GrfImageWidget* widget, double zoom){
+
 }
 
 // Update image

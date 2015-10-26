@@ -71,7 +71,7 @@ typedef double
 /**
  * @brief Allocates a new IFT structure instance
  * @return the instance
- * @memberof IFT
+ * @memberof GrfIFT
  */
 GrfIFT*   grf_ift_new();
 /**
@@ -79,7 +79,7 @@ GrfIFT*   grf_ift_new();
  * @param array
  * @param map_dimension
  * @return
- * @memberof IFT
+ * @memberof GrfIFT
  */
 GrfIFT*   grf_ift_new_from_array(GrfArray* array, uint8_t map_dimension);
 /**
@@ -93,7 +93,7 @@ GrfIFT*   grf_ift_new_from_array(GrfArray* array, uint8_t map_dimension);
  * @param seeds_indices
  * @param seeds_labels
  * @return
- * @memberof IFT
+ * @memberof GrfIFT
  */
 GrfIFT*   grf_ift_apply_array(GrfArray* array,
                        uint16_t map_dimension,
@@ -158,7 +158,7 @@ double grf_weight_diff_3(GrfArray* array, uint64_t index1, uint64_t index2);
 /**
  * @brief grf_ift_free
  * @param ift
- * @memberof IFT
+ * @memberof GrfIFT
  */
 void   grf_ift_free(GrfIFT* ift);
 
@@ -169,7 +169,7 @@ void   grf_ift_free(GrfIFT* ift);
  * @brief Get the label map of the IFT
  * @param ift
  * @return
- * @memberof IFT
+ * @memberof GrfIFT
  */
 GrfArray* grf_ift_get_label(GrfIFT* ift);
 /**
@@ -182,7 +182,7 @@ GrfArray* grf_ift_get_predecessors(GrfIFT* ift);
  * @brief Get connectivity map of the IFT
  * @param ift
  * @return
- * @memberof IFT
+ * @memberof GrfIFT
  */
 GrfArray* grf_ift_get_connectivity(GrfIFT* ift);
 /**
@@ -195,42 +195,42 @@ GrfArray* grf_ift_get_root(GrfIFT* ift);
  * @brief Get original array (e.g. image) of the IFT
  * @param ift
  * @return
- * @memberof IFT
+ * @memberof GrfIFT
  */
 GrfArray* grf_ift_get_original(GrfIFT* ift);
 /**
  * @brief Set label map of the IFT
  * @param ift
  * @param label
- * @memberof IFT
+ * @memberof GrfIFT
  */
 void grf_ift_set_label(GrfIFT* ift, GrfArray* label);
 /**
  * @brief Set connectivity map of the IFT
  * @param ift
  * @param connectivity
- * @memberof IFT
+ * @memberof GrfIFT
  */
 void grf_ift_set_connectivity(GrfIFT* ift, GrfArray* connectivity);
 /**
  * @brief Set original array of the IFT
  * @param ift
  * @param original
- * @memberof IFT
+ * @memberof GrfIFT
  */
 void grf_ift_set_original(GrfIFT* ift, GrfArray* original);
 /**
  * @brief Set predecessors map of the IFT
  * @param ift
  * @param predecessors
- * @memberof IFT
+ * @memberof GrfIFT
  */
 void grf_ift_set_predecessors(GrfIFT* ift, GrfArray* predecessors);
 /**
  * @brief Set root map of the IFT
  * @param ift
  * @param root
- * @memberof IFT
+ * @memberof GrfIFT
  */
 void grf_ift_set_root(GrfIFT* ift, GrfArray* root);
 /* ====================== *

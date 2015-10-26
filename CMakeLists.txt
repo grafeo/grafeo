@@ -95,6 +95,16 @@ endif(NOT JPEG_FOUND)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
+find_package(GLIB-GENMARSHAL)
+message(STATUS ${GLIB-GENMARSHAL_EXECUTABLE})
+execute_process(COMMAND ${GLIB-GENMARSHAL_EXECUTABLE} --header --prefix=grf_marshal marshal.list
+                OUTPUT_VARIABLE HEADER_OUT
+                OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo/marshal.h
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo/)
+execute_process(COMMAND ${GLIB-GENMARSHAL_EXECUTABLE} --body --prefix=grf_marshal marshal.list
+                OUTPUT_VARIABLE BODY_OUT
+                OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/marshal.c
+                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo/)
 #============================================= TESTS (BEFORE LIBRARY)
 include(CTest)
 option(COVERALLS "Generate coveralls data" OFF)
@@ -118,6 +128,7 @@ SET(GRAFEO_STRUCTURE_HDR
   include/grafeo/array.h
   include/grafeo/queue.h
   include/grafeo/range.h
+  include/grafeo/size.h
 )
 SET(GRAFEO_IMGPROC_HDR
   include/grafeo/image.h
@@ -125,7 +136,7 @@ SET(GRAFEO_IMGPROC_HDR
 SET(GRAFEO_DISPLAY_HDR
   #include/grafeo/display.h
   include/grafeo/imagewidget.h
-
+  include/grafeo/marshal.h
 )
 SET(GRAFEO_IFT_HDR
   include/grafeo/ift.h
@@ -149,7 +160,7 @@ SET(GRAFEO_IFT_SRC
 SET(GRAFEO_DISPLAY_SRC
  #src/display.c
  src/imagewidget.c
-
+ src/marshal.c
 )
 SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
 SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
