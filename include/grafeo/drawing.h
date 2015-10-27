@@ -27,9 +27,12 @@
 # ===================================================================*/
 #ifndef GRF_DRAWING_H
 #define GRF_DRAWING_H
+#define GRF_ANTIALIASED 16
 #include <grafeo/array.h>
+#include <float.h>
+
 BEGIN_DECLS
-void grf_array_draw_line(Array* array, GrfScalar2D p0, GrfScalar2D p1, GrfScalar4D *color, int thickness, int line_type, int shift);
-void grf_clip_line();
+void    grf_array_draw_line(Array* array, GrfScalar2D p0, GrfScalar2D p1, GrfScalar4D *color, int thickness, int line_type, int shift);
+uint8_t grf_clip_line(GrfSize2D size_scaled, GrfScalar2D* p1, GrfScalar2D* p2);
 END_DECLS
 #endif

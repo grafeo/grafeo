@@ -33,19 +33,31 @@
 
 static void test_drawing_line(void** state){
   (void) state;
-  Array* array = array_new_2D(10,10);
+  Array* array = array_new_3D(10,10,3);
   array_fill(array,0);
 
   // Line Properties
-  GrfScalar2D p0        = {1, 1},
-              p1        = {5,3};
-  GrfScalar4D color     = {255,0,0,255};
+  GrfScalar2D p0        = {-5, 0},
+              p1        = {8,8};
+  GrfScalar4D color     = {255,100,50,255};
   int         thickness = 1;
   int         line_type = 0;
   int         shift     = 0;
 
   // Draw Line
   grf_array_draw_line(array, p0, p1, &color, thickness, line_type, shift);
+
+  uint64_t x,y,c;
+  // Print line
+  for(y = 0; y < 10; y++){
+    for(x = 0; x < 10; x++){
+      printf("(");
+      for(c = 0; c < 3; c++)
+        printf("%3d ", array->data_uint8[y*array->step[0]+x*array->step[1]+c*array->step[2]]);
+      printf(")");
+    }
+    printf("\n");
+  }
 
   // Free Array
   array_free(array);
