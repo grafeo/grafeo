@@ -961,6 +961,18 @@ grf_array_fill_edge_collection(Array* array, GrfScalar4D* edges, int num_edges, 
 //  }
 }
 
+GRF_INLINE uint64_t grf_rectangle_area(GrfRectangle rect){
+  return rect.width * rect.height;
+}
+GrfScalar2D grf_rectangle_top_left(GrfRectangle rect){
+  GrfScalar2D point = {rect.x, rect.y};
+  return point;
+}
+GrfScalar2D grf_rectangle_bottom_right(GrfRectangle rect){
+  GrfScalar2D point = {rect.x + rect.width, rect.y + rect.height};
+  return point;
+}
+
 /*=======================
  *      PUBLIC API
  *=====================*/
@@ -1059,7 +1071,6 @@ grf_array_draw_ellipse(Array *array, GrfScalar2D center, GrfSize2D axes, double 
   grf_array_draw_ellipse_ex(array, center, axes, _angle, _start_angle,
              _end_angle, color, thickness, line_type );
 }
-
 void
 grf_ellipse_to_poly(GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, int delta, GrfScalar2D** pts, int *count){
   float       alpha, beta;
@@ -1136,4 +1147,32 @@ grf_ellipse_to_poly(GrfScalar2D center, GrfSize2D axes, int angle, int arc_start
     pts2 = realloc(pts,*count * sizeof(GrfScalar2D));
   }
   *pts = pts2;
+}
+void
+grf_array_draw_rectangle(Array *array, GrfRectangle rect, GrfScalar4D *color, int thickness, int line_type, int shift){
+  if(grf_rectangle_area(rect) > 0 ){
+    GrfScalar2D top_left     = grf_rectangle_top_left(rect);
+    GrfScalar2D point        = {1<<shift,1<<shift};
+    GrfScalar2D bottom_right = grf_rectangle_bottom_right(rect);
+    bottom_right.x -= point.x;
+    bottom_right.y -= point.y;
+    grf_array_draw_rectangle_2( array, top_left, bottom_right, color, thickness, line_type, shift );
+  }
+}
+void
+grf_array_draw_rectangle_2(Array* array, GrfScalar2D top_left, GrfScalar2D bottom_right, GrfScalar4D* color, int thickness, int line_type, int shift){
+  if( line_type == GRF_ANTIALIASED)
+      line_type = GRAFEO_NEIGHBOR_8;
+  GrfScalar2D pt[4];
+  pt[0]   = top_left;
+  pt[1].x = bottom_right.x;
+  pt[1].y = top_left.y;
+  pt[2]   = bottom_right;
+  pt[3].x = top_left.x;
+  pt[3].y = bottom_right.y;
+
+  if( thickness >= 0 )
+    grf_array_draw_polyline(array, pt, 4, 1, color, thickness, line_type, shift );
+  else
+    grf_array_fill_convex_poly(array, pt, 4, color, line_type, shift );
 }
