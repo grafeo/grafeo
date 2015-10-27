@@ -38,5 +38,6 @@ uint8_t grf_clip_line(GrfSize2D size_scaled, GrfScalar2D* p1, GrfScalar2D* p2);
 void    grf_array_draw_circle(Array* array, GrfScalar2D center, int radius, GrfScalar4D* color, int thickness, int line_type, int shift);
 void    grf_array_draw_ellipse(Array* array, GrfScalar2D center, GrfSize2D axes,double angle, double start_angle, double end_angle, GrfScalar4D* color, int thickness, int line_type, int shift);
 void    grf_array_draw_rectangle(Array* array, GrfRectangle rect, GrfScalar4D* color, int thickness, int lineType, int shift);
+void    grf_ellipse_to_poly(GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, int delta, GrfScalar2D** pts, int *count);
 END_DECLS
 #endif

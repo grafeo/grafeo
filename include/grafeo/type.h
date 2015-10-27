@@ -123,8 +123,8 @@ typedef struct _GrfScalar2D{
 typedef struct _GrfScalar4D{
   int x;
   int y;
-  union{int z;int width;};
-  union{int w;int height;};
+  union{int z;int width;int x2;};
+  union{int w;int height;int y2;};
 }GrfScalar4D;
 
 typedef GrfScalar4D GrfRectangle;
