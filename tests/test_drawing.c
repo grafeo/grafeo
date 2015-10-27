@@ -102,15 +102,47 @@ static void test_drawing_polyline(void** state){
 static void test_drawing_line_arrow(void** state){
   (void) state;
 }
+static void test_drawing_rectangle(void** state){
+  (void) state;
+  Array* array = array_new_3D(10,10,3);
+  array_fill(array,0);
+
+  // Rectangle Properties
+  GrfRectangle rect     = grf_scalar4D_new(3,3,6,4);
+  GrfScalar4D color     = grf_scalar4D_new(255,100,50,255);
+  int         thickness = 1;
+  int         line_type = GRAFEO_NEIGHBOR_8;
+  int         shift     = 0;
+
+  // Draw Rectangle
+  grf_array_draw_rectangle(array,rect, &color, thickness, line_type, shift);
+
+  uint64_t x,y,c;
+  // Print line
+  for(y = 0; y < 10; y++){
+    for(x = 0; x < 10; x++){
+      printf("(");
+      for(c = 0; c < 3; c++)
+        printf("%3d ", array->data_uint8[y*array->step[0]+x*array->step[1]+c*array->step[2]]);
+      printf(")");
+    }
+    printf("\n");
+  }
+
+  // Free Array
+  array_free(array);
+
+}
 
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[4]={
+  const struct CMUnitTest tests[5]={
     cmocka_unit_test(test_drawing_line),
     cmocka_unit_test(test_drawing_circle),
     cmocka_unit_test(test_drawing_polyline),
     cmocka_unit_test(test_drawing_line_arrow),
+    cmocka_unit_test(test_drawing_rectangle),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
