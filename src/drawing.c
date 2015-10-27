@@ -30,6 +30,92 @@
  *      PRIVATE API
  *=====================*/
 enum { XY_SHIFT = 16, XY_ONE = 1 << XY_SHIFT, DRAWING_STORAGE_BLOCK = (1<<12) - 256 };
+static const float SinTable[] =
+    { 0.0000000f, 0.0174524f, 0.0348995f, 0.0523360f, 0.0697565f, 0.0871557f,
+    0.1045285f, 0.1218693f, 0.1391731f, 0.1564345f, 0.1736482f, 0.1908090f,
+    0.2079117f, 0.2249511f, 0.2419219f, 0.2588190f, 0.2756374f, 0.2923717f,
+    0.3090170f, 0.3255682f, 0.3420201f, 0.3583679f, 0.3746066f, 0.3907311f,
+    0.4067366f, 0.4226183f, 0.4383711f, 0.4539905f, 0.4694716f, 0.4848096f,
+    0.5000000f, 0.5150381f, 0.5299193f, 0.5446390f, 0.5591929f, 0.5735764f,
+    0.5877853f, 0.6018150f, 0.6156615f, 0.6293204f, 0.6427876f, 0.6560590f,
+    0.6691306f, 0.6819984f, 0.6946584f, 0.7071068f, 0.7193398f, 0.7313537f,
+    0.7431448f, 0.7547096f, 0.7660444f, 0.7771460f, 0.7880108f, 0.7986355f,
+    0.8090170f, 0.8191520f, 0.8290376f, 0.8386706f, 0.8480481f, 0.8571673f,
+    0.8660254f, 0.8746197f, 0.8829476f, 0.8910065f, 0.8987940f, 0.9063078f,
+    0.9135455f, 0.9205049f, 0.9271839f, 0.9335804f, 0.9396926f, 0.9455186f,
+    0.9510565f, 0.9563048f, 0.9612617f, 0.9659258f, 0.9702957f, 0.9743701f,
+    0.9781476f, 0.9816272f, 0.9848078f, 0.9876883f, 0.9902681f, 0.9925462f,
+    0.9945219f, 0.9961947f, 0.9975641f, 0.9986295f, 0.9993908f, 0.9998477f,
+    1.0000000f, 0.9998477f, 0.9993908f, 0.9986295f, 0.9975641f, 0.9961947f,
+    0.9945219f, 0.9925462f, 0.9902681f, 0.9876883f, 0.9848078f, 0.9816272f,
+    0.9781476f, 0.9743701f, 0.9702957f, 0.9659258f, 0.9612617f, 0.9563048f,
+    0.9510565f, 0.9455186f, 0.9396926f, 0.9335804f, 0.9271839f, 0.9205049f,
+    0.9135455f, 0.9063078f, 0.8987940f, 0.8910065f, 0.8829476f, 0.8746197f,
+    0.8660254f, 0.8571673f, 0.8480481f, 0.8386706f, 0.8290376f, 0.8191520f,
+    0.8090170f, 0.7986355f, 0.7880108f, 0.7771460f, 0.7660444f, 0.7547096f,
+    0.7431448f, 0.7313537f, 0.7193398f, 0.7071068f, 0.6946584f, 0.6819984f,
+    0.6691306f, 0.6560590f, 0.6427876f, 0.6293204f, 0.6156615f, 0.6018150f,
+    0.5877853f, 0.5735764f, 0.5591929f, 0.5446390f, 0.5299193f, 0.5150381f,
+    0.5000000f, 0.4848096f, 0.4694716f, 0.4539905f, 0.4383711f, 0.4226183f,
+    0.4067366f, 0.3907311f, 0.3746066f, 0.3583679f, 0.3420201f, 0.3255682f,
+    0.3090170f, 0.2923717f, 0.2756374f, 0.2588190f, 0.2419219f, 0.2249511f,
+    0.2079117f, 0.1908090f, 0.1736482f, 0.1564345f, 0.1391731f, 0.1218693f,
+    0.1045285f, 0.0871557f, 0.0697565f, 0.0523360f, 0.0348995f, 0.0174524f,
+    0.0000000f, -0.0174524f, -0.0348995f, -0.0523360f, -0.0697565f, -0.0871557f,
+    -0.1045285f, -0.1218693f, -0.1391731f, -0.1564345f, -0.1736482f, -0.1908090f,
+    -0.2079117f, -0.2249511f, -0.2419219f, -0.2588190f, -0.2756374f, -0.2923717f,
+    -0.3090170f, -0.3255682f, -0.3420201f, -0.3583679f, -0.3746066f, -0.3907311f,
+    -0.4067366f, -0.4226183f, -0.4383711f, -0.4539905f, -0.4694716f, -0.4848096f,
+    -0.5000000f, -0.5150381f, -0.5299193f, -0.5446390f, -0.5591929f, -0.5735764f,
+    -0.5877853f, -0.6018150f, -0.6156615f, -0.6293204f, -0.6427876f, -0.6560590f,
+    -0.6691306f, -0.6819984f, -0.6946584f, -0.7071068f, -0.7193398f, -0.7313537f,
+    -0.7431448f, -0.7547096f, -0.7660444f, -0.7771460f, -0.7880108f, -0.7986355f,
+    -0.8090170f, -0.8191520f, -0.8290376f, -0.8386706f, -0.8480481f, -0.8571673f,
+    -0.8660254f, -0.8746197f, -0.8829476f, -0.8910065f, -0.8987940f, -0.9063078f,
+    -0.9135455f, -0.9205049f, -0.9271839f, -0.9335804f, -0.9396926f, -0.9455186f,
+    -0.9510565f, -0.9563048f, -0.9612617f, -0.9659258f, -0.9702957f, -0.9743701f,
+    -0.9781476f, -0.9816272f, -0.9848078f, -0.9876883f, -0.9902681f, -0.9925462f,
+    -0.9945219f, -0.9961947f, -0.9975641f, -0.9986295f, -0.9993908f, -0.9998477f,
+    -1.0000000f, -0.9998477f, -0.9993908f, -0.9986295f, -0.9975641f, -0.9961947f,
+    -0.9945219f, -0.9925462f, -0.9902681f, -0.9876883f, -0.9848078f, -0.9816272f,
+    -0.9781476f, -0.9743701f, -0.9702957f, -0.9659258f, -0.9612617f, -0.9563048f,
+    -0.9510565f, -0.9455186f, -0.9396926f, -0.9335804f, -0.9271839f, -0.9205049f,
+    -0.9135455f, -0.9063078f, -0.8987940f, -0.8910065f, -0.8829476f, -0.8746197f,
+    -0.8660254f, -0.8571673f, -0.8480481f, -0.8386706f, -0.8290376f, -0.8191520f,
+    -0.8090170f, -0.7986355f, -0.7880108f, -0.7771460f, -0.7660444f, -0.7547096f,
+    -0.7431448f, -0.7313537f, -0.7193398f, -0.7071068f, -0.6946584f, -0.6819984f,
+    -0.6691306f, -0.6560590f, -0.6427876f, -0.6293204f, -0.6156615f, -0.6018150f,
+    -0.5877853f, -0.5735764f, -0.5591929f, -0.5446390f, -0.5299193f, -0.5150381f,
+    -0.5000000f, -0.4848096f, -0.4694716f, -0.4539905f, -0.4383711f, -0.4226183f,
+    -0.4067366f, -0.3907311f, -0.3746066f, -0.3583679f, -0.3420201f, -0.3255682f,
+    -0.3090170f, -0.2923717f, -0.2756374f, -0.2588190f, -0.2419219f, -0.2249511f,
+    -0.2079117f, -0.1908090f, -0.1736482f, -0.1564345f, -0.1391731f, -0.1218693f,
+    -0.1045285f, -0.0871557f, -0.0697565f, -0.0523360f, -0.0348995f, -0.0174524f,
+    -0.0000000f, 0.0174524f, 0.0348995f, 0.0523360f, 0.0697565f, 0.0871557f,
+    0.1045285f, 0.1218693f, 0.1391731f, 0.1564345f, 0.1736482f, 0.1908090f,
+    0.2079117f, 0.2249511f, 0.2419219f, 0.2588190f, 0.2756374f, 0.2923717f,
+    0.3090170f, 0.3255682f, 0.3420201f, 0.3583679f, 0.3746066f, 0.3907311f,
+    0.4067366f, 0.4226183f, 0.4383711f, 0.4539905f, 0.4694716f, 0.4848096f,
+    0.5000000f, 0.5150381f, 0.5299193f, 0.5446390f, 0.5591929f, 0.5735764f,
+    0.5877853f, 0.6018150f, 0.6156615f, 0.6293204f, 0.6427876f, 0.6560590f,
+    0.6691306f, 0.6819984f, 0.6946584f, 0.7071068f, 0.7193398f, 0.7313537f,
+    0.7431448f, 0.7547096f, 0.7660444f, 0.7771460f, 0.7880108f, 0.7986355f,
+    0.8090170f, 0.8191520f, 0.8290376f, 0.8386706f, 0.8480481f, 0.8571673f,
+    0.8660254f, 0.8746197f, 0.8829476f, 0.8910065f, 0.8987940f, 0.9063078f,
+    0.9135455f, 0.9205049f, 0.9271839f, 0.9335804f, 0.9396926f, 0.9455186f,
+    0.9510565f, 0.9563048f, 0.9612617f, 0.9659258f, 0.9702957f, 0.9743701f,
+    0.9781476f, 0.9816272f, 0.9848078f, 0.9876883f, 0.9902681f, 0.9925462f,
+    0.9945219f, 0.9961947f, 0.9975641f, 0.9986295f, 0.9993908f, 0.9998477f,
+    1.0000000f
+};
+static void
+sincos_custom( int angle, float* cosval, float* sinval )
+{
+  angle += (angle < 0 ? 360 : 0);
+  *sinval = SinTable[angle];
+  *cosval = SinTable[450 - angle];
+}
+
 
 // Forward declaration of static functions
 static void
@@ -46,6 +132,15 @@ static void
 grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int thickness, GrfScalar4D* color, int fill);
 static void
 grf_array_draw_ellipse_ex      (Array* array, GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, GrfScalar4D* color, int thickness, int line_type);
+static void
+grf_array_draw_polyline(Array* array, GrfScalar2D* v, int count, uint8_t is_closed, GrfScalar4D* color, int thickness, int line_type, int shift);
+static void
+grf_array_fill_edge_collection(Array* array, GrfScalar4D* edges, int num_edges, GrfScalar4D* color);
+static void
+grf_array_collect_polyedges(Array* array, GrfScalar2D* v, int count, GrfScalar4D** edges, int* count_edges, GrfScalar4D* color, int line_type, int shift, GrfScalar2D offset);
+
+
+// Draw Line without shift
 static void
 grf_array_draw_line_no_shift(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* _color, int connectivity){
   int err, count;
@@ -485,11 +580,12 @@ grf_array_draw_line_thick(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScala
 }
 
 static void
-grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, GrfScalar4D* color, int fill){
+grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, GrfScalar4D* _color, int fill){
   GrfSize2D* size     = (GrfSize2D*)array->size;
   size_t     step     = array->step[0];
   int        pix_size = array->size[2];
   uint8_t*   ptr      = array->data_uint8;
+  uint8_t    color[3] = {_color->x, _color->y, _color->z};
   int err = 0, dx = radius, dy = 0, plus = 1, minus = (radius << 1) - 1;
   int inside = center.x >= radius && center.x < size->width - radius &&
       center.y >= radius && center.y < size->height - radius;
@@ -513,8 +609,8 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
         IGRF_PUT_POINT( tptr0, x12 );
         IGRF_PUT_POINT( tptr1, x12 );
       }else{
-        IGRF_HLINE( tptr0, x11, x12, color, pix_size );
-        IGRF_HLINE( tptr1, x11, x12, color, pix_size );
+        IGRF_HLINE( tptr0, x11, x12, _color, pix_size );
+        IGRF_HLINE( tptr1, x11, x12, _color, pix_size );
       }
 
       tptr0 = ptr + y21 * step;
@@ -526,8 +622,8 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
         IGRF_PUT_POINT( tptr0, x22 );
         IGRF_PUT_POINT( tptr1, x22 );
       }else{
-        IGRF_HLINE( tptr0, x21, x22, color, pix_size );
-        IGRF_HLINE( tptr1, x21, x22, color, pix_size );
+        IGRF_HLINE( tptr0, x21, x22, _color, pix_size );
+        IGRF_HLINE( tptr1, x21, x22, _color, pix_size );
       }
     }
     else if( x11 < size->width && x12 >= 0 && y21 < size->height && y22 >= 0 ){
@@ -546,7 +642,7 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
             IGRF_PUT_POINT( tptr, x12 );
         }
         else
-          IGRF_HLINE( tptr, x11, x12, color, pix_size );
+          IGRF_HLINE( tptr, x11, x12, _color, pix_size );
       }
 
       if( (unsigned)y12 < (unsigned)size->height ){
@@ -559,7 +655,7 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
             IGRF_PUT_POINT( tptr, x12 );
         }
         else
-          IGRF_HLINE( tptr, x11, x12, color, pix_size );
+          IGRF_HLINE( tptr, x11, x12, _color, pix_size );
       }
 
       if( x21 < size->width && x22 >= 0 ){
@@ -578,7 +674,7 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
               IGRF_PUT_POINT( tptr, x22 );
           }
           else
-            IGRF_HLINE( tptr, x21, x22, color, pix_size );
+            IGRF_HLINE( tptr, x21, x22, _color, pix_size );
         }
 
         if( (unsigned)y22 < (unsigned)size->height )
@@ -592,7 +688,7 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
               IGRF_PUT_POINT( tptr, x22 );
           }
           else
-            IGRF_HLINE( tptr, x21, x22, color, pix_size );
+            IGRF_HLINE( tptr, x21, x22, _color, pix_size );
         }
       }
     }
@@ -611,7 +707,258 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
 }
 static void
 grf_array_draw_ellipse_ex      (Array* array, GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, GrfScalar4D* color, int thickness, int line_type){
+  axes.width = abs(axes.width), axes.height = abs(axes.height);
+  int delta = (max(axes.width,axes.height)+(XY_ONE>>1))>>XY_SHIFT;
+  delta = delta < 3 ? 90 : delta < 10 ? 30 : delta < 15 ? 18 : 5;
 
+  GrfScalar2D* v = NULL;
+  int count;
+  grf_ellipse_to_poly( center, axes, angle, arc_start, arc_end, delta, &v, &count );
+
+  if( thickness >= 0 )
+    grf_array_draw_polyline( array, &v[0], count, 0, color, thickness, line_type, XY_SHIFT );
+  else if( arc_end - arc_start >= 360 )
+    grf_array_fill_convex_poly( array, &v[0], count, color, line_type, XY_SHIFT );
+  else
+  {
+    v = realloc(v, (count + 1) * sizeof(GrfScalar2D));
+    v[count] = center;
+    GrfScalar4D* edges;
+    int count_edges = 0;
+    GrfScalar2D offset = {0,0};
+    grf_array_collect_polyedges( array,  &v[0], count+1, &edges, &count_edges, color, line_type, XY_SHIFT, offset);
+    grf_array_fill_edge_collection( array, edges, count_edges, color);
+  }
+  free(v);
+}
+static void
+grf_array_draw_polyline(Array* array, GrfScalar2D* v, int count, uint8_t is_closed, GrfScalar4D* color, int thickness, int line_type, int shift){
+  if(!v || count <= 0) return;
+  int i     = is_closed ? count - 1: 0;
+  int flags = 2 + !is_closed;
+  GrfScalar2D p0;
+  p0 = v[i];
+  for(i = !is_closed; i < count; i++){
+    GrfScalar2D p = v[i];
+    grf_array_draw_line_thick(array, p0, p, color, thickness, line_type, flags, shift);
+    p0            = p;
+    flags         = 2;
+  }
+}
+
+static void
+grf_array_collect_polyedges(Array* array, GrfScalar2D* v, int count, GrfScalar4D** edges, int* count_edges, GrfScalar4D* color, int line_type, int shift, GrfScalar2D offset){
+  int i, delta = offset.y + (shift ? 1 << (shift - 1) : 0);
+  GrfScalar2D pt0 = v[count-1], pt1;
+  pt0.x = (pt0.x + offset.x) << (XY_SHIFT - shift);
+  pt0.y = (pt0.y + delta) >> shift;
+
+  GrfScalar4D* edges2 = *edges;
+  edges2 = realloc(edges2,(count + (*count_edges) + 1)*sizeof(GrfScalar4D));
+  *edges = edges2;
+
+  for( i = 0; i < count; i++, pt0 = pt1 )
+  {
+    GrfScalar2D t0, t1;
+    GrfScalar4D edge;
+
+    pt1 = v[i];
+    pt1.x = (pt1.x + offset.x) << (XY_SHIFT - shift);
+    pt1.y = (pt1.y + delta) >> shift;
+
+    if( line_type < GRF_ANTIALIASED )
+    {
+      t0.y = pt0.y; t1.y = pt1.y;
+      t0.x = (pt0.x + (XY_ONE >> 1)) >> XY_SHIFT;
+      t1.x = (pt1.x + (XY_ONE >> 1)) >> XY_SHIFT;
+      grf_array_draw_line_no_shift(array, t0, t1, color, line_type );
+    }
+    else
+    {
+      t0.x = pt0.x; t1.x = pt1.x;
+      t0.y = pt0.y << XY_SHIFT;
+      t1.y = pt1.y << XY_SHIFT;
+      grf_array_draw_line_antialiased(array, t0, t1, color );
+    }
+
+    if( pt0.y == pt1.y )
+      continue;
+
+    if( pt0.y < pt1.y )
+    {
+      edge.y = pt0.y;
+      edge.w = pt1.y;
+      edge.x = pt0.x;
+    }
+    else
+    {
+      edge.y = pt1.y;
+      edge.w = pt0.y;
+      edge.x = pt1.x;
+    }
+    edge.z = (pt1.x - pt0.x) / (pt1.y - pt0.y);
+    edges2[i] = edge;
+    (*count_edges)++;
+  }
+}
+
+int grf_compare_edges(const void* elem1, const void* elem2){
+  GrfScalar4D* e1 = (GrfScalar4D*) elem1;
+  GrfScalar4D* e2 = (GrfScalar4D*) elem2;
+  // First compare Y, after X, after X2 (dx)
+  if     (e1->y  < e2->y ) return -1;
+  else if(e1->y  > e2->y ) return  1;
+  else if(e1->x  < e2->x ) return -1;
+  else if(e1->x  > e2->x ) return  1;
+  else if(e1->x2 < e2->x2) return -1;
+  else if(e1->x2 > e2->x2) return  1;
+  return 0;
+}
+
+static void
+grf_array_fill_edge_collection(Array* array, GrfScalar4D* edges, int num_edges, GrfScalar4D* color){
+  GrfScalar4D tmp;
+  int i, y, total = num_edges;
+  GrfSize2D* size = (GrfSize2D*) array->size;
+  GrfScalar4D* e;
+  int y_max = INT_MIN, x_max = INT_MIN, y_min = INT_MAX, x_min = INT_MAX;
+  int pix_size = array->dim < 3?1:array->size[2];
+
+  if( total < 2 )
+      return;
+
+  for( i = 0; i < total; i++ )
+  {
+    GrfScalar4D* e1 = edges + i;
+    // Determine x-coordinate of the end of the edge.
+    // (This is not necessary x-coordinate of any vertex in the array.)
+    int x1 = e1->x + (e1->y2 - e1->y) * e1->x2;
+    y_min = min( y_min, e1->y );
+    y_max = max( y_max, e1->y2 );
+    x_min = min( x_min, e1->x );
+    x_max = max( x_max, e1->x );
+    x_min = min( x_min, x1 );
+    x_max = max( x_max, x1 );
+  }
+
+  if( y_max < 0 || y_min >= size->height || x_max < 0 || x_min >= (size->width<<XY_SHIFT) )
+    return;
+
+  qsort(edges, num_edges, sizeof(GrfScalar4D), grf_compare_edges);
+
+  // start drawing
+  tmp.y            = INT_MAX;
+  edges[num_edges] = tmp;
+
+  //edges.push_back(tmp); // after this point we do not add
+                        // any elements to edges, thus we can use pointers
+  i = 0;
+//  e = &edges[i];
+//  y_max = min( y_max, size->height );
+
+//  for( y = e->y0; y < y_max; y++ )
+//  {
+//    PolyEdge *last, *prelast, *keep_prelast;
+//    int sort_flag = 0;
+//    int draw = 0;
+//    int clipline = y < 0;
+
+//    prelast = &tmp;
+//    last = tmp.next;
+//    while( last || e->y0 == y )
+//    {
+//      if( last && last->y1 == y )
+//      {
+//        // exclude edge if y reachs its lower point
+//        prelast->next = last->next;
+//        last = last->next;
+//        continue;
+//      }
+//      keep_prelast = prelast;
+//      if( last && (e->y0 > y || last->x < e->x) )
+//      {
+//        // go to the next edge in active list
+//        prelast = last;
+//        last = last->next;
+//      }
+//      else if( i < total )
+//      {
+//        // insert new edge into active list if y reachs its upper point
+//        prelast->next = e;
+//        e->next = last;
+//        prelast = e;
+//        e = &edges[++i];
+//      }
+//      else
+//          break;
+
+//      if( draw )
+//      {
+//        if( !clipline )
+//        {
+//          // convert x's from fixed-point to image coordinates
+//          uchar *timg = img.ptr(y);
+//          int x1 = keep_prelast->x;
+//          int x2 = prelast->x;
+
+//          if( x1 > x2 )
+//          {
+//            int t = x1;
+
+//            x1 = x2;
+//            x2 = t;
+//          }
+
+//          x1 = (x1 + XY_ONE - 1) >> XY_SHIFT;
+//          x2 = x2 >> XY_SHIFT;
+
+//          // clip and draw the line
+//          if( x1 < size.width && x2 >= 0 )
+//          {
+//            if( x1 < 0 )
+//                x1 = 0;
+//            if( x2 >= size.width )
+//                x2 = size.width - 1;
+//            IGRF_HLINE( timg, x1, x2, color, pix_size );
+//          }
+//        }
+//        keep_prelast->x += keep_prelast->dx;
+//        prelast->x += prelast->dx;
+//      }
+//      draw ^= 1;
+//    }
+
+//    // sort edges (using bubble sort)
+//    keep_prelast = 0;
+
+//    do
+//    {
+//      prelast = &tmp;
+//      last = tmp.next;
+
+//      while( last != keep_prelast && last->next != 0 )
+//      {
+//        PolyEdge *te = last->next;
+
+//        // swap edges
+//        if( last->x > te->x )
+//        {
+//          prelast->next = te;
+//          last->next = te->next;
+//          te->next = last;
+//          prelast = te;
+//          sort_flag = 1;
+//        }
+//        else
+//        {
+//          prelast = last;
+//          last = te;
+//        }
+//      }
+//      keep_prelast = prelast;
+//    }
+//    while( sort_flag && keep_prelast != tmp.next && keep_prelast != &tmp );
+//  }
 }
 
 /*=======================
@@ -681,9 +1028,112 @@ grf_array_draw_line(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D *c
 }
 void
 grf_array_draw_circle(Array *array, GrfScalar2D center, int radius, GrfScalar4D *color, int thickness, int line_type, int shift){
+  if( line_type == GRF_ANTIALIASED)
+      line_type = GRAFEO_NEIGHBOR_8;
 
+  if( thickness > 1 || line_type >= GRF_ANTIALIASED || shift > 0 )
+  {
+    center.x <<= XY_SHIFT - shift;
+    center.y <<= XY_SHIFT - shift;
+    radius   <<= XY_SHIFT - shift;
+    GrfSize2D radiuses = {radius,radius};
+    grf_array_draw_ellipse_ex(array, center, radiuses,
+               0, 0, 360, color, thickness, line_type );
+  }
+  else
+      grf_array_draw_circle_direct(array, center, radius, color, thickness < 0 );
 }
 void
 grf_array_draw_ellipse(Array *array, GrfScalar2D center, GrfSize2D axes, double angle, double start_angle, double end_angle, GrfScalar4D *color, int thickness, int line_type, int shift){
+  if( line_type == GRF_ANTIALIASED)
+      line_type = GRAFEO_NEIGHBOR_8;
 
+  int _angle       = grf_round(angle);
+  int _start_angle = grf_round(start_angle);
+  int _end_angle   = grf_round(end_angle);
+  center.x    <<= XY_SHIFT - shift;
+  center.y    <<= XY_SHIFT - shift;
+  axes.width  <<= XY_SHIFT - shift;
+  axes.height <<= XY_SHIFT - shift;
+
+  grf_array_draw_ellipse_ex(array, center, axes, _angle, _start_angle,
+             _end_angle, color, thickness, line_type );
+}
+
+void
+grf_ellipse_to_poly(GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, int delta, GrfScalar2D** pts, int *count){
+  float       alpha, beta;
+  double      size_a = axes.width, size_b = axes.height;
+  double      cx     = center.x, cy = center.y;
+  GrfScalar2D prevPt = {INT_MIN,INT_MIN};
+  int         i;
+
+  while( angle < 0 )
+    angle += 360;
+  while( angle > 360 )
+    angle -= 360;
+
+  if( arc_start > arc_end ){
+    i = arc_start;
+    arc_start = arc_end;
+    arc_end = i;
+  }
+  while( arc_start < 0 ){
+    arc_start += 360;
+    arc_end += 360;
+  }
+  while( arc_end > 360 ){
+    arc_end -= 360;
+    arc_start -= 360;
+  }
+  if( arc_end - arc_start > 360 ){
+    arc_start = 0;
+    arc_end = 360;
+  }
+  double angle2 = (double) angle;
+  sincos_custom(angle2, &alpha, &beta );
+
+  int cur_length = 1024;
+
+  GrfScalar2D* pts2 = malloc(cur_length * sizeof(GrfScalar2D));
+  *pts = pts2;
+
+  for(i = arc_start; i < arc_end + delta; i += delta ){
+    double x, y;
+    angle = i;
+    if( angle > arc_end )
+      angle = arc_end;
+    if( angle < 0 )
+      angle += 360;
+
+    x = size_a * SinTable[450-angle];
+    y = size_b * SinTable[angle];
+    GrfScalar2D pt;
+    pt.x = grf_round( cx + x * alpha - y * beta );
+    pt.y = grf_round( cy + x * beta + y * alpha );
+    if( pt.x != prevPt.x || pt.y != prevPt.y ){
+      // Resize list whether not sufficient
+      if(*count == cur_length){
+        cur_length <<= 1;
+        pts2 = realloc(pts,cur_length * sizeof(GrfScalar2D));
+        *pts = pts2;
+      }
+      pts[*count]->x = pt.x;
+      pts[*count]->y = pt.y;
+      (*count)++;
+    }
+  }
+
+
+  // If there are no points, it's a zero-size polygon
+  if( *count == 1) {
+    *count    = 2;
+    pts2 = realloc(pts,2 * sizeof(GrfScalar2D));
+    pts2[0].x = center.x;pts2[0].y = center.y;
+    pts2[1].x = center.x;pts2[1].y = center.y;
+
+  }else{
+    pts2 = realloc(pts,*count * sizeof(GrfScalar2D));
+  }
+  *pts = pts2;
 }

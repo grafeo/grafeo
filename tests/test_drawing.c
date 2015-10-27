@@ -40,7 +40,7 @@ static void test_drawing_line(void** state){
   GrfScalar2D p0        = {-5, 0},
               p1        = {8,8};
   GrfScalar4D color     = grf_scalar4D_new(255,100,50,255);
-  int         thickness = 1;
+  int         thickness = 2;
   int         line_type = GRAFEO_NEIGHBOR_8;
   int         shift     = 0;
 
@@ -65,6 +65,34 @@ static void test_drawing_line(void** state){
 
 static void test_drawing_circle(void** state){
   (void) state;
+  Array* array = array_new_3D(10,10,3);
+  array_fill(array,0);
+
+  // Circle Properties
+  GrfScalar2D center    = {5, 5};
+  int radius            = 2;
+  GrfScalar4D color     = grf_scalar4D_new(255,100,50,255);
+  int         thickness = -1;
+  int         line_type = GRAFEO_NEIGHBOR_8;
+  int         shift     = 0;
+
+  // Draw Line
+  grf_array_draw_circle(array, center, radius, &color, thickness, line_type, shift);
+
+  uint64_t x,y,c;
+  // Print line
+  for(y = 0; y < 10; y++){
+    for(x = 0; x < 10; x++){
+      printf("(");
+      for(c = 0; c < 3; c++)
+        printf("%3d ", array->data_uint8[y*array->step[0]+x*array->step[1]+c*array->step[2]]);
+      printf(")");
+    }
+    printf("\n");
+  }
+
+  // Free Array
+  array_free(array);
 }
 
 static void test_drawing_polyline(void** state){
