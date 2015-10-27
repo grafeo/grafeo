@@ -123,9 +123,11 @@ typedef struct _GrfScalar2D{
 typedef struct _GrfScalar4D{
   int x;
   int y;
-  int z;
-  int w;
+  union{int z;int width;};
+  union{int w;int height;};
 }GrfScalar4D;
+
+typedef GrfScalar4D GrfRectangle;
 
 /**
  * @brief Structure for 2D array of scalar values

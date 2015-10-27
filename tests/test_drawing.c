@@ -30,7 +30,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <grafeo/drawing.h>
-
+#define grf_scalar4D_new(v1,v2,v3,v4) {v1,v2,{v3},{v4}};
 static void test_drawing_line(void** state){
   (void) state;
   Array* array = array_new_3D(10,10,3);
@@ -39,9 +39,9 @@ static void test_drawing_line(void** state){
   // Line Properties
   GrfScalar2D p0        = {-5, 0},
               p1        = {8,8};
-  GrfScalar4D color     = {255,100,50,255};
+  GrfScalar4D color     = grf_scalar4D_new(255,100,50,255);
   int         thickness = 1;
-  int         line_type = 0;
+  int         line_type = GRAFEO_NEIGHBOR_8;
   int         shift     = 0;
 
   // Draw Line
