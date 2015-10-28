@@ -303,7 +303,7 @@ Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
   else if(destiny == GRAFEO_RGBA || destiny == GRAFEO_BGRA)
     output = array_new_3D_type(array->size[0], array->size[1], 4, array->type);
 
-
+  uint64_t i2;
   // Filling array
   if(origin == GRAFEO_GRAY){
     if(destiny == GRAFEO_RGB){
@@ -313,11 +313,18 @@ Array* image_cvt_color(Array* array, ColorType origin, ColorType destiny){
         output->data_uint8[3*i+2] = array->data_uint8[i];
       }
     }else if(destiny == GRAFEO_RGBA){
-      uint64_t i2;
       for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
         output->data_uint8[i2  ] = array->data_uint8[i];
         output->data_uint8[i2+1] = array->data_uint8[i];
         output->data_uint8[i2+2] = array->data_uint8[i];
+        output->data_uint8[i2+3] = 255;
+      }
+    }
+    else if(destiny == GRAFEO_BGRA){
+      for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
+        output->data_uint8[i2+2] = array->data_uint8[i];
+        output->data_uint8[i2+1] = array->data_uint8[i];
+        output->data_uint8[i2  ] = array->data_uint8[i];
         output->data_uint8[i2+3] = 255;
       }
     }

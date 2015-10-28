@@ -278,6 +278,22 @@ static void test_image_cvt_color(void** state){
     assert_int_equal(255,array_rgba->data_uint8[i*4+3]);
   }
 
+  // From Grayscale to BGRA
+  Array* array_bgra2 = image_cvt_color(array, GRAFEO_GRAY, GRAFEO_BGRA);
+  assert_int_equal(array_bgra2->dim       , 3);
+  assert_int_equal(array_bgra2->size[0]   , array->size[0]);
+  assert_int_equal(array_bgra2->size[1]   , array->size[1]);
+  assert_int_equal(array_bgra2->size[2]   , 4);
+  assert_int_equal(array_bgra2->bitsize   , array->bitsize);
+  assert_int_equal(array_bgra2->contiguous, array->contiguous);
+  assert_int_equal(array_bgra2->num_elements  , array->num_elements*4);
+  for(i = 0; i < array->num_elements;i++){
+    assert_int_equal(array->data_uint8[i],array_rgba->data_uint8[i*4+2]);
+    assert_int_equal(array->data_uint8[i],array_rgba->data_uint8[i*4+1]);
+    assert_int_equal(array->data_uint8[i],array_rgba->data_uint8[i*4]);
+    assert_int_equal(255,array_rgba->data_uint8[i*4+3]);
+  }
+
   // From RGB to RGBA
   Array* array_rgba2 = image_cvt_color(array_rgb, GRAFEO_RGB, GRAFEO_RGBA);
   assert_int_equal(array_rgba2->dim, 3);
