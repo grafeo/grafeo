@@ -140,7 +140,7 @@ typedef struct _GrfScalar4D{
   union{int z;int width;int x2;};
   union{int w;int height;int y2;};
 }GrfScalar4D;
-
+#define grf_scalar4D_new(v1,v2,v3,v4) {v1,v2,{v3},{v4}};
 typedef GrfScalar4D GrfRectangle;
 
 /**

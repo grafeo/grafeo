@@ -27,22 +27,50 @@
 # ===================================================================*/
 #include <grafeo/imagewidget.h>
 #include <grafeo/image.h>
+#include <grafeo/drawing.h>
 #include <setjmp.h>
 #include <cmocka.h>
 
-static void imprimir(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+static uint8_t pressionado;
+static guint context;
+static GtkWidget* statusbar;
+
+static void pressionar(GtkWidget* widget, GdkEvent *event, gpointer user_data){
   printf("press\n");
+  pressionado = 1;
 }
 static void soltar(GtkWidget* widget, GdkEvent *event, gpointer user_data){
   printf("soltar\n");
+  pressionado = 0;
 }
+static void mover(GtkWidget* widget, GdkEvent* event, gpointer user_data){
+  printf("mover\n");
+  GrfArray* imagem = (GrfArray*)user_data;
+  double x, y;
+  char texto[10];
+  gdk_event_get_coords(event, &x, &y);
+  sprintf(texto,"%d %d", (int)x,(int)y);
+
+  if(pressionado){
+    GrfScalar2D centro = {x,y};
+    GrfScalar4D cor = grf_scalar4D_new (255,0,0,255);
+    grf_array_draw_circle(imagem,centro,3,&cor,-1,GRF_NEIGHBOR_8,0);
+    GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
+    grf_imagewidget_set_image(imagewidget, imagem);
+    gtk_widget_queue_draw(widget);
+  }
+  gtk_statusbar_push(GTK_STATUSBAR(statusbar), context, texto);
+}
+
 static void window_key_press_event(GtkWidget* widget, GdkEventKey* event){
   printf("evento\n");
+  //gtk_main_quit();
 }
 
 static void test_grf_imagewidget_show(void**state){
   (void) state;
   gtk_init(NULL, NULL);
+  pressionado            = 0;
   char* filenames[3]     = {"trekkie-nerd.png",
                             "distance_transform_input.pgm",
                             "../data/trekkie-nerd.jpg"};
@@ -50,13 +78,25 @@ static void test_grf_imagewidget_show(void**state){
   GtkWidget* imagewidget = grf_imagewidget_new();
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   GtkWidget* box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+  statusbar              = gtk_statusbar_new();
+  context = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar),"example");
 
+  gtk_widget_set_size_request(statusbar,-1,30);
   gtk_widget_add_events(imagewidget, GDK_BUTTON_RELEASE_MASK | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK);
 
+  GrfScalar2D p0 = {200,450}, p1 = {300,450};
+  GrfScalar4D color = grf_scalar4D_new(255,0,0,255);
+
+  grf_array_draw_line(array_gray,p0,p1,&color,1,GRF_NEIGHBOR_8, 0);
+  grf_array_draw_circle(array_gray,p0,3,&color,-1,GRF_NEIGHBOR_8,0);
   grf_imagewidget_set_image(GRF_IMAGEWIDGET(imagewidget),array_gray);
 
   gtk_box_pack_start (GTK_BOX(box),imagewidget,TRUE,TRUE,0);
+  gtk_box_pack_start (GTK_BOX(box),statusbar,TRUE,TRUE,0);
   gtk_container_add  (GTK_CONTAINER(window), box);
+  g_signal_connect   (imagewidget, "button-press-event"  , G_CALLBACK(pressionar), NULL);
+  g_signal_connect   (imagewidget, "button-release-event", G_CALLBACK(soltar)    , NULL);
+  g_signal_connect   (imagewidget, "motion-notify-event" , G_CALLBACK(mover)    , array_gray);
   g_signal_connect   (window     , "destroy"             , G_CALLBACK(gtk_main_quit),NULL);
   g_signal_connect   (window     , "key-press-event"     , G_CALLBACK(window_key_press_event), NULL);
   gtk_widget_show_all(window);

@@ -128,7 +128,6 @@ SET(GRAFEO_STRUCTURE_HDR
   include/grafeo/array.h
   include/grafeo/queue.h
   include/grafeo/range.h
-  include/grafeo/size.h
   include/grafeo/hal.h
 )
 SET(GRAFEO_IMGPROC_HDR

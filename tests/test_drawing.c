@@ -30,18 +30,17 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <grafeo/drawing.h>
-#define grf_scalar4D_new(v1,v2,v3,v4) {v1,v2,{v3},{v4}};
 static void test_drawing_line(void** state){
   (void) state;
-  Array* array = array_new_3D(10,10,3);
-  array_fill(array,0);
+  GrfArray* array = grf_array_new_3D(10,10,3);
+  grf_array_fill(array,0);
 
   // Line Properties
   GrfScalar2D p0        = {-5, 0},
               p1        = {8,8};
   GrfScalar4D color     = grf_scalar4D_new(255,100,50,255);
   int         thickness = 2;
-  int         line_type = GRAFEO_NEIGHBOR_8;
+  int         line_type = GRF_NEIGHBOR_8;
   int         shift     = 0;
 
   // Draw Line
@@ -60,20 +59,20 @@ static void test_drawing_line(void** state){
   }
 
   // Free Array
-  array_free(array);
+  grf_array_free(array);
 }
 
 static void test_drawing_circle(void** state){
   (void) state;
-  Array* array = array_new_3D(10,10,3);
-  array_fill(array,0);
+  GrfArray* array = grf_array_new_3D(10,10,3);
+  grf_array_fill(array,0);
 
   // Circle Properties
   GrfScalar2D center    = {5, 5};
   int radius            = 2;
   GrfScalar4D color     = grf_scalar4D_new(255,100,50,255);
   int         thickness = -1;
-  int         line_type = GRAFEO_NEIGHBOR_8;
+  int         line_type = GRF_NEIGHBOR_8;
   int         shift     = 0;
 
   // Draw Line
@@ -92,7 +91,7 @@ static void test_drawing_circle(void** state){
   }
 
   // Free Array
-  array_free(array);
+  grf_array_free(array);
 }
 
 static void test_drawing_polyline(void** state){
@@ -104,14 +103,14 @@ static void test_drawing_line_arrow(void** state){
 }
 static void test_drawing_rectangle(void** state){
   (void) state;
-  Array* array = array_new_3D(10,10,3);
-  array_fill(array,0);
+  GrfArray* array = grf_array_new_3D(10,10,3);
+  grf_array_fill(array,0);
 
   // Rectangle Properties
   GrfRectangle rect     = grf_scalar4D_new(3,3,6,4);
   GrfScalar4D color     = grf_scalar4D_new(255,100,50,255);
   int         thickness = 1;
-  int         line_type = GRAFEO_NEIGHBOR_8;
+  int         line_type = GRF_NEIGHBOR_8;
   int         shift     = 0;
 
   // Draw Rectangle
@@ -130,7 +129,7 @@ static void test_drawing_rectangle(void** state){
   }
 
   // Free Array
-  array_free(array);
+  grf_array_free(array);
 
 }
 

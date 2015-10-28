@@ -26,7 +26,6 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/imagewidget.h>
-#include <grafeo/size.h>
 
 /*=================================
  * PRIVATE API
@@ -149,15 +148,15 @@ grf_imagewidget_class_init(GrfImageWidgetClass *klass){
   //grf_imagewidget_signals_init(klass);
 
   GtkWidgetClass* widget_class      = GTK_WIDGET_CLASS(klass);
-  widget_class->button_press_event  = grf_imagewidget_button_press_event;
-  widget_class->button_release_event= grf_imagewidget_button_release_event;
-  widget_class->motion_notify_event = grf_imagewidget_motion_notify_event;
+//  widget_class->button_press_event  = grf_imagewidget_button_press_event;
+//  widget_class->button_release_event= grf_imagewidget_button_release_event;
+  //widget_class->motion_notify_event = grf_imagewidget_motion_notify_event;
   widget_class->realize             = grf_imagewidget_realize;
 //  widget_class->size_allocate       = grf_imagewidget_size_allocate;
 //  widget_class->unrealize           = grf_imagewidget_unrealize;
 
-//  widget_class->get_preferred_width = grf_imagewidget_get_preferred_width;
-//  widget_class->get_preferred_height= grf_imagewidget_get_preferred_height;
+  widget_class->get_preferred_width = grf_imagewidget_get_preferred_width;
+  widget_class->get_preferred_height= grf_imagewidget_get_preferred_height;
   widget_class->draw                = grf_imagewidget_draw;
 
   klass->zoom_in        = grf_imagewidget_zoom_in;
@@ -369,8 +368,8 @@ grf_imagewidget_zoom_to_fit         (GrfImageWidget* widget, gboolean is_allocat
   GrfSize2D alloc = grf_imagewidget_get_allocated_size(widget);
   GrfImageWidgetPrivate *priv = grf_imagewidget_get_instance_private(widget);
 
-  gdouble ratio_x = (gdouble) alloc.size1/img.size1;
-  gdouble ratio_y = (gdouble) alloc.size2/img.size2;
+  gdouble ratio_x = (gdouble) alloc.width/img.width;
+  gdouble ratio_y = (gdouble) alloc.height/img.height;
   gdouble zoom    = MIN(ratio_x, ratio_y);
   if(priv->fitting == GRF_FITTING_NORMAL)
     zoom = CLAMP(zoom, GRF_ZOOM_MIN , 1.0);
@@ -382,8 +381,8 @@ grf_imagewidget_zoom_to_fit         (GrfImageWidget* widget, gboolean is_allocat
 static void
 grf_imagewidget_set_zoom_no_center(GrfImageWidget* imagewidget, gboolean zoom, gboolean is_allocating){
   GrfSize2D alloc = grf_imagewidget_get_allocated_size(imagewidget);
-  gdouble center_x = alloc.size1 >> 1;
-  gdouble center_y = alloc.size2 >> 2;
+  gdouble center_x = alloc.width >> 1;
+  gdouble center_y = alloc.height >> 2;
   grf_imagewidget_set_zoom_with_center(imagewidget, zoom, center_x, center_y, is_allocating);
 }
 
@@ -397,8 +396,8 @@ grf_imagewidget_set_zoom_with_center(GrfImageWidget* imagewidget,
   GrfSize2D zoomed = grf_imagewidget_get_zoomed_size(imagewidget);
   GrfSize2D alloc  = grf_imagewidget_get_allocated_size(imagewidget);
   gint x, y;
-  x = alloc.size1 - zoomed.size1;
-  y = alloc.size2 - zoomed.size2;
+  x = alloc.width - zoomed.width;
+  y = alloc.height - zoomed.height;
   x = (x < 0)?0:x;
   y = (y < 0)?0:y;
 
@@ -422,8 +421,8 @@ static void
 grf_imagewidget_clamp_offset(GrfImageWidget* imagewidget, gdouble* x, gdouble* y){
   GrfSize2D alloc = grf_imagewidget_get_allocated_size(imagewidget);
   GrfSize2D zoomed = grf_imagewidget_get_zoomed_size(imagewidget);
-  *x = MAX(MIN(*x,zoomed.size1 - alloc.size1),0);
-  *y = MAX(MIN(*y,zoomed.size2 - alloc.size2),0);
+  *x = MAX(MIN(*x,zoomed.width - alloc.width),0);
+  *y = MAX(MIN(*y,zoomed.height - alloc.height),0);
 }
 
 static void
@@ -433,18 +432,18 @@ grf_imagewidget_update_adjustments(GrfImageWidget* imagewidget){
 
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
   gtk_adjustment_set_lower         (priv->hadj,0.0);
-  gtk_adjustment_set_upper         (priv->hadj,zoomed.size1);
+  gtk_adjustment_set_upper         (priv->hadj,zoomed.width);
   gtk_adjustment_set_value         (priv->hadj,priv->offset_x);
   gtk_adjustment_set_step_increment(priv->hadj,20.0);
-  gtk_adjustment_set_page_increment(priv->hadj,alloc.size1 >> 1);
-  gtk_adjustment_set_page_size     (priv->hadj,alloc.size1);
+  gtk_adjustment_set_page_increment(priv->hadj,alloc.width >> 1);
+  gtk_adjustment_set_page_size     (priv->hadj,alloc.width);
 
   gtk_adjustment_set_lower         (priv->vadj,0.0);
-  gtk_adjustment_set_upper         (priv->vadj,zoomed.size1);
+  gtk_adjustment_set_upper         (priv->vadj,zoomed.width);
   gtk_adjustment_set_value         (priv->vadj,priv->offset_x);
   gtk_adjustment_set_step_increment(priv->vadj,20.0);
-  gtk_adjustment_set_page_increment(priv->vadj,alloc.size1 >> 1);
-  gtk_adjustment_set_page_size     (priv->vadj,alloc.size1);
+  gtk_adjustment_set_page_increment(priv->vadj,alloc.width >> 1);
+  gtk_adjustment_set_page_size     (priv->vadj,alloc.width);
 
 //  g_signal_handlers_block_by_data(G_OBJECT(priv->hadj), imagewidget);
 //  g_signal_handlers_block_by_data(G_OBJECT(priv->hadj), imagewidget);
@@ -460,8 +459,8 @@ grf_imagewidget_get_pixbuf_size(GrfImageWidget* imagewidget){
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
 
   if(!priv->pixbuf) return s;
-  s.size1 = gdk_pixbuf_get_width(priv->pixbuf);
-  s.size2 = gdk_pixbuf_get_height(priv->pixbuf);
+  s.width = gdk_pixbuf_get_width(priv->pixbuf);
+  s.height = gdk_pixbuf_get_height(priv->pixbuf);
   return s;
 }
 static GrfSize2D
@@ -470,8 +469,8 @@ grf_imagewidget_get_allocated_size(GrfImageWidget* imagewidget){
   GtkWidget* widget = GTK_WIDGET(imagewidget);
   GtkAllocation alloc;
   gtk_widget_get_allocation(widget, &alloc);
-  size.size1 = alloc.width;
-  size.size2 = alloc.height;
+  size.width = alloc.width;
+  size.height = alloc.height;
   return size;
 }
 
@@ -480,8 +479,8 @@ grf_imagewidget_get_zoomed_size(GrfImageWidget* imagewidget){
   GrfSize2D size = grf_imagewidget_get_pixbuf_size(imagewidget);
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
 
-  size.size1 = (uint32_t)(size.size1 * priv->zoom + 0.5);
-  size.size2 = (uint32_t)(size.size2 * priv->zoom + 0.5);
+  size.width = (uint32_t)(size.width * priv->zoom + 0.5);
+  size.height = (uint32_t)(size.height * priv->zoom + 0.5);
   return size;
 }
 

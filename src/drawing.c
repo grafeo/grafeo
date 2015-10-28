@@ -119,30 +119,30 @@ sincos_custom( int angle, float* cosval, float* sinval )
 
 // Forward declaration of static functions
 static void
-grf_array_draw_line_no_shift (Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color, int line_type);
+grf_array_draw_line_no_shift (GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color, int line_type);
 static void
-grf_array_draw_line_neighbor_8 (Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color);
+grf_array_draw_line_neighbor_8 (GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color);
 static void
-grf_array_draw_line_antialiased(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color);
+grf_array_draw_line_antialiased(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color);
 static void
-grf_array_fill_convex_poly     (Array* array, GrfScalar2D* v, int npts, GrfScalar4D* color, int line_type, int shift);
+grf_array_fill_convex_poly     (GrfArray* array, GrfScalar2D* v, int npts, GrfScalar4D* color, int line_type, int shift);
 static void
-grf_array_draw_line_thick      (Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D *color, int thickness, int line_type, int flags, int shift);
+grf_array_draw_line_thick      (GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D *color, int thickness, int line_type, int flags, int shift);
 static void
-grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int thickness, GrfScalar4D* color, int fill);
+grf_array_draw_circle_direct   (GrfArray* array, GrfScalar2D center, int thickness, GrfScalar4D* color, int fill);
 static void
-grf_array_draw_ellipse_ex      (Array* array, GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, GrfScalar4D* color, int thickness, int line_type);
+grf_array_draw_ellipse_ex      (GrfArray* array, GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, GrfScalar4D* color, int thickness, int line_type);
 static void
-grf_array_draw_polyline(Array* array, GrfScalar2D* v, int count, uint8_t is_closed, GrfScalar4D* color, int thickness, int line_type, int shift);
+grf_array_draw_polyline(GrfArray* array, GrfScalar2D* v, int count, uint8_t is_closed, GrfScalar4D* color, int thickness, int line_type, int shift);
 static void
-grf_array_fill_edge_collection(Array* array, GrfScalar4D* edges, int num_edges, GrfScalar4D* color);
+grf_array_fill_edge_collection(GrfArray* array, GrfScalar4D* edges, int num_edges, GrfScalar4D* color);
 static void
-grf_array_collect_polyedges(Array* array, GrfScalar2D* v, int count, GrfScalar4D** edges, int* count_edges, GrfScalar4D* color, int line_type, int shift, GrfScalar2D offset);
+grf_array_collect_polyedges(GrfArray* array, GrfScalar2D* v, int count, GrfScalar4D** edges, int* count_edges, GrfScalar4D* color, int line_type, int shift, GrfScalar2D offset);
 
 
 // Draw Line without shift
 static void
-grf_array_draw_line_no_shift(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* _color, int connectivity){
+grf_array_draw_line_no_shift(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* _color, int connectivity){
   int err, count;
   uint8_t* ptr;
   int minusDelta, plusDelta;
@@ -200,7 +200,7 @@ grf_array_draw_line_no_shift(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfSc
   istep ^= bt_pix & s;
   bt_pix ^= istep & s;
 
-  if( connectivity == GRAFEO_NEIGHBOR_8 )  {
+  if( connectivity == GRF_NEIGHBOR_8 )  {
 
       err = dx - (dy + dy);
       plusDelta = dx + dx;
@@ -232,12 +232,12 @@ grf_array_draw_line_no_shift(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfSc
   }
 }
 static void
-grf_array_draw_line_antialiased(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color){
+grf_array_draw_line_antialiased(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color){
 
 }
 
 static void
-grf_array_draw_line_neighbor_8(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color){
+grf_array_draw_line_neighbor_8(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color){
   int dx, dy; // Manhattan distance between points
   int ecount; // Number of elements
   int ax, ay;
@@ -355,7 +355,7 @@ grf_array_draw_line_neighbor_8(Array* array, GrfScalar2D p1, GrfScalar2D p2, Grf
 }
 
 static void
-grf_array_fill_convex_poly(Array* array, GrfScalar2D* v, int npts, GrfScalar4D* color, int line_type, int shift){
+grf_array_fill_convex_poly(GrfArray* array, GrfScalar2D* v, int npts, GrfScalar4D* color, int line_type, int shift){
   struct
   {
     int idx, di;
@@ -510,7 +510,7 @@ grf_array_fill_convex_poly(Array* array, GrfScalar2D* v, int npts, GrfScalar4D* 
 }
 
 void
-grf_array_draw_line_thick(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D *color, int thickness, int line_type, int flags, int shift){
+grf_array_draw_line_thick(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D *color, int thickness, int line_type, int flags, int shift){
   static const double INV_XY_ONE = 1./XY_ONE;
 
   p1.x <<= XY_SHIFT - shift;
@@ -520,7 +520,7 @@ grf_array_draw_line_thick(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScala
 
   if(thickness <= 1){
     if(line_type != GRF_ANTIALIASED){
-      if(line_type == GRAFEO_NEIGHBOR_4 || shift == 0){
+      if(line_type == GRF_NEIGHBOR_4 || shift == 0){
         p1.x = (p1.x + (XY_ONE>>1)) >> XY_SHIFT;
         p1.y = (p1.y + (XY_ONE>>1)) >> XY_SHIFT;
         p2.x = (p2.x + (XY_ONE>>1)) >> XY_SHIFT;
@@ -580,15 +580,15 @@ grf_array_draw_line_thick(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScala
 }
 
 static void
-grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, GrfScalar4D* _color, int fill){
-  GrfSize2D* size     = (GrfSize2D*)array->size;
+grf_array_draw_circle_direct   (GrfArray* array, GrfScalar2D center, int radius, GrfScalar4D* _color, int fill){
+  GrfSize2D  size     = {array->size[1],array->size[0]};
   size_t     step     = array->step[0];
   int        pix_size = array->size[2];
   uint8_t*   ptr      = array->data_uint8;
   uint8_t    color[3] = {_color->x, _color->y, _color->z};
   int err = 0, dx = radius, dy = 0, plus = 1, minus = (radius << 1) - 1;
-  int inside = center.x >= radius && center.x < size->width - radius &&
-      center.y >= radius && center.y < size->height - radius;
+  int inside = center.x >= radius && center.x < size.width - radius &&
+      center.y >= radius && center.y < size.height - radius;
 
   #define IGRF_PUT_POINT( ptr, x )     \
     memcpy( ptr + (x)*pix_size, color, pix_size );
@@ -626,65 +626,65 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
         IGRF_HLINE( tptr1, x21, x22, _color, pix_size );
       }
     }
-    else if( x11 < size->width && x12 >= 0 && y21 < size->height && y22 >= 0 ){
+    else if( x11 < size.width && x12 >= 0 && y21 < size.height && y22 >= 0 ){
       if( fill ){
         x11 = max( x11, 0 );
-        x12 = min( x12, size->width - 1 );
+        x12 = min( x12, size.width - 1 );
       }
 
-      if( (unsigned)y11 < (unsigned)size->height ){
+      if( (unsigned)y11 < (unsigned)size.height ){
         uint8_t *tptr = ptr + y11 * step;
 
         if( !fill ){
           if( x11 >= 0 )
             IGRF_PUT_POINT( tptr, x11 );
-          if( x12 < size->width )
+          if( x12 < size.width )
             IGRF_PUT_POINT( tptr, x12 );
         }
         else
           IGRF_HLINE( tptr, x11, x12, _color, pix_size );
       }
 
-      if( (unsigned)y12 < (unsigned)size->height ){
+      if( (unsigned)y12 < (unsigned)size.height ){
         uint8_t *tptr = ptr + y12 * step;
 
         if( !fill ){
           if( x11 >= 0 )
             IGRF_PUT_POINT( tptr, x11 );
-          if( x12 < size->width )
+          if( x12 < size.width )
             IGRF_PUT_POINT( tptr, x12 );
         }
         else
           IGRF_HLINE( tptr, x11, x12, _color, pix_size );
       }
 
-      if( x21 < size->width && x22 >= 0 ){
+      if( x21 < size.width && x22 >= 0 ){
         if( fill ){
           x21 = max( x21, 0 );
-          x22 = min( x22, size->width - 1 );
+          x22 = min( x22, size.width - 1 );
         }
 
-        if( (unsigned)y21 < (unsigned)size->height ){
+        if( (unsigned)y21 < (unsigned)size.height ){
           uint8_t *tptr = ptr + y21 * step;
 
           if( !fill ){
             if( x21 >= 0 )
               IGRF_PUT_POINT( tptr, x21 );
-            if( x22 < size->width )
+            if( x22 < size.width )
               IGRF_PUT_POINT( tptr, x22 );
           }
           else
             IGRF_HLINE( tptr, x21, x22, _color, pix_size );
         }
 
-        if( (unsigned)y22 < (unsigned)size->height )
+        if( (unsigned)y22 < (unsigned)size.height )
         {
           uint8_t *tptr = ptr + y22 * step;
 
           if( !fill ){
             if( x21 >= 0 )
               IGRF_PUT_POINT( tptr, x21 );
-            if( x22 < size->width )
+            if( x22 < size.width )
               IGRF_PUT_POINT( tptr, x22 );
           }
           else
@@ -706,7 +706,7 @@ grf_array_draw_circle_direct   (Array* array, GrfScalar2D center, int radius, Gr
   #undef  IGRF_PUT_POINT
 }
 static void
-grf_array_draw_ellipse_ex      (Array* array, GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, GrfScalar4D* color, int thickness, int line_type){
+grf_array_draw_ellipse_ex      (GrfArray* array, GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, GrfScalar4D* color, int thickness, int line_type){
   axes.width = abs(axes.width), axes.height = abs(axes.height);
   int delta = (max(axes.width,axes.height)+(XY_ONE>>1))>>XY_SHIFT;
   delta = delta < 3 ? 90 : delta < 10 ? 30 : delta < 15 ? 18 : 5;
@@ -732,7 +732,7 @@ grf_array_draw_ellipse_ex      (Array* array, GrfScalar2D center, GrfSize2D axes
   free(v);
 }
 static void
-grf_array_draw_polyline(Array* array, GrfScalar2D* v, int count, uint8_t is_closed, GrfScalar4D* color, int thickness, int line_type, int shift){
+grf_array_draw_polyline(GrfArray* array, GrfScalar2D* v, int count, uint8_t is_closed, GrfScalar4D* color, int thickness, int line_type, int shift){
   if(!v || count <= 0) return;
   int i     = is_closed ? count - 1: 0;
   int flags = 2 + !is_closed;
@@ -747,7 +747,7 @@ grf_array_draw_polyline(Array* array, GrfScalar2D* v, int count, uint8_t is_clos
 }
 
 static void
-grf_array_collect_polyedges(Array* array, GrfScalar2D* v, int count, GrfScalar4D** edges, int* count_edges, GrfScalar4D* color, int line_type, int shift, GrfScalar2D offset){
+grf_array_collect_polyedges(GrfArray* array, GrfScalar2D* v, int count, GrfScalar4D** edges, int* count_edges, GrfScalar4D* color, int line_type, int shift, GrfScalar2D offset){
   int i, delta = offset.y + (shift ? 1 << (shift - 1) : 0);
   GrfScalar2D pt0 = v[count-1], pt1;
   pt0.x = (pt0.x + offset.x) << (XY_SHIFT - shift);
@@ -816,7 +816,7 @@ int grf_compare_edges(const void* elem1, const void* elem2){
 }
 
 static void
-grf_array_fill_edge_collection(Array* array, GrfScalar4D* edges, int num_edges, GrfScalar4D* color){
+grf_array_fill_edge_collection(GrfArray* array, GrfScalar4D* edges, int num_edges, GrfScalar4D* color){
   GrfScalar4D tmp;
   int i, y, total = num_edges;
   GrfSize2D* size = (GrfSize2D*) array->size;
@@ -1035,13 +1035,13 @@ grf_clip_line(GrfSize2D rectangle, GrfScalar2D *p1, GrfScalar2D *p2){
   return (c1 | c2) == 0;
 }
 void
-grf_array_draw_line(Array* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D *color, int thickness, int line_type, int shift){
+grf_array_draw_line(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D *color, int thickness, int line_type, int shift){
   grf_array_draw_line_thick(array, p1, p2, color, thickness, line_type, 3, shift);
 }
 void
-grf_array_draw_circle(Array *array, GrfScalar2D center, int radius, GrfScalar4D *color, int thickness, int line_type, int shift){
+grf_array_draw_circle(GrfArray *array, GrfScalar2D center, int radius, GrfScalar4D *color, int thickness, int line_type, int shift){
   if( line_type == GRF_ANTIALIASED)
-      line_type = GRAFEO_NEIGHBOR_8;
+      line_type = GRF_NEIGHBOR_8;
 
   if( thickness > 1 || line_type >= GRF_ANTIALIASED || shift > 0 )
   {
@@ -1056,9 +1056,9 @@ grf_array_draw_circle(Array *array, GrfScalar2D center, int radius, GrfScalar4D 
       grf_array_draw_circle_direct(array, center, radius, color, thickness < 0 );
 }
 void
-grf_array_draw_ellipse(Array *array, GrfScalar2D center, GrfSize2D axes, double angle, double start_angle, double end_angle, GrfScalar4D *color, int thickness, int line_type, int shift){
+grf_array_draw_ellipse(GrfArray *array, GrfScalar2D center, GrfSize2D axes, double angle, double start_angle, double end_angle, GrfScalar4D *color, int thickness, int line_type, int shift){
   if( line_type == GRF_ANTIALIASED)
-      line_type = GRAFEO_NEIGHBOR_8;
+      line_type = GRF_NEIGHBOR_8;
 
   int _angle       = grf_round(angle);
   int _start_angle = grf_round(start_angle);
@@ -1149,7 +1149,7 @@ grf_ellipse_to_poly(GrfScalar2D center, GrfSize2D axes, int angle, int arc_start
   *pts = pts2;
 }
 void
-grf_array_draw_rectangle(Array *array, GrfRectangle rect, GrfScalar4D *color, int thickness, int line_type, int shift){
+grf_array_draw_rectangle(GrfArray *array, GrfRectangle rect, GrfScalar4D *color, int thickness, int line_type, int shift){
   if(grf_rectangle_area(rect) > 0 ){
     GrfScalar2D top_left     = grf_rectangle_top_left(rect);
     GrfScalar2D point        = {1<<shift,1<<shift};
@@ -1160,9 +1160,9 @@ grf_array_draw_rectangle(Array *array, GrfRectangle rect, GrfScalar4D *color, in
   }
 }
 void
-grf_array_draw_rectangle_2(Array* array, GrfScalar2D top_left, GrfScalar2D bottom_right, GrfScalar4D* color, int thickness, int line_type, int shift){
+grf_array_draw_rectangle_2(GrfArray* array, GrfScalar2D top_left, GrfScalar2D bottom_right, GrfScalar4D* color, int thickness, int line_type, int shift){
   if( line_type == GRF_ANTIALIASED)
-      line_type = GRAFEO_NEIGHBOR_8;
+      line_type = GRF_NEIGHBOR_8;
   GrfScalar2D pt[4];
   pt[0]   = top_left;
   pt[1].x = bottom_right.x;
