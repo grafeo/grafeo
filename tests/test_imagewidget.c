@@ -71,10 +71,10 @@ static void test_grf_imagewidget_show(void**state){
   (void) state;
   gtk_init(NULL, NULL);
   pressionado            = 0;
-  char* filenames[3]     = {"trekkie-nerd.png",
-                            "distance_transform_input.pgm",
-                            "../data/trekkie-nerd.jpg"};
-  GrfArray*  array_gray  = grf_image_read(filenames[2]);//trekkie-nerd.png");//grf_array_ones(2,size,GRF_UINT8);
+  char* filenames[3]     = {"../data/trekkie-nerdbw.png",           // Gray
+                            "../data/distance_transform_input.pgm", // Gray
+                            "../data/trekkie-nerd.jpg"};            // Color
+  GrfArray*  array_gray  = grf_image_read(filenames[0]);
   GtkWidget* imagewidget = grf_imagewidget_new();
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   GtkWidget* box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);

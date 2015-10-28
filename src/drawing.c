@@ -166,7 +166,7 @@ grf_array_draw_line_no_shift(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, Gr
       }
   }
 
-  int bt_pix0 = (int)array->size[2], bt_pix = bt_pix0;
+  int bt_pix0 = array->dim == 2?1:(int)array->size[2], bt_pix = bt_pix0;
   size_t istep = array->step[0];
 
   int dx = p2.x - p1.x;
@@ -220,7 +220,7 @@ grf_array_draw_line_no_shift(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, Gr
   // END
 
   int i,j;
-  int pix_size       = array->size[2];
+  int pix_size       = array->dim == 2?1:array->size[2];
   int* color         = ((int*)_color);
 
   for( i = 0; i < count; i++)  {
@@ -583,7 +583,7 @@ static void
 grf_array_draw_circle_direct   (GrfArray* array, GrfScalar2D center, int radius, GrfScalar4D* _color, int fill){
   GrfSize2D  size     = {array->size[1],array->size[0]};
   size_t     step     = array->step[0];
-  int        pix_size = array->size[2];
+  int        pix_size = array->dim == 2?1:array->size[2];
   uint8_t*   ptr      = array->data_uint8;
   uint8_t    color[3] = {_color->x, _color->y, _color->z};
   int err = 0, dx = radius, dy = 0, plus = 1, minus = (radius << 1) - 1;
