@@ -303,7 +303,7 @@ GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType
   else if(destiny == GRF_RGBA || destiny == GRF_BGRA)
     output = grf_array_new_3D_type(array->size[0], array->size[1], 4, array->type);
 
-
+  uint64_t i2;
   // Filling array
   if(origin == GRF_GRAY){
     if(destiny == GRF_RGB){
@@ -318,6 +318,14 @@ GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType
         output->data_uint8[i2  ] = array->data_uint8[i];
         output->data_uint8[i2+1] = array->data_uint8[i];
         output->data_uint8[i2+2] = array->data_uint8[i];
+        output->data_uint8[i2+3] = 255;
+      }
+    }
+    else if(destiny == GRAFEO_BGRA){
+      for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
+        output->data_uint8[i2+2] = array->data_uint8[i];
+        output->data_uint8[i2+1] = array->data_uint8[i];
+        output->data_uint8[i2  ] = array->data_uint8[i];
         output->data_uint8[i2+3] = 255;
       }
     }
