@@ -129,9 +129,11 @@ SET(GRAFEO_STRUCTURE_HDR
   include/grafeo/queue.h
   include/grafeo/range.h
   include/grafeo/size.h
+  include/grafeo/hal.h
 )
 SET(GRAFEO_IMGPROC_HDR
   include/grafeo/image.h
+  include/grafeo/drawing.h
 )
 SET(GRAFEO_DISPLAY_HDR
   #include/grafeo/display.h
@@ -153,6 +155,7 @@ SET(GRAFEO_STRUCTURE_SRC
 )
 SET(GRAFEO_IMGPROC_SRC
  src/image.c
+ src/drawing.c
 )
 SET(GRAFEO_IFT_SRC
  src/ift.c
@@ -259,6 +262,8 @@ if(BUILD_TESTING)
       ift
       #display
       imagewidget
+      drawing
+      hal
     )
     set(test_array_deps grafeo_structure)
     set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
@@ -269,6 +274,8 @@ if(BUILD_TESTING)
     set(test_ift_deps grafeo_structure grafeo_imgproc grafeo_ift png jpeg)
     #set(test_display_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
     set(test_imagewidget_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+    set(test_drawing_deps grafeo_structure grafeo_imgproc png jpeg)
+    set(test_hal_deps grafeo_structure)
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)

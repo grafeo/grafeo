@@ -123,6 +123,34 @@ typedef void (*GrfDataFunc)       (void* data1, void* user_data);
 int8_t int64_compare_function_r(void* value1, void* value2);
 int8_t int64_compare_function  (void* value1, void* value2);
 
+/**
+ * @brief Structure for 2D array of scalar values
+ */
+typedef struct _GrfScalar2D{
+  int x;
+  int y;
+}GrfScalar2D;
+
+/**
+ * @brief Structure for 4D array of scalar values
+ */
+typedef struct _GrfScalar4D{
+  int x;
+  int y;
+  union{int z;int width;int x2;};
+  union{int w;int height;int y2;};
+}GrfScalar4D;
+
+typedef GrfScalar4D GrfRectangle;
+
+/**
+ * @brief Structure for 2D array of scalar values
+ */
+typedef struct _GrfSize2D{
+  uint32_t width;
+  uint32_t height;
+}GrfSize2D;
+
 #define INT8_TO_POINTER(i)   ((void*)(int64_t)(i))
 #define INT16_TO_POINTER(i)  ((void*)(int64_t)(i))
 #define INT32_TO_POINTER(i)  ((void*)(int64_t)(i))
