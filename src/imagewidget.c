@@ -32,20 +32,31 @@
  *=================================*/
 // Private members
 typedef struct _GrfImageWidgetPrivate{
+  float            transform[6]; /**< Matrix for affine transformations*/
+
+  // Paramenters for separate transformations
+  float            scale;        /**< Uniform scaling*/
+  float            translation_x;/**< Affine translation X axis*/
+  float            translation_y;/**< Affine translation Y axis*/
+  float            angle;        /**< Affine rotation*/
+
+  gboolean         show_cursor;  /**< Show/hide mouse cursor*/
+  GdkPixbuf*       pixbuf;       /**< Buffer for image */
+
+
 
   gdouble          zoom;
   gdouble          offset_x;
   gdouble          offset_y;
-  gboolean         show_cursor;
-  GdkPixbuf*       pixbuf;
+
   GdkInterpType    interp;
   GrfFittingMode   fitting;
   GtkAdjustment*   hadj;
   GtkAdjustment*   vadj;
 
-  GrfArray*        grf_image_original;
-  GrfArray*        grf_image_output;
-  cairo_surface_t* grf_image_surface;
+  GrfArray*        image_original;
+  GrfArray*        image_output;
+  cairo_surface_t* image_surface;
   uint8_t          flags;
 } GrfImageWidgetPrivate;
 
@@ -127,9 +138,9 @@ grf_imagewidget_init(GrfImageWidget *imagewidget){
 
   //gtk_widget_set_has_window(GTK_WIDGET(imagewidget), FALSE);
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
-  priv->grf_image_original = NULL;
-  priv->grf_image_output   = NULL;
-  priv->grf_image_surface  = NULL;
+  priv->image_original = NULL;
+  priv->image_output   = NULL;
+  priv->image_surface  = NULL;
   priv->flags              = GRF_WINDOW_NORMAL;
 
   priv->zoom               = 1.0;
@@ -159,12 +170,17 @@ grf_imagewidget_class_init(GrfImageWidgetClass *klass){
   widget_class->get_preferred_height= grf_imagewidget_get_preferred_height;
   widget_class->draw                = grf_imagewidget_draw;
 
-  klass->zoom_in        = grf_imagewidget_zoom_in;
-  klass->zoom_out       = grf_imagewidget_zoom_out;
-  klass->set_zoom       = grf_imagewidget_set_zoom;
-  klass->set_fitting    = grf_imagewidget_set_fitting;
-  klass->scroll         = grf_imagewidget_scroll;
-  klass->pixbuf_changed = NULL;
+  klass->set_translation= grf_imagewidget_set_translation;
+  klass->set_rotation   = grf_imagewidget_set_rotation;
+  klass->set_scale      = grf_imagewidget_set_scale;
+  klass->set_transform  = grf_imagewidget_set_transform;
+
+//  klass->zoom_in        = grf_imagewidget_zoom_in;
+//  klass->zoom_out       = grf_imagewidget_zoom_out;
+//  klass->set_zoom       = grf_imagewidget_set_zoom;
+//  klass->set_fitting    = grf_imagewidget_set_fitting;
+//  klass->scroll         = grf_imagewidget_scroll;
+//  klass->pixbuf_changed = NULL;
 }
 
 static void
@@ -307,7 +323,7 @@ grf_imagewidget_set_size(GtkWidget* widget, int max_width, int max_height){
   GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(imagewidget);
   if(priv->flags & GRF_WINDOW_AUTOSIZE) return;
-  if(!priv->grf_image_original) return;
+  if(!priv->image_original) return;
 }
 
 // Draw image
@@ -316,9 +332,18 @@ grf_imagewidget_draw(GtkWidget *widget, cairo_t *cr){
   GrfImageWidget       * imagewidget = GRF_IMAGEWIDGET(widget);
   GrfImageWidgetPrivate*        priv = grf_imagewidget_get_instance_private(imagewidget);
 
-  cairo_set_source_surface(cr,priv->grf_image_surface,0,0);
+
+  cairo_save(cr);
+  cairo_translate(cr,10,10);
+  cairo_scale(cr,10,10);
+  cairo_set_source_surface(cr,priv->image_surface,0,0);
+  cairo_pattern_set_filter(cairo_get_source(cr),CAIRO_FILTER_FAST);
+  //cairo_set_source_pixbuf(cr,priv->pixbuf,0,0);
   cairo_paint(cr);
   cairo_fill(cr);
+  cairo_restore(cr);
+
+  //cairo_fill(cr);
   return TRUE;
 }
 
@@ -492,8 +517,8 @@ get_size(GrfImageWidget* imagewidget, GtkOrientation direction, int* minimal, in
   uint16_t            gdk_size;
   GtkWidget         * widget         = GTK_WIDGET(imagewidget);
   GrfImageWidgetPrivate* priv           = grf_imagewidget_get_instance_private(imagewidget);
-  uint32_t          * size_original  = priv->grf_image_original? priv->grf_image_original->size: NULL;
-  uint32_t          * size_output    = priv->grf_image_output  ? priv->grf_image_output->size  : NULL;
+  uint32_t          * size_original  = priv->image_original? priv->image_original->size: NULL;
+  uint32_t          * size_output    = priv->image_output  ? priv->image_output->size  : NULL;
   GdkWindow         * window         = gtk_widget_get_window(widget);
   switch(direction){
   case GTK_ORIENTATION_HORIZONTAL:
@@ -507,11 +532,11 @@ get_size(GrfImageWidget* imagewidget, GtkOrientation direction, int* minimal, in
     else      gdk_size = size_min;
     break;
   }
-  if(priv->grf_image_original != NULL)
+  if(priv->image_original != NULL)
     *minimal = (priv->flags & GRF_WINDOW_AUTOSIZE) != GRF_WINDOW_AUTOSIZE ? gdk_size:size_original[index];
   else
     *minimal = size_min;
-  if(priv->grf_image_output != NULL)
+  if(priv->image_output != NULL)
     *natural = *minimal < size_output[index]?size_output[index]:*minimal;
   else
     *natural = *minimal;
@@ -555,14 +580,52 @@ grf_imagewidget_set_zoom     (GrfImageWidget* widget, double zoom){
 
 // Update image
 void
-grf_imagewidget_set_image(GrfImageWidget* widget, GrfArray* image){
+grf_imagewidget_set_image(GrfImageWidget* widget, GrfArray* image, gboolean invalidate){
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
-  int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24,image->size[1]);
-  priv->grf_image_original   = image;
+  // Updating image variable
+  priv->image_original        = image;
+
+  // Converting to appropriate format
   if(image->dim == 2 || image->size[2] == 1)
-    priv->grf_image_output   = grf_image_cvt_color(image,GRF_GRAY, GRF_BGRA);
+    priv->image_output   = grf_image_cvt_color(image,GRF_GRAY, GRF_RGBA);
   else
-    priv->grf_image_output   = grf_image_cvt_color(image,GRF_RGB, GRF_BGRA);
-  priv->grf_image_surface    = cairo_image_surface_create_for_data(priv->grf_image_output->data_uint8,CAIRO_FORMAT_RGB24,priv->grf_image_output->size[1],priv->grf_image_output->size[0],stride);
-  gtk_widget_queue_draw(GTK_WIDGET(widget));
+    priv->image_output   = grf_image_cvt_color(image,GRF_RGB, GRF_RGBA);
+
+  // Create a pixbuf for output
+  priv->pixbuf = gdk_pixbuf_new_from_data(
+    priv->image_output->data_uint8, // image data
+    GDK_COLORSPACE_RGB,// colorspace
+    TRUE,              // has alpha
+    8,                 // bits per sample
+    priv->image_output->size[1], // width
+    priv->image_output->size[0], // height
+    priv->image_output->step[0], // rowstride
+    NULL,NULL                    // destroy_func, destroy_func_data
+  );
+
+  int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24,priv->image_output->size[1]);
+  priv->image_surface = cairo_image_surface_create_for_data(priv->image_output->data_uint8,
+                                                            CAIRO_FORMAT_RGB24,
+                                                            priv->image_output->size[1],
+                                                            priv->image_output->size[0],
+                                                            stride);
+
+  if(invalidate)
+    gtk_widget_queue_draw(GTK_WIDGET(widget));
+}
+
+void grf_imagewidget_set_scale(GrfImageWidget *widget, float scale, gboolean invalidate){
+
+}
+
+void grf_imagewidget_set_transform(GrfImageWidget *widget, float *transform, gboolean invalidate){
+
+}
+
+void grf_imagewidget_set_rotation(GrfImageWidget *widget, float angle, gboolean invalidate){
+
+}
+
+void grf_imagewidget_set_translation(GrfImageWidget *widget, float x, float y, gboolean invalidate){
+
 }

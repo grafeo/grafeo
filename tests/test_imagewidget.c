@@ -63,7 +63,7 @@ static void mover(GtkWidget* widget, GdkEvent* event, gpointer user_data){
     GrfScalar4D cor = grf_scalar4D_new (255,0,0,255);
     grf_array_draw_circle(imagem,centro,3,&cor,-1,GRF_NEIGHBOR_8,0);
     GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
-    grf_imagewidget_set_image(imagewidget, imagem);
+    grf_imagewidget_set_image(imagewidget, imagem,TRUE);
     gtk_widget_queue_draw(widget);
   }
   gtk_statusbar_push(GTK_STATUSBAR(statusbar), context, texto);
@@ -72,6 +72,10 @@ static void mover(GtkWidget* widget, GdkEvent* event, gpointer user_data){
 static void window_key_press_event(GtkWidget* widget, GdkEventKey* event){
   printf("evento\n");
   //gtk_main_quit();
+}
+
+static void scroll(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+
 }
 
 static void test_grf_imagewidget_show(void**state){
@@ -97,7 +101,7 @@ static void test_grf_imagewidget_show(void**state){
 
   grf_array_draw_line(array_gray,p0,p1,&color,1,GRF_NEIGHBOR_8, 0);
   grf_array_draw_circle(array_gray,p0,3,&color,-1,GRF_NEIGHBOR_8,0);
-  grf_imagewidget_set_image(GRF_IMAGEWIDGET(imagewidget),array_gray);
+  grf_imagewidget_set_image(GRF_IMAGEWIDGET(imagewidget),array_gray, TRUE);
 
   gtk_box_pack_start (GTK_BOX(box),imagewidget,TRUE,TRUE,0);
   gtk_box_pack_start (GTK_BOX(box),statusbar,FALSE,TRUE,0);
@@ -106,6 +110,7 @@ static void test_grf_imagewidget_show(void**state){
   g_signal_connect   (imagewidget, "button-press-event"  , G_CALLBACK(pressionar), NULL);
   g_signal_connect   (imagewidget, "button-release-event", G_CALLBACK(soltar)    , NULL);
   g_signal_connect   (imagewidget, "motion-notify-event" , G_CALLBACK(mover)    , array_gray);
+  g_signal_connect   (imagewidget, "scroll-event"        , G_CALLBACK(scroll)    , NULL);
   g_signal_connect   (window     , "destroy"             , G_CALLBACK(gtk_main_quit),NULL);
   g_signal_connect   (window     , "key-press-event"     , G_CALLBACK(window_key_press_event), NULL);
   gtk_widget_show_all(window);

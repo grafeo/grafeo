@@ -58,6 +58,11 @@ struct _GrfImageWidgetClass{
   GtkWidgetClass parent_class;
 
   /* Keybinding signals */
+  void (*set_scale)      (GrfImageWidget* widget, float scale     , gboolean invalidate);
+  void (*set_translation)(GrfImageWidget* widget, float x, float y, gboolean invalidate);
+  void (*set_rotation)   (GrfImageWidget* widget, float angle     , gboolean invalidate);
+  void (*set_transform)  (GrfImageWidget* widget, float* transform, gboolean invalidate);
+
   void (*set_zoom)       (GrfImageWidget *imagewidget, gdouble zoom);
   void (*zoom_in)        (GrfImageWidget *imagewidget);
   void (*zoom_out)       (GrfImageWidget *imagewidget);
@@ -132,32 +137,69 @@ grf_imagewidget_get_zoom     (GrfImageWidget* widget);
        MUTATORS
  *====================*/
 /**
- * @brief grf_imagewidget_set_offset
+ * @brief grf_imagewidget_set_translation
  * @param widget
  * @param x
  * @param y
  * @param invalidate
  */
-void           grf_imagewidget_set_offset   (GrfImageWidget* widget, gdouble x, gdouble y, gboolean invalidate);
+void
+grf_imagewidget_set_translation(GrfImageWidget* widget, float x, float y, gboolean invalidate);
+/**
+ * @brief grf_imagewidget_set_rotation
+ * @param widget
+ * @param angle
+ * @param invalidate
+ */
+void
+grf_imagewidget_set_rotation(GrfImageWidget* widget, float angle, gboolean invalidate);
+/**
+ * @brief grf_imagewidget_set_scale
+ * @param widget
+ * @param scale
+ * @param invalidate
+ */
+void
+grf_imagewidget_set_scale(GrfImageWidget* widget, float scale, gboolean invalidate);
+/**
+ * @brief grf_imagewidget_set_transform
+ * @param widget
+ * @param transform
+ * @param invalidate
+ */
+void
+grf_imagewidget_set_transform(GrfImageWidget* widget, float* transform, gboolean invalidate);
+/**
+ * @brief grf_imagewidget_set_image
+ * @param widget
+ * @param image
+ * @param invalidate
+ */
+void
+grf_imagewidget_set_image(GrfImageWidget* widget, GrfArray* image, gboolean invalidate);
+
 /**
  * @brief grf_imagewidget_set_zoom
  * @param widget
  * @param zoom
  */
-void           grf_imagewidget_set_zoom     (GrfImageWidget* widget, double zoom);
+void
+grf_imagewidget_set_zoom     (GrfImageWidget* widget, double zoom);
 /**
  * @brief grf_imagewidget_set_pixbuf
  * @param widget
  * @param pixbuf
  * @param reset_fit
  */
-void           grf_imagewidget_set_pixbuf   (GrfImageWidget* widget, GdkPixbuf* pixbuf, gboolean reset_fit);
+void
+grf_imagewidget_set_pixbuf   (GrfImageWidget* widget, GdkPixbuf* pixbuf, gboolean reset_fit);
 /**
  * @brief grf_imagewidget_set_fitting
  * @param widget
  * @param fitting
  */
-void           grf_imagewidget_set_fitting  (GrfImageWidget* widget, GrfFittingMode fitting);
+void
+grf_imagewidget_set_fitting  (GrfImageWidget* widget, GrfFittingMode fitting);
 
 /*======================*
        OTHER METHODS
@@ -166,18 +208,22 @@ void           grf_imagewidget_set_fitting  (GrfImageWidget* widget, GrfFittingM
  * @brief grf_imagewidget_zoom_in
  * @param widget
  */
-void           grf_imagewidget_zoom_in      (GrfImageWidget* widget);
+void
+grf_imagewidget_zoom_in      (GrfImageWidget* widget);
 /**
  * @brief grf_imagewidget_zoom_out
  * @param widget
  */
-void           grf_imagewidget_zoom_out     (GrfImageWidget* widget);
+void
+grf_imagewidget_zoom_out     (GrfImageWidget* widget);
 /**
- * @brief grf_imagewidget_set_image
+ * @brief grf_imagewidget_reset_transformations
  * @param widget
- * @param image
+ * @param invalidate
  */
-void           grf_imagewidget_set_image(GrfImageWidget* widget, GrfArray* image);
+void
+grf_imagewidget_reset_transformations(GrfImageWidget* widget, gboolean invalidate);
+
 
 END_DECLS
 #endif
