@@ -34,6 +34,7 @@
 static uint8_t pressionado;
 static guint context;
 static GtkWidget* statusbar;
+static GtkWidget* lbl_color;
 
 static void pressionar(GtkWidget* widget, GdkEvent *event, gpointer user_data){
   printf("press\n");
@@ -48,8 +49,14 @@ static void mover(GtkWidget* widget, GdkEvent* event, gpointer user_data){
   GrfArray* imagem = (GrfArray*)user_data;
   double x, y;
   char texto[10];
+  char texto2[60];
   gdk_event_get_coords(event, &x, &y);
+  uint64_t pixel_index = y*imagem->step[0]+x*imagem->step[1];
+  uint8_t* pixel = &imagem->data_uint8[pixel_index];
   sprintf(texto,"%d %d", (int)x,(int)y);
+  sprintf(texto2,"(<span color=\"red\">R=%03d</span>, <span color=\"green\">G=%03d</span>, <span color=\"blue\">B=%03d</span>)", pixel[0],pixel[1],pixel[2]);
+  gtk_label_set_markup(GTK_LABEL(lbl_color), "<span color=\"red\">small</span>");
+  gtk_label_set_label(GTK_LABEL(lbl_color),texto2);
 
   if(pressionado){
     GrfScalar2D centro = {x,y};
@@ -74,10 +81,11 @@ static void test_grf_imagewidget_show(void**state){
   char* filenames[3]     = {"../data/trekkie-nerdbw.png",           // Gray
                             "../data/distance_transform_input.pgm", // Gray
                             "../data/trekkie-nerd.jpg"};            // Color
-  GrfArray*  array_gray  = grf_image_read(filenames[0]);
+  GrfArray*  array_gray  = grf_image_read(filenames[2]);
   GtkWidget* imagewidget = grf_imagewidget_new();
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   GtkWidget* box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
+  lbl_color   = gtk_label_new("");
   statusbar              = gtk_statusbar_new();
   context = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar),"example");
 
@@ -92,7 +100,8 @@ static void test_grf_imagewidget_show(void**state){
   grf_imagewidget_set_image(GRF_IMAGEWIDGET(imagewidget),array_gray);
 
   gtk_box_pack_start (GTK_BOX(box),imagewidget,TRUE,TRUE,0);
-  gtk_box_pack_start (GTK_BOX(box),statusbar,TRUE,TRUE,0);
+  gtk_box_pack_start (GTK_BOX(box),statusbar,FALSE,TRUE,0);
+  gtk_box_pack_end(GTK_BOX(statusbar),lbl_color,FALSE,FALSE,0);
   gtk_container_add  (GTK_CONTAINER(window), box);
   g_signal_connect   (imagewidget, "button-press-event"  , G_CALLBACK(pressionar), NULL);
   g_signal_connect   (imagewidget, "button-release-event", G_CALLBACK(soltar)    , NULL);
