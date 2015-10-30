@@ -729,7 +729,6 @@ static void test_grf_array_io_csv(void** state){
   // Loading CSV
   // UINT8
   // 1D (just one line)
-  print_message();
   uint8_t ground_data1[8] = {1,2,3,4,5,6,7,8};
   GrfArray* array = grf_array_read_csv("../data/test_array_read_csv_uint8_1.csv");
   assert_non_null(array);
