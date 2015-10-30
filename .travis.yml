@@ -10,7 +10,7 @@ script:
  #- export COVERALLS_REPO_TOKEN=jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL
   - mkdir build
   - cd build
-  - cmake -DBUILD_TESTING=ON -DBUILD_DOCS=OFF -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug ..
+  - cmake -DBUILD_TESTING=ON -DBUILD_DISPLAY=OFF -DBUILD_DOCS=OFF -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug ..
   - make
 after_success:
   - make coveralls
@@ -27,6 +27,6 @@ addons:
       name: "grafeo/grafeo"
       description: "Build submitted via Travis CI"
     notification_email: nocturne.pe@gmail.com
-    build_command_prepend: "cd build && make clean && cmake .. -DBUILD_TESTING=ON -DBUILD_DOCS=OFF"
+    build_command_prepend: "cd build && make clean && cmake .. -DBUILD_TESTING=ON -DBUILD_DOCS=OFF -DBUILD_DISPLAY=OFF"
     build_command:   "make -j 4"
     branch_pattern: coverity_scan
