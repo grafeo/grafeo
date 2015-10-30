@@ -132,6 +132,30 @@ grf_imagewidget_get_pixbuf   (GrfImageWidget* widget);
  */
 gdouble
 grf_imagewidget_get_zoom     (GrfImageWidget* widget);
+/**
+ * @brief grf_imagewidget_get_translation
+ * @param widget
+ * @return
+ */
+float* grf_imagewidget_get_translation(GrfImageWidget* widget);
+/**
+ * @brief grf_imagewidget_get_scale
+ * @param widget
+ * @return
+ */
+float  grf_imagewidget_get_scale(GrfImageWidget* widget);
+/**
+ * @brief grf_imagewidget_get_rotation
+ * @param widget
+ * @return
+ */
+float  grf_imagewidget_get_rotation(GrfImageWidget* widget);
+/**
+ * @brief grf_imagewidget_get_transform
+ * @param widget
+ * @return
+ */
+float* grf_imagewidget_get_transform(GrfImageWidget* widget);
 
 /*====================*
        MUTATORS
@@ -177,50 +201,9 @@ grf_imagewidget_set_transform(GrfImageWidget* widget, float* transform, gboolean
  */
 void
 grf_imagewidget_set_image(GrfImageWidget* widget, GrfArray* image, gboolean invalidate);
-
-/**
- * @brief grf_imagewidget_set_zoom
- * @param widget
- * @param zoom
- */
-void
-grf_imagewidget_set_zoom     (GrfImageWidget* widget, double zoom);
-/**
- * @brief grf_imagewidget_set_pixbuf
- * @param widget
- * @param pixbuf
- * @param reset_fit
- */
-void
-grf_imagewidget_set_pixbuf   (GrfImageWidget* widget, GdkPixbuf* pixbuf, gboolean reset_fit);
-/**
- * @brief grf_imagewidget_set_fitting
- * @param widget
- * @param fitting
- */
-void
-grf_imagewidget_set_fitting  (GrfImageWidget* widget, GrfFittingMode fitting);
-
 /*======================*
        OTHER METHODS
  *======================*/
-/**
- * @brief grf_imagewidget_zoom_in
- * @param widget
- */
-void
-grf_imagewidget_zoom_in      (GrfImageWidget* widget);
-/**
- * @brief grf_imagewidget_zoom_out
- * @param widget
- */
-void
-grf_imagewidget_zoom_out     (GrfImageWidget* widget);
-/**
- * @brief grf_imagewidget_reset_transformations
- * @param widget
- * @param invalidate
- */
 void
 grf_imagewidget_reset_transformations(GrfImageWidget* widget, gboolean invalidate);
 

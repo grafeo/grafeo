@@ -31,88 +31,128 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-static uint8_t pressionado;
-static guint context;
+static uint8_t    pressed;
+static double     curx,cury;
+static guint      context;
 static GtkWidget* statusbar;
 static GtkWidget* lbl_color;
+static uint8_t    ctrl_pressed;
 
-static void pressionar(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+static void helper_test_imagewidget_press_event(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+  (void) widget;  (void) user_data;
   printf("press\n");
-  pressionado = 1;
+  pressed = 1;
+  gdk_event_get_coords(event, &curx, &cury);
 }
-static void soltar(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+static void helper_test_imagewidget_release_event(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+  (void) widget;  (void) event; (void) user_data;
+
   printf("soltar\n");
-  pressionado = 0;
+  pressed = 0;
 }
-static void mover(GtkWidget* widget, GdkEvent* event, gpointer user_data){
-  printf("mover\n");
-  GrfArray* imagem = (GrfArray*)user_data;
+static void helper_test_imagewidget_move_event(GtkWidget* widget, GdkEvent* event, gpointer user_data){
   double x, y;
-  char texto[10];
-  char texto2[60];
+  char text_position[10];
+  char text_color[60];
+
+  GrfImageWidget* imagewidget         = GRF_IMAGEWIDGET(widget);
+  float         * current_translation = grf_imagewidget_get_translation(imagewidget);
+  GrfArray      * image              = (GrfArray*)user_data;
+
   gdk_event_get_coords(event, &x, &y);
-  uint64_t pixel_index = y*imagem->step[0]+x*imagem->step[1];
-  uint8_t* pixel = &imagem->data_uint8[pixel_index];
-  sprintf(texto,"%d %d", (int)x,(int)y);
-  sprintf(texto2,"(<span color=\"red\">R=%03d</span>, <span color=\"green\">G=%03d</span>, <span color=\"blue\">B=%03d</span>)", pixel[0],pixel[1],pixel[2]);
-  gtk_label_set_markup(GTK_LABEL(lbl_color), "<span color=\"red\">small</span>");
-  gtk_label_set_label(GTK_LABEL(lbl_color),texto2);
 
-  if(pressionado){
-    GrfScalar2D centro = {x,y};
-    GrfScalar4D cor = grf_scalar4D_new (255,0,0,255);
-    grf_array_draw_circle(imagem,centro,3,&cor,-1,GRF_NEIGHBOR_8,0);
-    GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
-    grf_imagewidget_set_image(imagewidget, imagem,TRUE);
-    gtk_widget_queue_draw(widget);
+  // Translation or brush
+  if(pressed){
+    if(ctrl_pressed)
+      grf_imagewidget_set_translation(imagewidget,current_translation[0]+(x-curx),current_translation[1]+(y-cury),TRUE);
+    else{
+      GrfScalar2D centro      = {x,y};
+      GrfScalar4D cor         = grf_scalar4D_new (255,0,0,255);
+      grf_array_draw_circle(image,centro,3,&cor,-1,GRF_NEIGHBOR_8,0);
+      grf_imagewidget_set_image(imagewidget, image,TRUE);
+    }
   }
-  gtk_statusbar_push(GTK_STATUSBAR(statusbar), context, texto);
+
+  // Get current pixel color
+  uint64_t    pixel_index = ((int)y)*image->step[0]+((int)x)*image->step[1];
+  uint8_t  *  pixel       = &image->data_uint8[pixel_index];
+  if(image->dim == 2 || image->size[2] == 1)
+    sprintf(text_color,"(G = %03d)", pixel[0]);
+  else
+    sprintf(text_color,"(<span color=\"red\">R=%03d</span>, <span color=\"green\">G=%03d</span>, <span color=\"blue\">B=%03d</span>)", pixel[2],pixel[1],pixel[0]);
+  gtk_label_set_markup(GTK_LABEL(lbl_color), "");
+  gtk_label_set_label(GTK_LABEL(lbl_color),text_color);
+
+  // Get current position
+  sprintf(text_position,"%d %d", (int)x,(int)y);
+  gtk_statusbar_push(GTK_STATUSBAR(statusbar), context, text_position);
+
+  curx = x;
+  cury = y;
 }
 
-static void window_key_press_event(GtkWidget* widget, GdkEventKey* event){
-  printf("evento\n");
-  //gtk_main_quit();
+static gboolean window_key_press_event(GtkWidget* widget, GdkEventKey* event, gpointer user_data){
+  (void) widget;  (void) user_data;
+  if(event->keyval == GDK_KEY_Control_L)
+    ctrl_pressed = TRUE;
+  return TRUE;
+}
+static gboolean window_key_release_event(GtkWidget* widget, GdkEventKey* event, gpointer user_data){
+  (void) widget;  (void) user_data;
+  if(event->keyval == GDK_KEY_Control_L)
+    ctrl_pressed = FALSE;
+  return TRUE;
 }
 
-static void scroll(GtkWidget* widget, GdkEvent *event, gpointer user_data){
-
+static void helper_test_imagewidget_scroll_event(GtkWidget* widget, GdkEvent *event, gpointer user_data){
+  (void) user_data;
+  printf("scrolling\n");
+  GdkScrollDirection direction;
+  GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
+  gdk_event_get_scroll_direction(event,&direction);
+  if(direction == GDK_SCROLL_UP)
+    grf_imagewidget_set_scale(imagewidget,grf_imagewidget_get_scale(imagewidget)*1.5,TRUE);
+  else
+    grf_imagewidget_set_scale(imagewidget,grf_imagewidget_get_scale(imagewidget)/1.5,TRUE);
 }
 
 static void test_grf_imagewidget_show(void**state){
   (void) state;
   gtk_init(NULL, NULL);
-  pressionado            = 0;
+  pressed            = 0;
   char* filenames[3]     = {"../data/trekkie-nerdbw.png",           // Gray
                             "../data/distance_transform_input.pgm", // Gray
                             "../data/trekkie-nerd.jpg"};            // Color
-  GrfArray*  array_gray  = grf_image_read(filenames[2]);
+  GrfArray*  array_gray  = grf_image_read(filenames[0]);
   GtkWidget* imagewidget = grf_imagewidget_new();
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   GtkWidget* box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
-  lbl_color   = gtk_label_new("");
+  lbl_color              = gtk_label_new("");
   statusbar              = gtk_statusbar_new();
   context = gtk_statusbar_get_context_id(GTK_STATUSBAR(statusbar),"example");
 
   gtk_widget_set_size_request(statusbar,-1,30);
-  gtk_widget_add_events(imagewidget, GDK_BUTTON_RELEASE_MASK | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK);
+  gtk_widget_add_events(imagewidget, GDK_BUTTON_RELEASE_MASK | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
+  gtk_widget_add_events(imagewidget,GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
 
-  GrfScalar2D p0 = {200,450}, p1 = {300,450};
-  GrfScalar4D color = grf_scalar4D_new(255,0,0,255);
-
-  grf_array_draw_line(array_gray,p0,p1,&color,1,GRF_NEIGHBOR_8, 0);
-  grf_array_draw_circle(array_gray,p0,3,&color,-1,GRF_NEIGHBOR_8,0);
   grf_imagewidget_set_image(GRF_IMAGEWIDGET(imagewidget),array_gray, TRUE);
 
   gtk_box_pack_start (GTK_BOX(box),imagewidget,TRUE,TRUE,0);
   gtk_box_pack_start (GTK_BOX(box),statusbar,FALSE,TRUE,0);
   gtk_box_pack_end(GTK_BOX(statusbar),lbl_color,FALSE,FALSE,0);
   gtk_container_add  (GTK_CONTAINER(window), box);
-  g_signal_connect   (imagewidget, "button-press-event"  , G_CALLBACK(pressionar), NULL);
-  g_signal_connect   (imagewidget, "button-release-event", G_CALLBACK(soltar)    , NULL);
-  g_signal_connect   (imagewidget, "motion-notify-event" , G_CALLBACK(mover)    , array_gray);
-  g_signal_connect   (imagewidget, "scroll-event"        , G_CALLBACK(scroll)    , NULL);
+  // Mouse events
+  g_signal_connect   (imagewidget, "button-press-event"  , G_CALLBACK(helper_test_imagewidget_press_event), NULL);
+  g_signal_connect   (imagewidget, "button-release-event", G_CALLBACK(helper_test_imagewidget_release_event)    , NULL);
+  g_signal_connect   (imagewidget, "motion-notify-event" , G_CALLBACK(helper_test_imagewidget_move_event)    , array_gray);
+  g_signal_connect   (imagewidget, "scroll-event"        , G_CALLBACK(helper_test_imagewidget_scroll_event)    , NULL);
+  // Keyboard events
+  g_signal_connect   (imagewidget, "key-press-event"     , G_CALLBACK(window_key_press_event), NULL);
+  g_signal_connect   (imagewidget, "key-release-event"   , G_CALLBACK(window_key_release_event), NULL);
+  // Other events
   g_signal_connect   (window     , "destroy"             , G_CALLBACK(gtk_main_quit),NULL);
-  g_signal_connect   (window     , "key-press-event"     , G_CALLBACK(window_key_press_event), NULL);
+
+  // Show window
   gtk_widget_show_all(window);
   gtk_main();
 }
