@@ -25,30 +25,32 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/range.h>
+#include <grafeo/display.h>
+#include <grafeo/displaywidget.h>
+#include <setjmp.h>
+#include <cmocka.h>
+static void test_display(void** state){
+  uint8_t  key;
+  uint32_t size[2] = {640,480};
+  GrfArray*   array   = grf_array_zeros(2,size, GRF_UINT8);
 
-static GrfRangeItem* rangeitem_new_with_value(int64_t value){
-	GrfRangeItem* rangeitem = malloc(sizeof(GrfRangeItem));
-	rangeitem->value = value;
-	return rangeitem;
+  display_setup();
+  display_show(array);
+  key = display_wait_key();
+  printf("%d\n", key);
+
+  display_show(array);
+  key = display_wait_key();
+  printf("%d\n", key);
+
+  grf_array_free(array);
 }
 
-void grf_range_from_to(GrfRange* range, int64_t from, int64_t to){
-	range->from = rangeitem_new_with_value(from);
-	range->to   = rangeitem_new_with_value(to);
-}
-
-void grf_range_from(GrfRange* range, int64_t from){
-	range->from = rangeitem_new_with_value(from);
-	range->to   = NULL;
-}
-
-void grf_range_to(GrfRange* range, int64_t to){
-	range->from = NULL;
-	range->to   = rangeitem_new_with_value(to);
-}
-
-void grf_range_all(GrfRange* range){
-	range->from = NULL;
-	range->to   = NULL;
+int main(int argc, char** argv){
+  (void)argc;
+  (void)argv;
+  const struct CMUnitTest tests[1]={
+    cmocka_unit_test(test_display)
+  };
+  return cmocka_run_group_tests(tests,NULL,NULL);
 }

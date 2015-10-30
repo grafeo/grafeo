@@ -27,15 +27,15 @@
 # ===================================================================*/
 #include <grafeo/pqueue.h>
 
-void pqueue_append_at(Queue *pqueue, void *value_bucket, void *value, CompareFunc compare_func){
-  List* bucket_item = NULL;
+void grf_pqueue_append_at(GrfQueue *pqueue, void *value_bucket, void *value, GrfCompareFunc compare_func){
+  GrfList* grf_bucket_item = NULL;
   uint8_t is_new    = 1;
-  for(bucket_item = queue_begin(pqueue); bucket_item; bucket_item = list_next(bucket_item)){
-    Bucket* bucket = (Bucket*)list_value(bucket_item);
+  for(grf_bucket_item = grf_queue_begin(pqueue); grf_bucket_item; grf_bucket_item = grf_list_next(grf_bucket_item)){
+    GrfBucket* bucket = (GrfBucket*)grf_list_value(grf_bucket_item);
     // Found the bucket
-    uint8_t comparison = compare_func(bucket_value(bucket), value_bucket);
+    uint8_t comparison = compare_func(grf_bucket_value(bucket), value_bucket);
     if(comparison == 0){
-      queue_append(bucket_queue(bucket), value);
+      grf_queue_append(grf_bucket_queue(bucket), value);
       is_new = 0;
       break;
     }
@@ -43,99 +43,99 @@ void pqueue_append_at(Queue *pqueue, void *value_bucket, void *value, CompareFun
   }
   // Insert the new bucket if found proper place
   if(is_new){
-    Bucket* new_bucket = bucket_new();
-    bucket_set_queue(new_bucket, queue_new());
-    bucket_set_value(new_bucket, value_bucket);
-    queue_append(bucket_queue(new_bucket),value);
-    if(bucket_item) queue_prepend_at(pqueue, bucket_item, new_bucket);
-    else            queue_append(pqueue, new_bucket);
+    GrfBucket* new_bucket = grf_bucket_new();
+    grf_bucket_set_queue(new_bucket, grf_queue_new());
+    grf_bucket_set_value(new_bucket, value_bucket);
+    grf_queue_append(grf_bucket_queue(new_bucket),value);
+    if(grf_bucket_item) grf_queue_prepend_at(pqueue, grf_bucket_item, new_bucket);
+    else            grf_queue_append(pqueue, new_bucket);
   }
 }
 
 // Adicionar na lista de bucket o valor
-void  pqueue_prepend_at(Queue* pqueue, void* value_bucket, void* value, CompareFunc compare_func){
-  List* bucket_item = NULL;
+void  grf_pqueue_prepend_at(GrfQueue* pqueue, void* value_bucket, void* value, GrfCompareFunc compare_func){
+  GrfList* grf_bucket_item = NULL;
   uint8_t is_new    = 1;
   // Procura pelo bucket
-  for(bucket_item = queue_begin(pqueue); bucket_item; bucket_item = list_next(bucket_item)){
-    Bucket* bucket = (Bucket*)list_value(bucket_item);
+  for(grf_bucket_item = grf_queue_begin(pqueue); grf_bucket_item; grf_bucket_item = grf_list_next(grf_bucket_item)){
+    GrfBucket* bucket = (GrfBucket*)grf_list_value(grf_bucket_item);
     // Found the bucket
-    uint8_t comparison = compare_func(bucket_value(bucket), value_bucket);
+    uint8_t comparison = compare_func(grf_bucket_value(bucket), value_bucket);
     if(comparison == 0){
-      queue_prepend(bucket_queue(bucket), value);
+      grf_queue_prepend(grf_bucket_queue(bucket), value);
       is_new = 0;
       break;
     }
     else if(comparison == 1) break;
   }
   if(is_new){
-    Bucket* new_bucket = bucket_new();
-    bucket_set_queue(new_bucket, queue_new());
-    bucket_set_value(new_bucket, value_bucket);
+    GrfBucket* new_bucket = grf_bucket_new();
+    grf_bucket_set_queue(new_bucket, grf_queue_new());
+    grf_bucket_set_value(new_bucket, value_bucket);
     // Add the item to the bucket queue
-    queue_prepend(bucket_queue(new_bucket), value);
+    grf_queue_prepend(grf_bucket_queue(new_bucket), value);
     // Add the bucket to the main queue
-    if(bucket_item) queue_prepend_at(pqueue, bucket_item, new_bucket);
-    else            queue_append(pqueue, new_bucket);
+    if(grf_bucket_item) grf_queue_prepend_at(pqueue, grf_bucket_item, new_bucket);
+    else            grf_queue_append(pqueue, new_bucket);
   }
 }
-void  pqueue_remove_at(Queue* pqueue, void *value_bucket, void* value){
-  Bucket* bucket      = pqueue_bucket_of(pqueue, value_bucket);
-  queue_remove(bucket_queue(bucket),value);
+void  grf_pqueue_remove_at(GrfQueue* pqueue, void *value_bucket, void* value){
+  GrfBucket* bucket      = grf_pqueue_grf_bucket_of(pqueue, value_bucket);
+  grf_queue_remove(grf_bucket_queue(bucket),value);
 }
 
-Bucket* pqueue_bucket_of(Queue* pqueue, void* value_bucket){
-  List* item;
-  for(item=pqueue->begin;item;item = list_next(item)){
-    Bucket* bucket = (Bucket*)list_value(item);
-    if(bucket_value(bucket)==value_bucket)
+GrfBucket* grf_pqueue_grf_bucket_of(GrfQueue* pqueue, void* value_bucket){
+  GrfList* item;
+  for(item=pqueue->begin;item;item = grf_list_next(item)){
+    GrfBucket* bucket = (GrfBucket*)grf_list_value(item);
+    if(grf_bucket_value(bucket)==value_bucket)
       return bucket;
   }
   return NULL;
 }
 
-void  pqueue_remove_begin_at(Queue* pqueue, void* value_bucket){
-  List* bucket_item = NULL;
-  for(bucket_item = queue_begin(pqueue); bucket_item; bucket_item = list_next(bucket_item)){
-    Bucket* bucket = (Bucket*) list_value(bucket_item);
-    if(bucket_value(bucket) == value_bucket){
-      queue_remove_begin(bucket_queue(bucket));
+void  grf_pqueue_remove_begin_at(GrfQueue* pqueue, void* value_bucket){
+  GrfList* grf_bucket_item = NULL;
+  for(grf_bucket_item = grf_queue_begin(pqueue); grf_bucket_item; grf_bucket_item = grf_list_next(grf_bucket_item)){
+    GrfBucket* bucket = (GrfBucket*) grf_list_value(grf_bucket_item);
+    if(grf_bucket_value(bucket) == value_bucket){
+      grf_queue_remove_begin(grf_bucket_queue(bucket));
       break;
     }
   }
 }
-void  pqueue_remove_end_at  (Queue* pqueue, void* value_bucket){
-  List* bucket_item = NULL;
-  for(bucket_item = queue_begin(pqueue); bucket_item; bucket_item = list_next(bucket_item)){
-    Bucket* bucket = (Bucket*) list_value(bucket_item);
-    if(bucket_value(bucket) == value_bucket){
-      queue_remove_end(bucket_queue(bucket));
+void  grf_pqueue_remove_end_at  (GrfQueue* pqueue, void* value_bucket){
+  GrfList* grf_bucket_item = NULL;
+  for(grf_bucket_item = grf_queue_begin(pqueue); grf_bucket_item; grf_bucket_item = grf_list_next(grf_bucket_item)){
+    GrfBucket* bucket = (GrfBucket*) grf_list_value(grf_bucket_item);
+    if(grf_bucket_value(bucket) == value_bucket){
+      grf_queue_remove_end(grf_bucket_queue(bucket));
       break;
     }
   }
 }
-void  pqueue_remove_begin(Queue* pqueue){
+void  grf_pqueue_remove_begin(GrfQueue* pqueue){
   // Get the begin of queue and remove its first item
-  queue_remove_begin(bucket_queue((Bucket*)list_value(queue_begin(pqueue))));
+  grf_queue_remove_begin(grf_bucket_queue((GrfBucket*)grf_list_value(grf_queue_begin(pqueue))));
 }
-void  pqueue_remove_end(Queue* pqueue){
+void  grf_pqueue_remove_end(GrfQueue* pqueue){
   // Get the begin of queue and remove its last item
-  queue_remove_end(bucket_queue((Bucket*)list_value(queue_begin(pqueue))));
+  grf_queue_remove_end(grf_bucket_queue((GrfBucket*)grf_list_value(grf_queue_begin(pqueue))));
 }
-void  pqueue_shrink(Queue* pqueue){
-  while(!queue_is_empty(pqueue)){
-    Bucket* bucket = (Bucket*)list_value(queue_begin(pqueue));
-    if(queue_is_empty(bucket_queue(bucket))){
-      queue_free(bucket_queue(bucket));
-      bucket_free(bucket);
-      queue_remove_begin(pqueue);
+void  grf_pqueue_shrink(GrfQueue* pqueue){
+  while(!grf_queue_is_empty(pqueue)){
+    GrfBucket* bucket = (GrfBucket*)grf_list_value(grf_queue_begin(pqueue));
+    if(grf_queue_is_empty(grf_bucket_queue(bucket))){
+      grf_queue_free(grf_bucket_queue(bucket));
+      grf_bucket_free(bucket);
+      grf_queue_remove_begin(pqueue);
     }
     else break;
   }
 }
-void* pqueue_at(Queue* pqueue, uint32_t index){
-  return bucket_value((Bucket*) list_value(queue_at(pqueue,index)));
+void* grf_pqueue_at(GrfQueue* pqueue, uint32_t index){
+  return grf_bucket_value((GrfBucket*) grf_list_value(grf_queue_at(pqueue,index)));
 }
-void* pqueue_bucket_at(Queue* pqueue, uint32_t bucket_index, uint32_t index){
-  return list_value(queue_at(bucket_queue((Bucket*) list_value(queue_at(pqueue,bucket_index))),index));
+void* grf_pqueue_grf_bucket_at(GrfQueue* pqueue, uint32_t grf_bucket_index, uint32_t index){
+  return grf_list_value(grf_queue_at(grf_bucket_queue((GrfBucket*) grf_list_value(grf_queue_at(pqueue,grf_bucket_index))),index));
 }

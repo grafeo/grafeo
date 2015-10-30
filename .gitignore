@@ -54,5 +54,6 @@ src/.tags_sorted_by_file
 *.~
 *.*~
 *.swp
+
 # Remove automatic marshal generation
 marshal.[hc]

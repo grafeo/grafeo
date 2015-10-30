@@ -25,8 +25,8 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_RANGE_H
-#define GRAFEO_RANGE_H
+#ifndef GRF_RANGE_H
+#define GRF_RANGE_H
 #include <grafeo/macro.h>
 #include <inttypes.h>
 #include <stdio.h>
@@ -37,17 +37,17 @@ BEGIN_DECLS
 /**
  * @brief End of a range
  */
-typedef struct _RangeItem{
+typedef struct _GrfRangeItem{
   int64_t value; /**< Value of object representing an range end */
-}RangeItem;
+}GrfRangeItem;
 
 /**
  * @brief Range structure
  */
-typedef struct _Range{
-  RangeItem* from; /**< Start of range */
-  RangeItem* to;   /**< End (exclusive) of range */
-}Range;
+typedef struct _GrfRange{
+  GrfRangeItem* from; /**< Start of range */
+  GrfRangeItem* to;   /**< End (exclusive) of range */
+}GrfRange;
 
 /**
  * @brief      { function_description }
@@ -56,7 +56,7 @@ typedef struct _Range{
  * @param[in]  from   { parameter_description }
  * @param[in]  to     { parameter_description }
  */
-void range_from_to(Range* range, int64_t from, int64_t to);
+void grf_range_from_to(GrfRange* range, int64_t from, int64_t to);
 
 /**
  * @brief      { function_description }
@@ -64,7 +64,7 @@ void range_from_to(Range* range, int64_t from, int64_t to);
  * @param      range  { parameter_description }
  * @param[in]  from   { parameter_description }
  */
-void range_from(Range* range, int64_t from);
+void grf_range_from(GrfRange* range, int64_t from);
 
 /**
  * @brief      { function_description }
@@ -72,14 +72,14 @@ void range_from(Range* range, int64_t from);
  * @param      range  { parameter_description }
  * @param[in]  to     { parameter_description }
  */
-void range_to(Range* range, int64_t to);
+void grf_range_to(GrfRange* range, int64_t to);
 
 /**
  * @brief      { function_description }
  *
  * @param      range  { parameter_description }
  */
-void range_all(Range* range);
+void grf_range_all(GrfRange* range);
 
 END_DECLS
 

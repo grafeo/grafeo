@@ -1,5 +1,5 @@
-#ifndef GRAFEO_MACRO_H
-#define GRAFEO_MACRO_H
+#ifndef GRF_MACRO_H
+#define GRF_MACRO_H
 
 #ifdef  __cplusplus
 #define BEGIN_DECLS  extern "C" {

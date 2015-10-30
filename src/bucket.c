@@ -27,30 +27,30 @@
 # ===================================================================*/
 #include <grafeo/bucket.h>
 
-Bucket* bucket_new(){
-  return malloc(sizeof(Bucket));
+GrfBucket* grf_bucket_new(){
+  return malloc(sizeof(GrfBucket));
 }
 
-Queue* bucket_queue(Bucket *bucket){
+GrfQueue* grf_bucket_queue(GrfBucket *bucket){
   return bucket->queue;
 }
 
-void *bucket_value(Bucket *bucket)
+void *grf_bucket_value(GrfBucket *bucket)
 {
   return bucket->value;
 }
 
-void bucket_set_queue(Bucket *bucket, Queue *queue)
+void grf_bucket_set_queue(GrfBucket *bucket, GrfQueue *queue)
 {
   bucket->queue = queue;
 }
 
-void bucket_set_value(Bucket *bucket, void *value)
+void grf_bucket_set_value(GrfBucket *bucket, void *value)
 {
   bucket->value = value;
 }
 
-void bucket_free(Bucket *bucket)
+void grf_bucket_free(GrfBucket *bucket)
 {
   free(bucket);
 }

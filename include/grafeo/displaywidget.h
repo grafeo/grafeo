@@ -25,30 +25,25 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/range.h>
+#ifndef GRAFEO_DISPLAYWIDGET_H
+#define GRAFEO_DISPLAYWIDGET_H
+#include <grafeo/imagewidget.h>
+BEGIN_DECLS
 
-static GrfRangeItem* rangeitem_new_with_value(int64_t value){
-	GrfRangeItem* rangeitem = malloc(sizeof(GrfRangeItem));
-	rangeitem->value = value;
-	return rangeitem;
-}
+#define GRAFEO_TYPE_DISPLAYWIDGET displaywidget_get_type()
+G_DECLARE_DERIVABLE_TYPE(DisplayWidget, displaywidget, GRAFEO, DISPLAYWIDGET, GtkWindow)
 
-void grf_range_from_to(GrfRange* range, int64_t from, int64_t to){
-	range->from = rangeitem_new_with_value(from);
-	range->to   = rangeitem_new_with_value(to);
-}
+/**
+  * @brief Class for DisplayWidget static properties and members
+  */
+typedef struct _DisplayWidgetClass{
+  GtkWindowClass parent_class;
+}DisplayWidgetClass;
 
-void grf_range_from(GrfRange* range, int64_t from){
-	range->from = rangeitem_new_with_value(from);
-	range->to   = NULL;
-}
+/**
+ * @brief Creates a new DisplayWidget
+ */
+DisplayWidget* displaywidget_new();
 
-void grf_range_to(GrfRange* range, int64_t to){
-	range->from = NULL;
-	range->to   = rangeitem_new_with_value(to);
-}
-
-void grf_range_all(GrfRange* range){
-	range->from = NULL;
-	range->to   = NULL;
-}
+END_DECLS
+#endif
