@@ -95,16 +95,6 @@ endif(NOT JPEG_FOUND)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
 INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
-find_package(GLIB-GENMARSHAL)
-message(STATUS ${GLIB-GENMARSHAL_EXECUTABLE})
-execute_process(COMMAND ${GLIB-GENMARSHAL_EXECUTABLE} --header --prefix=grf_marshal marshal.list
-                OUTPUT_VARIABLE HEADER_OUT
-                OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo/marshal.h
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo/)
-execute_process(COMMAND ${GLIB-GENMARSHAL_EXECUTABLE} --body --prefix=grf_marshal marshal.list
-                OUTPUT_VARIABLE BODY_OUT
-                OUTPUT_FILE ${CMAKE_CURRENT_SOURCE_DIR}/src/marshal.c
-                WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo/)
 #============================================= TESTS (BEFORE LIBRARY)
 include(CTest)
 option(COVERALLS "Generate coveralls data" OFF)
