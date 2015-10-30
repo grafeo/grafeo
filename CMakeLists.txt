@@ -129,6 +129,7 @@ SET(GRAFEO_IMGPROC_HDR
 )
 SET(GRAFEO_DISPLAY_HDR
   include/grafeo/imagewidget.h
+  include/grafeo/display.h
 )
 SET(GRAFEO_IFT_HDR
   include/grafeo/ift.h
@@ -152,6 +153,7 @@ SET(GRAFEO_IFT_SRC
 )
 SET(GRAFEO_DISPLAY_SRC
  src/imagewidget.c
+ src/display.c
 )
 SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
 SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
@@ -259,7 +261,9 @@ if(BUILD_TESTING)
     )
     IF(BUILD_DISPLAY)
       LIST(APPEND TESTS_NAMES imagewidget)
+      LIST(APPEND TESTS_NAMES display)
       set(test_imagewidget_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+      set(test_display_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
     endif(BUILD_DISPLAY)
     set(test_array_deps grafeo_structure)
     set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)

@@ -30,15 +30,14 @@
 #include <grafeo/array.h>
 #include <grafeo/queue.h>
 #include <grafeo/imagewidget.h>
-#include <gtk/gtk.h>
 BEGIN_DECLS
 
-#define GRF_TYPE_DISPLAY display_get_type()
-G_DECLARE_DERIVABLE_TYPE(Display, display, GRF, DISPLAY, GObject)
+#define GRF_TYPE_DISPLAY grf_display_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfDisplay, grf_display, GRF, DISPLAY, GObject)
 
-typedef struct _DisplayClass{
+typedef struct _GrfDisplayClass{
   GObjectClass parent_class;
-}DisplayClass;
+}GrfDisplayClass;
 
 ///**
 //  * @brief Structure for the display
@@ -69,15 +68,21 @@ typedef struct _DisplayClass{
  * @brief Show a window to display an array
  * @param array the array representing the image to be displayed
  */
-void    display_show(GrfArray* array);
+void    grf_display_show(GrfArray* array);
 /**
  * @brief Lock the flow until a user presses the key
  * @return
  */
-uint8_t display_wait_key();
+uint8_t grf_display_waitkey();
 /**
  * @brief Init some display information
  */
-void    display_setup();
+void    grf_display_setup();
+/**
+ * @brief grf_display_named
+ * @param name
+ */
+void
+grf_display_named(const char* name);
 END_DECLS
 #endif

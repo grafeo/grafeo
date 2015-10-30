@@ -258,3 +258,8 @@ float* grf_imagewidget_get_transform(GrfImageWidget* widget){
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
   return priv->transform;
 }
+GrfArray*
+grf_imagewidget_get_image(GrfImageWidget *widget){
+  GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
+  return priv->image_original;
+}

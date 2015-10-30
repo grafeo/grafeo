@@ -27,23 +27,30 @@
 # ===================================================================*/
 #include <grafeo/display.h>
 #include <grafeo/displaywidget.h>
+#include <grafeo/array.h>
 #include <setjmp.h>
 #include <cmocka.h>
 static void test_display(void** state){
-  uint8_t  key;
-  uint32_t size[2] = {640,480};
-  GrfArray*   array   = grf_array_zeros(2,size, GRF_UINT8);
-
-  display_setup();
-  display_show(array);
-  key = display_wait_key();
+  (void)   state;
+  char*    filenames[3]  = {"../data/trekkie-nerdbw.png",           // Gray
+                            "../data/distance_transform_input.pgm", // Gray
+                            "../data/trekkie-nerd.jpg"};            // Color
+  GrfArray*image         = grf_image_read(filenames[2]);
+  GrfArray*image2        = grf_image_read(filenames[1]);
+  grf_display_setup();
+  grf_display_named("Figure1");
+  grf_display_show(image);
+  grf_display_named("Figure2");
+  grf_display_show(image2);
+  uint8_t key = 0;
+  while(key != 27)
+    key = grf_display_waitkey();
   printf("%d\n", key);
 
-  display_show(array);
-  key = display_wait_key();
-  printf("%d\n", key);
+  grf_display_show(image);
+  key  = grf_display_waitkey();
 
-  grf_array_free(array);
+  grf_array_free(image);
 }
 
 int main(int argc, char** argv){
