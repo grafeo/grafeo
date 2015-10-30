@@ -9,6 +9,6 @@ test:
     - mkdir build
     - cd build
     - pwd
-    - cd build && cmake .. -DBUILD_DOCS=OFF -DBUILD_TESTING=ON -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug
+    - cd build && cmake .. -DBUILD_DOCS=OFF -DBUILD_TESTING=ON -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug -DBUILD_DISPLAY=OFF
     - cd build && make
     - cd build && make coveralls

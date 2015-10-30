@@ -21,7 +21,7 @@ build:
     # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     - install-packages:
-        packages: "cmake gcc g++ libgtk-3-dev"
+        packages: "cmake gcc g++"
     - pip-install:
         requirements_file: ""
         packages_list: "cpp-coveralls"
@@ -30,6 +30,6 @@ build:
         code: |
           mkdir build
           cd build
-          cmake -DBUILD_TESTING=ON -DBUILD_DOCS=OFF -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug ..
+          cmake -DBUILD_TESTING=ON -DBUILD_DISPLAY=OFF -DBUILD_DOCS=OFF -DCOVERALLS=ON -DCMAKE_BUILD_TYPE=Debug ..
           make
           make coveralls
