@@ -125,9 +125,7 @@ SET(GRAFEO_IMGPROC_HDR
   include/grafeo/drawing.h
 )
 SET(GRAFEO_DISPLAY_HDR
-  #include/grafeo/display.h
   include/grafeo/imagewidget.h
-  include/grafeo/marshal.h
 )
 SET(GRAFEO_IFT_HDR
   include/grafeo/ift.h
@@ -150,9 +148,7 @@ SET(GRAFEO_IFT_SRC
  src/ift.c
 )
 SET(GRAFEO_DISPLAY_SRC
- #src/display.c
  src/imagewidget.c
- src/marshal.c
 )
 SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
 SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
