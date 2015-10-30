@@ -59,13 +59,6 @@ struct _GrfImageWidgetClass{
   void (*set_translation)(GrfImageWidget* widget, float x, float y, gboolean invalidate);
   void (*set_rotation)   (GrfImageWidget* widget, float angle     , gboolean invalidate);
   void (*set_transform)  (GrfImageWidget* widget, float* transform, gboolean invalidate);
-
-  void (*set_zoom)       (GrfImageWidget *imagewidget, gdouble zoom);
-  void (*zoom_in)        (GrfImageWidget *imagewidget);
-  void (*zoom_out)       (GrfImageWidget *imagewidget);
-  void (*set_fitting)    (GrfImageWidget *imagewidget, GrfFittingMode fitting);
-  void (*scroll)         (GrfImageWidget *imagewidget, GtkScrollType scroll_x, GtkScrollType scroll_y);
-  void (*pixbuf_changed) (GrfImageWidget* imagewidget);
 };
 
 typedef enum{
@@ -92,43 +85,6 @@ GtkWidget  *   grf_imagewidget_new();
 /*====================*
        ACCESSORS
  *====================*/
-/**
- * @brief grf_imagewidget_get_viewport
- * @param widget
- * @param rect
- * @return
- */
-gboolean
-grf_imagewidget_get_viewport (GrfImageWidget* widget, GdkRectangle* rect);
-/**
- * @brief grf_imagewidget_get_draw_rect
- * @param widget
- * @param rect
- * @return
- */
-gboolean
-grf_imagewidget_get_draw_rect(GrfImageWidget* widget, GdkRectangle* rect);
-/**
- * @brief Get fitting mode
- * @param widget
- * @return
- */
-GrfFittingMode
-grf_imagewidget_get_fitting  (GrfImageWidget* widget);
-/**
- * @brief Get pixbuf related to current image
- * @param widget
- * @return
- */
-GdkPixbuf*
-grf_imagewidget_get_pixbuf   (GrfImageWidget* widget);
-/**
- * @brief Get current zoom value
- * @param widget
- * @return
- */
-gdouble
-grf_imagewidget_get_zoom     (GrfImageWidget* widget);
 /**
  * @brief grf_imagewidget_get_translation
  * @param widget
