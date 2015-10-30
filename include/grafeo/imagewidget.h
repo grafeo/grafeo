@@ -29,11 +29,8 @@
 #define GRF_IMAGEWIDGET_H
 #include <grafeo/array.h>
 #include <grafeo/image.h>
-
-BEGIN_DECLS
 #include <gtk/gtk.h>
-#include <gdk-pixbuf/gdk-pixbuf.h>
-#include <grafeo/marshal.h>
+BEGIN_DECLS
 
 /*====================*
     CLASS DEFINITION
