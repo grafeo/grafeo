@@ -39,6 +39,9 @@ typedef struct _GrfDisplayClass{
   GObjectClass parent_class;
 }GrfDisplayClass;
 
+typedef void (*GrfTrackbarCallback)(int pos);
+typedef void (*GrfTrackbarDataCallback)(int pos, void* user_data);
+
 /**
  * @brief Show a window to display an array
  * @param array the array representing the image to be displayed
@@ -59,5 +62,64 @@ void    grf_display_setup();
  */
 void
 grf_display_named(const char* name);
+/**
+ * @brief grf_display_add_trackbar
+ * @param display_name
+ * @param track_name
+ * @param variable
+ * @param min_value
+ * @param max_value
+ * @param grf_trackbar_changed_event
+ * @return
+ */
+int
+grf_display_add_trackbar(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarCallback grf_trackbar_changed_event);
+/**
+ * @brief grf_display_add_trackbar_with_data
+ * @param display_name
+ * @param track_name
+ * @param variable
+ * @param min_value
+ * @param max_value
+ * @param grf_trackbar_changed_event
+ * @param user_data
+ * @return
+ */
+int
+grf_display_add_trackbar_with_data(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarDataCallback grf_trackbar_changed_event, void* user_data);
+/**
+ * @brief grf_trackbar_get_pos
+ * @param display_name
+ * @param track_name
+ * @return
+ */
+int
+grf_trackbar_get_pos(const char* display_name, const char* track_name);
+/**
+ * @brief grf_trackbar_set_pos
+ * @param display_name
+ * @param track_name
+ * @param pos
+ */
+void
+grf_trackbar_set_pos(const char* display_name, const char* track_name, int pos);
+/**
+ * @brief grf_trackbar_set_min
+ * @param display_name
+ * @param track_name
+ * @param min_val
+ */
+void
+grf_trackbar_set_min(const char* display_name, const char* track_name, int min_val);
+/**
+ * @brief grf_trackbar_set_man
+ * @param display_name
+ * @param track_name
+ * @param max_val
+ */
+void
+grf_trackbar_set_man(const char* display_name, const char* track_name, int max_val);
+
+
 END_DECLS
 #endif

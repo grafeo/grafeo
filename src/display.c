@@ -26,8 +26,7 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/display.h>
-#define GETTEXT_PACKAGE "gtk30"
-#include <glib/gi18n-lib.h>
+#include <grafeo/config.h>
 
 /*=================================
  * PRIVATE API
@@ -154,12 +153,12 @@ grf_display_btn_about_clicked(GtkWidget* widget, gpointer user_data){
                         "program-name","Grafeo",
                         "title",_("About Grafeo"),
                         "authors",authors,
-                        "website","http://grafeo.github.io",
-                        "website-label","http://grafeo.github.io",
+                        "website",grf_config_get_website(),
+                        "website-label",grf_config_get_website(),
                         "version","0.0.6",
                         "copyright","All rights reserved (C) 2015-2016",
                         "comments","Library for Graph/Computer Vision Problems",
-                        "license",grf_library_get_license(),
+                        "license",grf_config_get_license(),
                         NULL);
 
 }
@@ -369,6 +368,46 @@ grf_display_show(GrfArray* array){
 uint8_t grf_display_waitkey(){
   gtk_main();
   return key_pressed;
+}
+
+int
+grf_display_add_trackbar(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarCallback grf_trackbar_changed_event){
+  // Find trackbar
+  GrfDisplay* display   = grf_display_get_by_name(display_name);
+  if(!display) return 0;
+
+  GrfTrackbar* trackbar = grf_trackbar_get_by_name(display, track_name);
+  // Not found? Create-it
+  if(!trackbar){
+    trackbar = grf_trackbar_new_with_name(display_name);
+    grf_trackbar_set_display(display);
+
+  }
+}
+
+int
+grf_display_add_trackbar_with_data(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarDataCallback grf_trackbar_changed_event, void* user_data){
+
+}
+
+int
+grf_trackbar_get_pos(const char* display_name, const char* track_name){
+
+}
+
+void
+grf_trackbar_set_pos(const char* display_name, const char* track_name, int pos){
+
+}
+
+void
+grf_trackbar_set_min(const char* display_name, const char* track_name, int min_val){
+
+}
+
+void
+grf_trackbar_set_man(const char* display_name, const char* track_name, int max_val){
+
 }
 
 
