@@ -122,6 +122,8 @@ SET(GRAFEO_STRUCTURE_HDR
   include/grafeo/queue.h
   include/grafeo/range.h
   include/grafeo/hal.h
+  include/grafeo/config.h
+  include/grafeo/i18n-lib.h
 )
 SET(GRAFEO_IMGPROC_HDR
   include/grafeo/image.h
@@ -143,6 +145,7 @@ SET(GRAFEO_STRUCTURE_SRC
  src/list.c
  src/queue.c
  src/range.c
+ src/config.c
 )
 SET(GRAFEO_IMGPROC_SRC
  src/image.c
@@ -157,6 +160,17 @@ SET(GRAFEO_DISPLAY_SRC
 )
 SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
 SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
+set(GRAFEO_VERSION_MAJOR 0)
+set(GRAFEO_VERSION_MINOR 0)
+set(GRAFEO_VERSION_PATCH 6)
+set(GRAFEO_VERSION_STRING ${GRAFEO_VERSION_MAJOR}.${GRAFEO_VERSION_MINOR}.${GRAFEO_VERSION_PATCH})
+
+# configure a header file to pass some of the CMake settings
+# to the source code
+configure_file (
+  "${PROJECT_SOURCE_DIR}/include/grafeo/config.h.in"
+  "${PROJECT_SOURCE_DIR}/include/grafeo/config.h"
+)
 
 add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
 add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
@@ -164,10 +178,6 @@ add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
 if(BUILD_DISPLAY)
   add_library(grafeo_display   SHARED ${GRAFEO_DISPLAY_SRC}   ${GRAFEO_DISPLAY_HDR})
 endif(BUILD_DISPLAY)
-set(GRAFEO_VERSION_MAJOR 0)
-set(GRAFEO_VERSION_MINOR 0)
-set(GRAFEO_VERSION_PATCH 6)
-set(GRAFEO_VERSION_STRING ${GRAFEO_VERSION_MAJOR}.${GRAFEO_VERSION_MINOR}.${GRAFEO_VERSION_PATCH})
 
 set_target_properties(grafeo_structure PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
 set_target_properties(grafeo_imgproc   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
