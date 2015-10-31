@@ -45,6 +45,7 @@ typedef struct _DisplayPrivate{
   GtkWidget  * btn_pan_bottom;
   GtkWidget  * btn_zoom_ori;
   GtkWidget  * btn_zoom_fit;
+  GtkWidget  * btn_about;
   GtkWidget  * box;
   GtkWidget  * statusbar;
   GtkWidget  * lbl_color;
@@ -144,6 +145,26 @@ grf_display_btn_pan_bottom_clicked(GtkWidget * widget, gpointer user_data){
 
 }
 static void
+grf_display_btn_about_clicked(GtkWidget* widget, gpointer user_data){
+  GrfDisplay* display     = GRF_DISPLAY(user_data);
+  GrfDisplayPrivate* priv = grf_display_get_instance_private(display);
+  g_auto(GStrv) authors   = g_strsplit("Anderson Tavares:Paulo Miranda", ":", -1);
+  g_auto(GStrv) comments  = g_strsplit("Grafeo Library:Grafeo", ":", -1);
+  gtk_show_about_dialog(GTK_WINDOW(priv->window),
+                        "program-name","Grafeo",
+                        "title",_("About Grafeo"),
+                        "authors",authors,
+                        "website","http://grafeo.github.io",
+                        "website-label","http://grafeo.github.io",
+                        "version","0.0.6",
+                        "copyright","All rights reserved (C) 2015-2016",
+                        "comments","Library for Graph/Computer Vision Problems",
+                        "license",grf_library_get_license(),
+                        NULL);
+
+}
+
+static void
 grf_display_imagewidget_motion_event(GtkWidget* widget, GdkEvent* event, gpointer user_data){
   (void) widget;
   double x, y;
@@ -198,6 +219,7 @@ grf_display_init(GrfDisplay* self){
   priv->btn_pan_right = GTK_WIDGET(gtk_tool_button_new(NULL,NULL));
   priv->btn_pan_top   = GTK_WIDGET(gtk_tool_button_new(NULL,NULL));
   priv->btn_pan_bottom= GTK_WIDGET(gtk_tool_button_new(NULL,NULL));
+  priv->btn_about     = GTK_WIDGET(gtk_tool_button_new(NULL,NULL));
   priv->lbl_color     = gtk_label_new("");
   priv->window        = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   priv->box           = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
@@ -214,6 +236,7 @@ grf_display_init(GrfDisplay* self){
   gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(priv->btn_pan_right) ,"go-next");
   gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(priv->btn_pan_top)   ,"go-up");
   gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(priv->btn_pan_bottom),"go-down");
+  gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(priv->btn_about),"help-about");
 
   gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(priv->btn_save),       "Save image");
   gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(priv->btn_zoom_in),    "Zoom In");
@@ -224,6 +247,18 @@ grf_display_init(GrfDisplay* self){
   gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(priv->btn_pan_right),  "Pan Right");
   gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(priv->btn_pan_bottom), "Pan Bottom");
   gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(priv->btn_pan_top),    "Pan Top");
+  gtk_tool_item_set_tooltip_text(GTK_TOOL_ITEM(priv->btn_about),    "About");
+
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_save)      ,"Save image");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_zoom_in)   , "Zoom In");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_zoom_out)  ,"Zoom Out");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_zoom_ori)  ,"Zoom Original");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_zoom_fit)  ,"Fit to Screen");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_pan_left)  ,"Pan Left");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_pan_right) ,"Pan Right");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_pan_bottom),"Pan Bottom");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_pan_top)   ,"Pan Top");
+  gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_about)   ,"About");
 
   g_signal_connect(priv->btn_save, "clicked", G_CALLBACK(grf_display_btn_save_clicked),self);
   g_signal_connect(priv->btn_zoom_in, "clicked", G_CALLBACK(grf_display_btn_zoom_in_clicked),self);
@@ -234,6 +269,7 @@ grf_display_init(GrfDisplay* self){
   g_signal_connect(priv->btn_pan_right, "clicked", G_CALLBACK(grf_display_btn_pan_right_clicked),self);
   g_signal_connect(priv->btn_pan_bottom, "clicked", G_CALLBACK(grf_display_btn_pan_bottom_clicked),self);
   g_signal_connect(priv->btn_pan_top, "clicked", G_CALLBACK(grf_display_btn_pan_top_clicked),self);
+  g_signal_connect(priv->btn_about, "clicked", G_CALLBACK(grf_display_btn_about_clicked),self);
 
   // Status bar
   priv->context = gtk_statusbar_get_context_id(GTK_STATUSBAR(priv->statusbar),"display_pixel_coord");
@@ -241,6 +277,7 @@ grf_display_init(GrfDisplay* self){
   gtk_label_set_markup(GTK_LABEL(priv->lbl_color), "");
 
   // Joining everything together
+  gtk_toolbar_set_icon_size(GTK_TOOLBAR(priv->toolbar),GTK_ICON_SIZE_SMALL_TOOLBAR);
   gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_save),0);
   gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_zoom_in),1);
   gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_zoom_out),2);
@@ -250,6 +287,7 @@ grf_display_init(GrfDisplay* self){
   gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_pan_right),6);
   gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_pan_top),7);
   gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_pan_bottom),8);
+  gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_about),9);
   gtk_box_pack_end(GTK_BOX(priv->statusbar),priv->lbl_color,FALSE,FALSE,0);
   gtk_box_pack_start(GTK_BOX(priv->box),priv->toolbar    ,FALSE,FALSE,0);
   gtk_box_pack_start(GTK_BOX(priv->box),priv->imagewidget,TRUE ,TRUE ,0);

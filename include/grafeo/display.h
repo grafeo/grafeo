@@ -39,31 +39,6 @@ typedef struct _GrfDisplayClass{
   GObjectClass parent_class;
 }GrfDisplayClass;
 
-///**
-//  * @brief Structure for the display
-//  *
-//  * This display will show an array
-//  *
-//  * It will not be destroyed when closed (by key or close button).
-//  * It will just be hidden. So, when display_show is called, it will
-//  * first find whether a display exists, to reduce the creation phase
-//  *
-//  * Contains:
-//  *
-//  * - a window widget,
-//  * - a box layout to place the components in a vertical way
-//  * - its name, to differentiate from other ones
-//  * - last pressed key on the window
-//  */
-//typedef struct _Display
-//{
-//  GtkWidget   * window;
-//  GtkWidget   * imagewidget;
-//  GtkWidget   * box;
-//  char        * name;
-//  uint8_t       key_pressed;
-//} Display;
-
 /**
  * @brief Show a window to display an array
  * @param array the array representing the image to be displayed
