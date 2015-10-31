@@ -21,7 +21,7 @@ build:
     # http://devcenter.wercker.com/docs/steps/index.html
   steps:
     - install-packages:
-        packages: "cmake gcc g++"
+        packages: "cmake gcc g++ gettext"
     - pip-install:
         requirements_file: ""
         packages_list: "cpp-coveralls"

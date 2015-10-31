@@ -30,6 +30,11 @@
 #include <grafeo/drawing.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include <glib/gi18n.h>
+#include <libintl.h>
+#include <locale.h>
+#define GETTEXT_PACKAGE "grafeo"
+#include <glib/gi18n.h>
 
 static uint8_t    pressed;
 static double     curx,cury;
@@ -106,7 +111,7 @@ static gboolean window_key_release_event(GtkWidget* widget, GdkEventKey* event, 
 
 static void helper_test_imagewidget_scroll_event(GtkWidget* widget, GdkEvent *event, gpointer user_data){
   (void) user_data;
-  printf("scrolling\n");
+  printf(_("scrolling\n"));
   GdkScrollDirection direction;
   GrfImageWidget* imagewidget = GRF_IMAGEWIDGET(widget);
   gdk_event_get_scroll_direction(event,&direction);
@@ -160,6 +165,11 @@ static void test_grf_imagewidget_show(void**state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
+  setlocale (LC_ALL, "");
+  bindtextdomain (GETTEXT_PACKAGE, "/usr/share/locale");
+  bind_textdomain_codeset (GETTEXT_PACKAGE, "UTF-8");
+  textdomain (GETTEXT_PACKAGE);
+
   const struct CMUnitTest tests[1]={
     cmocka_unit_test(test_grf_imagewidget_show)
   };

@@ -61,10 +61,17 @@ function (load_submodule nome nome_lib)
     add_library(${nome_lib} SHARED IMPORTED)
     set_target_properties(${nome_lib} PROPERTIES IMPORTED_LOCATION ${EXTERNAL_LIB_DIR}/lib${nome_lib}.so)
 endfunction()
+#============================================================ OPTIONS
+option(REBUILD_TRANSLATIONS "Rebuild translations files"             OFF)
+option(BUILD_DOCS           "Build doxygen documentation"            ON)
+option(COVERALLS            "Generate coveralls data"                OFF)
+option(COVERALLS_UPLOAD     "Upload the generated coveralls json"    ON)
+option(BUILD_DISPLAY        "Build Display Module (Requires Gtk)"    ON)
+option(DEBUG_INFO           "Compile Grafeo with debug information?" ON)
 #====================================================== DOCUMENTATION
 find_package(Doxygen)
 if(Doxygen_FOUND)
-    option(BUILD_DOCS      "Build doxygen documentation" ON)
+
     if(BUILD_DOCS)
         file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/)
         configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
@@ -93,15 +100,15 @@ if(NOT JPEG_FOUND)
 
 endif(NOT JPEG_FOUND)
 #================================================================ GTK
-option(BUILD_DISPLAY "Build Display Module (Requires Gtk)" ON)
 if(BUILD_DISPLAY)
   pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
   INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
 endif(BUILD_DISPLAY)
+#============================================================ GETTEXT
+find_package(Gettext REQUIRED)
+include(Gettext)
 #============================================= TESTS (BEFORE LIBRARY)
 include(CTest)
-option(COVERALLS "Generate coveralls data" OFF)
-option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
 if(BUILD_TESTING)
     if (COVERALLS)
         include(Coveralls)
@@ -156,6 +163,15 @@ SET(GRAFEO_DISPLAY_SRC
 SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
 SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
 
+if(REBUILD_TRANSLATIONS)
+GETTEXT_CREATE_POT (${CMAKE_SOURCE_DIR}/po/grafeo.pot SRC tests/test_imagewidget.c)
+GETTEXT_CREATE_TRANSLATIONS (${CMAKE_SOURCE_DIR}/po/grafeo.pot
+  po/pt_BR.UTF-8
+  po/en_US
+  po/jp.UTF-8
+  po/de)
+endif(REBUILD_TRANSLATIONS)
+
 add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
 add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
 add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
@@ -183,7 +199,7 @@ install(TARGETS grafeo_display   LIBRARY DESTINATION lib)
 endif(BUILD_DISPLAY)
 
 #========================================================= DEBUG INFO
-option(DEBUG_INFO "Compile Grafeo with debug information?" ON)
+
 if(DEBUG_INFO)
     SET(CMAKE_BUILD_TYPE Debug CACHE STRING
         "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or 
