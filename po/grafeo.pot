@@ -1,0 +1,23 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR all\ rights\ reserved
+# This file is distributed under the same license as the Grafeo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Grafeo 0.0.6\n"
+"Report-Msgid-Bugs-To: nocturne.pe@gmail.com\n"
+"POT-Creation-Date: 2015-10-31 17:44-0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: ../tests/test_imagewidget.c:114
+#, c-format
+msgid "scrolling\n"
+msgstr ""
