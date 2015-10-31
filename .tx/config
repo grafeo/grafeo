@@ -1,0 +1,11 @@
+[main]
+host = https://www.transifex.com
+type = PO
+lang_map =
+
+# Create one such section per resource
+[grafeo.master]
+file_filter = po/<lang>.po
+source_file = po/grafeo.po
+source_lang = pt_BR
+type = PO

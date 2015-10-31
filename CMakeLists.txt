@@ -98,6 +98,8 @@ if(BUILD_DISPLAY)
   pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
   INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
 endif(BUILD_DISPLAY)
+#============================================================ GETTEXT
+find_package(FindGettext REQUIRED)
 #============================================= TESTS (BEFORE LIBRARY)
 include(CTest)
 option(COVERALLS "Generate coveralls data" OFF)
@@ -155,6 +157,8 @@ SET(GRAFEO_DISPLAY_SRC
 )
 SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
 SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
+
+GETTEXT_CREATE_TRANSLATIONS (outputFile [ALL] file1 ... fileN)
 
 add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
 add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
