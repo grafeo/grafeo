@@ -123,7 +123,7 @@ static void helper_test_ift(GrfPathConnectivityFunc path_connectivity, GrfOptimi
 
   // Check Values
   if(grf_ift_optimization == GRF_MINIMIZATION){
-    if(path_connectivity == grf_path_connectivity_euc){
+    if(path_connectivity == grf_path_connectivity_norm_l2){
       GrfArray* correct_predecessor  = grf_array_from_data(predecessor_euc,  2, size, GRF_UINT8);
       GrfArray* correct_label        = grf_array_from_data(label_euc,        2, size, GRF_UINT8);
       GrfArray* correct_connectivity = grf_array_from_data(connectivity_euc, 2, size, GRF_UINT8);
@@ -284,13 +284,13 @@ static void test_grf_ift_min(void** state){
 }
 static void test_grf_ift_euc(void** state){
   (void) state;
-  helper_test_ift(grf_path_connectivity_euc, GRF_MINIMIZATION);
+  helper_test_ift(grf_path_connectivity_norm_l2, GRF_MINIMIZATION);
   helper_test_grf_ift_img("../data/starbw.png",
                       "../data/starbw_labels.png",
                       "../data/starbw_seeds_indices.csv",
                       "../data/starbw_seeds_labels.csv",
                       2,
-                      grf_path_connectivity_euc,
+                      grf_path_connectivity_norm_l2,
                       grf_weight_diff,
                       GRF_MINIMIZATION);
 }

@@ -831,22 +831,6 @@ GrfArray* grf_array_divide_to(GrfArray* array1, GrfArray* array2, GrfArray* new_
   return new_array;
 }
 
-long double grf_array_euclidian_distance(GrfArray* array1, GrfArray* array2){
-  return sqrt(grf_array_square_euclidian_distance(array1, array2));
-}
-
-long double grf_array_square_euclidian_distance(GrfArray* array1, GrfArray* array2){
-  long double sum = 0, value1, value2, value;
-  uint64_t i;
-  for(i = 0; i < array1->num_elements; i++){
-    value1 = grf_array_get_long_double_1D(array1,i);
-    value2 = grf_array_get_long_double_1D(array2,i);
-    value  = value1-value2;
-    sum   += value * value;
-  }
-  return sum;
-}
-
 double grf_array_norm_difference(GrfArray* array1, GrfArray* array2, GrfNormType norm_type){
   long double value1;
   long double value2;

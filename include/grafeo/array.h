@@ -338,20 +338,6 @@ GrfArray*    grf_array_mult_to(GrfArray* array1, GrfArray* array2, GrfArray* new
  */
 GrfArray*    grf_array_divide_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array);
 /**
- * @brief grf_array_euclidian_distance
- * @param array1
- * @param array2
- * @return
- */
-long double grf_array_euclidian_distance(GrfArray* array1, GrfArray* array2);
-/**
- * @brief grf_array_square_euclidian_distance
- * @param array1
- * @param array2
- * @return
- */
-long double grf_array_square_euclidian_distance(GrfArray* array1, GrfArray* array2);
-/**
  * @brief grf_array_norm_relative
  * @param array1
  * @param array2

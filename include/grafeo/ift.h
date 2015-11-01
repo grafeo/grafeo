@@ -131,14 +131,41 @@ double grf_path_connectivity_max(GrfIFT* ift, uint64_t index_s, uint64_t index_t
  */
 double grf_path_connectivity_min(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function);
 /**
- * @brief path_connectivity_euc
+ * @brief path_connectivity_norm_l1
  * @param ift
  * @param index_s
  * @param index_t
  * @param weight_function
  * @return
  */
-double grf_path_connectivity_euc(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function);
+double grf_path_connectivity_norm_l1(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function);
+/**
+ * @brief path_connectivity_norm_l2
+ * @param ift
+ * @param index_s
+ * @param index_t
+ * @param weight_function
+ * @return
+ */
+double grf_path_connectivity_norm_l2(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function);
+/**
+ * @brief path_connectivity_norm_l2sqr
+ * @param ift
+ * @param index_s
+ * @param index_t
+ * @param weight_function
+ * @return
+ */
+double grf_path_connectivity_norm_l2sqr(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function);
+/**
+ * @brief path_connectivity_norm_inf
+ * @param ift
+ * @param index_s
+ * @param index_t
+ * @param weight_function
+ * @return
+ */
+double grf_path_connectivity_norm_inf(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function);
 /**
  * @brief weight_diff
  * @param array
