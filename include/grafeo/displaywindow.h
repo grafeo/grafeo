@@ -32,6 +32,35 @@
 #include <grafeo/imagewidget.h>
 #include <grafeo/trackbar.h>
 BEGIN_DECLS
+#include <grafeo/config.h>
+
+typedef enum{
+  GRF_MOUSE_EVENT_MOVE    = 1,
+  GRF_MOUSE_EVENT_PRESS   = 2,
+  GRF_MOUSE_EVENT_RELEASE = 4,
+  GRF_MOUSE_EVENT_DBLCLK  = 8,
+  GRF_MOUSE_EVENT_WHEEL   = 16
+} GrfMouseEventType;
+#define GRF_MOUSE_FLAG_MASK     3
+typedef enum{
+  // Mouse Buttons
+  GRF_MOUSE_FLAG_LBUTTON  = 0,
+  GRF_MOUSE_FLAG_RBUTTON  = 1,
+  GRF_MOUSE_FLAG_MBUTTON  = 2,
+
+  // Modifiers
+  GRF_MOUSE_FLAG_CTRLKEY  = 4,
+  GRF_MOUSE_FLAG_SHIFTKEY = 8,
+  GRF_MOUSE_FLAG_ALTKEY   = 16,
+} GrfMouseEventFlags;
+
+typedef enum{
+  GRF_KEY_EVENT_PRESS,
+  GRF_KEY_EVENT_RELEASE,
+} GrfKeyEventType;
+
+typedef void (*GrfMouseCallback)(GrfMouseEventType event, int x, int y, GrfMouseEventFlags flags, void* user_data);
+typedef void (*GrfKeyCallback)(GrfKeyEventType event, int key_val, void* user_data);
 
 #define GRF_TYPE_DISPLAYWINDOW grf_displaywindow_get_type()
 G_DECLARE_DERIVABLE_TYPE(GrfDisplayWindow, grf_displaywindow, GRF, DISPLAYWINDOW, GObject)
@@ -47,12 +76,19 @@ typedef struct _GrfDisplayWindowClass{
 GrfDisplayWindow*
 grf_displaywindow_new();
 /**
+ * @brief grf_displaywindow_new_with_name
+ * @param name
+ * @return
+ */
+GrfDisplayWindow*
+grf_displaywindow_new_with_name(char* name);
+/**
  * @brief grf_displaywindow_set_image
  * @param display
  * @param image
  */
 void
-grf_displaywindow_set_image(GrfDisplayWindow* display, GrfArray* image);
+grf_displaywindow_set_image(GrfDisplayWindow* display, GrfArray* image, gboolean invalidate);
 /**
  * @brief grf_displaywindow_get_image
  * @param display
@@ -72,6 +108,34 @@ grf_displaywindow_show(GrfDisplayWindow* display);
  */
 void
 grf_displaywindow_hide(GrfDisplayWindow* display);
+/**
+ * @brief grf_displaywindow_connect_mouse_callback
+ * @param window
+ * @param mouse_callback
+ * @param user_data
+ */
+void
+grf_displaywindow_connect_mouse_callback(GrfDisplayWindow* window, GrfMouseCallback mouse_callback, void* user_data);
+/**
+ * @brief grf_displaywindow_disconnect_mouse_callback
+ * @param window
+ */
+void
+grf_displaywindow_disconnect_mouse_callback(GrfDisplayWindow* window);
+/**
+ * @brief grf_displaywindow_connect_key_callback
+ * @param display
+ * @param key_callback
+ * @param user_data
+ */
+void
+grf_displaywindow_connect_key_callback(GrfDisplayWindow* display, GrfKeyCallback key_callback, void* user_data);
+/**
+ * @brief grf_displaywindow_disconnect_key_callback
+ * @param display
+ */
+void
+grf_displaywindow_disconnect_key_callback(GrfDisplayWindow* display);
 /**
  * @brief grf_displaywindow_set_name
  * @param display
@@ -104,9 +168,17 @@ grf_displaywindow_remove_trackbar(GrfDisplayWindow* display, GrfTrackbar* trackb
  * @brief grf_displaywindow_get_trackbar_by_name
  * @param display
  * @param name
+ * @return
+ */
+GrfTrackbar*
+grf_displaywindow_get_trackbar_by_name(GrfDisplayWindow* display, char* name);
+/**
+ * @brief grf_displaywindow_quit_on_destroy
+ * @param display
+ * @param value
  */
 void
-grf_displaywindow_get_trackbar_by_name(GrfDisplayWindow* display, char* name);
+grf_displaywindow_quit_on_destroy(GrfDisplayWindow* display, gboolean value);
 
 END_DECLS
 #endif

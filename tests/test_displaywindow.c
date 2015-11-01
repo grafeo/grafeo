@@ -28,11 +28,27 @@
 #include <grafeo/displaywindow.h>
 #include <setjmp.h>
 #include <cmocka.h>
+
+static void test_displaywindow(void** state){
+  (void) state;
+  char* filenames[3]     = {"../data/trekkie-nerdbw.png",           // Gray
+                            "../data/distance_transform_input.pgm", // Gray
+                            "../data/trekkie-nerd.jpg"};            // Color
+  GrfArray* image = grf_image_read(filenames[0]);
+  GrfDisplayWindow* window = grf_displaywindow_new();
+  grf_displaywindow_set_name(window, "teste");
+  grf_displaywindow_set_image(window, image,TRUE);
+  grf_displaywindow_show(window);
+  grf_displaywindow_quit_on_destroy(window, TRUE);
+  gtk_main();
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
+  gtk_init(&argc, &argv);
   const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_display)
+    cmocka_unit_test(test_displaywindow)
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

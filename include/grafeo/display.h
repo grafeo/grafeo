@@ -29,40 +29,54 @@
 #define GRF_DISPLAY_H
 #include <grafeo/array.h>
 #include <grafeo/queue.h>
-#include <grafeo/imagewidget.h>
-#include <grafeo/trackbar.h>
+#include <grafeo/displaywindow.h>
 BEGIN_DECLS
-
-#define GRF_TYPE_DISPLAY grf_display_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfDisplay, grf_display, GRF, DISPLAY, GObject)
-
-typedef struct _GrfDisplayClass{
-  GObjectClass parent_class;
-}GrfDisplayClass;
-
-typedef void (*GrfTrackbarCallback)(int pos);
-typedef void (*GrfTrackbarDataCallback)(int pos, void* user_data);
-
+/*=================================
+ * DISPLAY API
+ *=================================*/
+/**
+ * @brief Init some display information
+ */
+void
+grf_display_setup();
 /**
  * @brief Show a window to display an array
  * @param array the array representing the image to be displayed
  */
-void    grf_display_show(GrfArray* array);
+void
+grf_display_show(GrfArray* array);
 /**
  * @brief Lock the flow until a user presses the key
  * @return
  */
-uint8_t grf_display_waitkey();
-/**
- * @brief Init some display information
- */
-void    grf_display_setup();
+uint8_t
+grf_display_waitkey();
 /**
  * @brief grf_display_named
  * @param name
  */
 void
 grf_display_named(const char* name);
+/**
+ * @brief grf_display_connect_mouse_callback
+ * @param name
+ * @param mouse_callback
+ * @param user_data
+ */
+void
+grf_display_connect_mouse_callback(const char* name,
+                                   GrfMouseCallback mouse_callback,
+                                   void* user_data);
+/**
+ * @brief grf_display_disconnect_mouse_callback
+ * @param name
+ */
+void
+grf_display_disconnect_mouse_callback(const char* name);
+
+/*=================================
+ * DISPLAY TRACKBAR API
+ *=================================*/
 /**
  * @brief grf_display_add_trackbar
  * @param display_name
@@ -74,7 +88,11 @@ grf_display_named(const char* name);
  * @return
  */
 int
-grf_display_add_trackbar(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarCallback grf_trackbar_changed_event);
+grf_display_add_trackbar(const char* display_name,
+                         const char* track_name,
+                         int* variable,
+                         int min_value, int max_value,
+                         GrfTrackbarCallback grf_trackbar_changed_event);
 /**
  * @brief grf_display_add_trackbar_with_data
  * @param display_name
@@ -87,40 +105,81 @@ grf_display_add_trackbar(const char* display_name, const char* track_name, int* 
  * @return
  */
 int
-grf_display_add_trackbar_with_data(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarDataCallback grf_trackbar_changed_event, void* user_data);
+grf_display_add_trackbar_with_data(const char* display_name,
+                                   const char* track_name,
+                                   int* variable,
+                                   int min_value,
+                                   int max_value,
+                                   GrfTrackbarDataCallback grf_trackbar_changed_event,
+                                   void* user_data);
 /**
- * @brief grf_trackbar_get_pos
+ * @brief grf_display_get_trackbar_pos
  * @param display_name
  * @param track_name
  * @return
  */
 int
-grf_trackbar_get_pos(const char* display_name, const char* track_name);
+grf_display_get_trackbar_pos(const char* display_name, const char* track_name);
 /**
- * @brief grf_trackbar_set_pos
+ * @brief grf_display_get_trackbar_min
+ * @param display_name
+ * @param track_name
+ * @return
+ */
+int
+grf_display_get_trackbar_min(const char* display_name, const char* track_name);
+/**
+ * @brief grf_display_get_trackbar_max
+ * @param display_name
+ * @param track_name
+ * @return
+ */
+int
+grf_display_get_trackbar_max(const char* display_name, const char* track_name);
+/**
+ * @brief grf_display_set_trackbar_pos
  * @param display_name
  * @param track_name
  * @param pos
  */
 void
-grf_trackbar_set_pos(const char* display_name, const char* track_name, int pos);
+grf_display_set_trackbar_pos(const char* display_name, const char* track_name, int pos);
 /**
- * @brief grf_trackbar_set_min
+ * @brief grf_display_set_trackbar_min
  * @param display_name
  * @param track_name
- * @param min_val
+ * @param min_value
  */
 void
-grf_trackbar_set_min(const char* display_name, const char* track_name, int min_val);
+grf_display_set_trackbar_min(const char* display_name, const char* track_name, int min_value);
 /**
- * @brief grf_trackbar_set_man
+ * @brief grf_display_set_trackbar_max
  * @param display_name
  * @param track_name
- * @param max_val
+ * @param max_value
  */
 void
-grf_trackbar_set_man(const char* display_name, const char* track_name, int max_val);
+grf_display_set_trackbar_max(const char* display_name, const char* track_name, int max_value);
+/**
+ * @brief grf_display_set_trackbar_name
+ * @param display_name
+ * @param track_name
+ * @param new_track_name
+ */
+void
+grf_display_set_trackbar_name(const char* display_name, const char* track_name, char* new_track_name);
 
+/*=================================
+ * DISPLAY OPTIONS API
+ *=================================*/
+//void
+//grf_display_add_options(const char* display_name, const char* options_name, int* variable, char** options, GrfOptionsCallback grf_option_changed_event);
+
+/*=================================
+ * DISPLAY CHECK API
+ *=================================*/
+//void
+//grf_display_add_check(const char* display_name, const char* check_name, uint8_t* variable, GrfCheckCallback grf_check_changed_event);
 
 END_DECLS
 #endif

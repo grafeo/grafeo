@@ -33,16 +33,16 @@ BEGIN_DECLS
 
 #define GRF_TYPE_TRACKBAR grf_trackbar_get_type()
 
-G_DECLARE_DERIVABLE_TYPE(GrfTrackbar, grf_trackbar, GRF, TRACKBAR, GtkContainer)
+G_DECLARE_DERIVABLE_TYPE(GrfTrackbar, grf_trackbar, GRF, TRACKBAR, GtkBox)
 
 struct _GrfTrackbarClass{
-  GtkContainerClass parent_class;
+  GtkBoxClass parent_class;
 
   /* Keybinding signals */
-  void (*set_min)        (GrfImageWidget* widget, float scale     , gboolean invalidate);
-  void (*set_max)        (GrfImageWidget* widget, float x, float y, gboolean invalidate);
-  void (*set_pos)        (GrfImageWidget* widget, float angle     , gboolean invalidate);
-  void (*set_name)       (GrfImageWidget* widget, float* transform, gboolean invalidate);
+  void (*set_min)        (GrfTrackbar* trackbar, int min_value);
+  void (*set_max)        (GrfTrackbar* trackbar, int max_value);
+  void (*set_pos)        (GrfTrackbar* trackbar, int pos);
+  void (*set_name)       (GrfTrackbar* trackbar, const char* name);
 };
 
 typedef void (*GrfTrackbarCallback)(int pos);
@@ -88,7 +88,7 @@ grf_trackbar_set_pos (GrfTrackbar* trackbar, int pos);
  * @param name
  */
 void
-grf_trackbar_set_name(GrfTrackbar* trackbar, char* name);
+grf_trackbar_set_name(GrfTrackbar* trackbar, const char* name);
 /**
  * @brief grf_trackbar_get_max
  * @param trackbar
@@ -117,6 +117,13 @@ grf_trackbar_get_pos(GrfTrackbar* trackbar);
  */
 char*
 grf_trackbar_get_name(GrfTrackbar* trackbar);
-
+/**
+ * @brief grf_trackbar_connect_change_callback
+ * @param trackbar
+ * @param variable
+ * @param trackbar_changed_event
+ */
+void
+grf_trackbar_connect_change_callback(GrfTrackbar* trackbar, int* variable, GrfTrackbarCallback trackbar_changed_event);
 
 #endif

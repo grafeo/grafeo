@@ -42,27 +42,44 @@ typedef struct _GrfTrackbarPrivate{
   GtkWidget* lbl_max;
   GtkWidget* lbl_name;
 
+  int*  variable;
+  GrfTrackbarCallback trackbar_changed_event;
+
 
 } GrfTrackbarPrivate;
 
 // ImageWidget definition
-G_DEFINE_TYPE_WITH_PRIVATE(GrfTrackbar, grf_trackbar, GTK_TYPE_CONTAINER)
+G_DEFINE_TYPE_WITH_PRIVATE(GrfTrackbar, grf_trackbar, GTK_TYPE_BOX)
 
-static grf_trackbar_class_init(GrfTrackbarClass *klass){
+static void
+grf_trackbar_class_init(GrfTrackbarClass *klass){
   klass->set_max  = grf_trackbar_set_max;
   klass->set_min  = grf_trackbar_set_min;
   klass->set_name = grf_trackbar_set_name;
   klass->set_pos  = grf_trackbar_set_pos;
 }
-static grf_trackbar_init(GrfTrackbar *self){
+static void
+grf_trackbar_init(GrfTrackbar *self){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(self);
   priv->hbox     = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
   priv->lbl_name = gtk_label_new("variable");
   priv->scale    = gtk_scale_new(GTK_ORIENTATION_HORIZONTAL,NULL);
+  gtk_scale_set_digits(GTK_SCALE(priv->scale),0);
 
   gtk_box_pack_start(GTK_BOX(priv->hbox),priv->lbl_name,FALSE,FALSE,0);
   gtk_box_pack_start(GTK_BOX(priv->hbox),priv->scale, TRUE, TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(self),box);
+  gtk_box_pack_start(GTK_BOX(self),priv->hbox,TRUE,TRUE,0);
+}
+
+static gboolean
+grf_trackbar_changed_event(GtkRange* range, GtkScrollType scroll, gdouble value, gpointer user_data){
+  (void) scroll;(void) range;
+
+  GrfTrackbar* trackbar = GRF_TRACKBAR(user_data);
+  GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
+  *(priv->variable) = (int) value;
+  priv->trackbar_changed_event((int) value);
+  return FALSE;
 }
 
 /*=================================
@@ -71,7 +88,7 @@ static grf_trackbar_init(GrfTrackbar *self){
 
 GrfTrackbar*
 grf_trackbar_new(){
-  return gtk_widget_new(GRF_TYPE_TRACKBAR,NULL);
+  return GRF_TRACKBAR(gtk_widget_new(GRF_TYPE_TRACKBAR,NULL));
 }
 
 GrfTrackbar*
@@ -85,46 +102,58 @@ void
 grf_trackbar_set_max (GrfTrackbar* trackbar, int max_value){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
   priv->max_value = max_value;
+  gtk_range_set_range(GTK_RANGE(priv->scale), priv->min_value, priv->max_value);
 }
 
 void
 grf_trackbar_set_min (GrfTrackbar* trackbar, int min_value){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
-  priv->max_value = max_value;
+  priv->min_value = min_value;
+  gtk_range_set_range(GTK_RANGE(priv->scale), priv->min_value, priv->max_value);
 }
 
 void
 grf_trackbar_set_pos (GrfTrackbar* trackbar, int pos){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
-  priv->max_value = max_value;
+  priv->pos = pos;
+  gtk_scale_set_draw_value(GTK_SCALE(priv->scale), (double)pos);
 }
 
 void
-grf_trackbar_set_name(GrfTrackbar* trackbar, char* name){
+grf_trackbar_set_name(GrfTrackbar* trackbar, const char* name){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
-  priv->max_value = max_value;
+  gtk_label_set_label(GTK_LABEL(priv->lbl_name),(const gchar*)name);
+  priv->name = (char*)name;
 }
 
 int
 grf_trackbar_get_max(GrfTrackbar* trackbar){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
-  priv->max_value = max_value;
+  return priv->max_value;
 }
 
 int
 grf_trackbar_get_min(GrfTrackbar* trackbar){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
-  priv->max_value = max_value;
+  return priv->min_value;
 }
 
 int
 grf_trackbar_get_pos(GrfTrackbar* trackbar){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
-  priv->max_value = max_value;
+  return priv->pos;
 }
 
 char*
 grf_trackbar_get_name(GrfTrackbar* trackbar){
   GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
-  priv->max_value = max_value;
+  return priv->name;
+}
+
+void
+grf_trackbar_connect_change_callback(GrfTrackbar* trackbar, int* variable, GrfTrackbarCallback trackbar_changed_event){
+  GrfTrackbarPrivate* priv = grf_trackbar_get_instance_private(trackbar);
+  priv->trackbar_changed_event = trackbar_changed_event;
+  priv->variable = variable;
+  g_signal_connect(priv->scale, "change-value", G_CALLBACK(grf_trackbar_changed_event), trackbar);
 }
