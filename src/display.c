@@ -26,59 +26,152 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/display.h>
+#include <grafeo/config.h>
 
-typedef struct _DisplayPrivate{
-  GtkWidget  * imagewidget;
-  GtkWidget  * window;
-  GtkWidget  * toolbar;
-  GtkWidget  * box;
-  char       * name;
-}DisplayPrivate;
+/*=================================
+ * PRIVATE API
+ *=================================*/
+static GrfDisplayWindow* cur_display;
+static GrfQueue        * displays_queue;
+uint8_t                  key_pressed;
 
-G_DEFINE_TYPE_WITH_PRIVATE(Display, display, G_TYPE_OBJECT)
-
+// search window by name
+GrfDisplayWindow* grf_display_get_by_name(const char* name){
+  GrfList* current;
+  for(current = displays_queue->begin; current; current = grf_list_next(current))
+  {
+    GrfDisplayWindow   * display = GRF_DISPLAYWINDOW(grf_list_value(current));
+    if(!strcmp(grf_displaywindow_get_name(display), name)) return display;
+  }
+  return NULL;
+}
 static void
-display_init(Display* self){
-  DisplayPrivate* priv = display_get_instance_private(self);
-  priv->imagewidget = grf_imagewidget_new();
-  priv->toolbar     = gtk_toolbar_new();
-  priv->window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  priv->box         = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
-
-  gtk_box_pack_start(GTK_BOX(priv->box),priv->toolbar    ,TRUE,TRUE,0);
-  gtk_box_pack_start(GTK_BOX(priv->box),priv->imagewidget,TRUE,TRUE,0);
-  gtk_container_add(GTK_CONTAINER(priv->window) ,priv->box);
-
-
+key_callback(GrfKeyEventType event, int key_val, void* user_data){
+  (void) user_data;
+  if(event == GRF_KEY_EVENT_RELEASE){
+    key_pressed = key_val;
+    gtk_main_quit();
+  }
 }
 
-
-static void
-display_class_init(DisplayClass *klass){
-
+/*=================================
+ * PUBLIC API
+ *=================================*/
+void
+grf_display_setup(int *argc, char*** argv){
+  gtk_init(argc, argv);
+  displays_queue     = grf_queue_new();
+  cur_display        = NULL;
 }
 
-void display_setup(){
-  gtk_init(0, NULL);
-//  displays     = queue_new();
-//  cur_display  = NULL;
+void
+grf_display_named(const char* name){
+  GrfDisplayWindow* display = grf_display_get_by_name(name);
+  if(!display){
+    display     = grf_displaywindow_new_with_name((char*)name);
+    grf_queue_append(displays_queue,display);
+    grf_displaywindow_connect_key_callback(display, key_callback, NULL);
+  }
+  cur_display = display;
 }
 
-static Display* display_new(){
-  return GRF_DISPLAY(g_object_new(GRF_TYPE_DISPLAY,NULL));
+void
+grf_display_show(GrfArray* array){
+  if(!cur_display)
+    grf_display_named("Figure 1");
+  grf_displaywindow_set_image(cur_display, array, TRUE);
+  grf_displaywindow_show(cur_display);
 }
 
-void    display_show(GrfArray* array){
-  Display       * display = display_new();
-  DisplayPrivate* priv    = display_get_instance_private(display);
-  grf_imagewidget_set_image(priv->imagewidget,array);
-  gtk_widget_show_all(priv->window);
-}
-
-uint8_t display_wait_key(){
+uint8_t grf_display_waitkey(){
   gtk_main();
-  return 0;
+  return key_pressed;
 }
+
+void
+grf_display_connect_mouse_callback(const char* name,
+                                   GrfMouseCallback mouse_callback,
+                                   void* user_data){
+  GrfDisplayWindow* window = grf_display_get_by_name(name);
+  if(window)
+    grf_displaywindow_connect_mouse_callback(window, mouse_callback, user_data);
+}
+
+void
+grf_display_disconnect_mouse_callback(const char* name){
+  GrfDisplayWindow* window = grf_display_get_by_name(name);
+  if(window)
+    grf_displaywindow_disconnect_mouse_callback(window);
+}
+
+/*=================================
+ * PUBLIC API: Display Trackbar
+ *=================================*/
+int
+grf_display_add_trackbar(const char* display_name,
+                         const char* track_name,
+                         int* variable,
+                         int min_value, int max_value,
+                         GrfTrackbarCallback trackbar_changed_event){
+  GrfDisplayWindow* display   = grf_display_get_by_name(display_name);
+  if(!display) return 0;
+  GrfTrackbar* trackbar = grf_displaywindow_get_trackbar_by_name(display, (char*)track_name);
+  if(trackbar) return 0;
+  else{
+    trackbar = grf_trackbar_new_with_name((char*)track_name);
+    grf_displaywindow_add_trackbar(display,trackbar);
+    grf_trackbar_set_max(trackbar,max_value);
+    grf_trackbar_set_min(trackbar,min_value);
+    grf_trackbar_connect_change_callback(trackbar, variable, trackbar_changed_event);
+  }
+  return 1;
+}
+
+//int
+//grf_display_add_trackbar(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarCallback grf_trackbar_changed_event){
+//  // Find trackbar
+//  GrfDisplay* display   = grf_display_get_by_name(display_name);
+//  if(!display) return 0;
+
+//  GrfTrackbar* trackbar = grf_trackbar_get_by_name(display, track_name);
+//  // Not found? Create-it
+//  if(!trackbar){
+//    trackbar = grf_trackbar_new_with_name(display_name);
+//    grf_trackbar_set_display(display);
+
+//  }
+//}
+
+//int
+//grf_display_add_trackbar_with_data(const char* display_name, const char* track_name, int* variable, int min_value, int max_value, GrfTrackbarDataCallback grf_trackbar_changed_event, void* user_data){
+
+//}
+
+//int
+//grf_display_get_trackbar_pos(const char* display_name, const char* track_name){
+//  GrfDisplay * display  = grf_display_get_by_name(display_name);
+//  GrfTrackbar* trackbar = grf_display_get_trackbar_by_name(display, track_name);
+//}
+
+//void
+//grf_display_get_trackbar_min(const char* display_name, const char* track_name, int pos){
+
+//}
+
+//void
+//grf_display_get_trackbar_max(const char* display_name, const char* track_name, int pos){
+
+//}
+
+//void
+//grf_trackbar_set_min(const char* display_name, const char* track_name, int min_val){
+
+//}
+
+//void
+//grf_trackbar_set_man(const char* display_name, const char* track_name, int max_val){
+
+//}
 
 
 //// Collection of displays

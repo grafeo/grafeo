@@ -109,6 +109,13 @@ float  grf_imagewidget_get_rotation(GrfImageWidget* widget);
  * @return
  */
 float* grf_imagewidget_get_transform(GrfImageWidget* widget);
+/**
+ * @brief grf_imagewidget_get_image
+ * @param widget
+ * @return
+ */
+GrfArray*
+grf_imagewidget_get_image(GrfImageWidget* widget);
 
 /*====================*
        MUTATORS

@@ -117,14 +117,17 @@ grf_imagewidget_draw(GtkWidget *widget, cairo_t *cr){
   GrfImageWidget       * imagewidget = GRF_IMAGEWIDGET(widget);
   GrfImageWidgetPrivate*        priv = grf_imagewidget_get_instance_private(imagewidget);
 
-  cairo_save(cr);
-  cairo_translate(cr,priv->translation_x,priv->translation_y);
-  cairo_scale(cr,priv->scale,priv->scale);
-  cairo_set_source_surface(cr,priv->image_surface,0,0);
-  cairo_pattern_set_filter(cairo_get_source(cr),CAIRO_FILTER_FAST);
-  cairo_paint(cr);
-  cairo_fill(cr);
-  cairo_restore(cr);
+  if(priv->image_surface){
+    cairo_save(cr);
+    cairo_translate(cr,priv->translation_x,priv->translation_y);
+    cairo_scale(cr,priv->scale,priv->scale);
+    cairo_set_source_surface(cr,priv->image_surface,0,0);
+    cairo_pattern_set_filter(cairo_get_source(cr),CAIRO_FILTER_FAST);
+    cairo_paint(cr);
+    cairo_fill(cr);
+    cairo_restore(cr);
+  }
+
   return TRUE;
 }
 
@@ -257,4 +260,9 @@ float  grf_imagewidget_get_rotation(GrfImageWidget* widget){
 float* grf_imagewidget_get_transform(GrfImageWidget* widget){
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
   return priv->transform;
+}
+GrfArray*
+grf_imagewidget_get_image(GrfImageWidget *widget){
+  GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
+  return priv->image_original;
 }
