@@ -48,6 +48,7 @@ typedef struct _DisplayPrivate{
   GtkWidget  * box;
   GtkWidget  * statusbar;
   GtkWidget  * lbl_color;
+  GrfQueue   * trackbars;
   char       * name;
   guint        context;
   uint8_t      key_pressed;
@@ -224,6 +225,7 @@ grf_display_init(GrfDisplay* self){
   priv->box           = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
   priv->statusbar     = gtk_statusbar_new();
   priv->name          = NULL;
+  priv->trackbars     = grf_queue_new();
 
   // Buttons
   gtk_tool_button_set_icon_name(GTK_TOOL_BUTTON(priv->btn_save)      ,"document-save");
@@ -391,12 +393,18 @@ grf_display_add_trackbar_with_data(const char* display_name, const char* track_n
 }
 
 int
-grf_trackbar_get_pos(const char* display_name, const char* track_name){
+grf_display_get_trackbar_pos(const char* display_name, const char* track_name){
+  GrfDisplay * display  = grf_display_get_by_name(display_name);
+  GrfTrackbar* trackbar = grf_display_get_trackbar_by_name(display, track_name);
+}
+
+void
+grf_display_get_trackbar_min(const char* display_name, const char* track_name, int pos){
 
 }
 
 void
-grf_trackbar_set_pos(const char* display_name, const char* track_name, int pos){
+grf_display_get_trackbar_max(const char* display_name, const char* track_name, int pos){
 
 }
 

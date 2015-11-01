@@ -44,6 +44,10 @@ struct _GrfTrackbarClass{
   void (*set_pos)        (GrfImageWidget* widget, float angle     , gboolean invalidate);
   void (*set_name)       (GrfImageWidget* widget, float* transform, gboolean invalidate);
 };
+
+typedef void (*GrfTrackbarCallback)(int pos);
+typedef void (*GrfTrackbarDataCallback)(int pos, void* user_data);
+
 /**
  * @brief grf_trackbar_new
  * @return

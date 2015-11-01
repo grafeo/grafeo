@@ -30,6 +30,7 @@
 #include <grafeo/array.h>
 #include <grafeo/queue.h>
 #include <grafeo/imagewidget.h>
+#include <grafeo/trackbar.h>
 BEGIN_DECLS
 
 #define GRF_TYPE_DISPLAY grf_display_get_type()
