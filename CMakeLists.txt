@@ -33,6 +33,7 @@ find_package(PkgConfig REQUIRED)
 
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
+option(BUILD_TESTING "" OFF)
 
 function (load_submodule nome nome_lib)
     set(${nome}CMakeArgs
