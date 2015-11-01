@@ -313,7 +313,6 @@ GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType
         output->data_uint8[3*i+2] = array->data_uint8[i];
       }
     }else if(destiny == GRF_RGBA){
-      uint64_t i2;
       for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
         output->data_uint8[i2  ] = array->data_uint8[i];
         output->data_uint8[i2+1] = array->data_uint8[i];
@@ -354,7 +353,7 @@ GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType
       }
     }
     else if(destiny == GRF_BGRA){
-      uint64_t size_gray = array->num_elements/3, i2, i3;
+      uint64_t size_gray = array->num_elements/3, i3;
       for(i = 0, i2 = 0, i3 = 0; i < size_gray; i++, i2 = i << 2, i3 = (i<<1)+i){
         output->data_uint8[i2  ] = array->data_uint8[i3+2];
         output->data_uint8[i2+1] = array->data_uint8[i3+1];

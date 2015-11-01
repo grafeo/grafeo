@@ -127,18 +127,18 @@ int8_t int64_compare_function  (void* value1, void* value2);
  * @brief Structure for 2D array of scalar values
  */
 typedef struct _GrfScalar2D{
-  int x;
-  int y;
+  int x; /**< x position (or first value if viewed as array) */
+  int y; /**< y position (or second value if viewed as array) */
 }GrfScalar2D;
 
 /**
  * @brief Structure for 4D array of scalar values
  */
 typedef struct _GrfScalar4D{
-  int x;
-  int y;
-  union{int z;int width;int x2;};
-  union{int w;int height;int y2;};
+  int x; /**< x position (or first value if viewed as array) */
+  int y; /**< y position (or second value if viewed as array) */
+  union{int z;int width;int x2;}; /**< z position (or third value if viewed as array) */
+  union{int w;int height;int y2;}; /**< w position (or fourth value if viewed as array) */
 }GrfScalar4D;
 #define grf_scalar4D_new(v1,v2,v3,v4) {v1,v2,{v3},{v4}};
 typedef GrfScalar4D GrfRectangle;
@@ -147,8 +147,8 @@ typedef GrfScalar4D GrfRectangle;
  * @brief Structure for 2D array of scalar values
  */
 typedef struct _GrfSize2D{
-  uint32_t width;
-  uint32_t height;
+  uint32_t width; /**< width (size in x direction) */
+  uint32_t height; /**< height (size in y direction) */
 }GrfSize2D;
 
 #define INT8_TO_POINTER(i)   ((void*)(int64_t)(i))

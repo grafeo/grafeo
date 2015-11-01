@@ -123,16 +123,16 @@ grf_displaywindow_btn_zoom_ori_clicked(GtkWidget * widget, gpointer user_data){
 }
 static void
 grf_displaywindow_btn_zoom_fit_clicked(GtkWidget * widget, gpointer user_data){
-  (void) widget;
-  GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
-  GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
+  (void) widget; (void) user_data;
+  //GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
+  //GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
   //gtk_widget_get_preferred_height(priv->imagewidget, &min_height, &nat_height);
 
   //grf_imagewidget_set_scale(GRF_IMAGEWIDGET(priv->imagewidget), 1, TRUE);
 }
 static void
 grf_displaywindow_btn_pan_left_clicked(GtkWidget * widget, GdkEvent *event, gpointer user_data){
-  (void) widget;
+  (void) widget; (void) event;
   gtk_main_quit();
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
@@ -141,7 +141,7 @@ grf_displaywindow_btn_pan_left_clicked(GtkWidget * widget, GdkEvent *event, gpoi
 }
 static void
 grf_displaywindow_btn_pan_right_clicked(GtkWidget * widget, GdkEvent *event, gpointer user_data){
-  (void) widget;
+  (void) widget; (void) event;
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
   float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->imagewidget));
@@ -149,7 +149,7 @@ grf_displaywindow_btn_pan_right_clicked(GtkWidget * widget, GdkEvent *event, gpo
 }
 static void
 grf_displaywindow_btn_pan_top_clicked(GtkWidget * widget, GdkEvent *event, gpointer user_data){
-  (void) widget;
+  (void) widget; (void) event;
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
   float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->imagewidget));
@@ -157,7 +157,7 @@ grf_displaywindow_btn_pan_top_clicked(GtkWidget * widget, GdkEvent *event, gpoin
 }
 static void
 grf_displaywindow_btn_pan_bottom_clicked(GtkWidget * widget, GdkEvent *event, gpointer user_data){
-  (void) widget;
+  (void) widget; (void) event;
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
   float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->imagewidget));

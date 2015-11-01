@@ -233,7 +233,7 @@ grf_array_draw_line_no_shift(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, Gr
 }
 static void
 grf_array_draw_line_antialiased(GrfArray* array, GrfScalar2D p1, GrfScalar2D p2, GrfScalar4D* color){
-
+  (void) array; (void) p1; (void) p2; (void) color;
 }
 
 static void
@@ -817,12 +817,14 @@ int grf_compare_edges(const void* elem1, const void* elem2){
 
 static void
 grf_array_fill_edge_collection(GrfArray* array, GrfScalar4D* edges, int num_edges, GrfScalar4D* color){
+  (void) color;
   GrfScalar4D tmp;
-  int i, y, total = num_edges;
+  int i, total = num_edges;
+  //int y;
   GrfSize2D* size = (GrfSize2D*) array->size;
-  GrfScalar4D* e;
+  //GrfScalar4D* e;
   int y_max = INT_MIN, x_max = INT_MIN, y_min = INT_MAX, x_min = INT_MAX;
-  int pix_size = array->dim < 3?1:array->size[2];
+  //int pix_size = array->dim < 3?1:array->size[2];
 
   if( total < 2 )
       return;

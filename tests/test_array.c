@@ -973,6 +973,7 @@ static void test_grf_array_norm(void** state){
 }
 
 static void test_grf_array_copy(void** state){
+  (void) state;
   uint32_t data[8] = {0,1,2,3,4,5,6,7};
   uint32_t size[3] = {2,2,2};
   GrfArray* array     = grf_array_from_data(data,3,size,GRF_UINT32);

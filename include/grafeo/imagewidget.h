@@ -49,6 +49,8 @@ BEGIN_DECLS
  * - fitting mode
  * - scroll
  */
+typedef struct _GrfImageWidget GrfImageWidget;
+
 G_DECLARE_DERIVABLE_TYPE(GrfImageWidget, grf_imagewidget, GRF, IMAGEWIDGET, GtkWidget)
 
 struct _GrfImageWidgetClass{

@@ -62,27 +62,6 @@ function (load_submodule nome nome_lib)
     add_library(${nome_lib} SHARED IMPORTED)
     set_target_properties(${nome_lib} PROPERTIES IMPORTED_LOCATION ${EXTERNAL_LIB_DIR}/lib${nome_lib}.so)
 endfunction()
-#====================================================== DOCUMENTATION
-find_package(Doxygen)
-if(Doxygen_FOUND)
-    option(BUILD_DOCS      "Build doxygen documentation" ON)
-    if(BUILD_DOCS)
-        file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/)
-        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
-                       ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
-        add_custom_target(doc ALL
-          ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
-          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc
-          COMMENT "Generating API documentation with Doxygen" VERBATIM
-        )
-        add_custom_command(TARGET doc PRE_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_directory
-            ${CMAKE_CURRENT_SOURCE_DIR}/tutorials
-            ${CMAKE_CURRENT_SOURCE_DIR}/doc)
-        SET_DIRECTORY_PROPERTIES(PROPERTIES  
-          ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/doc/*") 
-    endif(BUILD_DOCS)
-endif(Doxygen_FOUND)
 #================================================================ PNG
 find_package(PNG QUIET)
 if(NOT PNG_FOUND)
@@ -198,7 +177,27 @@ install(TARGETS grafeo_ift       LIBRARY DESTINATION lib)
 if(BUILD_DISPLAY)
 install(TARGETS grafeo_display   LIBRARY DESTINATION lib)
 endif(BUILD_DISPLAY)
-
+#====================================================== DOCUMENTATION
+find_package(Doxygen)
+if(Doxygen_FOUND)
+    option(BUILD_DOCS      "Build doxygen documentation" ON)
+    if(BUILD_DOCS)
+        file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/)
+        configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
+                       ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
+        add_custom_target(doc ALL
+          ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
+          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc
+          COMMENT "Generating API documentation with Doxygen" VERBATIM
+        )
+        add_custom_command(TARGET doc PRE_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/tutorials
+            ${CMAKE_CURRENT_SOURCE_DIR}/doc)
+        SET_DIRECTORY_PROPERTIES(PROPERTIES
+          ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/doc/*")
+    endif(BUILD_DOCS)
+endif(Doxygen_FOUND)
 #========================================================= DEBUG INFO
 option(DEBUG_INFO "Compile Grafeo with debug information?" ON)
 if(DEBUG_INFO)
