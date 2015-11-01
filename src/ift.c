@@ -219,17 +219,7 @@ double grf_path_connectivity_min(GrfIFT* ift, uint64_t index_s, uint64_t index_t
                              index_t*ift->original->step[ift->label->dim-1]));
 }
 
-double grf_path_connectivity_euc(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  (void) weight_function;
-  uint64_t index_r = ift->root->data_uint64[index_s];
-  uint32_t size = (uint32_t)ift->original->dim;
-  GrfArray* grf_array_r = grf_array_from_data(grf_array_index(ift->original,index_r),1,&size,GRF_INT32);
-  GrfArray* grf_array_t = grf_array_from_data(grf_array_index(ift->original,index_t),1,&size,GRF_INT32);
-
-  return grf_array_euclidian_distance(grf_array_r, grf_array_t);
-}
-
-double _path_connectivity_norm(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function, GrfNormType norm_type){
+double _grf_path_connectivity_norm(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function, GrfNormType norm_type){
   (void) weight_function;
   uint64_t index_r = ift->root->data_uint64[index_s];
   uint32_t size = (uint32_t)ift->original->dim;
@@ -239,17 +229,17 @@ double _path_connectivity_norm(GrfIFT* ift, uint64_t index_s, uint64_t index_t, 
   return grf_array_norm_difference(grf_array_r, grf_array_t, norm_type);
 }
 
-double path_connectivity_norm_l1(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_L1);
+double grf_path_connectivity_norm_l1(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
+  return _grf_path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_L1);
 }
-double path_connectivity_norm_l2(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_L2);
+double grf_path_connectivity_norm_l2(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
+  return _grf_path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_L2);
 }
-double path_connectivity_norm_l2sqr(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_L2SQR);
+double grf_path_connectivity_norm_l2sqr(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
+  return _grf_path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_L2SQR);
 }
-double path_connectivity_norm_inf(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  return _path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_INF);
+double grf_path_connectivity_norm_inf(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
+  return _grf_path_connectivity_norm(ift, index_s, index_t, weight_function, GRF_NORM_INF);
 }
 
 void   grf_ift_free(GrfIFT* ift){
@@ -286,10 +276,10 @@ GrfArray* grf_ift_distance_transform(GrfArray* array, GrfNormType norm_type){
   // Define Path Connectivity
   GrfPathConnectivityFunc path_connectivity;
   switch(norm_type){
-    case GRF_NORM_L1:     path_connectivity = path_connectivity_norm_l1    ; break;
-    case GRF_NORM_L2:     path_connectivity = path_connectivity_norm_l2    ; break;
-    case GRF_NORM_L2SQR:  path_connectivity = path_connectivity_norm_l2sqr ; break;
-    case GRF_NORM_INF:    path_connectivity = path_connectivity_norm_inf   ; break;
+    case GRF_NORM_L1:     path_connectivity = grf_path_connectivity_norm_l1    ; break;
+    case GRF_NORM_L2:     path_connectivity = grf_path_connectivity_norm_l2    ; break;
+    case GRF_NORM_L2SQR:  path_connectivity = grf_path_connectivity_norm_l2sqr ; break;
+    case GRF_NORM_INF:    path_connectivity = grf_path_connectivity_norm_inf   ; break;
     default: break;
   }
 
