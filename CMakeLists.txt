@@ -34,6 +34,7 @@ find_package(PkgConfig REQUIRED)
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
 option(BUILD_TESTING "" OFF)
+option(BUILD_MEDICAL "Component for Medical Imaging" ON)
 
 function (load_submodule nome nome_lib)
     set(${nome}CMakeArgs
@@ -118,6 +119,9 @@ SET(GRAFEO_DISPLAY_HDR
 SET(GRAFEO_IFT_HDR
   include/grafeo/ift.h
 )
+SET(GRAFEO_MEDICAL_HDR
+  include/grafeo/dicom.h
+)
 SET(GRAFEO_STRUCTURE_SRC
  src/pqueue.c
  src/bucket.c
@@ -135,6 +139,9 @@ SET(GRAFEO_IMGPROC_SRC
 )
 SET(GRAFEO_IFT_SRC
  src/ift.c
+)
+SET(GRAFEO_MEDICAL_SRC
+ src/dicom.c
 )
 SET(GRAFEO_DISPLAY_SRC
  src/imagewidget.c
@@ -162,6 +169,9 @@ add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
 if(BUILD_DISPLAY)
   add_library(grafeo_display   SHARED ${GRAFEO_DISPLAY_SRC}   ${GRAFEO_DISPLAY_HDR})
 endif(BUILD_DISPLAY)
+if(BUILD_MEDICAL)
+  add_library(grafeo_medical   SHARED ${GRAFEO_MEDICAL_SRC}   ${GRAFEO_MEDICAL_HDR})
+endif(BUILD_MEDICAL)
 
 set_target_properties(grafeo_structure PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
 set_target_properties(grafeo_imgproc   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
@@ -169,6 +179,9 @@ set_target_properties(grafeo_ift       PROPERTIES VERSION ${GRAFEO_VERSION_STRIN
 if(BUILD_DISPLAY)
   set_target_properties(grafeo_display   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
 endif(BUILD_DISPLAY)
+if(BUILD_MEDICAL)
+  set_target_properties(grafeo_medical   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+endif(BUILD_MEDICAL)
 
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
 install(TARGETS grafeo_structure LIBRARY DESTINATION lib)
@@ -177,6 +190,10 @@ install(TARGETS grafeo_ift       LIBRARY DESTINATION lib)
 if(BUILD_DISPLAY)
 install(TARGETS grafeo_display   LIBRARY DESTINATION lib)
 endif(BUILD_DISPLAY)
+if(BUILD_MEDICAL)
+install(TARGETS grafeo_medical   LIBRARY DESTINATION lib)
+endif(BUILD_MEDICAL)
+
 #====================================================== DOCUMENTATION
 find_package(Doxygen)
 if(Doxygen_FOUND)
@@ -281,6 +298,10 @@ if(BUILD_TESTING)
       set(test_display_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
       set(test_displaywindow_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
     endif(BUILD_DISPLAY)
+    if(BUILD_MEDICAL)
+      LIST(APPEND TESTS_NAMES dicom)
+      set(test_dicom_deps grafeo_structure grafeo_medical grafeo_display grafeo_imgproc png jpeg ${GTK3_LIBRARIES})
+    endif(BUILD_MEDICAL)
     set(test_array_deps grafeo_structure)
     set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
     set(test_list_deps grafeo_structure)
