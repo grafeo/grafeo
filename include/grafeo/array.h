@@ -563,6 +563,15 @@ void grf_array_squeeze(GrfArray* array);
  * @param axis
  */
 void grf_array_squeeze_axis(GrfArray* array, uint8_t num_axis, uint16_t* axis);
+/**
+ * @brief grf_array_filter
+ * @param array
+ * @param comparison_function
+ * @param result_indices
+ * @param result_values
+ * @param user_data
+ */
+void grf_array_filter(GrfArray* array, GrfBoolDataFunc comparison_function, GrfArray** result_indices, GrfArray** result_values, void* user_data);
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
  *-----------------------------------*/

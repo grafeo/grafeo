@@ -118,6 +118,7 @@ typedef enum _GrfOptimizationType{
 
 typedef int8_t (*GrfCompareFunc)    (void* data1, void* data2);
 typedef int8_t (*GrfCompareDataFunc)(void* data1, void* data2, void* user_data);
+typedef uint8_t(*GrfBoolDataFunc)(void* data1, void* user_data);
 typedef void (*GrfDataFunc)       (void* data1, void* user_data);
 
 int8_t int64_compare_function_r(void* value1, void* value2);

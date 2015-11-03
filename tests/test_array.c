@@ -983,33 +983,83 @@ static void test_grf_array_copy(void** state){
   grf_array_free(array2);
 }
 
+static uint8_t more_than_3(void* data, void* user_data){
+  (void) user_data;
+  uint32_t* data_32 = (uint32_t*) data;
+  return *data_32 > 3;
+}
+
+static void test_grf_array_filter(void** state){
+  (void) state;
+  uint32_t data[8] = {0,1,2,3,4,5,6,7};
+  uint32_t size[3] = {2,2,2};
+  GrfArray* array     = grf_array_from_data(data,3,size,GRF_UINT32);
+  GrfArray* indices, *values;
+
+  grf_array_filter(array,more_than_3,&indices, &values,NULL);
+
+  assert_int_equal(indices->bitsize, sizeof(uint64_t));
+  assert_int_equal(indices->contiguous, 1);
+  assert_int_equal(indices->data_uint64[0], 4);
+  assert_int_equal(indices->data_uint64[1], 5);
+  assert_int_equal(indices->data_uint64[2], 6);
+  assert_int_equal(indices->data_uint64[3], 7);
+  assert_int_equal(indices->dim, 1);
+  assert_int_equal(indices->num_bytes, 4*sizeof(uint64_t));
+  assert_int_equal(indices->num_elements, 4);
+  assert_int_equal(indices->owns_data, 1);
+  assert_int_equal(indices->size[0], 4);
+  assert_int_equal(indices->step[0], 1);
+  assert_int_equal(indices->type, GRF_UINT64);
+
+  assert_int_equal(values->bitsize, sizeof(uint32_t));
+  assert_int_equal(values->contiguous, 1);
+  assert_int_equal(values->data_uint32[0], 4);
+  assert_int_equal(values->data_uint32[1], 5);
+  assert_int_equal(values->data_uint32[2], 6);
+  assert_int_equal(values->data_uint32[3], 7);
+  assert_int_equal(values->dim, 1);
+  assert_int_equal(values->num_bytes, 4*sizeof(uint32_t));
+  assert_int_equal(values->num_elements, 4);
+  assert_int_equal(values->owns_data, 1);
+  assert_int_equal(values->size[0], 4);
+  assert_int_equal(values->step[0], 1);
+  assert_int_equal(values->type, GRF_UINT32);
+  grf_array_free(array);
+  grf_array_free(indices);
+  grf_array_free(values);
+}
+
+
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[22]={
-    cmocka_unit_test(test_grf_array_new),
-    cmocka_unit_test(test_grf_array_new_1D),
-    cmocka_unit_test(test_grf_array_new_2D),
-    cmocka_unit_test(test_grf_array_new_3D),
-    cmocka_unit_test(test_grf_array_new_4D),
-    cmocka_unit_test(test_grf_array_new_1D_type),
-    cmocka_unit_test(test_grf_array_new_2D_type),
-    cmocka_unit_test(test_grf_array_new_3D_type),
-    cmocka_unit_test(test_grf_array_new_4D_type),
-    cmocka_unit_test(test_grf_array_copy),
-    cmocka_unit_test(test_grf_array_from_data),
-    cmocka_unit_test(test_grf_array_zeros),
-    cmocka_unit_test(test_grf_array_ones),
-    cmocka_unit_test(test_grf_array_sub),
-    cmocka_unit_test(test_grf_array_reduce),
-    cmocka_unit_test(test_grf_array_ops),
-    cmocka_unit_test(test_grf_array_indices_manip),
-    cmocka_unit_test(test_grf_array_get_long_double),
-    cmocka_unit_test(test_grf_array_io_csv),
-    cmocka_unit_test(test_grf_array_conversion),
-    cmocka_unit_test(test_grf_array_squeeze),
-    cmocka_unit_test(test_grf_array_circular_indices),
-    cmocka_unit_test(test_grf_array_norm),    
+  const struct CMUnitTest tests[1]={
+//    cmocka_unit_test(test_grf_array_new),
+//    cmocka_unit_test(test_grf_array_new_1D),
+//    cmocka_unit_test(test_grf_array_new_2D),
+//    cmocka_unit_test(test_grf_array_new_3D),
+//    cmocka_unit_test(test_grf_array_new_4D),
+//    cmocka_unit_test(test_grf_array_new_1D_type),
+//    cmocka_unit_test(test_grf_array_new_2D_type),
+//    cmocka_unit_test(test_grf_array_new_3D_type),
+//    cmocka_unit_test(test_grf_array_new_4D_type),
+//    cmocka_unit_test(test_grf_array_copy),
+//    cmocka_unit_test(test_grf_array_from_data),
+//    cmocka_unit_test(test_grf_array_zeros),
+//    cmocka_unit_test(test_grf_array_ones),
+//    cmocka_unit_test(test_grf_array_sub),
+//    cmocka_unit_test(test_grf_array_reduce),
+//    cmocka_unit_test(test_grf_array_ops),
+//    cmocka_unit_test(test_grf_array_indices_manip),
+//    cmocka_unit_test(test_grf_array_get_long_double),
+//    cmocka_unit_test(test_grf_array_io_csv),
+//    cmocka_unit_test(test_grf_array_conversion),
+//    cmocka_unit_test(test_grf_array_squeeze),
+//    cmocka_unit_test(test_grf_array_circular_indices),
+//    cmocka_unit_test(test_grf_array_norm),
+    cmocka_unit_test(test_grf_array_filter),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
