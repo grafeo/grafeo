@@ -1046,3 +1046,66 @@ char* grf_array_join(GrfArray* array, const char* delimiters){
   text = realloc(text,cur_length);
   return text;
 }
+
+void
+grf_array_filter(GrfArray*          array,
+                 GrfBoolDataFunc comparison_function,
+                 GrfArray**         result_indices,
+                 GrfArray**         result_values,
+                 void*              user_data){
+  uint64_t total   = 1024;
+  void* values  = malloc(total * array->bitsize);
+  uint64_t* indices = malloc(total * sizeof(uint64_t));
+  uint64_t j,i;
+  // Get array of values and indices of filtered pixels
+  for(i = 0, j = 0; i < array->num_elements; i++)
+    if(comparison_function(grf_array_get_element_1D(array,i),user_data)){
+      switch(array->type){
+        case GRF_UINT8:  ((uint8_t*) values)[j] = array->data_uint8[i];break;
+        case GRF_UINT16: ((uint16_t*)values)[j] = array->data_uint16[i];break;
+        case GRF_UINT32: ((uint32_t*)values)[j] = array->data_uint32[i];break;
+        case GRF_UINT64: ((uint64_t*)values)[j] = array->data_uint64[i];break;
+        case GRF_INT8:   ((int8_t*)  values)[j] = array->data_int8[i];break;
+        case GRF_INT16:  ((int16_t*) values)[j] = array->data_int16[i];break;
+        case GRF_INT32:  ((int32_t*) values)[j] = array->data_int32[i];break;
+        case GRF_INT64:  ((int64_t*) values)[j] = array->data_int64[i];break;
+        case GRF_FLOAT:  ((float*)   values)[j] = array->data_float[i];break;
+        case GRF_DOUBLE: ((double*)  values)[j] = array->data_double[i];break;
+      }
+      indices[j] = i;
+      j++;
+      if(j == total){
+        total <<= 1;
+        values  = realloc(values,total * array->bitsize);
+        indices = realloc(values,total * sizeof(uint64_t));
+      }
+    }
+
+  // Remove empty space caused by duplication of memory
+  values  = realloc(values,j * array->bitsize);
+  indices = realloc(indices,j * sizeof(uint64_t));
+
+  // Create GrfArray for values and indices
+  *result_indices = grf_array_new_with_dim(1);
+  (*result_indices)->data_uint64 = indices;
+  (*result_indices)->type    = GRF_UINT64;
+  (*result_indices)->size[0] = j;
+  (*result_indices)->bitsize = sizeof(uint64_t);
+  (*result_indices)->contiguous = 1;
+  (*result_indices)->num_elements = j;
+  (*result_indices)->num_bytes = j * sizeof(uint64_t);
+  (*result_indices)->owns_data = 1;
+  (*result_indices)->step[0] = 1;
+
+
+  *result_values  = grf_array_new_with_dim(1);
+  (*result_values)->data = values;
+  (*result_values)->type    = array->type;
+  (*result_values)->size[0] = j;
+  (*result_values)->bitsize = array->bitsize;
+  (*result_values)->contiguous = 1;
+  (*result_values)->num_elements = j;
+  (*result_values)->num_bytes = j * array->bitsize;
+  (*result_values)->owns_data = 1;
+  (*result_values)->step[0] = 1;
+}
