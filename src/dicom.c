@@ -240,13 +240,20 @@ char* trim_in_place(char* str) {
 }
 
 void grf_dicom_read_pixels(GrfDicom* dicom, size_t offset, FILE* file){
+  fseek(file,offset,SEEK_SET);
+  fread(dicom->image->data_uint8,1,dicom->image->num_bytes,file);
+  uint64_t i;
   // Monochromatic
   uint32_t pixel32;
+  uint16_t unsigned_s;
+  uint8_t  signed_image = 0;
+  uint64_t num_elements;
+  uint64_t i2;
+  uint8_t  b0, b1;
+  int16_t  signed_data;
+  GrfDataType oldtype;
   if(dicom->samples_per_pixel == 1 && dicom->bits_allocated == 8){
-    uint64_t num_pixels = dicom->image->size[0] * dicom->image->size[1];
-    fseek(file,offset,SEEK_SET);
-    fread(dicom->image->data_uint8,1,num_pixels,file);
-    for(int i = 0; i < num_pixels; i++){
+    for(i = 0; i < dicom->image->num_elements; i++){
       pixel32 = (uint32_t)dicom->image->data_uint8[i] * dicom->slope + dicom->intercept;
       if(strstr(dicom->photo_interpretation,"MONOCHROME1"))
         pixel32 = 255 - pixel32;
@@ -254,7 +261,38 @@ void grf_dicom_read_pixels(GrfDicom* dicom, size_t offset, FILE* file){
     }
   }
   if(dicom->samples_per_pixel == 1 && dicom->bits_allocated == 16){
-
+    num_elements = dicom->image->size[0] * dicom->image->size[1];
+    for(i = 0; i < num_elements; i++){
+      if(!dicom->pixel_representation){
+        i2 = i << 1;
+        b0 = dicom->image->data_uint8[i2];
+        b1 = dicom->image->data_uint8[i2+1];
+        unsigned_s = ((uint16_t)b1 << 8) | b0;
+        pixel32 = (uint32_t) unsigned_s * dicom->slope + dicom->intercept;
+        if(strstr(dicom->photo_interpretation,"MONOCHROME1"))
+          pixel32 = 0xFFFF - pixel32;
+      }else{
+        signed_data = dicom->image->data_int16[i];
+//        if(signed_data)
+//          printf("oi\n");
+        pixel32 = (uint32_t) signed_data * dicom->slope + dicom->intercept;
+        if(strstr(dicom->photo_interpretation,"MONOCHROME1"))
+          pixel32 = 0xFFFF - pixel32;
+      }
+      dicom->image->data_int16[i] = (int16_t) pixel32;
+    }
+    oldtype = dicom->image->type;
+    dicom->image->type = GRF_INT16;
+    long double min_dicom = grf_array_reduce_min_num(dicom->image);
+    long double max_dicom = grf_array_reduce_max_num(dicom->image);
+    dicom->image->type = oldtype;
+    if(min_dicom < 0) signed_image = 1;
+    for(i = 0; i < dicom->image->num_elements; i++){
+      if(signed_image)
+        dicom->image->data_uint16[i] = (uint16_t)dicom->image->data_int16[i] - INT16_MIN;
+      else
+        dicom->image->data_uint16[i] = (uint16_t)dicom->image->data_int16[i];
+    }
   }
 }
 
@@ -285,15 +323,12 @@ GrfDicom* grf_dicom_read(const char* filename){
   uint16_t element_word;
   uint32_t n_images;
   uint16_t planar_configuration;
-  char*    photo_interpretation = NULL;
   double   xscale, yscale;
   uint8_t  in_sequence;
   uint16_t width, height;
   char*    scale=NULL, *scale_index=NULL;
   double   pixel_width, pixel_height, pixel_depth;
-  uint16_t bits_allocated;
   char*    spacing = NULL;
-  uint16_t pixel_representation;
   char*    center, *center_index;
   float    window_center;
   char*    window_width_str = NULL, *window_width_index = NULL;
@@ -309,7 +344,11 @@ GrfDicom* grf_dicom_read(const char* filename){
 
   if(file){
     GrfDicom* dicom = grf_dicom_new();
+
     dicom->filename = filename;
+    dicom->slope = 1;
+    dicom->intercept = 0;
+    dicom->unit = "mm";
 
     // Read 4 bytes DICM
     fseek(file,GRF_DICM_OFFSET,SEEK_SET);
@@ -328,9 +367,9 @@ GrfDicom* grf_dicom_read(const char* filename){
         }
         grf_dicom_get_uint16(&element_word,&location,file,little_endian);
         tag = (group_word << 16) | element_word;
-        if(tag == GRF_DICOM_TAG_TRANSFER_SYNTAX_UID){
-          printf("oi\n");
-        }
+//        if(tag == GRF_DICOM_TAG_TRANSFER_SYNTAX_UID){
+//          printf("oi\n");
+//        }
         grf_dicom_get_length(&element_length,&location,file,little_endian);
 
         // Hack to read some GE files
@@ -423,7 +462,7 @@ GrfDicom* grf_dicom_read(const char* filename){
             grf_dicom_get_uint16(&dicom->bits_allocated,&location,file,little_endian);
           break;
           case GRF_DICOM_TAG_PIXEL_REPRESENTATION:
-            grf_dicom_get_uint16(&pixel_representation,&location,file,little_endian);
+            grf_dicom_get_uint16(&dicom->pixel_representation,&location,file,little_endian);
           break;
           case GRF_DICOM_TAG_WINDOW_CENTER:
             center = malloc(element_length + 1);
@@ -468,8 +507,12 @@ GrfDicom* grf_dicom_read(const char* filename){
               decoding_tags = 0;
             }
             dicom->pixel_data_tag_found = 1;
-            uint32_t size[2] = {height,width};
-            dicom->image = grf_array_new_with_size(2,size);
+            uint32_t size[3] = {height,width,dicom->samples_per_pixel};
+            if(dicom->bits_allocated == 16)
+              dicom->image = grf_array_new_with_size_type(3,size,GRF_UINT16);
+            else
+              dicom->image = grf_array_new_with_size_type(3,size,GRF_UINT8);
+
           break;
         default:
           fseek(file,element_length,SEEK_CUR);

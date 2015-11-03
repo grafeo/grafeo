@@ -30,6 +30,24 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <grafeo/dicom.h>
+#include <grafeo/display.h>
+#include <grafeo/drawing.h>
+
+static uint8_t pressed = 0;
+static uint8_t cur_object  = 0;
+static void mouse_callback(GrfMouseEventType type, int x, int y, GrfMouseEventFlags flags, void* user_data){
+  if(type & GRF_MOUSE_EVENT_PRESS)     pressed = 1;
+  else if(type & GRF_MOUSE_EVENT_RELEASE) pressed = 0;
+  else if(type & GRF_MOUSE_EVENT_MOVE && pressed) {
+    GrfArray* image = (GrfArray*) user_data;
+    GrfScalar2D center = {x,y};
+    GrfScalar4D color;
+    if(cur_object == 0) color = grf_scalar4D_new(255,0,0,255);
+    else                color = grf_scalar4D_new(127,0,0,255);
+    grf_array_draw_circle(image,center,3,&color,-1,GRF_NEIGHBOR_8,0);
+    grf_display_show(image);
+  }
+}
 
 static void test_grf_dicom_read(void** state){
   (void) state;
@@ -40,10 +58,33 @@ static void test_grf_dicom_read(void** state){
   assert_string_equal(dicom->modality, "MR");
   assert_true(dicom->pixel_data_tag_found);
   assert_string_equal(dicom->unit, "mm");
-  assert_int_equal(dicom->image->bitsize, 8);
-  assert_int_equal(dicom->image->size[0], 80);
-  assert_int_equal(dicom->image->size[1], 160);
-  assert_int_equal(dicom->image->size[2], 3);
+  assert_int_equal(dicom->image->dim, 3);
+  assert_int_equal(dicom->image->bitsize, 2);
+  assert_int_equal(dicom->image->size[0], 256);
+  assert_int_equal(dicom->image->size[1], 256);
+  assert_int_equal(dicom->image->size[2], 1);
+
+  // This is for displaying the image
+  long double max_value = grf_array_reduce_max_num(dicom->image);
+  GrfArray* image2 = grf_array_mult_scalar(dicom->image,255.0/max_value);
+  GrfArray* image3 = grf_array_as_type(image2,GRF_UINT8);
+  grf_display_named("Figure1");
+  grf_display_connect_mouse_callback("Figure1",mouse_callback,image3);
+  grf_display_show(image3);
+
+  uint8_t key = 0;
+  while(key != 27) {
+    key = grf_display_waitkey();
+    switch(key){
+    case GRF_KEY_1:
+      cur_object = 0;
+      break;
+    case GRF_KEY_2:
+      cur_object = 1;
+      break;
+    }
+  }
+
   grf_dicom_free(dicom);
 }
 static void test_grf_dicom_write(void** state){
@@ -53,6 +94,7 @@ static void test_grf_dicom_write(void** state){
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
+  grf_display_setup(&argc,&argv);
   const struct CMUnitTest tests[2]={
     cmocka_unit_test(test_grf_dicom_read),
     cmocka_unit_test(test_grf_dicom_write),

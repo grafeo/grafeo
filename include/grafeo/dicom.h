@@ -42,6 +42,7 @@ typedef struct _GrfDicom{
   char*    greens;
   char*    blues;
   char*    photo_interpretation;
+  uint16_t pixel_representation;
 }GrfDicom;
 
 GrfDicom*

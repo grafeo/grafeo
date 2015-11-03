@@ -38,7 +38,7 @@ BEGIN_DECLS
  * @brief Init some display information
  */
 void
-grf_display_setup();
+grf_display_setup(int *argc, char*** argv);
 /**
  * @brief Show a window to display an array
  * @param array the array representing the image to be displayed
