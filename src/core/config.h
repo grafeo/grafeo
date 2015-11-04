@@ -25,25 +25,22 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRAFEO_DISPLAYWIDGET_H
-#define GRAFEO_DISPLAYWIDGET_H
-#include <grafeo/imagewidget.h>
-BEGIN_DECLS
-
-#define GRAFEO_TYPE_DISPLAYWIDGET displaywidget_get_type()
-G_DECLARE_DERIVABLE_TYPE(DisplayWidget, displaywidget, GRAFEO, DISPLAYWIDGET, GtkWindow)
-
-/**
-  * @brief Class for DisplayWidget static properties and members
-  */
-typedef struct _DisplayWidgetClass{
-  GtkWindowClass parent_class;
-}DisplayWidgetClass;
-
-/**
- * @brief Creates a new DisplayWidget
- */
-DisplayWidget* displaywidget_new();
-
-END_DECLS
+#ifndef GRF_CONFIG_H
+#define GRF_CONFIG_H
+#define GRF_VERSION_MAJOR 
+#define GRF_VERSION_MINOR 
+#define GRF_VERSION_RELEASE 
+#define GRF_WEBSITE "http://grafeo.github.io"
+#define GETTEXT_PACKAGE "grafeo"
+#include <stdint.h>
+#include <grafeo/i18n-lib.h>
+const char* const* grf_config_get_authors_names();
+const char* const* grf_config_get_authors_emails();
+const char* grf_config_get_license();
+const char* grf_config_get_website();
+const char* grf_config_get_copyright();
+const char* grf_config_get_description();
+uint8_t grf_config_get_version_major();
+uint8_t grf_config_get_version_minor();
+uint8_t grf_config_get_version_release();
 #endif

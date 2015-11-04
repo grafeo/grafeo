@@ -62,6 +62,32 @@ function (load_submodule nome nome_lib)
     add_library(${nome_lib} SHARED IMPORTED)
     set_target_properties(${nome_lib} PROPERTIES IMPORTED_LOCATION ${EXTERNAL_LIB_DIR}/lib${nome_lib}.so)
 endfunction()
+
+# Concatenate header files from a module
+function(grf_cat IN_FILE OUT_FILE)
+  file(READ ${IN_FILE} CONTENTS)
+  # Remove gpl header
+  string(REGEX REPLACE "/\\*.*\\*/(.*)" "\\1" CONTENTS2 ${CONTENTS})
+  file(APPEND ${OUT_FILE} "${CONTENTS2}")
+endfunction()
+
+function(GRF_CREATE_LIBRARY lowername UPPERNAME)
+  SET(SRCS GRF_${UPPERNAME}_SRCS)
+  SET(HDRS GRF_${UPPERNAME}_HDRS)
+  SET(INCLUDE_DIR GRF_${UPPERNAME}_INCLUDE_DIR)
+  SET(SOURCE_DIR  GRF_${UPPERNAME}_SOURCE_DIR)
+  FOREACH(HDR ${HDRS})
+    LIST(APPEND SRCS_ABSOLUTE ${INCLUDE_DIR}/${SOURCE})
+  ENDFOREACH()
+  FOREACH(SOURCE ${SRCS})
+    LIST(APPEND SRCS_ABSOLUTE ${SOURCE_DIR}/${SOURCE})
+  ENDFOREACH()
+  ADD_LIBRARY(grafeo_${lowername} SHARED ${SRCS} ${HDRS})
+  SET_TARGET_PROPERTIES(grafeo_${lowername} PROPERTIES
+    VERSION   ${GRAFEO_VERSION_STRING}
+    SOVERSION ${GRAFEO_VERSION_MAJOR})
+  INSTALL(TARGETS grafeo_${lowername} LIBRARY DESTINATION lib)
+endfunction()
 #================================================================ PNG
 find_package(PNG QUIET)
 if(NOT PNG_FOUND)
@@ -90,93 +116,94 @@ if(BUILD_TESTING)
     set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
 endif(BUILD_TESTING)
 #============================================================ LIBRARY
+# Setting some constants for all modules
+SET(GRF_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo)
+SET(GRF_SOURCE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/src)
+SET(GRF_MODULES_LOWER  core display ift imgproc chart)
+SET(GRF_MODULES_UPPER  CORE DISPLAY IFT IMGPROC CHART)
+list(LENGTH GRF_MODULES_LOWER len1)
+math(EXPR   len2 "${len1} - 1")
+FOREACH(module_index RANGE ${len2})
+  list(GET GRF_MODULES_LOWER ${module_index} GRF_MODULE_LOWER)
+  list(GET GRF_MODULES_UPPER ${module_index} GRF_MODULE_UPPER)
+  SET(GRF_${GRF_MODULE_UPPER}_INCLUDE_DIR ${GRF_INCLUDE_DIR}/${GRF_MODULE_LOWER})
+  SET(GRF_${GRF_MODULE_UPPER}_SOURCE_DIR ${GRF_SOURCE_DIR}/${GRF_MODULE_LOWER})
+ENDFOREACH()
 include_directories(include)
-SET(GRAFEO_STRUCTURE_HDR
-  include/grafeo/pqueue.h
-  include/grafeo/bucket.h
-  include/grafeo/slist.h
-  include/grafeo/list.h
-  include/grafeo/type.h
-  include/grafeo/macro.h
-  include/grafeo/array.h
-  include/grafeo/queue.h
-  include/grafeo/range.h
-  include/grafeo/hal.h
-  include/grafeo/config.h
-  include/grafeo/i18n-lib.h
-)
-SET(GRAFEO_IMGPROC_HDR
-  include/grafeo/image.h
-  include/grafeo/drawing.h
-)
-SET(GRAFEO_DISPLAY_HDR
-  include/grafeo/imagewidget.h
-  include/grafeo/display.h
-  include/grafeo/displaywindow.h
-  include/grafeo/trackbar.h
-)
-SET(GRAFEO_IFT_HDR
-  include/grafeo/ift.h
-)
-SET(GRAFEO_STRUCTURE_SRC
- src/pqueue.c
- src/bucket.c
- src/slist.c
- src/type.c
- src/array.c
- src/list.c
- src/queue.c
- src/range.c
- src/config.c
-)
-SET(GRAFEO_IMGPROC_SRC
- src/image.c
- src/drawing.c
-)
-SET(GRAFEO_IFT_SRC
- src/ift.c
-)
-SET(GRAFEO_DISPLAY_SRC
- src/imagewidget.c
- src/display.c
- src/displaywindow.c
- src/trackbar.c
-)
-SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
-SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
-set(GRAFEO_VERSION_MAJOR 0)
-set(GRAFEO_VERSION_MINOR 0)
-set(GRAFEO_VERSION_PATCH 6)
-set(GRAFEO_VERSION_STRING ${GRAFEO_VERSION_MAJOR}.${GRAFEO_VERSION_MINOR}.${GRAFEO_VERSION_PATCH})
+set(GRF_VERSION_MAJOR 0)
+set(GRF_VERSION_MINOR 0)
+set(GRF_VERSION_PATCH 7)
+set(GRF_VERSION_STRING ${GRF_VERSION_MAJOR}.${GRF_VERSION_MINOR}.${GRF_VERSION_PATCH})
+#================================================================== CORE MODULE
+# Even though BUILD_CORE is OFF, if for example BUILD_IMGPROC is ON,
+# the CORE module will be compiled
+IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
+  SET(GRF_CORE_HDRS   pqueue.h bucket.h slist.h list.h   type.h    macro.h
+                       array.h  queue.h range.h  hal.h config.h i18n-lib.h )
+  SET(GRF_CORE_SRCS   pqueue.c bucket.c slist.c list.c   type.c
+                       array.c  queue.c range.c        config.c            )
+  # configure a header file to pass some of the CMake settings
+  # to the source code
+  message(${GRF_CORE_INCLUDE_DIR})
+  CONFIGURE_FILE("${GRF_CORE_INCLUDE_DIR}/config.h.in"
+                 "${GRF_CORE_SOURCE_DIR}/config.h")
+  GRF_CREATE_LIBRARY(core CORE)
+ENDIF()
 
-# configure a header file to pass some of the CMake settings
-# to the source code
-configure_file (
-  "${PROJECT_SOURCE_DIR}/include/grafeo/config.h.in"
-  "${PROJECT_SOURCE_DIR}/include/grafeo/config.h"
-)
+#=============================================================== IMGPROC MODULE
+IF(BUILD_IMGPROC OR BUILD_DISPLAY)
+  SET(GRF_IMGPROC_HDRS  image.h  drawing.h)
+  SET(GRF_IMGPROC_SRCS  image.c  drawing.c)
+  GRF_CREATE_LIBRARY(imgproc IMGPROC)
+ENDIF()
+#=================================================================== IFT MODULE
+IF(BUILD_IFT)
+  SET(GRF_IFT_HDRS  ift.h)
+  SET(GRF_IFT_SRCS  ift.c)
+  GRF_CREATE_LIBRARY(ift IFT)
+ENDIF()
+#=============================================================== DISPLAY MODULE
+IF(BUILD_DISPLAY)
+  SET(GRF_DISPLAY_HDR imagewidget.h display.h displaywindow.h trackbar.h)
+  SET(GRF_DISPLAY_SRC imagewidget.c display.c displaywindow.c trackbar.c)
+  GRF_CREATE_LIBRARY(display DISPLAY)
+ENDIF()
 
-add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
-add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
-add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
-if(BUILD_DISPLAY)
-  add_library(grafeo_display   SHARED ${GRAFEO_DISPLAY_SRC}   ${GRAFEO_DISPLAY_HDR})
-endif(BUILD_DISPLAY)
 
-set_target_properties(grafeo_structure PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-set_target_properties(grafeo_imgproc   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-set_target_properties(grafeo_ift       PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-if(BUILD_DISPLAY)
-  set_target_properties(grafeo_display   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-endif(BUILD_DISPLAY)
+#if(BUILD_
 
-install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
-install(TARGETS grafeo_structure LIBRARY DESTINATION lib)
-install(TARGETS grafeo_imgproc   LIBRARY DESTINATION lib)
-install(TARGETS grafeo_ift       LIBRARY DESTINATION lib)
-if(BUILD_DISPLAY)
-install(TARGETS grafeo_display   LIBRARY DESTINATION lib)
-endif(BUILD_DISPLAY)
+
+#  SET(GRF_IFT_HDR        ift.h)
+#  SET(GRF_IFT_SRC        ift.c)
+
+
+
+#SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
+#SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
+
+
+
+#add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
+#add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
+#add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
+#if(BUILD_DISPLAY)
+#  add_library(grafeo_display   SHARED ${GRAFEO_DISPLAY_SRC}   ${GRAFEO_DISPLAY_HDR})
+#endif(BUILD_DISPLAY)
+
+#set_target_properties(grafeo_structure PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+#set_target_properties(grafeo_imgproc   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+#set_target_properties(grafeo_ift       PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+#if(BUILD_DISPLAY)
+#  set_target_properties(grafeo_display   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
+#endif(BUILD_DISPLAY)
+
+#install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
+#install(TARGETS grafeo_structure LIBRARY DESTINATION lib)
+#install(TARGETS grafeo_imgproc   LIBRARY DESTINATION lib)
+#install(TARGETS grafeo_ift       LIBRARY DESTINATION lib)
+#if(BUILD_DISPLAY)
+#install(TARGETS grafeo_display   LIBRARY DESTINATION lib)
+#endif(BUILD_DISPLAY)
 #====================================================== DOCUMENTATION
 find_package(Doxygen)
 if(Doxygen_FOUND)
