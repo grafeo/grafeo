@@ -33,7 +33,15 @@ find_package(PkgConfig REQUIRED)
 
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
+set(GRAFEO_INCLUDE_PATH ${CMAKE_SOURCE_DIR}/include/grafeo)
+set(GRAFEO_SRC_PATH ${CMAKE_SOURCE_DIR}/src)
 option(BUILD_TESTING "" OFF)
+option(BUILD_CHART   "Component for creating charts" ON)
+string(TIMESTAMP GRF_CURRENT_YEAR "%Y")
+
+# Getting GPL Header
+file(READ "GPLHEADER" GRF_GPL_HEADER)
+
 
 function (load_submodule nome nome_lib)
     set(${nome}CMakeArgs
@@ -61,6 +69,21 @@ function (load_submodule nome nome_lib)
     
     add_library(${nome_lib} SHARED IMPORTED)
     set_target_properties(${nome_lib} PROPERTIES IMPORTED_LOCATION ${EXTERNAL_LIB_DIR}/lib${nome_lib}.so)
+endfunction()
+
+# Remove first multiline comment representing the
+# copyright of the file
+function(grf_remove_first_comment text output)
+   string(REGEX REPLACE "/\\*.*\\*/(.*)" "\\1" variavel ${CONTENTS})
+   message(${variavel})
+   set(${output} ${variavel} PARENT_SCOPE)
+endfunction()
+
+# Concatenate header files from a module
+function(grf_cat IN_FILE OUT_FILE)
+  file(READ ${IN_FILE} CONTENTS)
+  string(REGEX REPLACE "/\\*.*\\*/(.*)" "\\1" CONTENTS2 ${CONTENTS})
+  file(APPEND ${OUT_FILE} "${CONTENTS2}")
 endfunction()
 #================================================================ PNG
 find_package(PNG QUIET)
@@ -105,6 +128,7 @@ SET(GRAFEO_STRUCTURE_HDR
   include/grafeo/config.h
   include/grafeo/i18n-lib.h
 )
+
 SET(GRAFEO_IMGPROC_HDR
   include/grafeo/image.h
   include/grafeo/drawing.h
@@ -169,6 +193,40 @@ set_target_properties(grafeo_ift       PROPERTIES VERSION ${GRAFEO_VERSION_STRIN
 if(BUILD_DISPLAY)
   set_target_properties(grafeo_display   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
 endif(BUILD_DISPLAY)
+
+#===================================================== CHART COMPONENT
+if(BUILD_CHART)
+  Set(GRAFEO_CHART_HDR_PATH ${GRAFEO_INCLUDE_PATH}/chart)
+  Set(GRAFEO_CHART_SRC_PATH ${GRAFEO_SRC_PATH}/chart)
+  Set(GRAFEO_CHART_HDR ${GRAFEO_CHART_HDR_PATH}/chart.h)
+  SET(GRAFEO_CHART_SRCS
+   ${GRAFEO_CHART_SRC_PATH}/chart.c
+   ${GRAFEO_CHART_SRC_PATH}/plot.c
+   ${GRAFEO_CHART_SRC_PATH}/plotline.c
+   ${GRAFEO_CHART_SRC_PATH}/axis.c
+  )
+  SET(GRAFEO_CHART_HDRS
+    ${GRAFEO_CHART_HDR_PATH}/chart.h
+    ${GRAFEO_CHART_HDR_PATH}/plot.h
+    ${GRAFEO_CHART_HDR_PATH}/plotline.h
+    ${GRAFEO_CHART_HDR_PATH}/axis.h
+  )
+  add_library          (grafeo_chart SHARED ${GRAFEO_CHART_SRCS} ${GRAFEO_CHART_HDRS})
+
+  # Joining Chart Component headers
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/chart.h.in "${GRF_GPL_HEADER}")
+  foreach(GRAFEO_CHART_COMP ${GRAFEO_CHART_HDRS})
+    grf_cat(${GRAFEO_CHART_COMP} ${CMAKE_CURRENT_BINARY_DIR}/chart.h.in)
+  endforeach()
+  configure_file(${CMAKE_CURRENT_BINARY_DIR}/chart.h.in ${GRAFEO_INCLUDE_PATH}/chart.h)
+
+  set_target_properties(grafeo_chart PROPERTIES
+                        VERSION ${GRAFEO_VERSION_STRING}
+                        SOVERSION ${GRAFEO_VERSION_MAJOR})
+  install(TARGETS grafeo_chart LIBRARY DESTINATION lib)
+  list(APPEND TESTS_NAMES chart)
+  Set(test_chart_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg)
+endif(BUILD_CHART)
 
 install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
 install(TARGETS grafeo_structure LIBRARY DESTINATION lib)
