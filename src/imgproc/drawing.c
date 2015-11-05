@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/drawing.h>
+#include <grafeo/imgproc.h>
 /*=======================
  *      PRIVATE API
  *=====================*/

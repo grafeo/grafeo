@@ -26,7 +26,7 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/display.h>
-#include <grafeo/config.h>
+#include <grafeo/core.h>
 
 /*=================================
  * PRIVATE API

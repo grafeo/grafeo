@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/image.h>
+#include <grafeo/imgproc.h>
 
 static void abort_(const char * s, ...)
 {

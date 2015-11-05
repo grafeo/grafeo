@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/imagewidget.h>
+#include <grafeo/display.h>
 
 /*=================================
  * PRIVATE API
