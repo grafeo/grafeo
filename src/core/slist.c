@@ -1,4 +1,4 @@
-#include <grafeo/slist.h>
+#include <grafeo/core.h>
 
 GrfSList*    grf_slist_new(){
   GrfSList* item = malloc(sizeof(GrfSList));

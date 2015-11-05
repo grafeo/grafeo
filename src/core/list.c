@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/list.h>
+#include <grafeo/core.h>
 GrfList* grf_list_new(){
   GrfList* item = malloc(sizeof(GrfList));
   grf_list_set_next(item,NULL);

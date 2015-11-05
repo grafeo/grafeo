@@ -25,32 +25,30 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/bucket.h>
+#include <grafeo/core.h>
 
-GrfBucket* grf_bucket_new(){
-  return malloc(sizeof(GrfBucket));
+static GrfRangeItem* rangeitem_new_with_value(int64_t value){
+	GrfRangeItem* rangeitem = malloc(sizeof(GrfRangeItem));
+	rangeitem->value = value;
+	return rangeitem;
 }
 
-GrfQueue* grf_bucket_queue(GrfBucket *bucket){
-  return bucket->queue;
+void grf_range_from_to(GrfRange* range, int64_t from, int64_t to){
+	range->from = rangeitem_new_with_value(from);
+	range->to   = rangeitem_new_with_value(to);
 }
 
-void *grf_bucket_value(GrfBucket *bucket)
-{
-  return bucket->value;
+void grf_range_from(GrfRange* range, int64_t from){
+	range->from = rangeitem_new_with_value(from);
+	range->to   = NULL;
 }
 
-void grf_bucket_set_queue(GrfBucket *bucket, GrfQueue *queue)
-{
-  bucket->queue = queue;
+void grf_range_to(GrfRange* range, int64_t to){
+	range->from = NULL;
+	range->to   = rangeitem_new_with_value(to);
 }
 
-void grf_bucket_set_value(GrfBucket *bucket, void *value)
-{
-  bucket->value = value;
-}
-
-void grf_bucket_free(GrfBucket *bucket)
-{
-  free(bucket);
+void grf_range_all(GrfRange* range){
+	range->from = NULL;
+	range->to   = NULL;
 }

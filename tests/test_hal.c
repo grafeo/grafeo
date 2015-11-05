@@ -29,7 +29,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
-#include <grafeo/hal.h>
+#include <grafeo/core.h>
 
 static void test_hal_round(void** state){
   (void) state;

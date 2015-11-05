@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/config.h>
+#include <grafeo/core.h>
 
 static const char* const grf_config_author_names[2]  = {"Anderson Tavares","Paulo Miranda"};
 static const char* const grf_config_author_emails[2] = {"nocturne.pe@gmail.com","pavmbr@yahoo.com.br"};

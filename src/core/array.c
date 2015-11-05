@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/array.h>
+#include <grafeo/core.h>
 
 size_t calculate_bitsize(GrfDataType type){
   switch(type){

@@ -27,7 +27,7 @@
 # ===================================================================*/
 #ifndef GRF_TRACKBAR_H
 #define GRF_TRACKBAR_H
-#include <grafeo/type.h>
+#include <grafeo/core.h>
 #include <gtk/gtk.h>
 BEGIN_DECLS
 

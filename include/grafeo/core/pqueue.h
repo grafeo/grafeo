@@ -28,8 +28,7 @@
 #ifndef GRF_PQUEUE_H
 #define GRF_PQUEUE_H
 
-#include <grafeo/bucket.h>
-#include <grafeo/queue.h>
+#include <grafeo/core.h>
 
 BEGIN_DECLS
 

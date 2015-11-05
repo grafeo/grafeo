@@ -27,12 +27,9 @@
 # ===================================================================*/
 #ifndef GRF_DISPLAYWINDOW_H
 #define GRF_DISPLAYWINDOW_H
-#include <grafeo/array.h>
-#include <grafeo/queue.h>
-#include <grafeo/imagewidget.h>
-#include <grafeo/trackbar.h>
+#include <grafeo/core.h>
+#include <grafeo/display.h>
 BEGIN_DECLS
-#include <grafeo/config.h>
 
 typedef enum{
   GRF_MOUSE_EVENT_MOVE    = 1,

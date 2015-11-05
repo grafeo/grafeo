@@ -31,8 +31,7 @@
 #define PNG_SKIP_SETJMP_CHECK 1
 #include <stdarg.h>
 
-#include <grafeo/type.h>
-#include <grafeo/array.h>
+#include <grafeo/core.h>
 #include <png.h>
 #include <jpeglib.h>
 

@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/queue.h>
+#include <grafeo/core.h>
 
 // Alocar uma fila
 GrfQueue* grf_queue_new(){

@@ -27,7 +27,7 @@
 # ===================================================================*/
 #ifndef GRF_RANGE_H
 #define GRF_RANGE_H
-#include <grafeo/macro.h>
+#include <grafeo/core.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>

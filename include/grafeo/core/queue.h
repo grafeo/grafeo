@@ -27,7 +27,7 @@
 # ===================================================================*/
 #ifndef GRF_QUEUE_H
 #define GRF_QUEUE_H
-#include <grafeo/list.h>
+#include <grafeo/core.h>
 
 BEGIN_DECLS
 

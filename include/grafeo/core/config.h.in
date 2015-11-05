@@ -27,9 +27,9 @@
 # ===================================================================*/
 #ifndef GRF_CONFIG_H
 #define GRF_CONFIG_H
-#define GRF_VERSION_MAJOR @GRAFEO_VERSION_MAJOR@
-#define GRF_VERSION_MINOR @GRAFEO_VERSION_MINOR@
-#define GRF_VERSION_RELEASE @GRAFEO_VERSION_PATCH@
+#define GRF_VERSION_MAJOR @GRF_VERSION_MAJOR@
+#define GRF_VERSION_MINOR @GRF_VERSION_MINOR@
+#define GRF_VERSION_RELEASE @GRF_VERSION_PATCH@
 #define GRF_WEBSITE "http://grafeo.github.io"
 #define GETTEXT_PACKAGE "grafeo"
 #include <stdint.h>

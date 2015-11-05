@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/pqueue.h>
+#include <grafeo/core.h>
 
 void grf_pqueue_append_at(GrfQueue *pqueue, void *value_bucket, void *value, GrfCompareFunc compare_func){
   GrfList* grf_bucket_item = NULL;

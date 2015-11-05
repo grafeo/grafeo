@@ -28,8 +28,7 @@
 #ifndef GRF_DRAWING_H
 #define GRF_DRAWING_H
 #define GRF_ANTIALIASED 16
-#include <grafeo/array.h>
-#include <grafeo/hal.h>
+#include <grafeo/core.h>
 #include <float.h>
 
 BEGIN_DECLS

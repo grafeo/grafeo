@@ -31,7 +31,7 @@
 #include <cmocka.h>
 #include <unistd.h>
 #include <errno.h>
-#include <grafeo/image.h>
+#include <grafeo/imgproc.h>
 
 void helper_test_grf_image_read(GrfArray* array, uint32_t* correct_sizes, GrfDataType correct_type, uint8_t correct_bitsize, uint8_t correct_dim){
   assert_int_equal(grf_array_get_dim(array), correct_dim);

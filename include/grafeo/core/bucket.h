@@ -27,7 +27,7 @@
 # ===================================================================*/
 #ifndef GRF_BUCKET_H
 #define GRF_BUCKET_H
-#include <grafeo/queue.h>
+#include <grafeo/core.h>
 
 BEGIN_DECLS
 /**

@@ -29,8 +29,7 @@
 #define GRF_LIST_H
 #include <stdint.h>
 #include <stdlib.h>
-#include <grafeo/type.h>
-#include <grafeo/slist.h>
+#include <grafeo/core.h>
 
 BEGIN_DECLS
 

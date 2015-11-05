@@ -28,7 +28,7 @@
 #ifndef GRF_TYPE_H
 #define GRF_TYPE_H
 #include <inttypes.h>
-#include <grafeo/macro.h>
+#include <grafeo/core.h>
 
 BEGIN_DECLS
 

@@ -25,37 +25,13 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/displaywidget.h>
+#include <grafeo/core.h>
 
-/*=================================
- * PRIVATE API
- *=================================*/
-typedef struct _DisplayWidgetPrivate{
-  ImageWidget* imagewidget;
-  GtkBox     * box;
-}DisplayWidgetPrivate;
-
-G_DEFINE_TYPE_WITH_PRIVATE(DisplayWidget, displaywidget, GTK_TYPE_WINDOW)
-
-static void
-displaywidget_init(DisplayWidget* self){
-  DisplayWidgetPrivate* priv = displaywidget_get_instance_private(self);
-  priv->imagewidget          = imagewidget_new();
-  priv->box                  = gtk_box_new(GTK_ORIENTATION_VERTICAL,5);
-
-  gtk_box_pack_start(priv->box,priv->imagewidget,TRUE,TRUE,0);
-  gtk_container_add(GTK_CONTAINER(self),priv->box);
+int8_t int64_compare_function_r(void* value1, void* value2){
+  if((int64_t) value1 > (int64_t) value2) return -1;
+  else if((int64_t) value1 == (int64_t) value2) return 0;
+  else return 1;
 }
-
-static void
-displawidget_class_init(DisplayWidgetClass *klass){
-
+int8_t int64_compare_function(void* value1, void* value2){
+  return -int64_compare_function_r(value1, value2);
 }
-
-/*=================================
- * PUBLIC API
- *=================================*/
-DisplayWidget* displaywidget_new(){
-  return GRAFEO_DISPLAYWIDGET(gtk_widget_new(GRAFEO_TYPE_DISPLAYWIDGET, NULL));
-}
-

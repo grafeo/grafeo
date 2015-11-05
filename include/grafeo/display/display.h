@@ -27,9 +27,8 @@
 # ===================================================================*/
 #ifndef GRF_DISPLAY_H
 #define GRF_DISPLAY_H
-#include <grafeo/array.h>
-#include <grafeo/queue.h>
-#include <grafeo/displaywindow.h>
+#include <grafeo/core.h>
+#include <grafeo/display.h>
 BEGIN_DECLS
 /*=================================
  * DISPLAY API

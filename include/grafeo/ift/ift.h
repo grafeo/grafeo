@@ -27,8 +27,7 @@
 # ===================================================================*/
 #ifndef IFT_ARRAY_H
 #define IFT_ARRAY_H
-#include <grafeo/array.h>
-#include <grafeo/pqueue.h>
+#include <grafeo/core.h>
 
 BEGIN_DECLS
 

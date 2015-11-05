@@ -27,15 +27,31 @@
 # ===================================================================
 cmake_minimum_required(VERSION 2.8)
 project(grafeo)
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
-    "${CMAKE_SOURCE_DIR}/cmake/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 find_package(PkgConfig REQUIRED)
 
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
-option(BUILD_TESTING "" OFF)
+FILE(READ "GPLHEADER" GRF_GPL_HEADER)
+STRING(TIMESTAMP GRF_CURRENT_YEAR "%Y")
 
-function (load_submodule nome nome_lib)
+#====================================================================== OPTIONS
+option(BUILD_CORE    "Core Module (data structures, config, macros, types...)" ON)
+option(BUILD_DISPLAY "GUI Module (Requires Gtk)" ON)
+option(BUILD_IMGPROC "Image Processing Module (Requires LibJPEG and LibPNG)" ON)
+option(BUILD_IFT     "Image Foresting Transform methods" ON)
+option(BUILD_TESTING "" OFF)
+option(BUILD_DOCS    "Build doxygen documentation" OFF)
+option(COVERALLS     "Generate coveralls data" OFF)
+option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
+option(DEBUG_INFO    "Compile Grafeo with debug information?" ON)
+#================================================== CUSTOM FUNCTIONS AND MACROS
+
+# ------------------
+# If we don't find a required third party library, we can compile its source code
+# and use them
+# ------------------
+MACRO (load_submodule nome nome_lib)
     set(${nome}CMakeArgs
        -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
        -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/external
@@ -55,67 +71,103 @@ function (load_submodule nome nome_lib)
         # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
         #GIT_TAG "origin/master"
         #GIT_SUBMODULES ""
-        UPDATE_COMMAND git submodule update --init --recursive
-        DOWNLOAD_COMMAND git submodule update --init --recursive
+        UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/${nome_lib}
+        DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/${nome_lib}
     )
-    
+    STRING(TOUPPER ${nome_lib} NOME_LIB_UPPER)
+    set(${NOME_LIB_UPPER}_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
+    set(${NOME_LIB_UPPER}_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
     add_library(${nome_lib} SHARED IMPORTED)
-    set_target_properties(${nome_lib} PROPERTIES IMPORTED_LOCATION ${EXTERNAL_LIB_DIR}/lib${nome_lib}.so)
-endfunction()
-
+    set_target_properties(${nome_lib} PROPERTIES
+        IMPORTED_LOCATION ${EXTERNAL_LIB_DIR}/lib${nome_lib}.so)
+ENDMACRO()
+# ------------------
 # Concatenate header files from a module
-function(grf_cat IN_FILE OUT_FILE)
+# ------------------
+function(GRF_CAT IN_FILE OUT_FILE lowername)
   file(READ ${IN_FILE} CONTENTS)
   # Remove gpl header
-  string(REGEX REPLACE "/\\*.*\\*/(.*)" "\\1" CONTENTS2 ${CONTENTS})
+  string(REGEX REPLACE "/\\*[^*]*\\*/(.*)" "\\1" CONTENTS2 "${CONTENTS}")
+  string(REGEX REPLACE "#include <grafeo/${lowername}.h>" "" CONTENTS2 "${CONTENTS2}")
+
   file(APPEND ${OUT_FILE} "${CONTENTS2}")
 endfunction()
 
-function(GRF_CREATE_LIBRARY lowername UPPERNAME)
-  SET(SRCS GRF_${UPPERNAME}_SRCS)
+# ------------------
+# Create the library components
+# ------------------
+MACRO(GRF_CREATE_LIBRARY lowername UPPERNAME)
+  # Prepare a temporary file to "cat" to:
+  FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in "${GRF_GPL_HEADER}")
+
   SET(HDRS GRF_${UPPERNAME}_HDRS)
+  SET(SRCS GRF_${UPPERNAME}_SRCS)
   SET(INCLUDE_DIR GRF_${UPPERNAME}_INCLUDE_DIR)
   SET(SOURCE_DIR  GRF_${UPPERNAME}_SOURCE_DIR)
-  FOREACH(HDR ${HDRS})
-    LIST(APPEND SRCS_ABSOLUTE ${INCLUDE_DIR}/${SOURCE})
+  FOREACH(HDR ${${HDRS}})
+    # Append directory to headers
+    LIST(APPEND HDRS_ABSOLUTE ${${INCLUDE_DIR}}/${HDR})
+    # Concatenate header files
+    GRF_CAT(${${INCLUDE_DIR}}/${HDR} ${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in ${lowername})
   ENDFOREACH()
-  FOREACH(SOURCE ${SRCS})
-    LIST(APPEND SRCS_ABSOLUTE ${SOURCE_DIR}/${SOURCE})
-  ENDFOREACH()
-  ADD_LIBRARY(grafeo_${lowername} SHARED ${SRCS} ${HDRS})
-  SET_TARGET_PROPERTIES(grafeo_${lowername} PROPERTIES
-    VERSION   ${GRAFEO_VERSION_STRING}
-    SOVERSION ${GRAFEO_VERSION_MAJOR})
-  INSTALL(TARGETS grafeo_${lowername} LIBRARY DESTINATION lib)
-endfunction()
-#================================================================ PNG
-find_package(PNG QUIET)
-if(NOT PNG_FOUND)
-    load_submodule(PNG png)
-endif(NOT PNG_FOUND)
-#================================================================ JPG
-find_package(JPEG QUIET)
-if(NOT JPEG_FOUND)
 
-endif(NOT JPEG_FOUND)
-#================================================================ GTK
-option(BUILD_DISPLAY "Build Display Module (Requires Gtk)" ON)
+
+  # Copy the temporary file to the final location
+  CONFIGURE_FILE(${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in ${GRF_INCLUDE_DIR}/${lowername}.h)
+
+  # Append directory to sources
+  FOREACH(SOURCE ${${SRCS}})
+    LIST(APPEND SRCS_ABSOLUTE ${${SOURCE_DIR}}/${SOURCE})
+  ENDFOREACH()
+
+  # Create the library
+  ADD_LIBRARY(grafeo_${lowername} SHARED ${SRCS_ABSOLUTE} ${HDRS_ABSOLUTE})
+  # Create the links
+  SET_TARGET_PROPERTIES(grafeo_${lowername} PROPERTIES
+    VERSION   ${GRF_VERSION_STRING}
+    SOVERSION ${GRF_VERSION_MAJOR})
+  # Add to install script
+  INSTALL(TARGETS grafeo_${lowername} LIBRARY DESTINATION lib)
+  INSTALL(FILES ${GRF_INCLUDE_DIR}/${lowername}.h DESTINATION include/grafeo)
+ENDMACRO()
+#======================================================== THIRD PARTY LIBRARIES
+# ------------------
+# PNG
+# ------------------
+if(BUILD_IMGPROC OR BUILD_DISPLAY)
+    find_package(PNG QUIET)
+    if(NOT PNG_FOUND)
+        load_submodule(PNG png)
+    endif(NOT PNG_FOUND)
+endif()
+# ------------------
+# JPG
+# ------------------
+if(BUILD_IMGPROC OR BUILD_DISPLAY)
+    find_package(JPEG QUIET)
+    if(NOT JPEG_FOUND)
+
+    endif(NOT JPEG_FOUND)
+endif()
+# ------------------
+# GTK
+# ------------------
 if(BUILD_DISPLAY)
   pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
   INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
 endif(BUILD_DISPLAY)
-#============================================= TESTS (BEFORE LIBRARY)
+#======================================================= TESTS (BEFORE LIBRARY)
 include(CTest)
-option(COVERALLS "Generate coveralls data" OFF)
-option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
 if(BUILD_TESTING)
     if (COVERALLS)
         include(Coveralls)
     endif(COVERALLS)
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
-    set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS         "-g -Wall -Wshadow -Wunused-variable   \
+        -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg \
+        -fprofile-arcs -ftest-coverage")
+    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
 endif(BUILD_TESTING)
-#============================================================ LIBRARY
+#====================================================================== LIBRARY
 # Setting some constants for all modules
 SET(GRF_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo)
 SET(GRF_SOURCE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/src)
@@ -138,15 +190,14 @@ set(GRF_VERSION_STRING ${GRF_VERSION_MAJOR}.${GRF_VERSION_MINOR}.${GRF_VERSION_P
 # Even though BUILD_CORE is OFF, if for example BUILD_IMGPROC is ON,
 # the CORE module will be compiled
 IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
-  SET(GRF_CORE_HDRS   pqueue.h bucket.h slist.h list.h   type.h    macro.h
-                       array.h  queue.h range.h  hal.h config.h i18n-lib.h )
-  SET(GRF_CORE_SRCS   pqueue.c bucket.c slist.c list.c   type.c
-                       array.c  queue.c range.c        config.c            )
+  SET(GRF_CORE_HDRS     config.h i18n-lib.h  macro.h  type.h    hal.h  range.h
+                         slist.h     list.h  array.h queue.h bucket.h pqueue.h)
+  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c array.c
+                         queue.c bucket.c pqueue.c)
   # configure a header file to pass some of the CMake settings
   # to the source code
-  message(${GRF_CORE_INCLUDE_DIR})
   CONFIGURE_FILE("${GRF_CORE_INCLUDE_DIR}/config.h.in"
-                 "${GRF_CORE_SOURCE_DIR}/config.h")
+                 "${GRF_CORE_INCLUDE_DIR}/config.h")
   GRF_CREATE_LIBRARY(core CORE)
 ENDIF()
 
@@ -164,50 +215,13 @@ IF(BUILD_IFT)
 ENDIF()
 #=============================================================== DISPLAY MODULE
 IF(BUILD_DISPLAY)
-  SET(GRF_DISPLAY_HDR imagewidget.h display.h displaywindow.h trackbar.h)
-  SET(GRF_DISPLAY_SRC imagewidget.c display.c displaywindow.c trackbar.c)
+  SET(GRF_DISPLAY_HDRS imagewidget.h trackbar.h displaywindow.h display.h)
+  SET(GRF_DISPLAY_SRCS imagewidget.c trackbar.c displaywindow.c display.c)
   GRF_CREATE_LIBRARY(display DISPLAY)
 ENDIF()
-
-
-#if(BUILD_
-
-
-#  SET(GRF_IFT_HDR        ift.h)
-#  SET(GRF_IFT_SRC        ift.c)
-
-
-
-#SET(GRAFEO_SRC ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_IMGPROC_SRC} ${GRAFEO_IFT_SRC} ${GRAFEO_DISPLAY_SRC})
-#SET(GRAFEO_HDR ${GRAFEO_STRUCTURE_HDR} ${GRAFEO_IMGPROC_HDR} ${GRAFEO_IFT_HDR} ${GRAFEO_DISPLAY_HDR})
-
-
-
-#add_library(grafeo_structure SHARED ${GRAFEO_STRUCTURE_SRC} ${GRAFEO_STRUCTURE_HDR})
-#add_library(grafeo_imgproc   SHARED ${GRAFEO_IMGPROC_SRC}   ${GRAFEO_IMGPROC_HDR})
-#add_library(grafeo_ift       SHARED ${GRAFEO_IFT_SRC}       ${GRAFEO_IFT_HDR})
-#if(BUILD_DISPLAY)
-#  add_library(grafeo_display   SHARED ${GRAFEO_DISPLAY_SRC}   ${GRAFEO_DISPLAY_HDR})
-#endif(BUILD_DISPLAY)
-
-#set_target_properties(grafeo_structure PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-#set_target_properties(grafeo_imgproc   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-#set_target_properties(grafeo_ift       PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-#if(BUILD_DISPLAY)
-#  set_target_properties(grafeo_display   PROPERTIES VERSION ${GRAFEO_VERSION_STRING} SOVERSION ${GRAFEO_VERSION_MAJOR})
-#endif(BUILD_DISPLAY)
-
-#install(FILES ${GRAFEO_HDR} DESTINATION include/grafeo)
-#install(TARGETS grafeo_structure LIBRARY DESTINATION lib)
-#install(TARGETS grafeo_imgproc   LIBRARY DESTINATION lib)
-#install(TARGETS grafeo_ift       LIBRARY DESTINATION lib)
-#if(BUILD_DISPLAY)
-#install(TARGETS grafeo_display   LIBRARY DESTINATION lib)
-#endif(BUILD_DISPLAY)
-#====================================================== DOCUMENTATION
+#================================================================ DOCUMENTATION
 find_package(Doxygen)
 if(Doxygen_FOUND)
-    option(BUILD_DOCS      "Build doxygen documentation" ON)
     if(BUILD_DOCS)
         file(MAKE_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/doc/)
         configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in
@@ -225,68 +239,65 @@ if(Doxygen_FOUND)
           ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/doc/*")
     endif(BUILD_DOCS)
 endif(Doxygen_FOUND)
-#========================================================= DEBUG INFO
-option(DEBUG_INFO "Compile Grafeo with debug information?" ON)
+#=================================================================== DEBUG INFO
 if(DEBUG_INFO)
-    SET(CMAKE_BUILD_TYPE Debug CACHE STRING
-        "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or 
-        CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+    SET(GRF_COMPILE_TYPE Debug)
 else()
-    SET(CMAKE_BUILD_TYPE Release CACHE STRING
-        "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or 
-        CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+    SET(GRF_COMPILE_TYPE Release)
 endif(DEBUG_INFO)
-
-#============================================================== TESTS
+SET(CMAKE_BUILD_TYPE ${GRF_COMPILE_TYPE} CACHE STRING
+        "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or
+        CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+#======================================================================== TESTS
 if(BUILD_TESTING)
-    # find cmocka library
     INCLUDE(ExternalProject)
-    if (COVERALLS)
-        set(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
-        coveralls_setup(
-            "${GRAFEO_SRC}" 
-            ${COVERALLS_UPLOAD}
-            "${CMAKE_SOURCE_DIR}/cmake/")
-    endif(COVERALLS)
+    # find cmocka library
+    FIND_PACKAGE(CMocka QUIET)
+    MESSAGE(STATUS Cmocka Found:${CMOCKA_FOUND})
 
-    find_package(CMocka QUIET)
-    message(STATUS Cmocka Found:${CMOCKA_FOUND})
-
-    if(NOT CMOCKA_FOUND)
+    IF(NOT CMOCKA_FOUND)
         # Tell message
         # message(STATUS "Não pode compilar os testes")
         # Compile it from git submodule
-        #load_submodule(CMocka cmocka)
-        set(CMockaCMakeArgs
-           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-           -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/external
-           -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-           -DUNIT_TESTING=OFF
-           )
+        load_submodule(CMocka cmocka)
+#        set(CMockaCMakeArgs
+#           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+#           -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/external
+#           -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+#           -DUNIT_TESTING=OFF
+#           )
 
-        ExternalProject_Add(cmockaDownload
-            PREFIX ${CMAKE_SOURCE_DIR}/external
-            SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka
-            BINARY_DIR ${CMAKE_BINARY_DIR}/external/cmocka-build
-            STAMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-stamp
-            TMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-tmp
-            INSTALL_DIR ${CMAKE_BINARY_DIR}/external
-            CMAKE_ARGS ${CMockaCMakeArgs}
-            # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
-            #GIT_TAG "origin/master"
-            #GIT_SUBMODULES ""
-            UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
-            DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
-        )
-        set(CMOCKA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
-        set(CMOCKA_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
-        add_library(cmocka SHARED IMPORTED)
-        set_target_properties(cmocka PROPERTIES IMPORTED_LOCATION ${CMOCKA_LIB_DIR}/libcmocka.so)
-    endif(NOT CMOCKA_FOUND)
+#        ExternalProject_Add(cmockaDownload
+#            PREFIX ${CMAKE_SOURCE_DIR}/external
+#            SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka
+#            BINARY_DIR ${CMAKE_BINARY_DIR}/external/cmocka-build
+#            STAMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-stamp
+#            TMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-tmp
+#            INSTALL_DIR ${CMAKE_BINARY_DIR}/external
+#            CMAKE_ARGS ${CMockaCMakeArgs}
+#            # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
+#            #GIT_TAG "origin/master"
+#            #GIT_SUBMODULES ""
+#            UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
+#            DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
+#        )
+#        set(CMOCKA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
+#        set(CMOCKA_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
+#        add_library(cmocka SHARED IMPORTED)
+#        set_target_properties(cmocka PROPERTIES IMPORTED_LOCATION ${CMOCKA_LIB_DIR}/libcmocka.so)
+    ENDIF(NOT CMOCKA_FOUND)
 
-    enable_testing()
+    IF (COVERALLS)
+        SET(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
+        coveralls_setup(
+            "${GRAFEO_SRC}"
+            ${COVERALLS_UPLOAD}
+            "${CMAKE_SOURCE_DIR}/cmake/")
+    ENDIF(COVERALLS)
+
+    ENABLE_TESTING()
     # profiling directives (GCov and GProf)
-    add_definitions(-fprofile-arcs -ftest-coverage -pg)
+    ADD_DEFINITIONS(-fprofile-arcs -ftest-coverage -pg)
 
     # Array
     LIST(APPEND TESTS_NAMES
@@ -304,19 +315,19 @@ if(BUILD_TESTING)
       LIST(APPEND TESTS_NAMES imagewidget)
       LIST(APPEND TESTS_NAMES display)
       LIST(APPEND TESTS_NAMES displaywindow)
-      set(test_imagewidget_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
-      set(test_display_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
-      set(test_displaywindow_deps grafeo_structure grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+      set(test_imagewidget_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+      set(test_display_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+      set(test_displaywindow_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
     endif(BUILD_DISPLAY)
-    set(test_array_deps grafeo_structure)
-    set(test_image_deps grafeo_structure grafeo_imgproc png jpeg)
-    set(test_list_deps grafeo_structure)
-    set(test_slist_deps grafeo_structure)
-    set(test_queue_deps grafeo_structure)
-    set(test_pqueue_deps grafeo_structure)
-    set(test_ift_deps grafeo_structure grafeo_imgproc grafeo_ift png jpeg)
-    set(test_drawing_deps grafeo_structure grafeo_imgproc png jpeg)
-    set(test_hal_deps grafeo_structure)
+    set(test_array_deps grafeo_core)
+    set(test_image_deps grafeo_core grafeo_imgproc png jpeg)
+    set(test_list_deps grafeo_core)
+    set(test_slist_deps grafeo_core)
+    set(test_queue_deps grafeo_core)
+    set(test_pqueue_deps grafeo_core)
+    set(test_ift_deps grafeo_core grafeo_imgproc grafeo_ift png jpeg)
+    set(test_drawing_deps grafeo_core grafeo_imgproc png jpeg)
+    set(test_hal_deps grafeo_core)
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)

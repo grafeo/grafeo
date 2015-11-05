@@ -28,8 +28,7 @@
 #ifndef GRF_ARRAY_H
 #define GRF_ARRAY_H
 
-#include <grafeo/type.h>
-#include <grafeo/range.h>
+#include <grafeo/core.h>
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>

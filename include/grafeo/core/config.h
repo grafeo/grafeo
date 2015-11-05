@@ -29,7 +29,7 @@
 #define GRF_CONFIG_H
 #define GRF_VERSION_MAJOR 0
 #define GRF_VERSION_MINOR 0
-#define GRF_VERSION_RELEASE 6
+#define GRF_VERSION_RELEASE 7
 #define GRF_WEBSITE "http://grafeo.github.io"
 #define GETTEXT_PACKAGE "grafeo"
 #include <stdint.h>

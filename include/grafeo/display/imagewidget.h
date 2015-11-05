@@ -27,8 +27,8 @@
 # ===================================================================*/
 #ifndef GRF_IMAGEWIDGET_H
 #define GRF_IMAGEWIDGET_H
-#include <grafeo/array.h>
-#include <grafeo/image.h>
+#include <grafeo/core.h>
+#include <grafeo/imgproc.h>
 #include <gtk/gtk.h>
 BEGIN_DECLS
 
