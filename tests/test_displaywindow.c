@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/displaywindow.h>
+#include <grafeo/display.h>
 #include <setjmp.h>
 #include <cmocka.h>
 
