@@ -30,7 +30,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <string.h>
-#include <grafeo/queue.h>
+#include <grafeo/core.h>
 
 static void helper_test_values(GrfQueue* queue, uint8_t* values, uint8_t qty){
   GrfList*   current;

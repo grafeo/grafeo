@@ -26,8 +26,8 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/display.h>
-#include <grafeo/array.h>
-#include <grafeo/drawing.h>
+#include <grafeo/core.h>
+#include <grafeo/imgproc.h>
 #include <setjmp.h>
 #include <cmocka.h>
 

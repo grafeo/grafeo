@@ -29,7 +29,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
-#include <grafeo/drawing.h>
+#include <grafeo/imgproc.h>
 static void test_drawing_line(void** state){
   (void) state;
   GrfArray* array = grf_array_new_3D(10,10,3);

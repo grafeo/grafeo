@@ -31,8 +31,8 @@
 #include <cmocka.h>
 #include <unistd.h>
 #include <errno.h>
-#include <grafeo/array.h>
-#include <grafeo/image.h>
+#include <grafeo/core.h>
+#include <grafeo/imgproc.h>
 #include <grafeo/ift.h>
 #include <math.h>
 

@@ -57,3 +57,7 @@ src/.tags_sorted_by_file
 
 # Remove automatic marshal generation
 marshal.[hc]
+
+# Remove modules' joint headers
+include/grafeo/*.h
+src/*.c

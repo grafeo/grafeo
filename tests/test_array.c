@@ -29,7 +29,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
-#include <grafeo/array.h>
+#include <grafeo/core.h>
 
 static void helper_testing_array(GrfArray* array, uint64_t num_elements, GrfDataType type, uint16_t dim, uint32_t* sizes){
     uint8_t bitsizes[10] = {1,2,4,8,1,2,4,8,4,8};

@@ -25,24 +25,30 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
 #include <grafeo/core.h>
 
-static void test_hal_round(void** state){
-  (void) state;
-  assert_int_equal(5,grf_round(5.33423423));
-  assert_int_equal(6,grf_round(5.9123432412));
-  assert_int_equal(6,grf_round(5.5123432412));
+static GrfRangeItem* rangeitem_new_with_value(int64_t value){
+	GrfRangeItem* rangeitem = malloc(sizeof(GrfRangeItem));
+	rangeitem->value = value;
+	return rangeitem;
 }
 
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_hal_round),
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
+void grf_range_from_to(GrfRange* range, int64_t from, int64_t to){
+	range->from = rangeitem_new_with_value(from);
+	range->to   = rangeitem_new_with_value(to);
+}
+
+void grf_range_from(GrfRange* range, int64_t from){
+	range->from = rangeitem_new_with_value(from);
+	range->to   = NULL;
+}
+
+void grf_range_to(GrfRange* range, int64_t to){
+	range->from = NULL;
+	range->to   = rangeitem_new_with_value(to);
+}
+
+void grf_range_all(GrfRange* range){
+	range->from = NULL;
+	range->to   = NULL;
 }
