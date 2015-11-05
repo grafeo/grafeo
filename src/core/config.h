@@ -33,7 +33,7 @@
 #define GRF_WEBSITE "http://grafeo.github.io"
 #define GETTEXT_PACKAGE "grafeo"
 #include <stdint.h>
-#include <grafeo/i18n-lib.h>
+#include <grafeo/core.h>
 const char* const* grf_config_get_authors_names();
 const char* const* grf_config_get_authors_emails();
 const char* grf_config_get_license();
