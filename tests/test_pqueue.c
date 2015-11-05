@@ -30,7 +30,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 #include <string.h>
-#include <grafeo/pqueue.h>
+#include <grafeo/core.h>
 
 static void helper_grf_pqueue_elements(GrfQueue* pqueue, uint8_t* grf_pqueue_values, uint8_t** grf_bucket_values, uint8_t grf_pqueue_length, uint8_t* grf_bucket_lengths){
   // Test queue length

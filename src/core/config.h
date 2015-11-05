@@ -25,24 +25,22 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
+#ifndef GRF_CONFIG_H
+#define GRF_CONFIG_H
+#define GRF_VERSION_MAJOR 
+#define GRF_VERSION_MINOR 
+#define GRF_VERSION_RELEASE 
+#define GRF_WEBSITE "http://grafeo.github.io"
+#define GETTEXT_PACKAGE "grafeo"
+#include <stdint.h>
 #include <grafeo/core.h>
-
-static void test_hal_round(void** state){
-  (void) state;
-  assert_int_equal(5,grf_round(5.33423423));
-  assert_int_equal(6,grf_round(5.9123432412));
-  assert_int_equal(6,grf_round(5.5123432412));
-}
-
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_hal_round),
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
-}
+const char* const* grf_config_get_authors_names();
+const char* const* grf_config_get_authors_emails();
+const char* grf_config_get_license();
+const char* grf_config_get_website();
+const char* grf_config_get_copyright();
+const char* grf_config_get_description();
+uint8_t grf_config_get_version_major();
+uint8_t grf_config_get_version_minor();
+uint8_t grf_config_get_version_release();
+#endif

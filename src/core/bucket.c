@@ -25,24 +25,32 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
 #include <grafeo/core.h>
 
-static void test_hal_round(void** state){
-  (void) state;
-  assert_int_equal(5,grf_round(5.33423423));
-  assert_int_equal(6,grf_round(5.9123432412));
-  assert_int_equal(6,grf_round(5.5123432412));
+GrfBucket* grf_bucket_new(){
+  return malloc(sizeof(GrfBucket));
 }
 
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_hal_round),
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
+GrfQueue* grf_bucket_queue(GrfBucket *bucket){
+  return bucket->queue;
+}
+
+void *grf_bucket_value(GrfBucket *bucket)
+{
+  return bucket->value;
+}
+
+void grf_bucket_set_queue(GrfBucket *bucket, GrfQueue *queue)
+{
+  bucket->queue = queue;
+}
+
+void grf_bucket_set_value(GrfBucket *bucket, void *value)
+{
+  bucket->value = value;
+}
+
+void grf_bucket_free(GrfBucket *bucket)
+{
+  free(bucket);
 }

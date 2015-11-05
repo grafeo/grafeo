@@ -32,7 +32,7 @@
 #include <unistd.h>
 #include <stdint.h>
 #include <errno.h>
-#include <grafeo/list.h>
+#include <grafeo/core.h>
 
 void helper_test_grf_list_str(GrfList* begin, char** values, uint8_t qty){
   GrfList* current = begin, *before;

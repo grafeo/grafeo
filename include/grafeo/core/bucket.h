@@ -25,24 +25,57 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
+#ifndef GRF_BUCKET_H
+#define GRF_BUCKET_H
 #include <grafeo/core.h>
 
-static void test_hal_round(void** state){
-  (void) state;
-  assert_int_equal(5,grf_round(5.33423423));
-  assert_int_equal(6,grf_round(5.9123432412));
-  assert_int_equal(6,grf_round(5.5123432412));
-}
+BEGIN_DECLS
+/**
+ * @brief Bucket structure, just a queue with an additional attribute which
+ * is the same for every item
+ *
+ * You can put additional attributes just by extending Bucket, or inserting
+ * a struct of attributes in the `value` variable.
+ */
+typedef struct _GrfBucket{
+  GrfQueue* queue; /**< GrfQueue of elements in the bucket */
+  void*  value; /**< Unique attribute of the queue */
+}GrfBucket;
+/**
+ * @brief grf_bucket_new
+ * @return
+ */
+GrfBucket* grf_bucket_new();
+/**
+ * @brief grf_bucket_queue
+ * @param bucket
+ * @return
+ */
+GrfQueue*  grf_bucket_queue(GrfBucket* bucket);
+/**
+ * @brief grf_bucket_value
+ * @param bucket
+ * @return
+ */
+void*   grf_bucket_value(GrfBucket* bucket);
+/**
+ * @brief grf_bucket_set_queue
+ * @param bucket
+ * @param queue
+ */
+void    grf_bucket_set_queue(GrfBucket* bucket,GrfQueue* queue);
+/**
+ * @brief grf_bucket_set_value
+ * @param bucket
+ * @param value
+ */
+void    grf_bucket_set_value(GrfBucket* bucket, void* value);
+/**
+ * @brief grf_bucket_free
+ * @param bucket
+ */
+void    grf_bucket_free(GrfBucket* bucket);
 
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_hal_round),
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
-}
+END_DECLS
+
+#endif
