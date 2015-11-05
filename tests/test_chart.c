@@ -29,11 +29,23 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
-#include <grafeo/chart.hpp>
+#include <grafeo/chart.h>
 
 static void test_grf_chart_plot_1d(void** state){
+  // Creating dummy data
+  grfdim_t  dim  = 1;
+  grfsize_t size = 5;
+  uint8_t dados[size] = {5,4,6,2,1};
+  GrfArray* array = grf_array_from_data(dados,dim,&size,GRF_UINT8);
+
+  // Creating our chart
   GrfChart* chart = grf_chart_new();
-  GrfArray* array = grf_array_from
+  grf_chart_plot(chart,array);
+  chart->dim        = 1;
+  chart->num_charts = 1;
+  chart->size[0]    = 0;
+
+
   grf_chart_plot();
   grf_chart_plot();
 }

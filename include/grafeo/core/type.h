@@ -98,6 +98,11 @@ typedef enum _GrfFittingMode{
   GRF_FITTING_FULL,
 }GrfFittingMode;
 
+typedef enum _GrfOrientation{
+  GRF_ORIENTATION_HORIZONTAL,
+  GRF_ORIENTATION_VERTICAL
+}GrfOrientation;
+
 /**
   * @brief Optimization type: Minimization or Maximization
   */
@@ -123,6 +128,12 @@ typedef void (*GrfDataFunc)       (void* data1, void* user_data);
 
 int8_t int64_compare_function_r(void* value1, void* value2);
 int8_t int64_compare_function  (void* value1, void* value2);
+
+// Primitive types
+typedef grfbool_t  uint8_t;
+typedef grfdim_t   uint16_t;
+typedef grfsize_t  uint32_t;
+typedef grfindex_t uint64_t;
 
 /**
  * @brief Structure for 2D array of scalar values
