@@ -184,9 +184,7 @@ if(BUILD_TESTING)
     if (COVERALLS)
         include(Coveralls)
     endif(COVERALLS)
-    set(CMAKE_EXE_LINKER_FLAGS         "-g -Wall -Wshadow -Wunused-variable   \
-        -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg \
-        -fprofile-arcs -ftest-coverage")
+    set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
     set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
 endif(BUILD_TESTING)
 #====================================================================== LIBRARY
