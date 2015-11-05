@@ -131,9 +131,11 @@ MACRO(GRF_CREATE_LIBRARY lowername UPPERNAME)
   CONFIGURE_FILE(${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in ${GRF_INCLUDE_DIR}/${lowername}.h)
 
   # Append directory to sources
+  SET(SRCS_ABSOLUTE)
   FOREACH(SOURCE ${${SRCS}})
     LIST(APPEND SRCS_ABSOLUTE ${${SOURCE_DIR}}/${SOURCE})
   ENDFOREACH()
+  LIST(APPEND GRF_SRCS ${SRCS_ABSOLUTE})
 
   # Create the library
   ADD_LIBRARY(grafeo_${lowername} SHARED ${SRCS_ABSOLUTE} ${HDRS_ABSOLUTE})
@@ -272,6 +274,13 @@ SET(CMAKE_BUILD_TYPE ${GRF_COMPILE_TYPE} CACHE STRING
 if(BUILD_TESTING)
     INCLUDE(ExternalProject)
     # find cmocka library
+    IF (COVERALLS)
+        SET(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
+        coveralls_setup(
+            "${GRF_SRCS}"
+            ${COVERALLS_UPLOAD}
+            "${CMAKE_SOURCE_DIR}/cmake/")
+    ENDIF(COVERALLS)
     FIND_PACKAGE(CMocka QUIET)
     MESSAGE(STATUS Cmocka Found:${CMOCKA_FOUND})
 
@@ -307,13 +316,7 @@ if(BUILD_TESTING)
         set_target_properties(cmocka PROPERTIES IMPORTED_LOCATION ${CMOCKA_LIB_DIR}/libcmocka.so)
     ENDIF(NOT CMOCKA_FOUND)
 
-    IF (COVERALLS)
-        SET(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
-        coveralls_setup(
-            "${GRAFEO_SRC}"
-            ${COVERALLS_UPLOAD}
-            "${CMAKE_SOURCE_DIR}/cmake/")
-    ENDIF(COVERALLS)
+
 
     ENABLE_TESTING()
     # profiling directives (GCov and GProf)
