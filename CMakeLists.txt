@@ -33,7 +33,7 @@ find_package(PkgConfig REQUIRED)
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
 FILE(READ "GPLHEADER" GRF_GPL_HEADER)
-STRING(TIMESTAMP GRF_CURRENT_YEAR "%Y")
+
 
 #====================================================================== OPTIONS
 option(BUILD_CORE    "Core Module (data structures, config, macros, types...)" ON)
@@ -94,6 +94,21 @@ function(GRF_CAT IN_FILE OUT_FILE lowername)
 endfunction()
 
 # ------------------
+# Get current Year
+# ------------------
+MACRO (TODAY RESULT)
+    IF (WIN32)
+        EXECUTE_PROCESS(COMMAND "date" "/T" OUTPUT_VARIABLE ${RESULT})
+        string(REGEX REPLACE "(..)/(..)/(....).*" "\\3" ${RESULT} ${${RESULT}})
+    ELSEIF(UNIX)
+        EXECUTE_PROCESS(COMMAND "date" "+%Y" OUTPUT_VARIABLE ${RESULT})
+        #string(REGEX REPLACE "(..)/(..)/..(..).*" "\\3\\2\\1" ${RESULT} ${${RESULT}})
+    ELSE (WIN32)
+        MESSAGE(SEND_ERROR "date not implemented")
+        SET(${RESULT} 000000)
+    ENDIF (WIN32)
+ENDMACRO (TODAY)
+# ------------------
 # Create the library components
 # ------------------
 MACRO(GRF_CREATE_LIBRARY lowername UPPERNAME)
@@ -131,6 +146,13 @@ MACRO(GRF_CREATE_LIBRARY lowername UPPERNAME)
   INSTALL(FILES ${GRF_INCLUDE_DIR}/${lowername}.h DESTINATION include/grafeo)
 ENDMACRO()
 #======================================================== THIRD PARTY LIBRARIES
+IF(CMAKE_VERSION  VERSION_LESS 2.8)
+  TODAY(GRF_CURRENT_YEAR)
+  MESSAGE(${GRF_CURRENT_YEAR})
+ELSE()
+  STRING(TIMESTAMP GRF_CURRENT_YEAR "%Y")
+ENDIF()
+
 # ------------------
 # PNG
 # ------------------
