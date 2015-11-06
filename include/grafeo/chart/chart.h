@@ -95,6 +95,11 @@ typedef struct _GrfAxes{
 
 }GrfAxes;
 
+typedef enum{
+  GRF_PROJECTION_CARTESIAN,
+  GRF_PROJECTION_SPHERICAL
+} GrfChartProjection;
+
 /**
  * @brief
  */
@@ -116,8 +121,15 @@ typedef struct _GrfChartComponent{
 /**
  * Leaf of the tree structure of charts
  */
-typedef struct _GrfChartElement{
+typedef struct _GrfChartPanel{
   GrfChartComponent parent_instance;
+  grfdim_t   dim;   /**< Dimension of a chart (2 or 3) */
+  grfsize_t  num_plots; /**< Number of plots inside the chart */
+  GrfAxes  * axes;  /**< List of N axis, N = dim*/
+  GrfPlot  * plots;  /**< List of M plots, M = num_plots */
+  char     * title;  /**< Title of the chart */
+  GrfLegend* legend; /**< Legend configuration of the chart */
+  GrfChartProjection projection; /** Cartesian or Spherical (polar in 2D) */
 }GrfChartElement;
 
 /**
@@ -156,19 +168,37 @@ GrfChart*
 grf_chart_new();
 
 /**
- * @brief Creates a plot in a chart
+ * @brief Creates a default 2D line plot in a chart
  * @param chart
  * @param data_y
  */
 void
 grf_chart_plot(GrfChart* chart, Array* data_y);
 
+/**
+ * @brief Same as grf_chart_plot, but with custom line and marker settings
+ * @param data_y
+ * @param format
+ * @return
+ */
 GrfChart*
 grf_chart_plot_with_format(Array* data_y,const char* format);
 
+/**
+ * @brief Creates a default 2D line
+ * @param data_x
+ * @param data_y
+ * @return
+ */
 GrfChart*
 grf_chart_plot2(Array* data_x, Array* data_y);
 
+/**
+ * @brief Creates a default 2D line plot with custom line and marker settings
+ * @param data_y
+ * @param format
+ * @return
+ */
 GrfChart*
 grf_chart_plot2_with_format(Array* data_y,const char* format);
 
