@@ -25,36 +25,6 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
-#include <grafeo/chart.h>
-
-static void test_grf_chart_plot_1d(void** state){
-  // Creating dummy data
-  grfdim_t  dim  = 1;
-  grfsize_t size = 5;
-  uint8_t dados[size] = {5,4,6,2,1};
-  GrfArray* array = grf_array_from_data(dados,dim,&size,GRF_UINT8);
-
-  // Creating our chart
-  GrfChart* chart = grf_chart_new();
-  grf_chart_plot(chart,array);
-  chart->dim        = 1;
-  chart->num_charts = 1;
-  chart->size[0]    = 0;
-
-
-  grf_chart_plot();
-  grf_chart_plot();
-}
-
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[24]={
-    cmocka_unit_test(test_grf_chart_plot_1d),
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
-}
+#ifndef GRF_PLOTLINE_H
+#define GRF_PLOTLINE_H
+#endif

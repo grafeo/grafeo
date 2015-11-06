@@ -32,14 +32,28 @@ find_package(PkgConfig REQUIRED)
 
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
+# Getting GPL Header
 FILE(READ "GPLHEADER" GRF_GPL_HEADER)
 
+# -----------------
+# Contents
+# - Options (to enable/disable components at compilation)
+# - Custom Functions and Macros
+# - Third Party Libraries
+# - Tests setup (before compilation)
+# - Library setup (e.g. constants)
+# - Compilation of modules
+# - Documentation
+# - Debug or not debug?
+# - Compilation of tests
+# -----------------
 
 #====================================================================== OPTIONS
 option(BUILD_CORE    "Core Module (data structures, config, macros, types...)" ON)
 option(BUILD_DISPLAY "GUI Module (Requires Gtk)" ON)
 option(BUILD_IMGPROC "Image Processing Module (Requires LibJPEG and LibPNG)" ON)
 option(BUILD_IFT     "Image Foresting Transform methods" ON)
+option(BUILD_CHART   "Component for creating charts" ON)
 option(BUILD_TESTING "" OFF)
 option(BUILD_DOCS    "Build doxygen documentation" OFF)
 option(COVERALLS     "Generate coveralls data" OFF)
@@ -241,6 +255,12 @@ IF(BUILD_DISPLAY)
   SET(GRF_DISPLAY_SRCS imagewidget.c trackbar.c displaywindow.c display.c)
   GRF_CREATE_LIBRARY(display DISPLAY)
 ENDIF()
+#================================================================= CHART MODULE
+IF(BUILD_CHART)
+  SET(GRF_CHART_HDRS axis.h plotline.h plot.h chart.h)
+  SET(GRF_CHART_SRCS axis.c plotline.c plot.c chart.c)
+  GRF_CREATE_LIBRARY(chart CHART)
+ENDIF()
 #================================================================ DOCUMENTATION
 find_package(Doxygen)
 if(Doxygen_FOUND)
@@ -351,6 +371,10 @@ if(BUILD_TESTING)
     set(test_ift_deps grafeo_core grafeo_imgproc grafeo_ift png jpeg)
     set(test_drawing_deps grafeo_core grafeo_imgproc png jpeg)
     set(test_hal_deps grafeo_core)
+    if(BUILD_CHART)
+      LIST(APPEND TESTS_NAMES chart)
+      set(test_chart_deps grafeo_core grafeo_chart)
+    endif(BUILD_CHART)
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)
