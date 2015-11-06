@@ -28,134 +28,60 @@
 #ifndef GRF_CHART_H
 #define GRF_CHART_H
 #include <grafeo/core.h>
+#include <grafeo/chart.h>
+#include <glib-object.h>
 
-/**
- * @brief
- */
-typedef struct _GrfAxis{
-  ticks
-}GrfAxis;
+#define GRF_TYPE_CHART grf_chart_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfChart, grf_chart, GRF, CHART, GrfChartContainer)
 
-/**
- * @brief
- */
-typedef struct _GrfLegend{
-
-}GrfLegend;
-
-/**
- * @brief
- */
-typedef struct _GrfPlot{
-  char     * label;
-}GrfPlot;
-
-/**
- * @brief
- */
-typedef struct _GrfPlotLine{
-  GrfPlot           parent_instance;
-  char            * format;
-  GrfChartCapStyle  capstyle;
-  grfbool_t         antialiased;
-  GrfScalar4D       color;
-  uint8_t         * dashes;
-  GrfChartDrawStyle drawstyle;
-  GrfChartFillStyle fillstyle;
-  char            * linestyle;
-  uint8_t           linewidth;
-  GrfChartMarker    marker;
-  GrfScalar4D       marker_edge_color;
-  uint8_t           marker_edge_width;
-  GrfScalar4D       marker_face_color;
-  GrfScalar4D       marker_face_color_alt;
-  uint8_t           marker_size;
-  uint8_t           marker_every;
-
-  GrfArray        * data_x;
-  GrfArray        * data_y;
-
-}GrfPlotLine;
-
-typedef struct _GrfPlotBar{
-  GrfPlot           parent_instance;
-  GrfScalar4D       color;
-  GrfScalar4D       edge_color;
-  uint8_t           linewidth;
-  char**            tick_labels;
-  GrfOrientation    orientation;
-  GrfArray        * data_y;
-}GrfPlotBar;
-
-/**
- * @brief
- */
-typedef struct _GrfAxes{
-  GrfAxis         * axis;
-
-}GrfAxes;
-
-typedef enum{
-  GRF_PROJECTION_CARTESIAN,
-  GRF_PROJECTION_SPHERICAL
-} GrfChartProjection;
-
-/**
- * @brief
- */
-typedef struct _GrfSubChart{
-  grfdim_t   dim;   /**< Dimension of a chart (2 or 3) */
-  GrfAxes  * axes;  /**< List of N axis, N = dim*/
-  grfsize_t  num_plots;
-  GrfPlot  * plots;  /**< List of M plots, M = num_plots */
-  char     * title;  /**< Title of the chart */
-  GrfLegend* legend; /**< Legend configuration of the chart */
-}GrfSubChart;
-
-/**
- * Base class for supporting multiple charts
- */
-typedef struct _GrfChartComponent{
-}GrfChartComponent;
-
-/**
- * Leaf of the tree structure of charts
- */
-typedef struct _GrfChartPanel{
-  GrfChartComponent parent_instance;
-  grfdim_t   dim;   /**< Dimension of a chart (2 or 3) */
-  grfsize_t  num_plots; /**< Number of plots inside the chart */
-  GrfAxes  * axes;  /**< List of N axis, N = dim*/
-  GrfPlot  * plots;  /**< List of M plots, M = num_plots */
-  char     * title;  /**< Title of the chart */
-  GrfLegend* legend; /**< Legend configuration of the chart */
-  GrfChartProjection projection; /** Cartesian or Spherical (polar in 2D) */
-}GrfChartElement;
-
-/**
- * Composite of charts
- * To get the
- */
-typedef struct _GrfChartContainer{
-  GrfChartComponent  parent_instance;
-  grfdim_t           dim;          /**< Layout of container: 1D (row or column) or 2D (grid) */
-  grfsize_t          num_children; /**< Total number of components */
-  grfsize_t        * size;         /**< Number of components in each dimension */
-  GrfChartComponent* children;     /**< List of components */
-  char             * title;        /**< Title of the component */
-
-}GrfChartContainer;
+typedef struct _GrfChartClass{
+  GrfChartContainerClass parent_class;
+}GrfChartClass;
 
 
-/**
- * @brief Main container for a chart
- *
- * It may contain several subcharts. Each subchart may
- * contain several plots
- */
-typedef struct _GrfChart{
-  GrfChartContainer parent_instance;
-} GrfChart;
+
+
+///**
+// * @brief 2D Line plot
+// */
+//typedef struct _GrfPlotLine{
+//  GrfPlot           parent_instance;
+//  char            * format;
+//  GrfChartCapStyle  dash_capstyle;
+//  GrfChartJoinStyle dash_joinstyle;
+//  grfbool_t         antialiased;
+//  GrfScalar4D       color;
+//  uint8_t         * dashes;
+//  GrfChartDrawStyle drawstyle;
+//  GrfChartFillStyle fillstyle;
+//  char            * linestyle;
+//  uint8_t           linewidth;
+//  GrfChartMarker    marker;
+//  GrfScalar4D       marker_edge_color;
+//  uint8_t           marker_edge_width;
+//  GrfScalar4D       marker_face_color;
+//  GrfScalar4D       marker_face_color_alt;
+//  uint8_t           marker_size;
+//  uint8_t           marker_every;
+
+//  GrfArray        * data_x;
+//  GrfArray        * data_y;
+
+//}GrfPlotLine;
+
+
+///**
+// * @brief 2D Bar plot
+// */
+//typedef struct _GrfPlotBar{
+//  GrfPlot           parent_instance;/**< */
+//  GrfScalar4D       color;          /**< */
+//  GrfScalar4D       edge_color;     /**< */
+//  uint8_t           linewidth;      /**< */
+//  char**            tick_labels;    /**< */
+//  GrfOrientation    orientation;    /**< */
+//  GrfArray        * data_y;         /**< */
+//}GrfPlotBar;
 
 /* =======================
  * CREATION
@@ -167,13 +93,17 @@ typedef struct _GrfChart{
 GrfChart*
 grf_chart_new();
 
+
+
+
+
 /**
  * @brief Creates a default 2D line plot in a chart
  * @param chart
  * @param data_y
  */
-void
-grf_chart_plot(GrfChart* chart, Array* data_y);
+GrfPlot*
+grf_chart_plot(GrfChart* chart, GrfArray* data_y);
 
 /**
  * @brief Same as grf_chart_plot, but with custom line and marker settings
@@ -182,7 +112,7 @@ grf_chart_plot(GrfChart* chart, Array* data_y);
  * @return
  */
 GrfChart*
-grf_chart_plot_with_format(Array* data_y,const char* format);
+grf_chart_plot_with_format(GrfArray* data_y,const char* format);
 
 /**
  * @brief Creates a default 2D line
@@ -191,7 +121,7 @@ grf_chart_plot_with_format(Array* data_y,const char* format);
  * @return
  */
 GrfChart*
-grf_chart_plot2(Array* data_x, Array* data_y);
+grf_chart_plot2(GrfArray* data_x, GrfArray* data_y);
 
 /**
  * @brief Creates a default 2D line plot with custom line and marker settings
@@ -200,7 +130,7 @@ grf_chart_plot2(Array* data_x, Array* data_y);
  * @return
  */
 GrfChart*
-grf_chart_plot2_with_format(Array* data_y,const char* format);
+grf_chart_plot2_with_format(GrfArray* data_y,const char* format);
 
 /* =======================
  * MUTATORS
@@ -212,7 +142,7 @@ void
 grf_chart_set_xlabel(GrfChart* chart, const char* xlabel);
 
 void
-grf_chart_set_antialiased(GrfChart* chart, grfbool antialiased);
+grf_chart_set_antialiased(GrfChart* chart, grfbool_t antialiased);
 
 void
 grf_chart_set_dash_capstyle(GrfChart* chart);
@@ -220,7 +150,32 @@ grf_chart_set_dash_capstyle(GrfChart* chart);
 void
 grf_chart_set_joinstyle(GrfChart* chart);
 
+/* =======================
+ * ACCESSORS
+ * =======================*/
+/**
+ * @brief grf_chart_get_num_charts
+ * @param chart
+ * @return
+ */
+grfsize_t
+grf_chart_get_num_charts(GrfChart* chart);
 
+
+/**
+ * @brief grf_chart_get_title
+ * @param chart
+ * @return
+ */
+char*
+grf_chart_get_title(GrfChart* chart);
+/**
+ * @brief grf_chart_panel_get_title
+ * @param chart_panel
+ * @return
+ */
+char*
+grf_chart_panel_get_title(GrfChartPanel* chart_panel);
 
 void
 grf_chart_show(GrfChart* chart);

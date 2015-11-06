@@ -27,4 +27,21 @@
 # ===================================================================*/
 #ifndef GRF_AXIS_H
 #define GRF_AXIS_H
+
+#include <glib-object.h>
+
+G_BEGIN_DECLS
+
+#define GRF_TYPE_AXIS grf_axis_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfAxis, grf_axis, GRF, AXIS, GObject)
+
+/**
+ * @brief Base class for supporting multiple charts
+ */
+typedef struct _GrfAxisClass{
+  GObjectClass parent_class;
+}GrfAxisClass;
+
+G_END_DECLS
+
 #endif

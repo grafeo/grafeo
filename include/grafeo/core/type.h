@@ -130,10 +130,10 @@ int8_t int64_compare_function_r(void* value1, void* value2);
 int8_t int64_compare_function  (void* value1, void* value2);
 
 // Primitive types
-typedef grfbool_t  uint8_t;
-typedef grfdim_t   uint16_t;
-typedef grfsize_t  uint32_t;
-typedef grfindex_t uint64_t;
+typedef uint8_t  grfbool_t;
+typedef uint16_t grfdim_t;
+typedef uint32_t grfsize_t;
+typedef uint64_t grfindex_t;
 
 /**
  * @brief Structure for 2D array of scalar values

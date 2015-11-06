@@ -25,4 +25,20 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
+#ifndef GRF_LEGEND_H
+#define GRF_LEGEND_H
+
+#include <glib-object.h>
 #include <grafeo/chart.h>
+
+G_BEGIN_DECLS
+
+#define GRF_TYPE_LEGEND grf_legend_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfLegend, grf_legend, GRF, LEGEND, GObject)
+
+typedef struct _GrfLegendClass{
+  GObjectClass parent_class;
+}GrfLegendClass;
+
+G_END_DECLS
+#endif

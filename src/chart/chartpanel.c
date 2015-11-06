@@ -30,35 +30,58 @@
  *      PRIVATE API
  *=======================*/
 /**
- * @brief Base class for any plot in a chart
+ * Leaf of the tree structure of charts
  */
-typedef struct _GrfPlotPrivate{
-  char     * label;
-}GrfPlotPrivate;
+typedef struct _GrfChartPanelPrivate{
+  grfdim_t            dim;        /**< Dimension of a chart (2 or 3) */
+  grfsize_t           num_plots;  /**< Number of plots inside the chart */
+  GrfAxis           * axis;       /**< List of N axis, N = dim*/
+  GrfPlot           * plots;      /**< List of M plots, M = num_plots */
+  GrfLegend         * legend;     /**< Legend configuration of the chart */
+  GrfChartProjection  projection; /**< Cartesian or Spherical (polar in 2D) */
+}GrfChartPanelPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE(GrfPlot, grf_plot, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE(GrfChartPanel, grf_chart_panel, GRF_TYPE_CHART_COMPONENT)
 
 static void
-grf_plot_class_init(GrfPlotClass *klass){
+grf_chart_panel_init(GrfChartPanel *self){
 
 }
 
 static void
-grf_plot_init(GrfPlot *self){
+grf_chart_panel_class_init(GrfChartPanelClass *klass){
 
 }
 
 /*=========================
  *      PUBLIC API
  *=======================*/
-char*
-grf_plot_get_label(GrfPlot* plot){
-  GrfPlotPrivate* priv = grf_plot_get_instance_private(plot);
-  return priv->label;
+GrfChartPanel*
+grf_chart_panel_new(){
+  return NULL;
 }
 
-void
-grf_plot_set_label(GrfPlot* plot, char* label){
-  GrfPlotPrivate* priv = grf_plot_get_instance_private(plot);
-  priv->label = label;
+grfdim_t
+grf_chart_panel_get_dim(GrfChartPanel* chart_panel){
+  return 0;
+}
+
+grfsize_t
+grf_chart_panel_get_num_plots(GrfChartPanel* chart_panel){
+  return 0;
+}
+
+GrfAxis*
+grf_chart_panel_get_axis(GrfChartPanel* chart_panel){
+  return NULL;
+}
+
+GrfLegend*
+grf_chart_panel_get_legend(GrfChartPanel* chart_panel){
+  return NULL;
+}
+
+GrfChartProjection
+grf_chart_panel_get_projection(GrfChartPanel* chart_panel){
+  return GRF_PROJECTION_CARTESIAN;
 }

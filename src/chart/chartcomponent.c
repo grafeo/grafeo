@@ -26,3 +26,38 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/chart.h>
+/*=========================
+ *      PRIVATE API
+ *=======================*/
+typedef struct _GrfChartComponentPrivate{
+  char* title; /**< Title of the component */
+}GrfChartComponentPrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GrfChartComponent, grf_chart_component, G_TYPE_OBJECT)
+
+static void
+grf_chart_component_init(GrfChartComponent *self){
+  GrfChartComponentPrivate* priv = grf_chart_component_get_instance_private(self);
+  priv->title = NULL;
+}
+
+static void
+grf_chart_component_class_init(GrfChartComponentClass *klass){
+  klass->get_title = grf_chart_component_get_title;
+  klass->set_title = grf_chart_component_set_title;
+}
+
+/*=========================
+ *      PUBLIC API
+ *=======================*/
+char*
+grf_chart_component_get_title(GrfChartComponent* chart_component){
+  GrfChartComponentPrivate* priv = grf_chart_component_get_instance_private(chart_component);
+  return priv->title;
+}
+
+void
+grf_chart_component_set_title(GrfChartComponent* chart_component, char* title){
+  GrfChartComponentPrivate* priv = grf_chart_component_get_instance_private(chart_component);
+  priv->title = title;
+}

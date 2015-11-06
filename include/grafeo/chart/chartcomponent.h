@@ -25,4 +25,42 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/chart.h>
+#ifndef GRF_CHART_COMPONENT_H
+#define GRF_CHART_COMPONENT_H
+
+#include <glib-object.h>
+
+G_BEGIN_DECLS
+
+#define GRF_TYPE_CHART_COMPONENT grf_chart_component_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfChartComponent, grf_chart_component, GRF, CHART_COMPONENT, GObject)
+
+/**
+ * @brief Base class for supporting multiple charts
+ */
+typedef struct _GrfChartComponentClass{
+  GObjectClass parent_class;
+
+  char* (*get_title)(GrfChartComponent* self);
+  void  (*set_title)(GrfChartComponent* self, char* title);
+}GrfChartComponentClass;
+
+/**
+ * @brief grf_chart_component_get_title
+ * @param chart_component
+ * @return
+ */
+char*
+grf_chart_component_get_title(GrfChartComponent* chart_component);
+
+/**
+ * @brief grf_chart_component_set_title
+ * @param chart_component
+ * @param title
+ */
+void
+grf_chart_component_set_title(GrfChartComponent* chart_component, char* title);
+
+G_END_DECLS
+
+#endif

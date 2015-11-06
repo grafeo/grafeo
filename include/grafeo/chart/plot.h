@@ -27,4 +27,32 @@
 # ===================================================================*/
 #ifndef GRF_PLOT_H
 #define GRF_PLOT_H
+#include <grafeo/chart.h>
+G_BEGIN_DECLS
+
+#define GRF_TYPE_PLOT grf_plot_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfPlot, grf_plot, GRF, PLOT, GObject)
+
+typedef struct _GrfPlotClass{
+  GObjectClass parent_class;
+}GrfPlotClass;
+
+/**
+ * @brief grf_plot_get_label
+ * @param plot
+ * @return
+ */
+char*
+grf_plot_get_label(GrfPlot* plot);
+
+/**
+ * @brief grf_plot_set_label
+ * @param plot
+ * @param label
+ */
+void
+grf_plot_set_label(GrfPlot* plot, char* label);
+
+
+G_END_DECLS
 #endif

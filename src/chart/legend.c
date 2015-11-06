@@ -26,3 +26,27 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/chart.h>
+/*=========================
+ *      PRIVATE API
+ *=======================*/
+typedef struct _GrfLegendPrivate{
+
+}GrfLegendPrivate;
+
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GrfLegend, grf_legend, G_TYPE_OBJECT)
+
+
+static void
+grf_legend_init(GrfLegend *self){
+
+}
+
+static void
+grf_legend_class_init(GrfLegendClass *klass){
+
+}
+
+
+/*=========================
+ *      PUBLIC API
+ *=======================*/
