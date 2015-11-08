@@ -45,6 +45,10 @@ grf_chart_widget_class_init(GrfChartWidgetClass *klass){
 
 }
 
+static gboolean
+grf_chart_widget_realize(GrfChartWindow){
+
+}
 
 /*=========================
  *      PUBLIC API

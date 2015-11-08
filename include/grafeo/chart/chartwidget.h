@@ -46,5 +46,18 @@ typedef struct _GrfChartWidgetClass{
 GrfChartWidget*
 grf_chart_widget_new();
 
+void
+grf_chart_widget_zoom();
+
+void
+grf_chart_widget_zoom_in();
+
+void
+grf_chart_widget_zoom_out();
+
+void
+grf_chart_widget_translate();
+
+
 G_END_DECLS
 #endif

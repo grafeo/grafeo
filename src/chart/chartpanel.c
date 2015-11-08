@@ -95,3 +95,15 @@ grf_chart_panel_add_legend(GrfChartPanel* chart_panel){
   GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
   priv->legend = grf_legend_new();
 }
+
+void
+grf_chart_panel_add_plot(GrfChartPanel* chart_panel, GrfPlot* plot){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  grf_queue_append(&priv->plots, plot);
+}
+
+void
+grf_chart_panel_remove_plot(GrfChartPanel* chart_panel, GrfPlot* plot){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  grf_queue_remove(&priv->plots, plot);
+}

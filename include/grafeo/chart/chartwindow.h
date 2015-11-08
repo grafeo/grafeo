@@ -36,6 +36,7 @@ typedef struct _GrfChartWindowClass{
   GObjectClass parent_class;
 }GrfChartWindowClass;
 
+grf_chart_window_set_cursor_operation(GrfChartWindow* chart_window, GrfChartOperation operation);
 
 G_END_DECLS
 #endif

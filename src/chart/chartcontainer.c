@@ -65,14 +65,16 @@ grf_chart_container_class_init(GrfChartContainerClass *klass){
 }
 
 /*=========================
- *      PUBLIC API
+ * PUBLIC API: Creation
  *=======================*/
-
 GrfChartContainer*
 grf_chart_container_new(){
   return g_object_new(GRF_TYPE_CHART_CONTAINER, NULL);
 }
 
+/*=========================
+ * PUBLIC API: Mutators
+ *=======================*/
 void
 grf_chart_container_set_title(GrfChartContainer *chart_container, char *title){
   grf_chart_component_set_title(GRF_CHART_COMPONENT(chart_container), title);
@@ -85,6 +87,9 @@ grf_chart_container_set_size(GrfChartContainer *chart_container, grfdim_t dim, g
   priv->size = size;
 }
 
+/*=========================
+ * PUBLIC API: Accessors
+ *=======================*/
 char*
 grf_chart_container_get_title(GrfChartContainer* chart_container){
   return grf_chart_component_get_title(GRF_CHART_COMPONENT(chart_container));
@@ -109,20 +114,24 @@ grf_chart_container_get_num_components(GrfChartContainer *chart_container){
 }
 
 grfsize_t
-grf_chart_container_get_num_panels(GrfChartContainer *chart_container, grfbool_t recursive){
+grf_chart_container_get_num_leafs(GrfChartContainer *chart_container, grfbool_t recursive){
   grfsize_t sum = 0;
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
   GrfList* list;
   for(list = priv->children.begin; list; list = grf_list_next(list)){
     GrfChartComponent* component = GRF_CHART_COMPONENT(grf_list_value(list));
-    if(GRF_IS_CHART_PANEL(component))
+    if(!GRF_IS_CHART_CONTAINER(component))
       sum++;
-    else if(recursive && GRF_IS_CHART_CONTAINER(component))
+    else if(recursive)
       sum += grf_chart_container_get_num_panels(GRF_CHART_CONTAINER(component), recursive);
   }
   return sum;
 }
 
+
+/*=========================
+ * PUBLIC API: Operations
+ *=======================*/
 void
 grf_chart_container_add_component(GrfChartContainer *chart_container,
                                   GrfChartComponent *chart_component,

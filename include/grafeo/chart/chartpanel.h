@@ -103,6 +103,22 @@ grf_chart_panel_get_projection(GrfChartPanel* chart_panel);
 GrfLegend*
 grf_chart_panel_add_legend(GrfChartPanel* chart_panel);
 
+/**
+ * @brief grf_chart_panel_add_plot
+ * @param chart_panel
+ * @param plot
+ */
+void
+grf_chart_panel_add_plot(GrfChartPanel* chart_panel, GrfPlot* plot);
+
+/**
+ * @brief grf_chart_panel_remove_plot
+ * @param chart_panel
+ * @param plot
+ */
+void
+grf_chart_panel_remove_plot(GrfChartPanel* chart_panel, GrfPlot* plot);
+
 G_END_DECLS
 
 #endif

@@ -56,20 +56,28 @@ typedef struct _GrfChartContainerClass{
 }GrfChartContainerClass;
 
 /**
- * @brief grf_chart_container_new
+ * @brief Creates a new instance of the container for a chart
  * @return
  */
 GrfChartContainer*
 grf_chart_container_new();
+
+/*=========================
+ *      MUTATORS
+ *=======================*/
+
 /**
- * @brief grf_chart_container_set_title
+ * @brief Set the title of the chart. If `NULL` is passed, the title won't be
+ *        rendered
  * @param self
  * @param title
  */
 void
 grf_chart_container_set_title(GrfChartContainer* chart_container, char* title);
 /**
- * @brief grf_chart_container_set_size
+ * @brief Set the size (number of components) for each dimension of the
+ *        container.
+ *
  * @param self
  * @param dim
  * @param size
@@ -77,6 +85,10 @@ grf_chart_container_set_title(GrfChartContainer* chart_container, char* title);
 void
 grf_chart_container_set_size(GrfChartContainer* chart_container, grfdim_t dim,
                              grfsize_t* size);
+
+/*=========================
+ *      ACCESSORS
+ *=======================*/
 /**
  * @brief grf_chart_container_get_title
  * @param chart_container
@@ -117,6 +129,9 @@ grf_chart_container_get_num_components(GrfChartContainer* chart_container);
 grfsize_t
 grf_chart_container_get_num_panels(GrfChartContainer* chart_container, grfbool_t recursive);
 
+/*=========================
+ *      OPERATIONS
+ *=======================*/
 /**
  * @brief grf_chart_container_add_component
  * @param chart_container

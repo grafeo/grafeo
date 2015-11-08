@@ -62,11 +62,19 @@ static void test_grf_chart_plot_1d(void** state){
   grf_array_free(array);
 }
 
+static void test_grf_chart_window(void** state){
+  GrfChartWindow* window = grf_chart_window_new();
+  grf_chart_window_show(window);
+  uint8_t key = 0;
+  while(key != 27) key = grf_chart_window_waitkey();
+}
+
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[1]={
+  const struct CMUnitTest tests[2]={
     cmocka_unit_test(test_grf_chart_plot_1d),
+    cmocka_unit_test(test_grf_chart_window),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
