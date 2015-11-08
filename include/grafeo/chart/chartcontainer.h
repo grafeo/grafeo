@@ -46,9 +46,13 @@ typedef struct _GrfChartContainerClass{
   grfsize_t* (*get_size)          (GrfChartContainer* self);
   grfdim_t   (*get_dim)           (GrfChartContainer* self);
   grfsize_t  (*get_num_components)(GrfChartContainer* self);
-  grfsize_t  (*get_num_panels)    (GrfChartContainer* self, grfbool_t recursive);
-  void       (*add_component)     (GrfChartContainer* self, GrfChartComponent* component);
-  void       (*remove_component)  (GrfChartContainer* self, GrfChartComponent* component);
+  grfsize_t  (*get_num_panels)    (GrfChartContainer* self,
+                                   grfbool_t recursive);
+  void       (*add_component)     (GrfChartContainer* self,
+                                   GrfChartComponent* component,
+                                   grfsize_t* position);
+  void       (*remove_component)  (GrfChartContainer* self,
+                                   GrfChartComponent* component);
 }GrfChartContainerClass;
 
 /**
@@ -131,6 +135,14 @@ grf_chart_container_add_component(GrfChartContainer* chart_container,
 void
 grf_chart_container_remove_component(GrfChartContainer* chart_container,
                                      GrfChartComponent* chart_component);
+/**
+ * @brief grf_chart_container_add_plot
+ * @param chart_container
+ * @param chart_plot
+ */
+void
+grf_chart_container_add_plot(GrfChartContainer* chart_container,
+                             GrfPlot* chart_plot);
 
 G_END_DECLS
 

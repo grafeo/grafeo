@@ -41,6 +41,12 @@ static void test_grf_chart_plot_1d(void** state){
   // Creating our chart
   GrfChart* chart = grf_chart_new();
   assert_non_null(chart);
+  assert_int_equal(grf_chart_get_num_charts(chart),0);
+  assert_int_equal(grf_chart_container_get_dim(GRF_CHART_CONTAINER(chart)),0);
+  assert_int_equal(grf_chart_container_get_num_components(GRF_CHART_CONTAINER(chart)),0);
+  assert_null(grf_chart_container_get_size(GRF_CHART_CONTAINER(chart)));
+
+  // Adding a 2D line plot
   grf_chart_plot(chart,array);
   assert_int_equal(grf_chart_get_num_charts(chart),1);
   assert_int_equal(grf_chart_container_get_dim(GRF_CHART_CONTAINER(chart)),1);

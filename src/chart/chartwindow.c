@@ -29,19 +29,21 @@
 /*=========================
  *      PRIVATE API
  *=======================*/
-typedef struct _GrfChartPrivate{
+typedef struct _GrfChartWindowPrivate{
+  GrfChartWidget* widget;
+  GtkWidget* toolbar;
+  GtkWidget* statusbar;
+}GrfChartWindowPrivate;
 
-}GrfChartPrivate;
-
-G_DEFINE_TYPE(GrfChart, grf_chart, GRF_TYPE_CHART_CONTAINER)
+G_DEFINE_TYPE_WITH_PRIVATE(GrfChartWindow, grf_chart_window, G_TYPE_OBJECT)
 
 static void
-grf_chart_class_init(GrfChartClass *klass){
+grf_chart_window_class_init(GrfChartWindowClass *klass){
 
 }
 
 static void
-grf_chart_init(GrfChart *self){
+grf_chart_window_init(GrfChartWindow *self){
 
 }
 
@@ -49,26 +51,3 @@ grf_chart_init(GrfChart *self){
 /*=========================
  *      PUBLIC API
  *=======================*/
-
-
-GrfChart*
-grf_chart_new(){
-  return g_object_new(GRF_TYPE_CHART, NULL);
-}
-
-GrfPlot*
-grf_chart_plot(GrfChart *chart, GrfArray *data_y){
-  GrfPlotLine* plot_line = grf_plot_line_new_with_data(data_y);
-  grf_chart_container_add_plot(GRF_CHART_CONTAINER(chart),plot_line);
-  return GRF_PLOT(plot_line);
-}
-
-grfsize_t
-grf_chart_get_num_charts(GrfChart *chart){
-  return grf_chart_container_get_num_panels(GRF_CHART_CONTAINER(chart),TRUE);
-}
-
-char*
-grf_chart_get_title(GrfChart* chart){
-  return grf_chart_container_get_title(GRF_CHART_CONTAINER(chart));
-}

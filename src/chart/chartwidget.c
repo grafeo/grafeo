@@ -27,21 +27,21 @@
 # ===================================================================*/
 #include <grafeo/chart.h>
 /*=========================
- *      PRIVATE API
+ *      PRIVAE API
  *=======================*/
-typedef struct _GrfChartPrivate{
+typedef struct GrfChartWidgetPrivate{
 
-}GrfChartPrivate;
+}GrfChartWidgetPrivate;
 
-G_DEFINE_TYPE(GrfChart, grf_chart, GRF_TYPE_CHART_CONTAINER)
+G_DEFINE_TYPE_WITH_PRIVATE(GrfChartWidget, grf_chart_widget, GTK_TYPE_WIDGET)
 
 static void
-grf_chart_class_init(GrfChartClass *klass){
+grf_chart_widget_init(GrfChartWidget *self){
 
 }
 
 static void
-grf_chart_init(GrfChart *self){
+grf_chart_widget_class_init(GrfChartWidgetClass *klass){
 
 }
 
@@ -49,26 +49,7 @@ grf_chart_init(GrfChart *self){
 /*=========================
  *      PUBLIC API
  *=======================*/
-
-
-GrfChart*
-grf_chart_new(){
-  return g_object_new(GRF_TYPE_CHART, NULL);
-}
-
-GrfPlot*
-grf_chart_plot(GrfChart *chart, GrfArray *data_y){
-  GrfPlotLine* plot_line = grf_plot_line_new_with_data(data_y);
-  grf_chart_container_add_plot(GRF_CHART_CONTAINER(chart),plot_line);
-  return GRF_PLOT(plot_line);
-}
-
-grfsize_t
-grf_chart_get_num_charts(GrfChart *chart){
-  return grf_chart_container_get_num_panels(GRF_CHART_CONTAINER(chart),TRUE);
-}
-
-char*
-grf_chart_get_title(GrfChart* chart){
-  return grf_chart_container_get_title(GRF_CHART_CONTAINER(chart));
+GrfChartWidget*
+grf_chart_widget_new(){
+  return gtk_widget_new(GRF_TYPE_CHART_WIDGET, NULL);
 }

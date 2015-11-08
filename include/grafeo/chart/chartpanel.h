@@ -95,6 +95,14 @@ grf_chart_panel_get_legend(GrfChartPanel* chart_panel);
 GrfChartProjection
 grf_chart_panel_get_projection(GrfChartPanel* chart_panel);
 
+/**
+ * @brief grf_chart_panel_add_legend
+ * @param chart_panel
+ * @return
+ */
+GrfLegend*
+grf_chart_panel_add_legend(GrfChartPanel* chart_panel);
+
 G_END_DECLS
 
 #endif

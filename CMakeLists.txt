@@ -192,15 +192,17 @@ endif()
 # ------------------
 # GObject
 # ------------------
-pkg_check_modules(gobject REQUIRED gobject-2.0)
-INCLUDE_DIRECTORIES(${gobject_INCLUDE_DIRS})
+IF(BUILD_CHART)
+  pkg_check_modules(gobject REQUIRED gobject-2.0)
+  INCLUDE_DIRECTORIES(${gobject_INCLUDE_DIRS})
+ENDIF(BUILD_CHART)
 # ------------------
 # GTK
 # ------------------
-if(BUILD_DISPLAY)
+if(BUILD_DISPLAY OR BUILD_CHART)
   pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
   INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
-endif(BUILD_DISPLAY)
+endif()
 # ------------------
 # CMOCKA: for testing
 # ------------------
@@ -309,9 +311,10 @@ IF(BUILD_DISPLAY)
 ENDIF()
 #================================================================= CHART MODULE
 IF(BUILD_CHART)
-  SET(GRF_CHART_HDRS config.h
-                     chartcomponent.h axis.h plotline.h plot.h legend.h chartpanel.h chartcontainer.h chart.h)
-  SET(GRF_CHART_SRCS chartcomponent.c axis.c plotline.c plot.c legend.c chartpanel.c chartcontainer.c chart.c)
+  SET(GRF_CHART_HDRS fontproperties.h config.h chartcomponent.h axis.h plot.h
+      plotline.h legend.h chartpanel.h chartcontainer.h chart.h chartwidget.h chartwindow.h)
+  SET(GRF_CHART_SRCS fontproperties.c config.c chartcomponent.c axis.c plot.c
+      plotline.c legend.c chartpanel.c chartcontainer.c chart.c chartwidget.c chartwindow.c)
   GRF_CREATE_LIBRARY(chart CHART)
 ENDIF()
 #================================================================ DOCUMENTATION
@@ -387,7 +390,7 @@ if(BUILD_TESTING)
     set(test_hal_deps grafeo_core)
     if(BUILD_CHART)
       LIST(APPEND TESTS_NAMES chart)
-      set(test_chart_deps grafeo_core grafeo_chart ${gobject_LIBRARIES})
+      set(test_chart_deps grafeo_core grafeo_chart ${gobject_LIBRARIES} ${GTK3_LIBRARIES})
     endif(BUILD_CHART)
     
     include (CTest)

@@ -25,50 +25,26 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/chart.h>
-/*=========================
- *      PRIVATE API
- *=======================*/
-typedef struct _GrfChartPrivate{
+#ifndef GRF_CHART_WIDGET_H
+#define GRF_CHART_WIDGET_H
 
-}GrfChartPrivate;
+#include <gtk/gtk.h>
 
-G_DEFINE_TYPE(GrfChart, grf_chart, GRF_TYPE_CHART_CONTAINER)
+G_BEGIN_DECLS
 
-static void
-grf_chart_class_init(GrfChartClass *klass){
+#define GRF_TYPE_CHART_WIDGET grf_chart_widget_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfChartWidget, grf_chart_widget, GRF, CHART_WIDGET, GtkWidget)
 
-}
+typedef struct _GrfChartWidgetClass{
+  GtkWidgetClass parent_class;
+}GrfChartWidgetClass;
 
-static void
-grf_chart_init(GrfChart *self){
+/**
+ * @brief grf_chart_widget_new
+ * @return
+ */
+GrfChartWidget*
+grf_chart_widget_new();
 
-}
-
-
-/*=========================
- *      PUBLIC API
- *=======================*/
-
-
-GrfChart*
-grf_chart_new(){
-  return g_object_new(GRF_TYPE_CHART, NULL);
-}
-
-GrfPlot*
-grf_chart_plot(GrfChart *chart, GrfArray *data_y){
-  GrfPlotLine* plot_line = grf_plot_line_new_with_data(data_y);
-  grf_chart_container_add_plot(GRF_CHART_CONTAINER(chart),plot_line);
-  return GRF_PLOT(plot_line);
-}
-
-grfsize_t
-grf_chart_get_num_charts(GrfChart *chart){
-  return grf_chart_container_get_num_panels(GRF_CHART_CONTAINER(chart),TRUE);
-}
-
-char*
-grf_chart_get_title(GrfChart* chart){
-  return grf_chart_container_get_title(GRF_CHART_CONTAINER(chart));
-}
+G_END_DECLS
+#endif
