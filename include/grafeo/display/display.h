@@ -30,6 +30,23 @@
 #include <grafeo/core.h>
 #include <grafeo/display.h>
 BEGIN_DECLS
+
+typedef enum{
+  // Indices of list of window properties
+  GRF_PROP_FULLSCREEN   = 0,
+  GRF_PROP_AUTOSIZE     = 1,
+  GRF_PROP_KEEPRATIO    = 2,
+  GRF_PROP_OPENGL       = 3,
+
+  // Window flags
+  GRF_WINDOW_NORMAL     = 0,
+  GRF_WINDOW_AUTOSIZE   = 1,
+  GRF_WINDOW_FULLSCREEN = 4,
+  GRF_WINDOW_OPENGL     = 8,
+  GRF_WINDOW_KEEPRATIO  = 16,
+  GRF_WINDOW_FREERATIO  = 0,
+} GrfDisplayWindowFlag;
+
 /*=================================
  * DISPLAY API
  *=================================*/

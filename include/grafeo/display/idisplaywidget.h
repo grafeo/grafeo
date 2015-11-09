@@ -25,23 +25,18 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_CHART_WINDOW_H
-#define GRF_CHART_WINDOW_H
+#ifndef GRF_I_DISPLAY_WIDGET_H
+#define GRF_I_DISPLAY_WIDGET_H
 #include <gtk/gtk.h>
 G_BEGIN_DECLS
 
-typedef enum{
-  GRF_CHART_WINDOW_OP_PAN,
-  GRF_CHART_WINDOW_OP_ZOOM,
-}GrfChartWindowOperation;
+#define GRF_TYPE_I_DISPLAY_WIDGET grf_i_display_widget_get_type()
+G_DECLARE_INTERFACE(GrfIDisplayWidget, grf_i_display_widget, GRF, I_DISPLAY_WIDGET, GtkWidget)
 
-#define GRF_TYPE_CHART_WINDOW grf_chart_window_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfChartWindow, grf_chart_window, GRF, CHART_WINDOW, GObject)
-typedef struct _GrfChartWindowClass{
-  GObjectClass parent_class;
-}GrfChartWindowClass;
+typedef struct _GrfIDisplayWidgetInterface{
+  GTypeInterface parent_iface;
 
-grf_chart_window_set_cursor_operation(GrfChartWindow* chart_window, GrfChartWindowOperation operation);
+}GrfIDisplayWidgetInterface;
 
 G_END_DECLS
 #endif

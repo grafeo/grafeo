@@ -25,35 +25,11 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/chart.h>
-/*=========================
- *      PRIVAE API
- *=======================*/
-typedef struct GrfChartWidgetPrivate{
+#include <grafeo/display.h>
 
-}GrfChartWidgetPrivate;
-
-G_DEFINE_TYPE_WITH_PRIVATE(GrfChartWidget, grf_chart_widget, GTK_TYPE_WIDGET)
+G_DEFINE_INTERFACE(GrfIDisplayWidget, grf_i_display_widget,GTK_TYPE_WIDGET)
 
 static void
-grf_chart_widget_init(GrfChartWidget *self){
+grf_i_display_widget_default_init(GrfIDisplayWidgetInterface *klass){
 
-}
-
-static void
-grf_chart_widget_class_init(GrfChartWidgetClass *klass){
-
-}
-
-static void
-grf_chart_widget_realize(GrfChartWindow* window, gpointer user_data){
-
-}
-
-/*=========================
- *      PUBLIC API
- *=======================*/
-GrfChartWidget*
-grf_chart_widget_new(){
-  return gtk_widget_new(GRF_TYPE_CHART_WIDGET, NULL);
 }

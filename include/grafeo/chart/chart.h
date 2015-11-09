@@ -93,9 +93,87 @@ typedef struct _GrfChartClass{
 GrfChart*
 grf_chart_new();
 
+/* =======================
+ * MUTATORS
+ * =======================*/
+/**
+ * @brief grf_chart_set_ylabel
+ * @param chart
+ * @param ylabel
+ */
+void
+grf_chart_set_ylabel(GrfChart* chart, const char* ylabel);
+/**
+ * @brief grf_chart_set_xlabel
+ * @param chart
+ * @param xlabel
+ */
+void
+grf_chart_set_xlabel(GrfChart* chart, const char* xlabel);
+/**
+ * @brief grf_chart_set_antialiased
+ * @param chart
+ * @param antialiased
+ */
+void
+grf_chart_set_antialiased(GrfChart* chart, grfbool_t antialiased);
+/**
+ * @brief grf_chart_set_dash_capstyle
+ * @param chart
+ */
+void
+grf_chart_set_dash_capstyle(GrfChart* chart);
+/**
+ * @brief grf_chart_set_joinstyle
+ * @param chart
+ */
+void
+grf_chart_set_joinstyle(GrfChart* chart);
+/**
+ * @brief grf_chart_set_title
+ * @param chart
+ * @param title
+ */
+void
+grf_chart_set_title(GrfChart* chart, char* title);
+
+/* =======================
+ * ACCESSORS
+ * =======================*/
+/**
+ * @brief grf_chart_get_num_charts
+ * @param chart
+ * @return
+ */
+grfsize_t
+grf_chart_get_num_charts(GrfChart* chart);
 
 
+/**
+ * @brief grf_chart_get_title
+ * @param chart
+ * @return
+ */
+char*
+grf_chart_get_title(GrfChart* chart);
+/**
+ * @brief grf_chart_panel_get_title
+ * @param chart_panel
+ * @return
+ */
+char*
+grf_chart_panel_get_title(GrfChartPanel* chart_panel);
+/**
+ * @brief grf_chart_get_last_panel
+ * @param chart
+ * @return
+ */
+GrfChartPanel*
+grf_chart_get_last_panel(GrfChart* chart);
 
+/* =======================
+ * OPERATIONS
+ * =======================*/
 
 /**
  * @brief Creates a default 2D line plot in a chart
@@ -132,56 +210,10 @@ grf_chart_plot2(GrfArray* data_x, GrfArray* data_y);
 GrfChart*
 grf_chart_plot2_with_format(GrfArray* data_y,const char* format);
 
-/* =======================
- * MUTATORS
- * =======================*/
-void
-grf_chart_set_ylabel(GrfChart* chart, const char* ylabel);
-
-void
-grf_chart_set_xlabel(GrfChart* chart, const char* xlabel);
-
-void
-grf_chart_set_antialiased(GrfChart* chart, grfbool_t antialiased);
-
-void
-grf_chart_set_dash_capstyle(GrfChart* chart);
-
-void
-grf_chart_set_joinstyle(GrfChart* chart);
-
-/* =======================
- * ACCESSORS
- * =======================*/
-/**
- * @brief grf_chart_get_num_charts
- * @param chart
- * @return
- */
-grfsize_t
-grf_chart_get_num_charts(GrfChart* chart);
-
-
-/**
- * @brief grf_chart_get_title
- * @param chart
- * @return
- */
-char*
-grf_chart_get_title(GrfChart* chart);
-/**
- * @brief grf_chart_panel_get_title
- * @param chart_panel
- * @return
- */
-char*
-grf_chart_panel_get_title(GrfChartPanel* chart_panel);
-
 void
 grf_chart_show(GrfChart* chart);
 
 uint8_t
 grf_chart_waitkey();
-
 
 #endif

@@ -54,7 +54,7 @@ option(BUILD_DISPLAY "GUI Module (Requires Gtk)" ON)
 option(BUILD_IMGPROC "Image Processing Module (Requires LibJPEG and LibPNG)" ON)
 option(BUILD_IFT     "Image Foresting Transform methods" ON)
 option(BUILD_CHART   "Component for creating charts" ON)
-option(BUILD_TESTING "" OFF)
+option(BUILD_TESTING "" ON)
 option(BUILD_DOCS    "Build doxygen documentation" OFF)
 option(COVERALLS     "Generate coveralls data" OFF)
 option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
@@ -103,7 +103,6 @@ function(GRF_CAT IN_FILE OUT_FILE lowername)
   # Remove gpl header
   string(REGEX REPLACE "/\\*[^*]*\\*/(.*)" "\\1" CONTENTS2 "${CONTENTS}")
   string(REGEX REPLACE "#include <grafeo/${lowername}.h>" "" CONTENTS2 "${CONTENTS2}")
-
   file(APPEND ${OUT_FILE} "${CONTENTS2}")
 endfunction()
 
@@ -199,9 +198,10 @@ ENDIF(BUILD_CHART)
 # ------------------
 # GTK
 # ------------------
-if(BUILD_DISPLAY OR BUILD_CHART)
+IF(BUILD_DISPLAY)
   pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-  INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
+  pkg_check_modules(goocanvas REQUIRED goocanvas-2.0)
+  INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS} ${goocanvas_INCLUDE_DIRS})
 endif()
 # ------------------
 # CMOCKA: for testing
@@ -290,7 +290,6 @@ IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
                  "${GRF_CORE_INCLUDE_DIR}/config.h")
   GRF_CREATE_LIBRARY(core CORE)
 ENDIF()
-
 #=============================================================== IMGPROC MODULE
 IF(BUILD_IMGPROC OR BUILD_DISPLAY)
   SET(GRF_IMGPROC_HDRS  image.h  drawing.h)
@@ -305,16 +304,18 @@ IF(BUILD_IFT)
 ENDIF()
 #=============================================================== DISPLAY MODULE
 IF(BUILD_DISPLAY)
-  SET(GRF_DISPLAY_HDRS imagewidget.h trackbar.h displaywindow.h display.h)
-  SET(GRF_DISPLAY_SRCS imagewidget.c trackbar.c displaywindow.c display.c)
+  SET(GRF_DISPLAY_HDRS idisplaywidget.h imagewidget.h chartwidget.h trackbar.h
+                       displaywindow.h display.h)
+  SET(GRF_DISPLAY_SRCS idisplaywidget.c imagewidget.c chartwidget.c trackbar.c
+                       displaywindow.c display.c)
   GRF_CREATE_LIBRARY(display DISPLAY)
 ENDIF()
 #================================================================= CHART MODULE
 IF(BUILD_CHART)
   SET(GRF_CHART_HDRS fontproperties.h config.h chartcomponent.h axis.h plot.h
-      plotline.h legend.h chartpanel.h chartcontainer.h chart.h chartwidget.h chartwindow.h)
+      plotline.h legend.h chartpanel.h chartcontainer.h chart.h)
   SET(GRF_CHART_SRCS fontproperties.c config.c chartcomponent.c axis.c plot.c
-      plotline.c legend.c chartpanel.c chartcontainer.c chart.c chartwidget.c chartwindow.c)
+      plotline.c legend.c chartpanel.c chartcontainer.c chart.c)
   GRF_CREATE_LIBRARY(chart CHART)
 ENDIF()
 #================================================================ DOCUMENTATION
@@ -373,11 +374,13 @@ if(BUILD_TESTING)
     )
     IF(BUILD_DISPLAY)
       LIST(APPEND TESTS_NAMES imagewidget)
+      LIST(APPEND TESTS_NAMES chartwidget)
       LIST(APPEND TESTS_NAMES display)
       LIST(APPEND TESTS_NAMES displaywindow)
-      set(test_imagewidget_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
-      set(test_display_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
-      set(test_displaywindow_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+      set(test_imagewidget_deps   grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
+      set(test_chartwidget_deps   grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
+      set(test_display_deps       grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
+      set(test_displaywindow_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
     endif(BUILD_DISPLAY)
     set(test_array_deps grafeo_core)
     set(test_image_deps grafeo_core grafeo_imgproc png jpeg)
@@ -390,7 +393,7 @@ if(BUILD_TESTING)
     set(test_hal_deps grafeo_core)
     if(BUILD_CHART)
       LIST(APPEND TESTS_NAMES chart)
-      set(test_chart_deps grafeo_core grafeo_chart ${gobject_LIBRARIES} ${GTK3_LIBRARIES})
+      set(test_chart_deps grafeo_core grafeo_chart ${gobject_LIBRARIES})
     endif(BUILD_CHART)
     
     include (CTest)

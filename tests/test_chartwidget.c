@@ -25,39 +25,28 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_CHART_WIDGET_H
-#define GRF_CHART_WIDGET_H
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <cmocka.h>
+#include <grafeo/display.h>
 
-#include <gtk/gtk.h>
+static void test_grf_chart_widget(void** state){
+  (void) state;
+  GtkWidget* window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+  GtkWidget* box    = gtk_box_new(GTK_ORIENTATION_VERTICAL);
+  GrfChartWidget* chart_widget = grf_chart_widget_new();
+  gtk_box_pack_start(GTK_BOX(box),chart_widget,TRUE,TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(window),box);
+  gtk_widget_show_all(window);
+  gtk_main();
+}
 
-G_BEGIN_DECLS
-
-#define GRF_TYPE_CHART_WIDGET grf_chart_widget_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfChartWidget, grf_chart_widget, GRF, CHART_WIDGET, GtkWidget)
-
-typedef struct _GrfChartWidgetClass{
-  GtkWidgetClass parent_class;
-}GrfChartWidgetClass;
-
-/**
- * @brief grf_chart_widget_new
- * @return
- */
-GrfChartWidget*
-grf_chart_widget_new();
-
-void
-grf_chart_widget_zoom();
-
-void
-grf_chart_widget_zoom_in();
-
-void
-grf_chart_widget_zoom_out();
-
-void
-grf_chart_widget_translate();
-
-
-G_END_DECLS
-#endif
+int main(int argc, char** argv){
+  (void)argc;
+  (void)argv;
+  const struct CMUnitTest tests[1]={
+    cmocka_unit_test(test_grf_chart_widget),
+  };
+  return cmocka_run_group_tests(tests,NULL,NULL);
+}

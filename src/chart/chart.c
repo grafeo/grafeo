@@ -62,10 +62,12 @@ grf_chart_plot(GrfChart *chart, GrfArray *data_y){
   GrfPlotLine* plot_line = grf_plot_line_new_with_data(data_y);
   GrfChartPanel* panel;
 
-  // If the container is empty, create a panel.
+  // If the container is empty, create a 2D panel.
   if(grf_chart_container_is_empty(GRF_CHART_CONTAINER(chart))){
     panel = grf_chart_panel_new();
+    grfsize_t size[2] = {1,1};
     grf_chart_container_add_component(GRF_CHART_CONTAINER(chart),GRF_CHART_COMPONENT(panel));
+    grf_chart_container_set_size(GRF_CHART_CONTAINER(chart),2,size);
   }else{
     panel = grf_chart_get_last_panel(chart);
   }
@@ -87,4 +89,9 @@ grf_chart_get_title(GrfChart* chart){
 GrfChartPanel*
 grf_chart_get_last_panel(GrfChart* chart){
   grf_chart_container_get_last_leaf(GRF_CHART_CONTAINER(chart));
+}
+
+void
+grf_chart_set_title(GrfChart* chart, char* title){
+  grf_chart_container_set_title(GRF_CHART_CONTAINER(chart),title);
 }

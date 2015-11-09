@@ -25,51 +25,49 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/chart.h>
+#include <grafeo/display.h>
 /*=========================
  *      PRIVATE API
  *=======================*/
-typedef struct _GrfChartWindowPrivate{
-  GrfChartWidget* widget;
-  GtkWidget* toolbar;
-  GtkWidget* statusbar;
-  GtkWidget* window;
-  GtkWidget* box;
-}GrfChartWindowPrivate;
+typedef struct GrfChartWidgetPrivate{
+  GrfChart* chart;
+}GrfChartWidgetPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE(GrfChartWindow, grf_chart_window, G_TYPE_OBJECT)
+G_DEFINE_TYPE_WITH_PRIVATE(GrfChartWidget, grf_chart_widget, GOO_TYPE_CANVAS)
 
 static void
-grf_chart_window_class_init(GrfChartWindowClass *klass){
+grf_chart_widget_init(GrfChartWidget *self){
+  GrfChartWidgetPrivate* priv = grf_chart_widget_get_instance_private(self);
+  priv->chart = NULL;
+}
+
+static void
+grf_chart_widget_class_init(GrfChartWidgetClass *klass){
 
 }
 
 static void
-grf_chart_window_init(GrfChartWindow *self){
-  GrfChartWindowPrivate* priv = grf_chart_window_get_instance_private(self);
-  priv->window    = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-  priv->statusbar = gtk_statusbar_new();
-  priv->toolbar   = gtk_toolbar_new();
-  priv->box       = gtk_box_new(GTK_ORIENTATION_VERTICAL,0);
-  priv->widget    = grf_chart_widget_new();
+grf_chart_widget_realize(GrfChartWidget* widget, gpointer user_data){
 
-  gtk_container_add(GTK_CONTAINER(priv->window),priv->box);
-  gtk_box_pack_start(GTK_BOX(priv->box), priv->toolbar, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(priv->box), priv->widget,  TRUE,  TRUE,  0);
-  gtk_box_pack_end(GTK_BOX(priv->box), priv->statusbar, FALSE, FALSE, 0);
 }
-
 
 /*=========================
  *      PUBLIC API
  *=======================*/
-GrfChartWindow*
-grf_chart_window_new(){
-  return GRF_CHART_WINDOW(g_object_new(GRF_TYPE_CHART_WINDOW, NULL));
+GrfChartWidget*
+grf_chart_widget_new(){
+  return gtk_widget_new(GRF_TYPE_CHART_WIDGET, NULL);
+}
+
+GrfChart*
+grf_chart_widget_get_chart(GrfChartWidget* chart_widget){
+  GrfChartWidgetPrivate* priv = grf_chart_widget_get_instance_private(chart_widget);
+  return priv->chart;
 }
 
 void
-grf_chart_window_show(GrfChartWindow* window){
-  GrfChartWindowPrivate* priv = grf_chart_window_get_instance_private(window);
-  gtk_widget_show_all(priv->window);
+grf_chart_widget_set_chart(GrfChartWidget* chart_widget, GrfChart* chart){
+  GrfChartWidgetPrivate* priv = grf_chart_widget_get_instance_private(chart_widget);
+  priv->chart = chart;
 }
+

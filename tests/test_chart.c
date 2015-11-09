@@ -50,11 +50,16 @@ static void test_grf_chart_plot_1d(void** state){
   // Adding a 2D line plot
   grf_chart_plot(chart,array);
   assert_int_equal(grf_chart_get_num_charts(chart),1);
-  assert_int_equal(grf_chart_container_get_dim(GRF_CHART_CONTAINER(chart)),1);
+  assert_int_equal(grf_chart_container_get_dim(GRF_CHART_CONTAINER(chart)),2);
   assert_int_equal(grf_chart_container_get_num_components(GRF_CHART_CONTAINER(chart)),1);
   grfsize_t* size_container = grf_chart_container_get_size(GRF_CHART_CONTAINER(chart));
   assert_int_equal(size_container[0], 1);
-  assert_string_equal(grf_chart_get_title(chart), NULL);
+  assert_int_equal(size_container[1], 1);
+  assert_null(grf_chart_get_title(chart));
+
+  grf_chart_set_title(chart, "Título legal");
+  assert_string_equal(grf_chart_get_title(chart), "Título legal");
+
 //  chart->size[0]    = 0;
 
 
@@ -63,19 +68,11 @@ static void test_grf_chart_plot_1d(void** state){
   grf_array_free(array);
 }
 
-static void test_grf_chart_window(void** state){
-  GrfChartWindow* window = grf_chart_window_new();
-  grf_chart_window_show(window);
-  //uint8_t key = 0;
-  //while(key != 27) key = grf_chart_window_waitkey();
-}
-
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
-  const struct CMUnitTest tests[2]={
+  const struct CMUnitTest tests[1]={
     cmocka_unit_test(test_grf_chart_plot_1d),
-    cmocka_unit_test(test_grf_chart_window),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

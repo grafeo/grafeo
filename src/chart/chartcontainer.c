@@ -84,7 +84,9 @@ void
 grf_chart_container_set_size(GrfChartContainer *chart_container, grfdim_t dim, grfsize_t *size){
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
   priv->dim = dim;
-  priv->size = size;
+  if(priv->size) free(priv->size);
+  priv->size = malloc(dim*sizeof(grfsize_t));
+  memcpy(priv->size,size,dim*sizeof(grfsize_t));
 }
 
 /*=========================
@@ -126,6 +128,10 @@ grf_chart_container_get_num_leafs(GrfChartContainer *chart_container, grfbool_t 
       sum += grf_chart_container_get_num_leafs(GRF_CHART_CONTAINER(component), recursive);
   }
   return sum;
+}
+grfbool_t
+grf_chart_container_is_empty(GrfChartContainer* chart_container){
+  return grf_chart_container_get_num_components(chart_container) == 0;
 }
 
 GrfChartComponent*

@@ -46,7 +46,7 @@ typedef struct _GrfChartContainerClass{
   grfsize_t* (*get_size)          (GrfChartContainer* self);
   grfdim_t   (*get_dim)           (GrfChartContainer* self);
   grfsize_t  (*get_num_components)(GrfChartContainer* self);
-  grfsize_t  (*get_num_panels)    (GrfChartContainer* self,
+  grfsize_t  (*get_num_leafs)    (GrfChartContainer* self,
                                    grfbool_t recursive);
   void       (*add_component)     (GrfChartContainer* self,
                                    GrfChartComponent* component,
@@ -128,6 +128,13 @@ grf_chart_container_get_num_components(GrfChartContainer* chart_container);
  */
 grfsize_t
 grf_chart_container_get_num_leafs(GrfChartContainer* chart_container, grfbool_t recursive);
+/**
+ * @brief grf_chart_container_is_empty
+ * @param chart_container
+ * @return
+ */
+grfbool_t
+grf_chart_container_is_empty(GrfChartContainer* chart_container);
 
 /*=========================
  *      OPERATIONS
