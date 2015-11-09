@@ -30,13 +30,18 @@
 #include <gtk/gtk.h>
 G_BEGIN_DECLS
 
+typedef enum{
+  GRF_CHART_WINDOW_OP_PAN,
+  GRF_CHART_WINDOW_OP_ZOOM,
+}GrfChartWindowOperation;
+
 #define GRF_TYPE_CHART_WINDOW grf_chart_window_get_type()
 G_DECLARE_DERIVABLE_TYPE(GrfChartWindow, grf_chart_window, GRF, CHART_WINDOW, GObject)
 typedef struct _GrfChartWindowClass{
   GObjectClass parent_class;
 }GrfChartWindowClass;
 
-grf_chart_window_set_cursor_operation(GrfChartWindow* chart_window, GrfChartOperation operation);
+grf_chart_window_set_cursor_operation(GrfChartWindow* chart_window, GrfChartWindowOperation operation);
 
 G_END_DECLS
 #endif

@@ -57,7 +57,7 @@ grf_chart_container_class_init(GrfChartContainerClass *klass){
   klass->remove_component   = grf_chart_container_remove_component;
   klass->get_dim            = grf_chart_container_get_dim;
   klass->get_num_components = grf_chart_container_get_num_components;
-  klass->get_num_panels     = grf_chart_container_get_num_panels;
+  klass->get_num_leafs      = grf_chart_container_get_num_leafs;
   klass->get_size           = grf_chart_container_get_size;
   klass->get_title          = grf_chart_container_get_title;
   klass->set_size           = grf_chart_container_set_size;
@@ -123,19 +123,31 @@ grf_chart_container_get_num_leafs(GrfChartContainer *chart_container, grfbool_t 
     if(!GRF_IS_CHART_CONTAINER(component))
       sum++;
     else if(recursive)
-      sum += grf_chart_container_get_num_panels(GRF_CHART_CONTAINER(component), recursive);
+      sum += grf_chart_container_get_num_leafs(GRF_CHART_CONTAINER(component), recursive);
   }
   return sum;
 }
 
+GrfChartComponent*
+grf_chart_container_get_first_leaf(GrfChartContainer* chart_container){
+  // First
+  GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
+  GrfList* list;
+  for(list = priv->children.begin; list; list = grf_list_next(list)){
+    GrfChartComponent* component = GRF_CHART_COMPONENT(grf_list_value(list));
+  }
+}
+GrfChartComponent*
+grf_chart_container_get_last_leaf(GrfChartContainer* chart_container){
+
+}
 
 /*=========================
  * PUBLIC API: Operations
  *=======================*/
 void
 grf_chart_container_add_component(GrfChartContainer *chart_container,
-                                  GrfChartComponent *chart_component,
-                                  grfsize_t *position){
+                                  GrfChartComponent *chart_component){
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
   grf_queue_append(&priv->children,chart_component);
 }
@@ -145,25 +157,4 @@ grf_chart_container_remove_component(GrfChartContainer *chart_container,
                                      GrfChartComponent *chart_component){
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
   grf_queue_remove(&priv->children,chart_component);
-}
-
-void
-grf_chart_container_add_plot(GrfChartContainer* chart_container,
-                             GrfPlot* chart_plot){
-  GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
-
-  // If empty?
-  if(!grf_chart_container_get_num_components(chart_container)){
-
-    // Filling dim and size
-    priv->dim          = 1;
-    priv->size         = g_malloc(sizeof(grfsize_t));
-    priv->size[0]      = 1;
-    grfsize_t position = 0;
-
-    // Create a chartpanel, add the plot and include it to the container
-    GrfChartPanel* panel = grf_chart_panel_new();
-    grf_chart_panel_add_plot(panel, chart_plot);
-    grf_chart_container_add_component(chart_container,panel,&position);
-  }
 }

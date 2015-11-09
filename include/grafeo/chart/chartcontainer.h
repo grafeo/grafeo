@@ -127,7 +127,7 @@ grf_chart_container_get_num_components(GrfChartContainer* chart_container);
  * @return
  */
 grfsize_t
-grf_chart_container_get_num_panels(GrfChartContainer* chart_container, grfbool_t recursive);
+grf_chart_container_get_num_leafs(GrfChartContainer* chart_container, grfbool_t recursive);
 
 /*=========================
  *      OPERATIONS
@@ -140,8 +140,7 @@ grf_chart_container_get_num_panels(GrfChartContainer* chart_container, grfbool_t
  */
 void
 grf_chart_container_add_component(GrfChartContainer* chart_container,
-                                  GrfChartComponent* chart_component,
-                                  grfsize_t* position);
+                                  GrfChartComponent* chart_component);
 /**
  * @brief grf_chart_container_remove_component
  * @param chart_container
@@ -150,15 +149,6 @@ grf_chart_container_add_component(GrfChartContainer* chart_container,
 void
 grf_chart_container_remove_component(GrfChartContainer* chart_container,
                                      GrfChartComponent* chart_component);
-/**
- * @brief grf_chart_container_add_plot
- * @param chart_container
- * @param chart_plot
- */
-void
-grf_chart_container_add_plot(GrfChartContainer* chart_container,
-                             GrfPlot* chart_plot);
-
 G_END_DECLS
 
 #endif

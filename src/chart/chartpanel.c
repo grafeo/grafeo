@@ -44,7 +44,14 @@ G_DEFINE_TYPE_WITH_PRIVATE(GrfChartPanel, grf_chart_panel, GRF_TYPE_CHART_COMPON
 
 static void
 grf_chart_panel_init(GrfChartPanel *self){
-
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(self);
+  priv->dim          = 0;
+  priv->plots.begin  = NULL;
+  priv->plots.end    = NULL;
+  priv->plots.length = 0;
+  priv->axis         = NULL;
+  priv->legend       = NULL;
+  priv->projection   = GRF_PROJECTION_CARTESIAN;
 }
 
 static void

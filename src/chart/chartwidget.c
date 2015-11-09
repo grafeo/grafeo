@@ -45,8 +45,8 @@ grf_chart_widget_class_init(GrfChartWidgetClass *klass){
 
 }
 
-static gboolean
-grf_chart_widget_realize(GrfChartWindow){
+static void
+grf_chart_widget_realize(GrfChartWindow* window, gpointer user_data){
 
 }
 

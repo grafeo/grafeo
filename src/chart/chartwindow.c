@@ -55,7 +55,7 @@ grf_chart_window_init(GrfChartWindow *self){
 
   gtk_container_add(GTK_CONTAINER(priv->window),priv->box);
   gtk_box_pack_start(GTK_BOX(priv->box), priv->toolbar, FALSE, FALSE, 0);
-  gtk_box_pack_start(GTK_BOX(priv->box), priv->widget, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX(priv->box), priv->widget,  TRUE,  TRUE,  0);
   gtk_box_pack_end(GTK_BOX(priv->box), priv->statusbar, FALSE, FALSE, 0);
 }
 
@@ -72,8 +72,4 @@ void
 grf_chart_window_show(GrfChartWindow* window){
   GrfChartWindowPrivate* priv = grf_chart_window_get_instance_private(window);
   gtk_widget_show_all(priv->window);
-}
-
-void grf_chart_window_wait_key(){
-  gtk_main();
 }

@@ -58,17 +58,33 @@ grf_chart_new(){
 
 GrfPlot*
 grf_chart_plot(GrfChart *chart, GrfArray *data_y){
+  // Create the plot
   GrfPlotLine* plot_line = grf_plot_line_new_with_data(data_y);
-  grf_chart_container_add_plot(GRF_CHART_CONTAINER(chart),plot_line);
+  GrfChartPanel* panel;
+
+  // If the container is empty, create a panel.
+  if(grf_chart_container_is_empty(GRF_CHART_CONTAINER(chart))){
+    panel = grf_chart_panel_new();
+    grf_chart_container_add_component(GRF_CHART_CONTAINER(chart),GRF_CHART_COMPONENT(panel));
+  }else{
+    panel = grf_chart_get_last_panel(chart);
+  }
+
+  grf_chart_panel_add_plot(panel, GRF_PLOT(plot_line));
   return GRF_PLOT(plot_line);
 }
 
 grfsize_t
 grf_chart_get_num_charts(GrfChart *chart){
-  return grf_chart_container_get_num_panels(GRF_CHART_CONTAINER(chart),TRUE);
+  return grf_chart_container_get_num_leafs(GRF_CHART_CONTAINER(chart),TRUE);
 }
 
 char*
 grf_chart_get_title(GrfChart* chart){
   return grf_chart_container_get_title(GRF_CHART_CONTAINER(chart));
+}
+
+GrfChartPanel*
+grf_chart_get_last_panel(GrfChart* chart){
+  grf_chart_container_get_last_leaf(GRF_CHART_CONTAINER(chart));
 }

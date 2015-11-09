@@ -32,6 +32,7 @@
 #include <grafeo/chart.h>
 
 static void test_grf_chart_plot_1d(void** state){
+  (void) state;
   // Creating dummy data
   grfdim_t  dim         = 1;
   grfsize_t size        = 5;
@@ -65,8 +66,8 @@ static void test_grf_chart_plot_1d(void** state){
 static void test_grf_chart_window(void** state){
   GrfChartWindow* window = grf_chart_window_new();
   grf_chart_window_show(window);
-  uint8_t key = 0;
-  while(key != 27) key = grf_chart_window_waitkey();
+  //uint8_t key = 0;
+  //while(key != 27) key = grf_chart_window_waitkey();
 }
 
 int main(int argc, char** argv){
