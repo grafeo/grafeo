@@ -312,8 +312,7 @@ IF(BUILD_DISPLAY)
 ENDIF()
 #================================================================= CHART MODULE
 IF(BUILD_CHART)
-  SET(GRF_CHART_HDRS gmacros.h
-                     fontproperties.h config.h chartcomponent.h axis.h plot.h
+  SET(GRF_CHART_HDRS fontproperties.h config.h chartcomponent.h axis.h plot.h
       plotline.h legend.h chartpanel.h chartcontainer.h chart.h)
   SET(GRF_CHART_SRCS fontproperties.c config.c chartcomponent.c axis.c plot.c
       plotline.c legend.c chartpanel.c chartcontainer.c chart.c)
