@@ -23,8 +23,8 @@ build:
     - script:
         name: updating
         code: |
-          sudo apt-get update
-          sudo apt-get install software-properties-common
+          sudo apt-get update -y
+          sudo apt-get install software-properties-common -y
           sudo add-apt-repository ppa:gnome3-team/gnome3 -y
           sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
           sudo apt-get update
