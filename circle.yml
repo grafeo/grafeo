@@ -3,10 +3,10 @@ machine:
     COVERALLS_REPO_TOKEN: jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL
 dependencies:
   pre:
-    - sudo add-apt-repository ppa:gnome3-team/gnome3 -y
-    - sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
-    - sudo apt-get update
-    - sudo apt-get install libglib2.0-dev
+    #- sudo add-apt-repository ppa:gnome3-team/gnome3 -y
+    #- sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
+    #- sudo apt-get update
+    #- sudo apt-get install libglib2.0-dev
     - sudo pip install cpp-coveralls
 test:
   pre:
