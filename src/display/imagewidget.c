@@ -45,18 +45,24 @@ typedef struct _GrfImageWidgetPrivate{
   cairo_surface_t* image_surface;
 } GrfImageWidgetPrivate;
 
+static void
+grf_i_display_widget_init(GrfIDisplayWidgetInterface *iface){
+
+}
+
 // ImageWidget definition
-G_DEFINE_TYPE_WITH_PRIVATE(GrfImageWidget, grf_imagewidget, GTK_TYPE_WIDGET)
+#define G_DEFINE_TYPE_WITH_CODE_PRIVATE(TN, t_n, T_P, _C_)	    _G_DEFINE_TYPE_EXTENDED_BEGIN (TN, t_n, T_P, 0) {G_ADD_PRIVATE (TN);_C_;} _G_DEFINE_TYPE_EXTENDED_END()
+G_DEFINE_TYPE_WITH_CODE_PRIVATE(GrfImageWidget, grf_imagewidget, GTK_TYPE_WIDGET, G_IMPLEMENT_INTERFACE(GRF_TYPE_I_DISPLAY_WIDGET, grf_i_display_widget_init))
 
 // Local Forward Declarations
 static void
-grf_imagewidget_get_preferred_width (GtkWidget *widget, gint *minimal_width, gint *natural_width);
+grf_imagewidget_get_preferred_width (GtkWidget     * widget, gint *minimal_width, gint *natural_width);
 static void
-grf_imagewidget_get_preferred_height(GtkWidget *widget, gint *minimal_height, gint *natural_height);
+grf_imagewidget_get_preferred_height(GtkWidget     * widget, gint *minimal_height, gint *natural_height);
 static gboolean
-grf_imagewidget_draw                (GtkWidget* widget, cairo_t* cr);
+grf_imagewidget_draw                (GtkWidget     * widget, cairo_t* cr);
 static void
-grf_imagewidget_realize             (GtkWidget* widget);
+grf_imagewidget_realize             (GtkWidget     * widget);
 static void
 get_size                            (GrfImageWidget* imagewidget, GtkOrientation direction, int *minimal, int* natural);
 

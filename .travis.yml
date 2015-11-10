@@ -1,9 +1,15 @@
 language: c
+sudo: required
+dist: trusty
 compiler: gcc
 before_install:
   #- sudo apt-get update
   #- sudo apt-get install doxygen
   - sudo pip install cpp-coveralls
+  - sudo add-apt-repository ppa:gnome3-team/gnome3 -y
+  - sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
+  - sudo apt-get update
+  - sudo apt-get install libglib2.0-dev
 script:
  #- export COVERALLS_SERVICE_NAME=travis-ci
  #- export COVERALLS_REPO_TOKEN=jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL

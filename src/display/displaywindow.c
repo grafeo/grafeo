@@ -32,7 +32,7 @@
  *=================================*/
 
 typedef struct _GrfDisplayWindowPrivate{
-  GtkWidget  *     imagewidget;
+  GtkWidget  *     displaywidget;
   GtkWidget  *     window;
   GtkWidget  *     toolbar;
   GtkWidget  *     btn_save;
@@ -101,8 +101,8 @@ grf_displaywindow_btn_zoom_in_clicked(GtkWidget * widget, gpointer user_data){
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
 
-  float cur_scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->imagewidget));
-  grf_imagewidget_set_scale(GRF_IMAGEWIDGET(priv->imagewidget), cur_scale * 1.5, TRUE);
+  float cur_scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->displaywidget));
+  grf_imagewidget_set_scale(GRF_IMAGEWIDGET(priv->displaywidget), cur_scale * 1.5, TRUE);
 }
 static void
 grf_displaywindow_btn_zoom_out_clicked(GtkWidget * widget, gpointer user_data){
@@ -110,8 +110,8 @@ grf_displaywindow_btn_zoom_out_clicked(GtkWidget * widget, gpointer user_data){
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
 
-  float cur_scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->imagewidget));
-  grf_imagewidget_set_scale(GRF_IMAGEWIDGET(priv->imagewidget), cur_scale / 1.5, TRUE);
+  float cur_scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->displaywidget));
+  grf_imagewidget_set_scale(GRF_IMAGEWIDGET(priv->displaywidget), cur_scale / 1.5, TRUE);
 }
 static void
 grf_displaywindow_btn_zoom_ori_clicked(GtkWidget * widget, gpointer user_data){
@@ -119,7 +119,7 @@ grf_displaywindow_btn_zoom_ori_clicked(GtkWidget * widget, gpointer user_data){
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
 
-  grf_imagewidget_set_scale(GRF_IMAGEWIDGET(priv->imagewidget), 1, TRUE);
+  grf_imagewidget_set_scale(GRF_IMAGEWIDGET(priv->displaywidget), 1, TRUE);
 }
 static void
 grf_displaywindow_btn_zoom_fit_clicked(GtkWidget * widget, gpointer user_data){
@@ -136,32 +136,32 @@ grf_displaywindow_btn_pan_left_clicked(GtkWidget * widget, GdkEvent *event, gpoi
   gtk_main_quit();
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
-  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->imagewidget));
-  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->imagewidget),translations[0]-5,translations[1],TRUE);
+  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->displaywidget));
+  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->displaywidget),translations[0]-5,translations[1],TRUE);
 }
 static void
 grf_displaywindow_btn_pan_right_clicked(GtkWidget * widget, GdkEvent *event, gpointer user_data){
   (void) widget; (void) event;
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
-  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->imagewidget));
-  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->imagewidget),translations[0]+5,translations[1],TRUE);
+  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->displaywidget));
+  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->displaywidget),translations[0]+5,translations[1],TRUE);
 }
 static void
 grf_displaywindow_btn_pan_top_clicked(GtkWidget * widget, GdkEvent *event, gpointer user_data){
   (void) widget; (void) event;
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
-  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->imagewidget));
-  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->imagewidget),translations[0],translations[1]-5,TRUE);
+  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->displaywidget));
+  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->displaywidget),translations[0],translations[1]-5,TRUE);
 }
 static void
 grf_displaywindow_btn_pan_bottom_clicked(GtkWidget * widget, GdkEvent *event, gpointer user_data){
   (void) widget; (void) event;
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
-  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->imagewidget));
-  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->imagewidget),translations[0],translations[1]+5,TRUE);
+  float* translations = grf_imagewidget_get_translation(GRF_IMAGEWIDGET(priv->displaywidget));
+  grf_imagewidget_set_translation(GRF_IMAGEWIDGET(priv->displaywidget),translations[0],translations[1]+5,TRUE);
 }
 static void
 grf_displaywindow_btn_about_clicked(GtkWidget* widget, gpointer user_data){
@@ -195,7 +195,7 @@ grf_displaywindow_imagewidget_motion_event(GtkWidget* widget, GdkEvent* event, g
   GrfArray* image               = grf_displaywindow_get_image(display);
   if(image){
     gdk_event_get_coords(event, &x, &y);
-    float scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->imagewidget));
+    float scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->displaywidget));
     x /= scale;
     y /= scale;
 
@@ -223,7 +223,7 @@ grf_displaywindow_imagewidget_motion_event(GtkWidget* widget, GdkEvent* event, g
 static void
 grf_displaywindow_init(GrfDisplayWindow* self){
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(self);
-  priv->imagewidget   = grf_imagewidget_new();
+  priv->displaywidget   = grf_imagewidget_new();
   priv->toolbar       = gtk_toolbar_new();
   priv->btn_save      = GTK_WIDGET(gtk_tool_button_new(NULL,NULL));
   priv->btn_zoom_in   = GTK_WIDGET(gtk_tool_button_new(NULL,NULL));
@@ -277,8 +277,8 @@ grf_displaywindow_init(GrfDisplayWindow* self){
   gtk_tool_button_set_label(GTK_TOOL_BUTTON(priv->btn_about)   ,"About");
 
   gtk_widget_add_events(priv->window, GDK_BUTTON_PRESS_MASK);
-  gtk_widget_add_events(priv->imagewidget,GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
-  gtk_widget_add_events(priv->imagewidget, GDK_BUTTON_RELEASE_MASK | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
+  gtk_widget_add_events(priv->displaywidget,GDK_KEY_PRESS_MASK | GDK_KEY_RELEASE_MASK);
+  gtk_widget_add_events(priv->displaywidget, GDK_BUTTON_RELEASE_MASK | GDK_BUTTON_PRESS_MASK | GDK_POINTER_MOTION_MASK | GDK_SCROLL_MASK);
 
   g_signal_connect(priv->btn_save,       "clicked", G_CALLBACK(grf_displaywindow_btn_save_clicked),self);
   g_signal_connect(priv->btn_zoom_in,    "clicked", G_CALLBACK(grf_displaywindow_btn_zoom_in_clicked),self);
@@ -293,7 +293,7 @@ grf_displaywindow_init(GrfDisplayWindow* self){
 
   // Status bar
   priv->context = gtk_statusbar_get_context_id(GTK_STATUSBAR(priv->statusbar),"display_pixel_coord");
-  g_signal_connect(priv->imagewidget, "motion-notify-event", G_CALLBACK(grf_displaywindow_imagewidget_motion_event),self);
+  g_signal_connect(priv->displaywidget, "motion-notify-event", G_CALLBACK(grf_displaywindow_imagewidget_motion_event),self);
   gtk_label_set_markup(GTK_LABEL(priv->lbl_color), "");
 
   // Joining everything together
@@ -310,7 +310,7 @@ grf_displaywindow_init(GrfDisplayWindow* self){
   gtk_toolbar_insert(GTK_TOOLBAR(priv->toolbar),GTK_TOOL_ITEM(priv->btn_about),9);
   gtk_box_pack_end(GTK_BOX(priv->statusbar),priv->lbl_color,FALSE,FALSE,0);
   gtk_box_pack_start(GTK_BOX(priv->box),priv->toolbar    ,FALSE,FALSE,0);
-  gtk_box_pack_start(GTK_BOX(priv->box),priv->imagewidget,TRUE ,TRUE ,0);
+  gtk_box_pack_start(GTK_BOX(priv->box),priv->displaywidget,TRUE ,TRUE ,0);
   gtk_box_pack_end(GTK_BOX(priv->box),priv->statusbar  ,FALSE,FALSE,0);
 
   gtk_container_add (GTK_CONTAINER(priv->window) ,priv->box);
@@ -397,13 +397,13 @@ grf_displaywindow_new_with_name(char* name){
 void
 grf_displaywindow_set_image(GrfDisplayWindow* display, GrfArray* image, gboolean invalidate){
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
-  grf_imagewidget_set_image(GRF_IMAGEWIDGET(priv->imagewidget), image, invalidate);
+  grf_imagewidget_set_image(GRF_IMAGEWIDGET(priv->displaywidget), image, invalidate);
 }
 
 GrfArray*
 grf_displaywindow_get_image(GrfDisplayWindow* display){
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
-  return grf_imagewidget_get_image(GRF_IMAGEWIDGET(priv->imagewidget));
+  return grf_imagewidget_get_image(GRF_IMAGEWIDGET(priv->displaywidget));
 }
 
 void
@@ -432,9 +432,9 @@ grf_displaywindow_connect_mouse_callback(GrfDisplayWindow* display, GrfMouseCall
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
   priv->mouse_callback   = mouse_callback;
   priv->mouse_user_data  = user_data;
-  priv->mouse_press_id   = g_signal_connect(priv->imagewidget,"button-press-event"  , G_CALLBACK(grf_displaywindow_button_press_event),   display);
-  priv->mouse_release_id = g_signal_connect(priv->imagewidget,"button-release-event", G_CALLBACK(grf_displaywindow_button_release_event), display);
-  priv->mouse_move_id    = g_signal_connect(priv->imagewidget,"motion-notify-event" , G_CALLBACK(grf_displaywindow_button_move_event),    display);
+  priv->mouse_press_id   = g_signal_connect(priv->displaywidget,"button-press-event"  , G_CALLBACK(grf_displaywindow_button_press_event),   display);
+  priv->mouse_release_id = g_signal_connect(priv->displaywidget,"button-release-event", G_CALLBACK(grf_displaywindow_button_release_event), display);
+  priv->mouse_move_id    = g_signal_connect(priv->displaywidget,"motion-notify-event" , G_CALLBACK(grf_displaywindow_button_move_event),    display);
 }
 
 void

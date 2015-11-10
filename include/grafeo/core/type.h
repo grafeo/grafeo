@@ -98,6 +98,11 @@ typedef enum _GrfFittingMode{
   GRF_FITTING_FULL,
 }GrfFittingMode;
 
+typedef enum _GrfOrientation{
+  GRF_ORIENTATION_HORIZONTAL,
+  GRF_ORIENTATION_VERTICAL
+}GrfOrientation;
+
 /**
   * @brief Optimization type: Minimization or Maximization
   */
@@ -124,6 +129,12 @@ typedef void (*GrfDataFunc)       (void* data1, void* user_data);
 int8_t int64_compare_function_r(void* value1, void* value2);
 int8_t int64_compare_function  (void* value1, void* value2);
 
+// Primitive types
+typedef uint8_t  grfbool_t;
+typedef uint16_t grfdim_t;
+typedef uint32_t grfsize_t;
+typedef uint64_t grfindex_t;
+
 /**
  * @brief Structure for 2D array of scalar values
  */
@@ -142,6 +153,7 @@ typedef struct _GrfScalar4D{
   union{int w;int height;int y2;}; /**< w position (or fourth value if viewed as array) */
 }GrfScalar4D;
 #define grf_scalar4D_new(v1,v2,v3,v4) {v1,v2,{v3},{v4}};
+#define grf_scalar4D_fill(var,v1,v2,v3,v4) var.x = v1;var.y = v2;var.z = v3;var.w = v4;
 typedef GrfScalar4D GrfRectangle;
 
 /**

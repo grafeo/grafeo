@@ -124,6 +124,7 @@ static void test_grf_imagewidget_show(void**state){
                             "../data/trekkie-nerd.jpg"};            // Color
   GrfArray*  array_gray  = grf_image_read(filenames[0]);
   GtkWidget* imagewidget = grf_imagewidget_new();
+  assert_true(GRF_IS_I_DISPLAY_WIDGET(imagewidget));
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);
   GtkWidget* box         = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10);
   lbl_color              = gtk_label_new("");

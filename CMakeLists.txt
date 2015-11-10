@@ -32,15 +32,29 @@ find_package(PkgConfig REQUIRED)
 
 set(EXTERNAL_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
 set(EXTERNAL_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
+# Getting GPL Header
 FILE(READ "GPLHEADER" GRF_GPL_HEADER)
 
+# -----------------
+# Contents
+# - Options (to enable/disable components at compilation)
+# - Custom Functions and Macros
+# - Third Party Libraries
+# - Tests setup (before compilation)
+# - Library setup (e.g. constants)
+# - Compilation of modules
+# - Documentation
+# - Debug or not debug?
+# - Compilation of tests
+# -----------------
 
 #====================================================================== OPTIONS
 option(BUILD_CORE    "Core Module (data structures, config, macros, types...)" ON)
 option(BUILD_DISPLAY "GUI Module (Requires Gtk)" ON)
 option(BUILD_IMGPROC "Image Processing Module (Requires LibJPEG and LibPNG)" ON)
 option(BUILD_IFT     "Image Foresting Transform methods" ON)
-option(BUILD_TESTING "" OFF)
+option(BUILD_CHART   "Component for creating charts" ON)
+option(BUILD_TESTING "" ON)
 option(BUILD_DOCS    "Build doxygen documentation" OFF)
 option(COVERALLS     "Generate coveralls data" OFF)
 option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
@@ -89,7 +103,6 @@ function(GRF_CAT IN_FILE OUT_FILE lowername)
   # Remove gpl header
   string(REGEX REPLACE "/\\*[^*]*\\*/(.*)" "\\1" CONTENTS2 "${CONTENTS}")
   string(REGEX REPLACE "#include <grafeo/${lowername}.h>" "" CONTENTS2 "${CONTENTS2}")
-
   file(APPEND ${OUT_FILE} "${CONTENTS2}")
 endfunction()
 
@@ -122,10 +135,11 @@ MACRO(GRF_CREATE_LIBRARY lowername UPPERNAME)
   FOREACH(HDR ${${HDRS}})
     # Append directory to headers
     LIST(APPEND HDRS_ABSOLUTE ${${INCLUDE_DIR}}/${HDR})
+    SET(GRF_HDRS_DOXYGEN "${GRF_HDRS_DOXYGEN}\n INPUT+=${${INCLUDE_DIR}}/${HDR}")
     # Concatenate header files
     GRF_CAT(${${INCLUDE_DIR}}/${HDR} ${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in ${lowername})
   ENDFOREACH()
-
+  LIST(APPEND GRF_HDRS ${HDRS_ABSOLUTE})
 
   # Copy the temporary file to the final location
   CONFIGURE_FILE(${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in ${GRF_INCLUDE_DIR}/${lowername}.h)
@@ -146,6 +160,7 @@ MACRO(GRF_CREATE_LIBRARY lowername UPPERNAME)
   # Add to install script
   INSTALL(TARGETS grafeo_${lowername} LIBRARY DESTINATION lib)
   INSTALL(FILES ${GRF_INCLUDE_DIR}/${lowername}.h DESTINATION include/grafeo)
+  Message(STATUS "${UPPERNAME} module compilation configured...")
 ENDMACRO()
 #======================================================== THIRD PARTY LIBRARIES
 IF(CMAKE_VERSION  VERSION_LESS "2.8.11")
@@ -174,21 +189,73 @@ if(BUILD_IMGPROC OR BUILD_DISPLAY)
     endif(NOT JPEG_FOUND)
 endif()
 # ------------------
+# GObject
+# ------------------
+IF(BUILD_CHART)
+  pkg_check_modules(gobject REQUIRED gobject-2.0)
+  INCLUDE_DIRECTORIES(${gobject_INCLUDE_DIRS})
+ENDIF(BUILD_CHART)
+# ------------------
 # GTK
 # ------------------
-if(BUILD_DISPLAY)
+IF(BUILD_DISPLAY)
   pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-  INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
-endif(BUILD_DISPLAY)
-#======================================================= TESTS (BEFORE LIBRARY)
-include(CTest)
-if(BUILD_TESTING)
-    if (COVERALLS)
-        include(Coveralls)
-    endif(COVERALLS)
-    set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
-    set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
-endif(BUILD_TESTING)
+  pkg_check_modules(goocanvas REQUIRED goocanvas-2.0)
+  INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS} ${goocanvas_INCLUDE_DIRS})
+endif()
+# ------------------
+# CMOCKA: for testing
+# ------------------
+IF(BUILD_TESTING)
+  INCLUDE(CTest)
+  INCLUDE(ExternalProject)
+  FIND_PACKAGE(CMocka QUIET)
+  #MESSAGE(STATUS Cmocka Found:${CMOCKA_FOUND})
+  IF(NOT CMOCKA_FOUND)
+      # Tell message
+      # message(STATUS "Não pode compilar os testes")
+      # Compile it from git submodule
+      #load_submodule(CMocka cmocka)
+      set(CMockaCMakeArgs
+         -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+         -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/external
+         -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+         -DUNIT_TESTING=OFF
+         )
+
+      ExternalProject_Add(cmockaDownload
+          PREFIX ${CMAKE_SOURCE_DIR}/external
+          SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka
+          BINARY_DIR ${CMAKE_BINARY_DIR}/external/cmocka-build
+          STAMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-stamp
+          TMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-tmp
+          INSTALL_DIR ${CMAKE_BINARY_DIR}/external
+          CMAKE_ARGS ${CMockaCMakeArgs}
+          # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
+          #GIT_TAG "origin/master"
+          #GIT_SUBMODULES ""
+          UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
+          DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
+      )
+      set(CMOCKA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
+      set(CMOCKA_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
+      add_library(cmocka SHARED IMPORTED)
+      set_target_properties(cmocka PROPERTIES IMPORTED_LOCATION ${CMOCKA_LIB_DIR}/libcmocka.so)
+  ENDIF(NOT CMOCKA_FOUND)
+ENDIF(BUILD_TESTING)
+# ------------------
+# COVERALLS: for test coverage
+# ------------------
+IF(BUILD_TESTING)
+  IF(COVERALLS)
+    INCLUDE(Coveralls)
+    SET(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
+  ENDIF()
+  set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
+  set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
+  Message(STATUS "Tests parameters setup...")
+ENDIF()
+Message(STATUS "Third party libraries loaded...")
 #====================================================================== LIBRARY
 # Setting some constants for all modules
 SET(GRF_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo)
@@ -208,6 +275,7 @@ set(GRF_VERSION_MAJOR 0)
 set(GRF_VERSION_MINOR 0)
 set(GRF_VERSION_PATCH 7)
 set(GRF_VERSION_STRING ${GRF_VERSION_MAJOR}.${GRF_VERSION_MINOR}.${GRF_VERSION_PATCH})
+Message(STATUS "Library parameters setup...")
 #================================================================== CORE MODULE
 # Even though BUILD_CORE is OFF, if for example BUILD_IMGPROC is ON,
 # the CORE module will be compiled
@@ -222,7 +290,6 @@ IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
                  "${GRF_CORE_INCLUDE_DIR}/config.h")
   GRF_CREATE_LIBRARY(core CORE)
 ENDIF()
-
 #=============================================================== IMGPROC MODULE
 IF(BUILD_IMGPROC OR BUILD_DISPLAY)
   SET(GRF_IMGPROC_HDRS  image.h  drawing.h)
@@ -237,9 +304,19 @@ IF(BUILD_IFT)
 ENDIF()
 #=============================================================== DISPLAY MODULE
 IF(BUILD_DISPLAY)
-  SET(GRF_DISPLAY_HDRS imagewidget.h trackbar.h displaywindow.h display.h)
-  SET(GRF_DISPLAY_SRCS imagewidget.c trackbar.c displaywindow.c display.c)
+  SET(GRF_DISPLAY_HDRS idisplaywidget.h imagewidget.h chartwidget.h trackbar.h
+                       displaywindow.h display.h)
+  SET(GRF_DISPLAY_SRCS idisplaywidget.c imagewidget.c chartwidget.c trackbar.c
+                       displaywindow.c display.c)
   GRF_CREATE_LIBRARY(display DISPLAY)
+ENDIF()
+#================================================================= CHART MODULE
+IF(BUILD_CHART)
+  SET(GRF_CHART_HDRS fontproperties.h config.h chartcomponent.h axis.h plot.h
+      plotline.h legend.h chartpanel.h chartcontainer.h chart.h)
+  SET(GRF_CHART_SRCS fontproperties.c config.c chartcomponent.c axis.c plot.c
+      plotline.c legend.c chartpanel.c chartcontainer.c chart.c)
+  GRF_CREATE_LIBRARY(chart CHART)
 ENDIF()
 #================================================================ DOCUMENTATION
 find_package(Doxygen)
@@ -259,6 +336,7 @@ if(Doxygen_FOUND)
             ${CMAKE_CURRENT_SOURCE_DIR}/doc)
         SET_DIRECTORY_PROPERTIES(PROPERTIES
           ADDITIONAL_MAKE_CLEAN_FILES "${CMAKE_CURRENT_SOURCE_DIR}/doc/*")
+        Message(STATUS "Documentation generation configured...")
     endif(BUILD_DOCS)
 endif(Doxygen_FOUND)
 #=================================================================== DEBUG INFO
@@ -270,57 +348,17 @@ endif(DEBUG_INFO)
 SET(CMAKE_BUILD_TYPE ${GRF_COMPILE_TYPE} CACHE STRING
         "Choose the type of build, options are: None(CMAKE_CXX_FLAGS or
         CMAKE_C_FLAGS used) Debug Release RelWithDebInfo MinSizeRel.")
+Message(STATUS "Compilation mode: ${GRF_COMPILE_TYPE}")
 #======================================================================== TESTS
 if(BUILD_TESTING)
-    INCLUDE(ExternalProject)
-    # find cmocka library
-    IF (COVERALLS)
-        SET(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
-        coveralls_setup(
-            "${GRF_SRCS}"
-            ${COVERALLS_UPLOAD}
-            "${CMAKE_SOURCE_DIR}/cmake/")
-    ENDIF(COVERALLS)
-    FIND_PACKAGE(CMocka QUIET)
-    MESSAGE(STATUS Cmocka Found:${CMOCKA_FOUND})
-
-    IF(NOT CMOCKA_FOUND)
-        # Tell message
-        # message(STATUS "Não pode compilar os testes")
-        # Compile it from git submodule
-        #load_submodule(CMocka cmocka)
-        set(CMockaCMakeArgs
-           -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-           -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/external
-           -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-           -DUNIT_TESTING=OFF
-           )
-
-        ExternalProject_Add(cmockaDownload
-            PREFIX ${CMAKE_SOURCE_DIR}/external
-            SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/cmocka
-            BINARY_DIR ${CMAKE_BINARY_DIR}/external/cmocka-build
-            STAMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-stamp
-            TMP_DIR ${CMAKE_BINARY_DIR}/external/cmocka-tmp
-            INSTALL_DIR ${CMAKE_BINARY_DIR}/external
-            CMAKE_ARGS ${CMockaCMakeArgs}
-            # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
-            #GIT_TAG "origin/master"
-            #GIT_SUBMODULES ""
-            UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
-            DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/cmocka
-        )
-        set(CMOCKA_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
-        set(CMOCKA_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
-        add_library(cmocka SHARED IMPORTED)
-        set_target_properties(cmocka PROPERTIES IMPORTED_LOCATION ${CMOCKA_LIB_DIR}/libcmocka.so)
-    ENDIF(NOT CMOCKA_FOUND)
-
-
-
     ENABLE_TESTING()
     # profiling directives (GCov and GProf)
     ADD_DEFINITIONS(-fprofile-arcs -ftest-coverage -pg)
+
+    # Setup coveralls
+    IF(COVERALLS)
+      coveralls_setup("${GRF_SRCS}" ${COVERALLS_UPLOAD} "${CMAKE_SOURCE_DIR}/cmake/")
+    ENDIF()
 
     # Array
     LIST(APPEND TESTS_NAMES
@@ -336,25 +374,38 @@ if(BUILD_TESTING)
     )
     IF(BUILD_DISPLAY)
       LIST(APPEND TESTS_NAMES imagewidget)
+      LIST(APPEND TESTS_NAMES chartwidget)
       LIST(APPEND TESTS_NAMES display)
       LIST(APPEND TESTS_NAMES displaywindow)
-      set(test_imagewidget_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
-      set(test_display_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
-      set(test_displaywindow_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display png jpeg ${GTK3_LIBRARIES})
+      set(test_imagewidget_deps   grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
+      set(test_chartwidget_deps   grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
+      set(test_display_deps       grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
+      set(test_displaywindow_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
     endif(BUILD_DISPLAY)
-    set(test_array_deps grafeo_core)
-    set(test_image_deps grafeo_core grafeo_imgproc png jpeg)
-    set(test_list_deps grafeo_core)
-    set(test_slist_deps grafeo_core)
-    set(test_queue_deps grafeo_core)
-    set(test_pqueue_deps grafeo_core)
-    set(test_ift_deps grafeo_core grafeo_imgproc grafeo_ift png jpeg)
+    set(test_array_deps   grafeo_core)
+    set(test_image_deps   grafeo_core grafeo_imgproc png jpeg)
+    set(test_list_deps    grafeo_core)
+    set(test_slist_deps   grafeo_core)
+    set(test_queue_deps   grafeo_core)
+    set(test_pqueue_deps  grafeo_core)
+    set(test_ift_deps     grafeo_core grafeo_imgproc grafeo_ift png jpeg)
     set(test_drawing_deps grafeo_core grafeo_imgproc png jpeg)
-    set(test_hal_deps grafeo_core)
+    set(test_hal_deps     grafeo_core)
+    if(BUILD_CHART)
+      LIST(APPEND TESTS_NAMES axis)
+      LIST(APPEND TESTS_NAMES plot)
+      LIST(APPEND TESTS_NAMES chartpanel)
+      LIST(APPEND TESTS_NAMES chartcontainer)
+      LIST(APPEND TESTS_NAMES chart)
+      set(test_axis_deps            grafeo_core grafeo_chart ${gobject_LIBRARIES})
+      set(test_plot_deps            grafeo_core grafeo_chart ${gobject_LIBRARIES})
+      set(test_chartpanel_deps      grafeo_core grafeo_chart ${gobject_LIBRARIES})
+      set(test_chartcontainer_deps  grafeo_core grafeo_chart ${gobject_LIBRARIES})
+      set(test_chart_deps           grafeo_core grafeo_chart ${gobject_LIBRARIES})
+    endif(BUILD_CHART)
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)
-      message(STATUS ${len1})
 
     math(EXPR len2 "${len1}-1")
 
@@ -376,4 +427,5 @@ if(BUILD_TESTING)
       endif(NOT CMOCKA_FOUND)
       add_test             (test_${testname}       test_${testname})
     endforeach()
+    Message(STATUS "Tests compilation configured...")
 endif(BUILD_TESTING)
