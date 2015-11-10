@@ -153,6 +153,7 @@ typedef struct _GrfScalar4D{
   union{int w;int height;int y2;}; /**< w position (or fourth value if viewed as array) */
 }GrfScalar4D;
 #define grf_scalar4D_new(v1,v2,v3,v4) {v1,v2,{v3},{v4}};
+#define grf_scalar4D_fill(var,v1,v2,v3,v4) var.x = v1;var.y = v2;var.z = v3;var.w = v4;
 typedef GrfScalar4D GrfRectangle;
 
 /**

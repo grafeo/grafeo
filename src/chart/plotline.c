@@ -55,8 +55,19 @@ G_DEFINE_TYPE_WITH_PRIVATE(GrfPlotLine, grf_plot_line, GRF_TYPE_PLOT)
 static void
 grf_plot_line_init(GrfPlotLine *self){
   GrfPlotLinePrivate* priv = grf_plot_line_get_instance_private(self);
-  priv->data = NULL;
-  priv->linestyle = "";
+  priv->antialiased       = TRUE;
+  grf_scalar4D_fill(priv->color,0,0,0,255);
+  priv->linestyle         = NULL;
+  priv->data              = NULL;
+  priv->linewidth         = 1;
+  priv->marker            = GRF_CHARTMARKER_POINT;
+  grf_scalar4D_fill(priv->marker_edge_color,0,0,0,255);
+  priv->marker_edge_width = 1;
+  priv->marker_every      = 1;
+  grf_scalar4D_fill(priv->marker_face_color,0,0,0,255);
+  grf_scalar4D_fill(priv->marker_face_color_alt,0,0,0,255);
+  priv->marker_size       = 1;
+  priv->data              = NULL;
 }
 
 static void
@@ -79,6 +90,10 @@ grf_plot_line_new_with_data(GrfArray* data){
   return plot_line;
 }
 
+
+/*=========================
+ * PUBLIC API: Accessors
+ *=======================*/
 char*
 grf_plot_line_get_format(GrfPlotLine* plot_line){
   GrfPlotLinePrivate* priv = grf_plot_line_get_instance_private(plot_line);
@@ -181,6 +196,15 @@ grf_plot_line_get_marker_every(GrfPlotLine* plot_line){
   return priv->marker_every;
 }
 
+GrfArray*
+grf_plot_line_get_data(GrfPlotLine* plot_line){
+  GrfPlotLinePrivate* priv = grf_plot_line_get_instance_private(plot_line);
+  return priv->data;
+}
+
+/*=========================
+ * PUBLIC API: Mutators
+ *=======================*/
 void
 grf_plot_line_set_format(GrfPlotLine* plot_line, char* format){
   GrfPlotLinePrivate* priv = grf_plot_line_get_instance_private(plot_line);

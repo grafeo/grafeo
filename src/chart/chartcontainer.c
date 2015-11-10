@@ -45,8 +45,9 @@ G_DEFINE_TYPE_WITH_PRIVATE(GrfChartContainer, grf_chart_container, GRF_TYPE_CHAR
 static void
 grf_chart_container_init(GrfChartContainer *self){
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(self);
-  priv->dim            = 0;
-  priv->size           = NULL;
+  priv->dim            = 2;
+  priv->size           = malloc(sizeof(grfsize_t) * 2);
+  memset(priv->size,0,sizeof(grfsize_t) * 2);
   priv->children.begin = NULL;
   priv->children.end   = NULL;
   priv->children.length= 0;
@@ -133,19 +134,36 @@ grfbool_t
 grf_chart_container_is_empty(GrfChartContainer* chart_container){
   return grf_chart_container_get_num_components(chart_container) == 0;
 }
+GrfChartComponent*
+grf_chart_container_get_component(GrfChartContainer* chart_container, grfsize_t index){
+  GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
+  if(index >= priv->children.length) return NULL;
+  GrfList* list = grf_queue_at(&priv->children,(uint32_t)index);
+  if(list == NULL) return NULL;
+  return grf_list_value(list);
+}
 
 GrfChartComponent*
 grf_chart_container_get_first_leaf(GrfChartContainer* chart_container){
   // First
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
+  GrfChartComponent* result = NULL;
   GrfList* list;
   for(list = priv->children.begin; list; list = grf_list_next(list)){
     GrfChartComponent* component = GRF_CHART_COMPONENT(grf_list_value(list));
+    if(!GRF_IS_CHART_CONTAINER(component)){
+      return component;
+    }
+    else{
+      result = grf_chart_container_get_first_leaf(GRF_CHART_CONTAINER(component));
+      if(result) return result;
+    }
   }
+  return NULL;
 }
 GrfChartComponent*
 grf_chart_container_get_last_leaf(GrfChartContainer* chart_container){
-
+  return NULL;
 }
 
 /*=========================
@@ -156,6 +174,8 @@ grf_chart_container_add_component(GrfChartContainer *chart_container,
                                   GrfChartComponent *chart_component){
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
   grf_queue_append(&priv->children,chart_component);
+  if(priv->size[0] == 0) priv->size[0] = 1;
+  priv->size[1] = (grfsize_t)ceil(priv->children.length/priv->size[0]);
 }
 
 void
@@ -163,4 +183,5 @@ grf_chart_container_remove_component(GrfChartContainer *chart_container,
                                      GrfChartComponent *chart_component){
   GrfChartContainerPrivate* priv = grf_chart_container_get_instance_private(chart_container);
   grf_queue_remove(&priv->children,chart_component);
+  priv->size[1] = (grfsize_t)ceil(priv->children.length/priv->size[0]);
 }

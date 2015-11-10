@@ -25,36 +25,33 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_PLOT_H
-#define GRF_PLOT_H
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <cmocka.h>
 #include <grafeo/chart.h>
-G_BEGIN_DECLS
 
-#define GRF_TYPE_PLOT grf_plot_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfPlot, grf_plot, GRF, PLOT, GObject)
+static void test_grf_chart_panel(void** state){
+  (void) state;
 
-typedef struct _GrfPlotClass{
-  GObjectClass parent_class;
-  void  (*set_label) (GrfPlot* plot, char* label);
-  char* (*get_label) (GrfPlot* plot);
-}GrfPlotClass;
+  GrfChartPanel* panel = grf_chart_panel_new();
+  assert_non_null(panel);
+  assert_null(grf_chart_panel_get_title(panel));
+  assert_null(grf_chart_panel_get_axis(panel,0));
+  assert_int_equal(grf_chart_panel_get_dim(panel),0);
+  assert_null(grf_chart_panel_get_legend(panel));
+  GrfQueue* plots = grf_chart_panel_get_plots(panel);
+  assert_null(plots->begin);
+  assert_null(plots->end);
+  assert_int_equal(plots->length,0);
 
-/**
- * @brief grf_plot_get_label
- * @param plot
- * @return
- */
-char*
-grf_plot_get_label(GrfPlot* plot);
+}
 
-/**
- * @brief grf_plot_set_label
- * @param plot
- * @param label
- */
-void
-grf_plot_set_label(GrfPlot* plot, char* label);
-
-
-G_END_DECLS
-#endif
+int main(int argc, char** argv){
+  (void)argc;
+  (void)argv;
+  const struct CMUnitTest tests[1]={
+    cmocka_unit_test(test_grf_chart_panel),
+  };
+  return cmocka_run_group_tests(tests,NULL,NULL);
+}

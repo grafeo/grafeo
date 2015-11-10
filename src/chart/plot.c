@@ -40,12 +40,13 @@ G_DEFINE_TYPE_WITH_PRIVATE(GrfPlot, grf_plot, G_TYPE_OBJECT)
 
 static void
 grf_plot_class_init(GrfPlotClass *klass){
-
+  klass->get_label = grf_plot_get_label;
+  klass->set_label = grf_plot_set_label;
 }
 
 static void
 grf_plot_init(GrfPlot *self){
-
+  grf_plot_set_label(self, NULL);
 }
 
 /*=========================

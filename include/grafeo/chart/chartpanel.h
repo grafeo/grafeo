@@ -41,10 +41,20 @@ typedef struct _GrfChartPanelClass{
   GrfChartComponentClass parent_instance;
   grfdim_t           (*get_dim)        (GrfChartPanel* self);
   grfsize_t          (*get_num_plots)  (GrfChartPanel* self);
-  GrfAxis*           (*get_axis)       (GrfChartPanel* self);
+  GrfAxis*           (*get_axis)       (GrfChartPanel* self, uint8_t index);
   GrfLegend*         (*get_legend)     (GrfChartPanel* self);
   GrfChartProjection (*get_projection) (GrfChartPanel* self);
+  GrfQueue*          (*get_plots)      (GrfChartPanel* self);
+  char*              (*get_title)      (GrfChartPanel* self);
 
+  void (*set_dim)       (GrfChartPanel* self, grfdim_t dim);
+  void (*set_legend)    (GrfChartPanel* self, GrfLegend* legend);
+  void (*set_projection)(GrfChartPanel* self, GrfChartProjection projection);
+  void (*set_title)     (GrfChartPanel* self, char* title);
+
+  void (*append_axis)   (GrfChartPanel* self, GrfAxis* axis);
+  void (*prepend_axis)  (GrfChartPanel* self, GrfAxis* axis);
+  void (*remove_axis)   (GrfChartPanel* self, GrfAxis* axis);
 
 }GrfChartPanelClass;
 
@@ -74,10 +84,11 @@ grf_chart_panel_get_num_plots(GrfChartPanel* chart_panel);
 /**
  * @brief grf_chart_panel_get_axis
  * @param chart_panel
+ * @param index
  * @return
  */
 GrfAxis*
-grf_chart_panel_get_axis(GrfChartPanel* chart_panel);
+grf_chart_panel_get_axis(GrfChartPanel* chart_panel, uint8_t index);
 
 /**
  * @brief grf_chart_panel_get_legend
@@ -118,6 +129,63 @@ grf_chart_panel_add_plot(GrfChartPanel* chart_panel, GrfPlot* plot);
  */
 void
 grf_chart_panel_remove_plot(GrfChartPanel* chart_panel, GrfPlot* plot);
+
+/**
+ * @brief grf_chart_panel_get_plots
+ * @param chart_panel
+ * @return
+ */
+GrfQueue*
+grf_chart_panel_get_plots(GrfChartPanel* chart_panel);
+/**
+ * @brief grf_chart_panel_set_dim
+ * @param chart_panel
+ * @param dim
+ */
+void
+grf_chart_panel_set_dim(GrfChartPanel* chart_panel, grfdim_t dim);
+/**
+ * @brief grf_chart_panel_set_legend
+ * @param chart_panel
+ * @param legend
+ */
+void
+grf_chart_panel_set_legend(GrfChartPanel* chart_panel, GrfLegend* legend);
+/**
+ * @brief grf_chart_panel_set_axis
+ * @param chart_panel
+ * @param axis
+ */
+void
+grf_chart_panel_append_axis(GrfChartPanel* chart_panel, GrfAxis* axis);
+/**
+ * @brief grf_chart_panel_prepend_axis
+ * @param chart_panel
+ * @param axis
+ */
+void
+grf_chart_panel_prepend_axis(GrfChartPanel* chart_panel, GrfAxis* axis);
+/**
+ * @brief grf_chart_panel_remove_axis
+ * @param chart_panel
+ * @param axis
+ */
+void
+grf_chart_panel_remove_axis(GrfChartPanel* chart_panel, GrfAxis* axis);
+/**
+ * @brief grf_chart_panel_set_projection
+ * @param chart_panel
+ * @param projection
+ */
+void
+grf_chart_panel_set_projection(GrfChartPanel* chart_panel, GrfChartProjection projection);
+/**
+ * @brief grf_chart_panel_set_title
+ * @param chart_panel
+ * @param title
+ */
+void
+grf_chart_panel_set_title(GrfChartPanel* chart_panel, char* title);
 
 G_END_DECLS
 

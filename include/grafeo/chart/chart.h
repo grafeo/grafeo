@@ -210,6 +210,23 @@ grf_chart_plot2(GrfArray* data_x, GrfArray* data_y);
 GrfChart*
 grf_chart_plot2_with_format(GrfArray* data_y,const char* format);
 
+/**
+ * @brief grf_chart_get_axis
+ * @param chart
+ * @param index
+ * @return
+ */
+GrfAxis*
+grf_chart_get_axis(GrfChart* chart, uint8_t index);
+/**
+ * @brief grf_chart_set_axis
+ * @param chart
+ * @param axis
+ */
+void
+grf_chart_set_axis_range(GrfChart* chart, GrfRange* range);
+
+
 void
 grf_chart_show(GrfChart* chart);
 

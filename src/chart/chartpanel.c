@@ -35,7 +35,7 @@
 typedef struct _GrfChartPanelPrivate{
   grfdim_t            dim;        /**< Dimension of a chart (2 or 3) */
   GrfQueue            plots;      /**< List of M plots, M = num_plots */
-  GrfAxis           * axis;       /**< List of N axis, N = dim*/
+  GrfQueue            axis;       /**< List of N axis, N = dim*/
   GrfLegend         * legend;     /**< Legend configuration of the chart */
   GrfChartProjection  projection; /**< Cartesian or Spherical (polar in 2D) */
 }GrfChartPanelPrivate;
@@ -49,14 +49,29 @@ grf_chart_panel_init(GrfChartPanel *self){
   priv->plots.begin  = NULL;
   priv->plots.end    = NULL;
   priv->plots.length = 0;
-  priv->axis         = NULL;
+  priv->axis.begin   = NULL;
+  priv->axis.end     = NULL;
+  priv->axis.length  = 0;
   priv->legend       = NULL;
   priv->projection   = GRF_PROJECTION_CARTESIAN;
 }
 
 static void
 grf_chart_panel_class_init(GrfChartPanelClass *klass){
+  klass->get_dim        = grf_chart_panel_get_dim;
+  klass->get_axis       = grf_chart_panel_get_axis;
+  klass->get_legend     = grf_chart_panel_get_legend;
+  klass->get_num_plots  = grf_chart_panel_get_num_plots;
+  klass->get_projection = grf_chart_panel_get_projection;
+  klass->get_title      = grf_chart_panel_get_title;
 
+  klass->set_dim        = grf_chart_panel_set_dim;
+  klass->append_axis    = grf_chart_panel_append_axis;
+  klass->prepend_axis   = grf_chart_panel_prepend_axis;
+  klass->remove_axis    = grf_chart_panel_remove_axis;
+  klass->set_legend     = grf_chart_panel_set_legend;
+  klass->set_projection = grf_chart_panel_set_projection;
+  klass->set_title      = grf_chart_panel_set_title;
 }
 
 /*=========================
@@ -80,15 +95,21 @@ grf_chart_panel_get_num_plots(GrfChartPanel* chart_panel){
 }
 
 GrfAxis*
-grf_chart_panel_get_axis(GrfChartPanel* chart_panel){
+grf_chart_panel_get_axis(GrfChartPanel* chart_panel, uint8_t index){
   GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
-  return priv->axis;
+  if(index >= priv->axis.length) return NULL;
+  return GRF_AXIS(grf_queue_value_at(&priv->axis,(uint32_t)index));
 }
 
 GrfLegend*
 grf_chart_panel_get_legend(GrfChartPanel* chart_panel){
   GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
   return priv->legend;
+}
+
+char*
+grf_chart_panel_get_title(GrfChartPanel *chart_panel){
+  return grf_chart_component_get_title(GRF_CHART_COMPONENT(chart_panel));
 }
 
 GrfChartProjection
@@ -101,6 +122,7 @@ GrfLegend*
 grf_chart_panel_add_legend(GrfChartPanel* chart_panel){
   GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
   priv->legend = grf_legend_new();
+  return priv->legend;
 }
 
 void
@@ -113,4 +135,51 @@ void
 grf_chart_panel_remove_plot(GrfChartPanel* chart_panel, GrfPlot* plot){
   GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
   grf_queue_remove(&priv->plots, plot);
+}
+
+GrfQueue*
+grf_chart_panel_get_plots(GrfChartPanel* chart_panel){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  return &priv->plots;
+}
+
+void
+grf_chart_panel_set_dim(GrfChartPanel* chart_panel, grfdim_t dim){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  priv->dim = dim;
+}
+
+void
+grf_chart_panel_set_legend(GrfChartPanel* chart_panel, GrfLegend* legend){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  priv->legend = legend;
+}
+
+void
+grf_chart_panel_append_axis(GrfChartPanel* chart_panel, GrfAxis* axis){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  grf_queue_append(&priv->axis,axis);
+}
+
+void
+grf_chart_panel_prepend_axis(GrfChartPanel* chart_panel, GrfAxis* axis){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  grf_queue_prepend(&priv->axis,axis);
+}
+
+void
+grf_chart_panel_remove_axis(GrfChartPanel* chart_panel, GrfAxis* axis){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  grf_queue_remove(&priv->axis,axis);
+}
+
+void
+grf_chart_panel_set_projection(GrfChartPanel* chart_panel, GrfChartProjection projection){
+  GrfChartPanelPrivate* priv = grf_chart_panel_get_instance_private(chart_panel);
+  priv->projection = projection;
+}
+
+void
+grf_chart_panel_set_title(GrfChartPanel* chart_panel, char* title){
+  grf_chart_component_set_title(GRF_CHART_COMPONENT(chart_panel), title);
 }
