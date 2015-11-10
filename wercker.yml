@@ -20,6 +20,12 @@ build:
     # Read more about steps on our dev center:
     # http://devcenter.wercker.com/docs/steps/index.html
   steps:
+    - script:
+        name: updating
+        code: |
+          sudo add-apt-repository ppa:gnome3-team/gnome3 -y
+          sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
+          sudo apt-get update
     - install-packages:
         packages: "cmake gcc g++ libglib2.0-dev"
     - pip-install:
