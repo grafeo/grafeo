@@ -1294,3 +1294,66 @@ grf_array_rotate_4f(GrfArray* array, float angle_rad, float x,float y,float z){
   grf_array_free(rotation);
   return result;
 }
+
+GrfArray*
+grf_array_cross(GrfArray* v1, GrfArray* v2){
+  float* f1 = v1->data_float;
+  float* f2 = v2->data_float;
+  GrfArray* result = grf_array_zeros_like(v1);
+  float* d = result->data_float;
+  d[0] = f1[1] * f2[2] - f2[1] * f1[2];
+  d[1] = f1[2] * f2[0] - f2[2] * f1[0];
+  d[2] = f1[0] * f2[1] - f2[0] * f1[1];
+  return result;
+}
+
+GrfArray*
+grf_array_lookat_4f(float px,float py,float pz,
+                 float tx,float ty,float tz,
+                 float ux,float uy,float uz){
+  GrfArray* result = grf_array_eye(4,GRF_FLOAT);
+  uint32_t size   = 3;
+
+  float up[3]     = {ux   ,uy   ,uz   };
+  GrfArray* upa    = grf_array_from_data(up,1,&size,GRF_FLOAT);
+  float cme[3]    = {tx-px,ty-py,tz-pz};
+
+  GrfArray* fn = grf_array_from_data(cme,1,&size,GRF_FLOAT);
+  GrfArray* f  = grf_array_normalize(fn);
+  float*    ff = f->data_float;
+
+  GrfArray* sn = grf_array_cross(f,upa);
+  GrfArray* s  = grf_array_normalize(sn);
+  float*    sf = s->data_float;
+
+  GrfArray* un = grf_array_cross(s,f);
+  GrfArray* u  = grf_array_normalize(un);
+  float*    uf = u->data_float;
+
+  float* d = result->data_float;
+  d[0 ] = sf[0];
+  d[1 ] = sf[1];
+  d[2 ] = sf[2];
+
+  d[4 ] = uf[0];
+  d[5 ] = uf[1];
+  d[6 ] = uf[2];
+
+  d[8 ] = -ff[0];
+  d[9 ] = -ff[1];
+  d[10] = -ff[2];
+
+  d[3]  = -(sf[0]*px + sf[1]*py + sf[2]*pz);
+  d[7]  = -(uf[0]*px + uf[1]*py + uf[2]*pz);
+  d[11] =  (ff[0]*px + ff[1]*py + ff[2]*pz);
+
+  grf_array_free(fn);
+  grf_array_free(sn);
+  grf_array_free(un);
+  grf_array_free(f);
+  grf_array_free(s);
+  grf_array_free(u);
+  grf_array_free(upa);
+
+  return result;
+}
