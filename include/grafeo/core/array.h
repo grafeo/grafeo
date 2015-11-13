@@ -600,6 +600,109 @@ void grf_array_write_csv(GrfArray* array, const char* filename);
  * @return
  */
 char* grf_array_join(GrfArray* array, const char* delimiters);
+/*-----------------------------------
+ *     GEOMETRIC TRANSFORMATIONS
+ *-----------------------------------*/
+#define grf_to_rad(angle) (angle / 180.0 * M_PI  )
+#define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
+/**
+ * @brief grf_array_eye
+ * @param size
+ * @param type
+ * @return
+ */
+GrfArray*
+grf_array_eye(uint32_t size, GrfDataType type);
+/**
+ * @brief grf_array_translate
+ * @param array
+ * @param offset
+ * @return
+ */
+GrfArray*
+grf_array_translate(GrfArray* array, GrfArray* offset);
+/**
+ * @brief grf_array_translate_4f
+ * @param array
+ * @param x
+ * @param y
+ * @param z
+ * @return
+ */
+GrfArray*
+grf_array_translate_4f(GrfArray* array, float x, float y, float z);
+/**
+ * @brief grf_array_transpose
+ * @param array
+ */
+void
+grf_array_transpose(GrfArray* array);
+/**
+ * @brief grf_array_scale
+ * @param array
+ * @param scale
+ * @return
+ */
+GrfArray*
+grf_array_scale(GrfArray* array, GrfArray* scale);
+/**
+ * @brief grf_array_scale_4f
+ * @param array
+ * @param x
+ * @param y
+ * @param z
+ * @return
+ */
+GrfArray*
+grf_array_scale_4f(GrfArray* array, float x, float y, float z);
+/**
+ * @brief grf_array_ortho
+ * @param left
+ * @param right
+ * @param bottom
+ * @param top
+ * @param near
+ * @param far
+ * @return
+ */
+GrfArray*
+grf_array_ortho(float left,float right,float bottom,float top,float near,float far);
+/**
+ * @brief grf_array_perspective
+ * @param fov
+ * @param aspect
+ * @param near
+ * @param far
+ * @return
+ */
+GrfArray*
+grf_array_perspective(float fov, float aspect, float near, float far);
+/**
+ * @brief grf_array_dot
+ * @param array
+ * @param array2
+ * @return
+ */
+GrfArray*
+grf_array_dot(GrfArray* array, GrfArray* array2);
+/**
+ * @brief grf_array_normalize
+ * @param array
+ * @return
+ */
+GrfArray*
+grf_array_normalize(GrfArray* array);
+/**
+ * @brief grf_array_rotate_4f
+ * @param array
+ * @param angle_rad
+ * @param x
+ * @param y
+ * @param z
+ * @return
+ */
+GrfArray*
+grf_array_rotate_4f(GrfArray* array, float angle_rad, float x,float y,float z);
 
 END_DECLS
 
