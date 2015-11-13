@@ -703,6 +703,31 @@ grf_array_normalize(GrfArray* array);
  */
 GrfArray*
 grf_array_rotate_4f(GrfArray* array, float angle_rad, float x,float y,float z);
+/**
+ * @brief grf_array_cross
+ * @param v1
+ * @param v2
+ * @return
+ */
+GrfArray*
+grf_array_cross(GrfArray* v1, GrfArray* v2);
+/**
+ * @brief grf_array_lookat_4f
+ * @param px
+ * @param py
+ * @param pz
+ * @param tx
+ * @param ty
+ * @param tz
+ * @param ux
+ * @param uy
+ * @param uz
+ * @return
+ */
+GrfArray*
+grf_array_lookat_4f(float px,float py,float pz,
+                 float tx,float ty,float tz,
+                 float ux,float uy,float uz);
 
 END_DECLS
 
