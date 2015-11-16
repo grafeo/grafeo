@@ -38,6 +38,7 @@
 
 #ifndef GRF_NIFTI_HEADER_
 #define GRF_NIFTI_HEADER_
+#include <grafeo/medical.h>
 
 /*****************************************************************************
       ** This file defines the "NIFTI-1" header format.               **
@@ -156,11 +157,7 @@
      sizeof(int) = sizeof(float) = 4 ;  sizeof(short) = 2
 -----------------------------------------------------------------------------*/
 
-/*=================*/
-#ifdef  __cplusplus
-extern "C" {
-#endif
-/*=================*/
+BEGIN_DECLS
 
 /*! \struct nifti_1_header
     \brief Data structure defining the fields in the nifti1 header.
@@ -168,7 +165,7 @@ extern "C" {
            NIFTI-1 header file.
  */
                         /*************************/  /************************/
-struct nifti_1_header { /* NIFTI-1 usage         */  /* ANALYZE 7.5 field(s) */
+struct GrfNifti1Header { /* NIFTI-1 usage         */  /* ANALYZE 7.5 field(s) */
                         /*************************/  /************************/
 
                                            /*--- was header_key substruct ---*/
@@ -230,7 +227,7 @@ struct nifti_1_header { /* NIFTI-1 usage         */  /* ANALYZE 7.5 field(s) */
 
 } ;                   /**** 348 bytes total ****/
 
-typedef struct nifti_1_header nifti_1_header ;
+typedef struct GrfNifti1Header GrfNifti1Header ;
 
 /*---------------------------------------------------------------------------*/
 /* HEADER EXTENSIONS:
@@ -311,18 +308,18 @@ typedef struct nifti_1_header nifti_1_header ;
            values of {0,0,0,0} imply the file does not contain extensions.
            Other sequences of values are not currently defined.
  */
-struct nifti1_extender { char extension[4] ; } ;
-typedef struct nifti1_extender nifti1_extender ;
+struct GrfNifti1Extender { char extension[4] ; } ;
+typedef struct GrfNifti1Extender GrfNifti1Extender ;
 
-/*! \struct nifti1_extension
+/*! \struct GrfNifti1Extension
     \brief Data structure defining the fields of a header extension.
  */
-struct nifti1_extension {
+struct GrfNifti1Extension {
    int    esize ; /*!< size of extension, in bytes (must be multiple of 16) */
    int    ecode ; /*!< extension code, one of the NIFTI_ECODE_ values       */
    char * edata ; /*!< raw data, with no byte swapping (length is esize-8)  */
 } ;
-typedef struct nifti1_extension nifti1_extension ;
+typedef struct GrfNifti1Extension GrfNifti1Extension ;
 
 /*---------------------------------------------------------------------------*/
 /* DATA DIMENSIONALITY (as in ANALYZE 7.5):
@@ -501,44 +498,44 @@ typedef struct nifti1_extension nifti1_extension ;
    when it encounters a dataset with a type it doesn't like.
 -----------------------------------------------------------------------------*/
 
-#undef DT_UNKNOWN  /* defined in dirent.h on some Unix systems */
+#undef GRF_DT_UNKNOWN  /* defined in dirent.h on some Unix systems */
 
 /*! \defgroup NIFTI1_DATATYPES
     \brief nifti1 datatype codes
     @{
  */
                             /*--- the original ANALYZE 7.5 type codes ---*/
-#define DT_NONE                    0
-#define DT_UNKNOWN                 0     /* what it says, dude           */
-#define DT_BINARY                  1     /* binary (1 bit/voxel)         */
-#define DT_UNSIGNED_CHAR           2     /* unsigned char (8 bits/voxel) */
-#define DT_SIGNED_SHORT            4     /* signed short (16 bits/voxel) */
-#define DT_SIGNED_INT              8     /* signed int (32 bits/voxel)   */
-#define DT_FLOAT                  16     /* float (32 bits/voxel)        */
-#define DT_COMPLEX                32     /* complex (64 bits/voxel)      */
-#define DT_DOUBLE                 64     /* double (64 bits/voxel)       */
-#define DT_RGB                   128     /* RGB triple (24 bits/voxel)   */
-#define DT_ALL                   255     /* not very useful (?)          */
+#define GRF_DT_NONE                    0
+#define GRF_DT_UNKNOWN                 0     /* what it says, dude           */
+#define GRF_DT_BINARY                  1     /* binary (1 bit/voxel)         */
+#define GRF_DT_UNSIGNED_CHAR           2     /* unsigned char (8 bits/voxel) */
+#define GRF_DT_SIGNED_SHORT            4     /* signed short (16 bits/voxel) */
+#define GRF_DT_SIGNED_INT              8     /* signed int (32 bits/voxel)   */
+#define GRF_DT_FLOAT                  16     /* float (32 bits/voxel)        */
+#define GRF_DT_COMPLEX                32     /* complex (64 bits/voxel)      */
+#define GRF_DT_DOUBLE                 64     /* double (64 bits/voxel)       */
+#define GRF_DT_RGB                   128     /* RGB triple (24 bits/voxel)   */
+#define GRF_DT_ALL                   255     /* not very useful (?)          */
 
                             /*----- another set of names for the same ---*/
-#define DT_UINT8                   2
-#define DT_INT16                   4
-#define DT_INT32                   8
-#define DT_FLOAT32                16
-#define DT_COMPLEX64              32
-#define DT_FLOAT64                64
-#define DT_RGB24                 128
+#define GRF_DT_UINT8                   2
+#define GRF_DT_INT16                   4
+#define GRF_DT_INT32                   8
+#define GRF_DT_FLOAT32                16
+#define GRF_DT_COMPLEX64              32
+#define GRF_DT_FLOAT64                64
+#define GRF_DT_RGB24                 128
 
                             /*------------------- new codes for NIFTI ---*/
-#define DT_INT8                  256     /* signed char (8 bits)         */
-#define DT_UINT16                512     /* unsigned short (16 bits)     */
-#define DT_UINT32                768     /* unsigned int (32 bits)       */
-#define DT_INT64                1024     /* long long (64 bits)          */
-#define DT_UINT64               1280     /* unsigned long long (64 bits) */
-#define DT_FLOAT128             1536     /* long double (128 bits)       */
-#define DT_COMPLEX128           1792     /* double pair (128 bits)       */
-#define DT_COMPLEX256           2048     /* long double pair (256 bits)  */
-#define DT_RGBA32               2304     /* 4 byte RGBA (32 bits/voxel)  */
+#define GRF_DT_INT8                  256     /* signed char (8 bits)         */
+#define GRF_DT_UINT16                512     /* unsigned short (16 bits)     */
+#define GRF_DT_UINT32                768     /* unsigned int (32 bits)       */
+#define GRF_DT_INT64                1024     /* long long (64 bits)          */
+#define GRF_DT_UINT64               1280     /* unsigned long long (64 bits) */
+#define GRF_DT_FLOAT128             1536     /* long double (128 bits)       */
+#define GRF_DT_COMPLEX128           1792     /* double pair (128 bits)       */
+#define GRF_DT_COMPLEX256           2048     /* long double pair (256 bits)  */
+#define GRF_DT_RGBA32               2304     /* 4 byte RGBA (32 bits/voxel)  */
 /* @} */
 
 
@@ -549,37 +546,37 @@ typedef struct nifti1_extension nifti1_extension ;
     @{
  */
                                        /*! unsigned char. */
-#define NIFTI_TYPE_UINT8           2
+#define GRF_NIFTI_TYPE_UINT8           2
                                        /*! signed short. */
-#define NIFTI_TYPE_INT16           4
+#define GRF_NIFTI_TYPE_INT16           4
                                        /*! signed int. */
-#define NIFTI_TYPE_INT32           8
+#define GRF_NIFTI_TYPE_INT32           8
                                        /*! 32 bit float. */
-#define NIFTI_TYPE_FLOAT32        16
+#define GRF_NIFTI_TYPE_FLOAT32        16
                                        /*! 64 bit complex = 2 32 bit floats. */
-#define NIFTI_TYPE_COMPLEX64      32
+#define GRF_NIFTI_TYPE_COMPLEX64      32
                                        /*! 64 bit float = double. */
-#define NIFTI_TYPE_FLOAT64        64
+#define GRF_NIFTI_TYPE_FLOAT64        64
                                        /*! 3 8 bit bytes. */
-#define NIFTI_TYPE_RGB24         128
+#define GRF_NIFTI_TYPE_RGB24         128
                                        /*! signed char. */
-#define NIFTI_TYPE_INT8          256
+#define GRF_NIFTI_TYPE_INT8          256
                                        /*! unsigned short. */
-#define NIFTI_TYPE_UINT16        512
+#define GRF_NIFTI_TYPE_UINT16        512
                                        /*! unsigned int. */
-#define NIFTI_TYPE_UINT32        768
+#define GRF_NIFTI_TYPE_UINT32        768
                                        /*! signed long long. */
-#define NIFTI_TYPE_INT64        1024
+#define GRF_NIFTI_TYPE_INT64        1024
                                        /*! unsigned long long. */
-#define NIFTI_TYPE_UINT64       1280
+#define GRF_NIFTI_TYPE_UINT64       1280
                                        /*! 128 bit float = long double. */
-#define NIFTI_TYPE_FLOAT128     1536
+#define GRF_NIFTI_TYPE_FLOAT128     1536
                                        /*! 128 bit complex = 2 64 bit floats. */
-#define NIFTI_TYPE_COMPLEX128   1792
+#define GRF_NIFTI_TYPE_COMPLEX128   1792
                                        /*! 256 bit complex = 2 128 bit floats */
-#define NIFTI_TYPE_COMPLEX256   2048
+#define GRF_NIFTI_TYPE_COMPLEX256   2048
                                        /*! 4 8 bit bytes. */
-#define NIFTI_TYPE_RGBA32       2304
+#define GRF_NIFTI_TYPE_RGBA32       2304
 /* @} */
 
                      /*-------- sample typedefs for complicated types ---*/
@@ -680,7 +677,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
 
  /*! default: no intention is indicated in the header. */
 
-#define NIFTI_INTENT_NONE        0
+#define GRF_NIFTI_INTENT_NONE        0
 
     /*-------- These codes are for probability distributions ---------------*/
     /* Most distributions have a number of parameters,
@@ -712,91 +709,91 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
     \brief nifti1 intent codes, to describe intended meaning of dataset contents
     @{
  */
-#define NIFTI_INTENT_CORREL      2
+#define GRF_NIFTI_INTENT_CORREL      2
 
   /*! [C2, chap 28] Student t statistic (1 param): p1 = DOF. */
 
-#define NIFTI_INTENT_TTEST       3
+#define GRF_NIFTI_INTENT_TTEST       3
 
   /*! [C2, chap 27] Fisher F statistic (2 params):
        p1 = numerator DOF, p2 = denominator DOF. */
 
-#define NIFTI_INTENT_FTEST       4
+#define GRF_NIFTI_INTENT_FTEST       4
 
   /*! [C1, chap 13] Standard normal (0 params): Density = N(0,1). */
 
-#define NIFTI_INTENT_ZSCORE      5
+#define GRF_NIFTI_INTENT_ZSCORE      5
 
   /*! [C1, chap 18] Chi-squared (1 param): p1 = DOF.
       Density(x) proportional to exp(-x/2) * x^(p1/2-1). */
 
-#define NIFTI_INTENT_CHISQ       6
+#define GRF_NIFTI_INTENT_CHISQ       6
 
   /*! [C2, chap 25] Beta distribution (2 params): p1=a, p2=b.
       Density(x) proportional to x^(a-1) * (1-x)^(b-1). */
 
-#define NIFTI_INTENT_BETA        7
+#define GRF_NIFTI_INTENT_BETA        7
 
   /*! [U, chap 3] Binomial distribution (2 params):
        p1 = number of trials, p2 = probability per trial.
       Prob(x) = (p1 choose x) * p2^x * (1-p2)^(p1-x), for x=0,1,...,p1. */
 
-#define NIFTI_INTENT_BINOM       8
+#define GRF_NIFTI_INTENT_BINOM       8
 
   /*! [C1, chap 17] Gamma distribution (2 params):
        p1 = shape, p2 = scale.
       Density(x) proportional to x^(p1-1) * exp(-p2*x). */
 
-#define NIFTI_INTENT_GAMMA       9
+#define GRF_NIFTI_INTENT_GAMMA       9
 
   /*! [U, chap 4] Poisson distribution (1 param): p1 = mean.
       Prob(x) = exp(-p1) * p1^x / x! , for x=0,1,2,.... */
 
-#define NIFTI_INTENT_POISSON    10
+#define GRF_NIFTI_INTENT_POISSON    10
 
   /*! [C1, chap 13] Normal distribution (2 params):
        p1 = mean, p2 = standard deviation. */
 
-#define NIFTI_INTENT_NORMAL     11
+#define GRF_NIFTI_INTENT_NORMAL     11
 
   /*! [C2, chap 30] Noncentral F statistic (3 params):
        p1 = numerator DOF, p2 = denominator DOF,
        p3 = numerator noncentrality parameter.  */
 
-#define NIFTI_INTENT_FTEST_NONC 12
+#define GRF_NIFTI_INTENT_FTEST_NONC 12
 
   /*! [C2, chap 29] Noncentral chi-squared statistic (2 params):
        p1 = DOF, p2 = noncentrality parameter.     */
 
-#define NIFTI_INTENT_CHISQ_NONC 13
+#define GRF_NIFTI_INTENT_CHISQ_NONC 13
 
   /*! [C2, chap 23] Logistic distribution (2 params):
        p1 = location, p2 = scale.
       Density(x) proportional to sech^2((x-p1)/(2*p2)). */
 
-#define NIFTI_INTENT_LOGISTIC   14
+#define GRF_NIFTI_INTENT_LOGISTIC   14
 
   /*! [C2, chap 24] Laplace distribution (2 params):
        p1 = location, p2 = scale.
       Density(x) proportional to exp(-abs(x-p1)/p2). */
 
-#define NIFTI_INTENT_LAPLACE    15
+#define GRF_NIFTI_INTENT_LAPLACE    15
 
   /*! [C2, chap 26] Uniform distribution: p1 = lower end, p2 = upper end. */
 
-#define NIFTI_INTENT_UNIFORM    16
+#define GRF_NIFTI_INTENT_UNIFORM    16
 
   /*! [C2, chap 31] Noncentral t statistic (2 params):
        p1 = DOF, p2 = noncentrality parameter. */
 
-#define NIFTI_INTENT_TTEST_NONC 17
+#define GRF_NIFTI_INTENT_TTEST_NONC 17
 
   /*! [C1, chap 21] Weibull distribution (3 params):
        p1 = location, p2 = scale, p3 = power.
       Density(x) proportional to
        ((x-p1)/p2)^(p3-1) * exp(-((x-p1)/p2)^p3) for x > p1. */
 
-#define NIFTI_INTENT_WEIBULL    18
+#define GRF_NIFTI_INTENT_WEIBULL    18
 
   /*! [C1, chap 18] Chi distribution (1 param): p1 = DOF.
       Density(x) proportional to x^(p1-1) * exp(-x^2/2) for x > 0.
@@ -804,24 +801,24 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
        p1 = 2 = Rayleigh distribution
        p1 = 3 = Maxwell-Boltzmann distribution.                  */
 
-#define NIFTI_INTENT_CHI        19
+#define GRF_NIFTI_INTENT_CHI        19
 
   /*! [C1, chap 15] Inverse Gaussian (2 params):
        p1 = mu, p2 = lambda
       Density(x) proportional to
        exp(-p2*(x-p1)^2/(2*p1^2*x)) / x^3  for x > 0. */
 
-#define NIFTI_INTENT_INVGAUSS   20
+#define GRF_NIFTI_INTENT_INVGAUSS   20
 
   /*! [C2, chap 22] Extreme value type I (2 params):
        p1 = location, p2 = scale
       cdf(x) = exp(-exp(-(x-p1)/p2)). */
 
-#define NIFTI_INTENT_EXTVAL     21
+#define GRF_NIFTI_INTENT_EXTVAL     21
 
   /*! Data is a 'p-value' (no params). */
 
-#define NIFTI_INTENT_PVAL       22
+#define GRF_NIFTI_INTENT_PVAL       22
 
   /*! Data is ln(p-value) (no params).
       To be safe, a program should compute p = exp(-abs(this_value)).
@@ -829,22 +826,22 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
       as positive, so that this_value = -log(p). */
 
 
-#define NIFTI_INTENT_LOGPVAL    23
+#define GRF_NIFTI_INTENT_LOGPVAL    23
 
   /*! Data is log10(p-value) (no params).
       To be safe, a program should compute p = pow(10.,-abs(this_value)).
       The nifti_stats.c library returns this_value
       as positive, so that this_value = -log10(p). */
 
-#define NIFTI_INTENT_LOG10PVAL  24
+#define GRF_NIFTI_INTENT_LOG10PVAL  24
 
   /*! Smallest intent_code that indicates a statistic. */
 
-#define NIFTI_FIRST_STATCODE     2
+#define GRF_NIFTI_FIRST_STATCODE     2
 
   /*! Largest intent_code that indicates a statistic. */
 
-#define NIFTI_LAST_STATCODE     24
+#define GRF_NIFTI_LAST_STATCODE     24
 
  /*---------- these values for intent_code aren't for statistics ----------*/
 
@@ -852,18 +849,18 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
      of some parameter, set intent_code = NIFTI_INTENT_ESTIMATE.
      The name of the parameter may be stored in intent_name.     */
 
-#define NIFTI_INTENT_ESTIMATE  1001
+#define GRF_NIFTI_INTENT_ESTIMATE  1001
 
  /*! To signify that the value at each voxel is an index into
      some set of labels, set intent_code = NIFTI_INTENT_LABEL.
      The filename with the labels may stored in aux_file.        */
 
-#define NIFTI_INTENT_LABEL     1002
+#define GRF_NIFTI_INTENT_LABEL     1002
 
  /*! To signify that the value at each voxel is an index into the
      NeuroNames labels set, set intent_code = NIFTI_INTENT_NEURONAME. */
 
-#define NIFTI_INTENT_NEURONAME 1003
+#define GRF_NIFTI_INTENT_NEURONAME 1003
 
  /*! To store an M x N matrix at each voxel:
        - dataset must have a 5th dimension (dim[0]=5 and dim[5]>1)
@@ -877,7 +874,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
          - etc., until
          - A[M-1][0] A[M-1][1] ... A[M-1][N-1]        */
 
-#define NIFTI_INTENT_GENMATRIX 1004
+#define GRF_NIFTI_INTENT_GENMATRIX 1004
 
  /*! To store an NxN symmetric matrix at each voxel:
        - dataset must have a 5th dimension
@@ -890,7 +887,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
          - A[2][0] A[2][1] A[2][2]
          - etc.: row-by-row                           */
 
-#define NIFTI_INTENT_SYMMATRIX 1005
+#define GRF_NIFTI_INTENT_SYMMATRIX 1005
 
  /*! To signify that the vector value at each voxel is to be taken
      as a displacement field or vector:
@@ -899,8 +896,8 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
        - dim[5] must be the dimensionality of the displacment
          vector (e.g., 3 for spatial displacement, 2 for in-plane) */
 
-#define NIFTI_INTENT_DISPVECT  1006   /* specifically for displacements */
-#define NIFTI_INTENT_VECTOR    1007   /* for any other type of vector */
+#define GRF_NIFTI_INTENT_DISPVECT  1006   /* specifically for displacements */
+#define GRF_NIFTI_INTENT_VECTOR    1007   /* for any other type of vector */
 
  /*! To signify that the vector value at each voxel is really a
      spatial coordinate (e.g., the vertices or nodes of a surface mesh):
@@ -913,7 +910,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
        - intent_name may describe the object these points come from
          (e.g., "pial", "gray/white" , "EEG", "MEG").                   */
 
-#define NIFTI_INTENT_POINTSET  1008
+#define GRF_NIFTI_INTENT_POINTSET  1008
 
  /*! To signify that the vector value at each voxel is really a triple
      of indexes (e.g., forming a triangle) from a pointset dataset:
@@ -926,7 +923,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
        - datatype should be an integer type (preferably DT_INT32)
        - the data values are indexes (0,1,...) into a pointset dataset. */
 
-#define NIFTI_INTENT_TRIANGLE  1009
+#define GRF_NIFTI_INTENT_TRIANGLE  1009
 
  /*! To signify that the vector value at each voxel is a quaternion:
        - dataset must have a 5th dimension
@@ -935,23 +932,23 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
        - dim[5] = 4
        - datatype should be a floating point type     */
 
-#define NIFTI_INTENT_QUATERNION 1010
+#define GRF_NIFTI_INTENT_QUATERNION 1010
 
  /*! Dimensionless value - no params - although, as in _ESTIMATE
      the name of the parameter may be stored in intent_name.     */
 
-#define NIFTI_INTENT_DIMLESS    1011
+#define GRF_NIFTI_INTENT_DIMLESS    1011
 
  /*---------- these values apply to GIFTI datasets ----------*/
 
  /*! To signify that the value at each location is from a time series. */
 
-#define NIFTI_INTENT_TIME_SERIES  2001
+#define GRF_NIFTI_INTENT_TIME_SERIES  2001
 
  /*! To signify that the value at each location is a node index, from
      a complete surface dataset.                                       */
 
-#define NIFTI_INTENT_NODE_INDEX   2002
+#define GRF_NIFTI_INTENT_NODE_INDEX   2002
 
  /*! To signify that the vector value at each location is an RGB triplet,
      of whatever type.
@@ -962,7 +959,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
        - dim[5] = 3
     */
 
-#define NIFTI_INTENT_RGB_VECTOR   2003
+#define GRF_NIFTI_INTENT_RGB_VECTOR   2003
 
  /*! To signify that the vector value at each location is a 4 valued RGBA
      vector, of whatever type.
@@ -973,12 +970,12 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
        - dim[5] = 4
     */
 
-#define NIFTI_INTENT_RGBA_VECTOR  2004
+#define GRF_NIFTI_INTENT_RGBA_VECTOR  2004
 
  /*! To signify that the value at each location is a shape value, such
      as the curvature.  */
 
-#define NIFTI_INTENT_SHAPE        2005
+#define GRF_NIFTI_INTENT_SHAPE        2005
 
 /* @} */
 
@@ -1239,25 +1236,25 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
  */
                                     /*! Arbitrary coordinates (Method 1). */
 
-#define NIFTI_XFORM_UNKNOWN      0
+#define GRF_NIFTI_XFORM_UNKNOWN      0
 
                                     /*! Scanner-based anatomical coordinates */
 
-#define NIFTI_XFORM_SCANNER_ANAT 1
+#define GRF_NIFTI_XFORM_SCANNER_ANAT 1
 
                                     /*! Coordinates aligned to another file's,
                                         or to anatomical "truth".            */
 
-#define NIFTI_XFORM_ALIGNED_ANAT 2
+#define GRF_NIFTI_XFORM_ALIGNED_ANAT 2
 
                                     /*! Coordinates aligned to Talairach-
                                         Tournoux Atlas; (0,0,0)=AC, etc. */
 
-#define NIFTI_XFORM_TALAIRACH    3
+#define GRF_NIFTI_XFORM_TALAIRACH    3
 
                                     /*! MNI 152 normalized coordinates. */
 
-#define NIFTI_XFORM_MNI_152      4
+#define GRF_NIFTI_XFORM_MNI_152      4
 /* @} */
 
 /*---------------------------------------------------------------------------*/
@@ -1284,7 +1281,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
    limited space available in the 348 byte ANALYZE 7.5 header.  The
    macros XYZT_TO_SPACE and XYZT_TO_TIME can be used to mask off the
    undesired bits from the xyzt_units fields, leaving "pure" space
-   and time codes.  Inversely, the macro SPACE_TIME_TO_XYZT can be
+   and time codes.  Inversely, the macro GRF_SPACE_TIME_TO_XYZT can be
    used to assemble a space code (0,1,2,...,7) with a time code
    (0,8,16,32,...,56) into the combined value for xyzt_units.
 
@@ -1303,40 +1300,40 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
     @{
  */
                                /*! NIFTI code for unspecified units. */
-#define NIFTI_UNITS_UNKNOWN 0
+#define GRF_NIFTI_UNITS_UNKNOWN 0
 
                                /** Space codes are multiples of 1. **/
                                /*! NIFTI code for meters. */
-#define NIFTI_UNITS_METER   1
+#define GRF_NIFTI_UNITS_METER   1
                                /*! NIFTI code for millimeters. */
-#define NIFTI_UNITS_MM      2
+#define GRF_NIFTI_UNITS_MM      2
                                /*! NIFTI code for micrometers. */
-#define NIFTI_UNITS_MICRON  3
+#define GRF_NIFTI_UNITS_MICRON  3
 
                                /** Time codes are multiples of 8. **/
                                /*! NIFTI code for seconds. */
-#define NIFTI_UNITS_SEC     8
+#define GRF_NIFTI_UNITS_SEC     8
                                /*! NIFTI code for milliseconds. */
-#define NIFTI_UNITS_MSEC   16
+#define GRF_NIFTI_UNITS_MSEC   16
                                /*! NIFTI code for microseconds. */
-#define NIFTI_UNITS_USEC   24
+#define GRF_NIFTI_UNITS_USEC   24
 
                                /*** These units are for spectral data: ***/
                                /*! NIFTI code for Hertz. */
-#define NIFTI_UNITS_HZ     32
+#define GRF_NIFTI_UNITS_HZ     32
                                /*! NIFTI code for ppm. */
-#define NIFTI_UNITS_PPM    40
+#define GRF_NIFTI_UNITS_PPM    40
                                /*! NIFTI code for radians per second. */
-#define NIFTI_UNITS_RADS   48
+#define GRF_NIFTI_UNITS_RADS   48
 /* @} */
 
-#undef  XYZT_TO_SPACE
-#undef  XYZT_TO_TIME
-#define XYZT_TO_SPACE(xyzt)       ( (xyzt) & 0x07 )
-#define XYZT_TO_TIME(xyzt)        ( (xyzt) & 0x38 )
+#undef  GRF_XYZT_TO_SPACE
+#undef  GRF_XYZT_TO_TIME
+#define GRF_XYZT_TO_SPACE(xyzt)       ( (xyzt) & 0x07 )
+#define GRF_XYZT_TO_TIME(xyzt)        ( (xyzt) & 0x38 )
 
-#undef  SPACE_TIME_TO_XYZT
-#define SPACE_TIME_TO_XYZT(ss,tt) (  (((char)(ss)) & 0x07)   \
+#undef  GRF_SPACE_TIME_TO_XYZT
+#define GRF_SPACE_TIME_TO_XYZT(ss,tt) (  (((char)(ss)) & 0x07)   \
                                    | (((char)(tt)) & 0x38) )
 
 /*---------------------------------------------------------------------------*/
@@ -1421,20 +1418,20 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
   DIM_INFO_TO_SLICE_DIM can be used to extract these values from the
   dim_info byte.
 
-  The macro FPS_INTO_DIM_INFO can be used to put these 3 values
+  The macro GRF_FPS_INTO_DIM_INFO can be used to put these 3 values
   into the dim_info byte.
 -----------------------------------------------------------------------------*/
 
-#undef  DIM_INFO_TO_FREQ_DIM
-#undef  DIM_INFO_TO_PHASE_DIM
-#undef  DIM_INFO_TO_SLICE_DIM
+#undef  GRF_DIM_INFO_TO_FREQ_DIM
+#undef  GRF_DIM_INFO_TO_PHASE_DIM
+#undef  GRF_DIM_INFO_TO_SLICE_DIM
 
-#define DIM_INFO_TO_FREQ_DIM(di)   ( ((di)     ) & 0x03 )
-#define DIM_INFO_TO_PHASE_DIM(di)  ( ((di) >> 2) & 0x03 )
-#define DIM_INFO_TO_SLICE_DIM(di)  ( ((di) >> 4) & 0x03 )
+#define GRF_DIM_INFO_TO_FREQ_DIM(di)   ( ((di)     ) & 0x03 )
+#define GRF_DIM_INFO_TO_PHASE_DIM(di)  ( ((di) >> 2) & 0x03 )
+#define GRF_DIM_INFO_TO_SLICE_DIM(di)  ( ((di) >> 4) & 0x03 )
 
-#undef  FPS_INTO_DIM_INFO
-#define FPS_INTO_DIM_INFO(fd,pd,sd) ( ( ( ((char)(fd)) & 0x03)      ) |  \
+#undef  GRF_FPS_INTO_DIM_INFO
+#define GRF_FPS_INTO_DIM_INFO(fd,pd,sd) ( ( ( ((char)(fd)) & 0x03)      ) |  \
                                       ( ( ((char)(pd)) & 0x03) << 2 ) |  \
                                       ( ( ((char)(sd)) & 0x03) << 4 )  )
 
@@ -1443,13 +1440,13 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
            of the slices
     @{
  */
-#define NIFTI_SLICE_UNKNOWN   0
-#define NIFTI_SLICE_SEQ_INC   1
-#define NIFTI_SLICE_SEQ_DEC   2
-#define NIFTI_SLICE_ALT_INC   3
-#define NIFTI_SLICE_ALT_DEC   4
-#define NIFTI_SLICE_ALT_INC2  5  /* 05 May 2005: RWCox */
-#define NIFTI_SLICE_ALT_DEC2  6  /* 05 May 2005: RWCox */
+#define GRF_NIFTI_SLICE_UNKNOWN   0
+#define GRF_NIFTI_SLICE_SEQ_INC   1
+#define GRF_NIFTI_SLICE_SEQ_DEC   2
+#define GRF_NIFTI_SLICE_ALT_INC   3
+#define GRF_NIFTI_SLICE_ALT_DEC   4
+#define GRF_NIFTI_SLICE_ALT_INC2  5  /* 05 May 2005: RWCox */
+#define GRF_NIFTI_SLICE_ALT_DEC2  6  /* 05 May 2005: RWCox */
 /* @} */
 
 /*---------------------------------------------------------------------------*/
@@ -1481,7 +1478,7 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
 /*! Given a nifti_1_header struct, check if it has a good magic number.
     Returns NIFTI version number (1..9) if magic is good, 0 if it is not. */
 
-#define NIFTI_VERSION(h)                               \
+#define GRF_NIFTI_VERSION(h)                               \
  ( ( (h).magic[0]=='n' && (h).magic[3]=='\0'    &&     \
      ( (h).magic[1]=='i' || (h).magic[1]=='+' ) &&     \
      ( (h).magic[2]>='1' && (h).magic[2]<='9' )   )    \
@@ -1492,26 +1489,22 @@ typedef struct { unsigned char r,g,b; } rgb_byte ;
     same file or in a separate file.  Returns 1 if the data is in the same
     file as the header, 0 if it is not.                                   */
 
-#define NIFTI_ONEFILE(h) ( (h).magic[1] == '+' )
+#define GRF_NIFTI_ONEFILE(h) ( (h).magic[1] == '+' )
 
 /*.................*/
 /*! Check if a nifti_1_header struct needs to be byte swapped.
     Returns 1 if it needs to be swapped, 0 if it does not.     */
 
-#define NIFTI_NEEDS_SWAP(h) ( (h).dim[0] < 0 || (h).dim[0] > 7 )
+#define GRF_NIFTI_NEEDS_SWAP(h) ( (h).dim[0] < 0 || (h).dim[0] > 7 )
 
 /*.................*/
 /*! Check if a nifti_1_header struct contains a 5th (vector) dimension.
     Returns size of 5th dimension if > 1, returns 0 otherwise.         */
 
-#define NIFTI_5TH_DIM(h) ( ((h).dim[0]>4 && (h).dim[5]>1) ? (h).dim[5] : 0 )
+#define GRF_NIFTI_5TH_DIM(h) ( ((h).dim[0]>4 && (h).dim[5]>1) ? (h).dim[5] : 0 )
 
 /*****************************************************************************/
 
-/*=================*/
-#ifdef  __cplusplus
-}
-#endif
-/*=================*/
+END_DECLS
 
 #endif /* _NIFTI_HEADER_ */

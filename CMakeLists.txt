@@ -190,6 +190,14 @@ if(BUILD_IMGPROC OR BUILD_DISPLAY)
     endif(NOT JPEG_FOUND)
 endif()
 # ------------------
+# Zlib
+# ------------------
+if(BUILD_MEDICAL)
+    pkg_check_modules(ZLIB REQUIRED zlib)
+    INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
+    ADD_DEFINITIONS(-DHAVE_ZLIB)
+endif()
+# ------------------
 # GObject
 # ------------------
 IF(BUILD_CHART)
@@ -412,8 +420,8 @@ if(BUILD_TESTING)
     endif(BUILD_CHART)
     if(BUILD_MEDICAL)
       LIST(APPEND TESTS_NAMES nifti dicom)
-      set(test_nifti_deps           grafeo_core grafeo_imgproc grafeo_medical jpeg png ${gobject_LIBRARIES})
-      set(test_dicom_deps           grafeo_core grafeo_imgproc grafeo_medical jpeg png ${gobject_LIBRARIES})
+      set(test_nifti_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
+      set(test_dicom_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
     endif(BUILD_MEDICAL)
     
     include (CTest)

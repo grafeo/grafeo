@@ -87,7 +87,7 @@ BEGIN_DECLS
 #endif
 #endif
 
-struct znzptr {
+struct GrfZnzPtr {
   int withz;
   FILE* nzfptr;
 #ifdef HAVE_ZLIB
@@ -96,45 +96,45 @@ struct znzptr {
 } ;
 
 /* the type for all file pointers */
-typedef struct znzptr * znzFile;
+typedef struct GrfZnzPtr * GrfZnzFile;
 
 
 /* int znz_isnull(znzFile f); */
 /* int znzclose(znzFile f); */
-#define znz_isnull(f) ((f) == NULL)
-#define znzclose(f)   Xznzclose(&(f))
+#define grf_znz_isnull(f) ((f) == NULL)
+#define grf_znzclose(f)   grf_Xznzclose(&(f))
 
 /* Note extra argument (use_compression) where
    use_compression==0 is no compression
    use_compression!=0 uses zlib (gzip) compression
 */
 
-znzFile znzopen(const char *path, const char *mode, int use_compression);
+GrfZnzFile grf_znzopen(const char *path, const char *mode, int use_compression);
 
-znzFile znzdopen(int fd, const char *mode, int use_compression);
+GrfZnzFile grf_znzdopen(int fd, const char *mode, int use_compression);
 
-int Xznzclose(znzFile * file);
+int grf_Xznzclose(GrfZnzFile * file);
 
-size_t znzread(void* buf, size_t size, size_t nmemb, znzFile file);
+size_t grf_znzread(void* buf, size_t size, size_t nmemb, GrfZnzFile file);
 
-size_t znzwrite(const void* buf, size_t size, size_t nmemb, znzFile file);
+size_t grf_znzwrite(const void* buf, size_t size, size_t nmemb, GrfZnzFile file);
 
-long znzseek(znzFile file, long offset, int whence);
+long grf_znzseek(GrfZnzFile file, long offset, int whence);
 
-int znzrewind(znzFile stream);
+int grf_znzrewind(GrfZnzFile stream);
 
-long znztell(znzFile file);
+long grf_znztell(GrfZnzFile file);
 
-int znzputs(const char *str, znzFile file);
+int grf_znzputs(const char *str, GrfZnzFile file);
 
-char * znzgets(char* str, int size, znzFile file);
+char * grf_znzgets(char* str, int size, GrfZnzFile file);
 
-int znzputc(int c, znzFile file);
+int grf_znzputc(int c, GrfZnzFile file);
 
-int znzgetc(znzFile file);
+int grf_znzgetc(GrfZnzFile file);
 
 #if !defined(WIN32)
-int znzprintf(znzFile stream, const char *format, ...);
+int grf_znzprintf(GrfZnzFile stream, const char *format, ...);
 #endif
 
 END_DECLS

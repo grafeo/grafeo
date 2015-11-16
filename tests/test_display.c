@@ -60,7 +60,7 @@ static void test_display(void** state){
   image         = grf_image_read(filenames[2]);
   image2        = grf_image_read(filenames[1]);
   pressionado   = 0;
-  grf_display_setup();
+  grf_display_setup(NULL, NULL);
 
   // Figure 1
   grf_display_named("Figure1");

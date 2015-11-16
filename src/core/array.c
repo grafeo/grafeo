@@ -1220,7 +1220,7 @@ grf_array_dot(GrfArray* array, GrfArray* array2){
   float* data2  = array2->data_float;
   float* datar  = result->data_float;
   uint32_t size = array->size[0];
-  uint64_t index,index1 = 0, index2;
+  uint64_t index = 0,index1 = 0, index2;
   uint32_t i, x, y;
   for(y = 0; y < size; y++){
     for(x = 0; x < size; x++, index++){

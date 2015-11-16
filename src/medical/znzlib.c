@@ -44,10 +44,10 @@ znzlib.c  (zipped or non-zipped library)
    use_compression!=0 uses zlib (gzip) compression
 */
 
-znzFile znzopen(const char *path, const char *mode, int use_compression)
+GrfZnzFile grf_znzopen(const char *path, const char *mode, int use_compression)
 {
-  znzFile file;
-  file = (znzFile) calloc(1,sizeof(struct znzptr));
+  GrfZnzFile file;
+  file = (GrfZnzFile) calloc(1,sizeof(struct GrfZnzPtr));
   if( file == NULL ){
      fprintf(stderr,"** ERROR: znzopen failed to alloc znzptr\n");
      return NULL;
@@ -81,10 +81,10 @@ znzFile znzopen(const char *path, const char *mode, int use_compression)
 }
 
 
-znzFile znzdopen(int fd, const char *mode, int use_compression)
+GrfZnzFile grf_znzdopen(int fd, const char *mode, int use_compression)
 {
-  znzFile file;
-  file = (znzFile) calloc(1,sizeof(struct znzptr));
+  GrfZnzFile file;
+  file = (GrfZnzFile) calloc(1,sizeof(struct GrfZnzPtr));
   if( file == NULL ){
      fprintf(stderr,"** ERROR: znzdopen failed to alloc znzptr\n");
      return NULL;
@@ -108,7 +108,7 @@ znzFile znzdopen(int fd, const char *mode, int use_compression)
 }
 
 
-int Xznzclose(znzFile * file)
+int grf_Xznzclose(GrfZnzFile * file)
 {
   int retval = 0;
   if (*file!=NULL) {
@@ -128,7 +128,7 @@ int Xznzclose(znzFile * file)
 #undef ZNZ_MAX_BLOCK_SIZE
 #define ZNZ_MAX_BLOCK_SIZE (1<<30)
 
-size_t znzread(void* buf, size_t size, size_t nmemb, znzFile file)
+size_t grf_znzread(void* buf, size_t size, size_t nmemb, GrfZnzFile file)
 {
   size_t     remain = size*nmemb;
   char     * cbuf = (char *)buf;
@@ -162,7 +162,7 @@ size_t znzread(void* buf, size_t size, size_t nmemb, znzFile file)
   return fread(buf,size,nmemb,file->nzfptr);
 }
 
-size_t znzwrite(const void* buf, size_t size, size_t nmemb, znzFile file)
+size_t grf_znzwrite(const void* buf, size_t size, size_t nmemb, GrfZnzFile file)
 {
   size_t     remain = size*nmemb;
   const char * cbuf = (const char *)buf;
@@ -196,7 +196,7 @@ size_t znzwrite(const void* buf, size_t size, size_t nmemb, znzFile file)
   return fwrite(buf,size,nmemb,file->nzfptr);
 }
 
-long znzseek(znzFile file, long offset, int whence)
+long grf_znzseek(GrfZnzFile file, long offset, int whence)
 {
   if (file==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -205,7 +205,7 @@ long znzseek(znzFile file, long offset, int whence)
   return fseek(file->nzfptr,offset,whence);
 }
 
-int znzrewind(znzFile stream)
+int grf_znzrewind(GrfZnzFile stream)
 {
   if (stream==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -221,7 +221,7 @@ int znzrewind(znzFile stream)
   return 0;
 }
 
-long znztell(znzFile file)
+long grf_znztell(GrfZnzFile file)
 {
   if (file==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -230,7 +230,7 @@ long znztell(znzFile file)
   return ftell(file->nzfptr);
 }
 
-int znzputs(const char * str, znzFile file)
+int grf_znzputs(const char * str, GrfZnzFile file)
 {
   if (file==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -240,7 +240,7 @@ int znzputs(const char * str, znzFile file)
 }
 
 
-char * znzgets(char* str, int size, znzFile file)
+char * grf_znzgets(char* str, int size, GrfZnzFile file)
 {
   if (file==NULL) { return NULL; }
 #ifdef HAVE_ZLIB
@@ -250,7 +250,7 @@ char * znzgets(char* str, int size, znzFile file)
 }
 
 
-int znzflush(znzFile file)
+int znzflush(GrfZnzFile file)
 {
   if (file==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -260,7 +260,7 @@ int znzflush(znzFile file)
 }
 
 
-int znzeof(znzFile file)
+int znzeof(GrfZnzFile file)
 {
   if (file==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -270,7 +270,7 @@ int znzeof(znzFile file)
 }
 
 
-int znzputc(int c, znzFile file)
+int grf_znzputc(int c, GrfZnzFile file)
 {
   if (file==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -280,7 +280,7 @@ int znzputc(int c, znzFile file)
 }
 
 
-int znzgetc(znzFile file)
+int grf_znzgetc(GrfZnzFile file)
 {
   if (file==NULL) { return 0; }
 #ifdef HAVE_ZLIB
@@ -290,7 +290,7 @@ int znzgetc(znzFile file)
 }
 
 #if !defined (WIN32)
-int znzprintf(znzFile stream, const char *format, ...)
+int grf_znzprintf(GrfZnzFile stream, const char *format, ...)
 {
   int retval=0;
   char *tmpstr;
