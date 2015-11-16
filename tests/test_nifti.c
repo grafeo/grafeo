@@ -30,8 +30,48 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-static void test_grf_nifti_open(void** state){
+int16_t*  dados, *offset;
+grfsize_t size[3];
+GrfArray* array = NULL;
+GrfArray* output = NULL;
+int       slice = 0;
+GrfNiftiImage* image;
 
+static void get_data(){
+  dados    = (int16_t*)image->data;
+  offset   = dados + slice*(256*256);
+  if(array)  grf_array_free(array);
+  if(output) grf_array_free(output);
+  array    = grf_array_from_data(offset,2,size,GRF_INT16);
+  output   = grf_array_as_type(array,GRF_UINT8);
+}
+
+static void change_event(int pos){
+  slice = pos;
+  get_data();
+  grf_display_named("Figure1");
+  grf_display_show(output);
+}
+
+static void test_grf_nifti_open(void** state){
+  image = grf_nifti_image_read("../data/MRHead.nii.gz",1);
+
+  size[0] = 256;
+  size[1] = 256;
+  size[2] = 1;
+  slice = 0;
+  get_data();
+
+  grf_display_setup(NULL, NULL);
+  grf_display_named("Figure1");
+  grf_display_add_trackbar("Figure1","slice num",&slice,0,129,change_event);
+  grf_display_show(output);
+  uint8_t key = 0;while(key != 27) key = grf_display_waitkey();
+  grf_image_write(output,"teste.png");
+
+
+  //znzFile file = nifti_image_open("../data/MRHead.nii.gz","w6h",&image);
+  grf_nifti_image_free(image);
 }
 
 int main(int argc, char** argv){

@@ -190,6 +190,14 @@ if(BUILD_IMGPROC OR BUILD_DISPLAY)
     endif(NOT JPEG_FOUND)
 endif()
 # ------------------
+# Zlib
+# ------------------
+if(BUILD_MEDICAL)
+    pkg_check_modules(ZLIB REQUIRED zlib)
+    INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS})
+    ADD_DEFINITIONS(-DHAVE_ZLIB)
+endif()
+# ------------------
 # GObject
 # ------------------
 IF(BUILD_CHART)
@@ -305,8 +313,8 @@ IF(BUILD_IFT)
 ENDIF()
 #=============================================================== MEDICAL MODULE
 IF(BUILD_MEDICAL)
-  SET(GRF_MEDICAL_HDRS  dicom.h nifti.h)
-  SET(GRF_MEDICAL_SRCS  dicom.c nifti.c)
+  SET(GRF_MEDICAL_HDRS  znzlib.h dicom.h nifti1.h nifti1_io.h)
+  SET(GRF_MEDICAL_SRCS  znzlib.c dicom.c nifti1_io.c)
   GRF_CREATE_LIBRARY(medical MEDICAL)
 ENDIF()
 #=============================================================== DISPLAY MODULE
@@ -412,8 +420,8 @@ if(BUILD_TESTING)
     endif(BUILD_CHART)
     if(BUILD_MEDICAL)
       LIST(APPEND TESTS_NAMES nifti dicom)
-      set(test_nifti_deps           grafeo_core grafeo_imgproc grafeo_medical jpeg png ${gobject_LIBRARIES})
-      set(test_dicom_deps           grafeo_core grafeo_imgproc grafeo_medical jpeg png ${gobject_LIBRARIES})
+      set(test_nifti_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
+      set(test_dicom_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
     endif(BUILD_MEDICAL)
     
     include (CTest)
