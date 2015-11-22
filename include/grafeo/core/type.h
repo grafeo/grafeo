@@ -103,6 +103,13 @@ typedef enum _GrfOrientation{
   GRF_ORIENTATION_VERTICAL
 }GrfOrientation;
 
+typedef enum _GrfSliceType{
+  GRF_SLICE_SAGITAL,
+  GRF_SLICE_CORONAL,
+  GRF_SLICE_AXIAL,
+  GRF_SLICE_CUSTOM
+}GrfSliceType;
+
 /**
   * @brief Optimization type: Minimization or Maximization
   */
