@@ -4627,6 +4627,31 @@ int grf_nifti_image_load( GrfNiftiImage *nim )
    {
      nim->data = (void *)calloc(1,ntot) ;  /* create image memory */
      nim->array.data = nim->data;
+     nim->array.size = malloc(sizeof(uint32_t)*3);
+     nim->array.step = malloc(sizeof(uint64_t)*3);
+     nim->array.size[0] = nim->nz;
+     nim->array.size[1] = nim->ny;
+     nim->array.size[2] = nim->nx;
+     nim->array.step[2] = 1;
+     nim->array.step[1] = nim->nx;
+     nim->array.step[0] = nim->nx * nim->ny;
+     nim->array.num_elements = nim->nx * nim->ny * nim->nz;
+     nim->array.owns_data = 0;
+     nim->array.contiguous = 1;
+     nim->array.dim = 3;
+     switch(nim->datatype){
+       case GRF_DT_UINT8: nim->array.type = GRF_UINT8; nim->array.bitsize = 1;break;
+       case GRF_DT_UINT16:nim->array.type = GRF_UINT16;nim->array.bitsize = 2;break;
+       case GRF_DT_UINT32:nim->array.type = GRF_UINT32;nim->array.bitsize = 4;break;
+       case GRF_DT_UINT64:nim->array.type = GRF_UINT64;nim->array.bitsize = 8;break;
+       case GRF_DT_INT8:  nim->array.type = GRF_INT8;  nim->array.bitsize = 1;break;
+       case GRF_DT_INT16: nim->array.type = GRF_INT16; nim->array.bitsize = 2;break;
+       case GRF_DT_INT32: nim->array.type = GRF_INT32; nim->array.bitsize = 4;break;
+       case GRF_DT_INT64: nim->array.type = GRF_INT64; nim->array.bitsize = 8;break;
+       case GRF_DT_FLOAT: nim->array.type = GRF_FLOAT; nim->array.bitsize = 4;break;
+       case GRF_DT_DOUBLE:nim->array.type = GRF_DOUBLE;nim->array.bitsize = 8;break;
+     }
+     nim->array.num_bytes = nim->array.num_elements * nim->array.bitsize;
      if( nim->data == NULL ){
         if( g_opts.debug > 0 )
            fprintf(stderr,"** failed to alloc %d bytes for image data\n",
@@ -4749,7 +4774,9 @@ size_t grf_nifti_read_buffer(GrfZnzFile fp, void* dataptr, size_t ntot,
 void grf_nifti_image_unload( GrfNiftiImage *nim )
 {
    if( nim != NULL && nim->data != NULL ){
-     free(nim->data) ; nim->data = NULL ; nim->array.data = NULL;
+     free(nim->data) ;
+     nim->data = NULL ;
+     nim->array.data = NULL;
    }
    return ;
 }
@@ -4770,6 +4797,8 @@ void grf_nifti_image_free( GrfNiftiImage *nim )
    if( nim->fname != NULL ) free(nim->fname) ;
    if( nim->iname != NULL ) free(nim->iname) ;
    if( nim->data  != NULL ) free(nim->data ) ;
+   if( nim->array.size )    free(nim->array.size);
+   if( nim->array.step )    free(nim->array.step);
    (void)grf_nifti_free_extensions( nim ) ;
    free(nim) ; return ;
 }

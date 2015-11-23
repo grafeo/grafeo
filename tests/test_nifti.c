@@ -55,6 +55,16 @@ static void change_event(int pos){
 
 static void test_grf_nifti_open(void** state){
   image = grf_nifti_image_read("../data/MRHead.nii.gz",1);
+  assert_int_equal(image->array.size[0],130);
+  assert_int_equal(image->array.size[1],256);
+  assert_int_equal(image->array.size[2],256);
+  assert_int_equal(image->array.dim, 3);
+  assert_int_equal(image->array.step[0],256*256);
+  assert_int_equal(image->array.step[1],256);
+  assert_int_equal(image->array.step[2],1);
+  assert_int_equal(image->array.owns_data,0);
+  assert_int_equal(image->array.contiguous,1);
+  assert_int_equal(image->array.type,GRF_INT16);
 
   size[0] = 256;
   size[1] = 256;
