@@ -61,3 +61,6 @@ marshal.[hc]
 # Remove modules' joint headers
 include/grafeo/*.h
 src/*.c
+
+# Remove generated config header
+config.h

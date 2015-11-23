@@ -729,3 +729,10 @@ uint8_t grf_config_get_version_minor(){
 uint8_t grf_config_get_version_release(){
   return (uint8_t)GRF_VERSION_RELEASE;
 }
+const char* grf_config_get_install_path(){
+  return GRF_INSTALL_PATH;
+}
+
+const char* grf_config_get_resource_path(){
+  return GRF_RESOURCE_PATH;
+}
