@@ -319,10 +319,10 @@ IF(BUILD_MEDICAL)
 ENDIF()
 #=============================================================== DISPLAY MODULE
 IF(BUILD_DISPLAY)
-  SET(GRF_DISPLAY_HDRS idisplaywidget.h imagewidget.h chartwidget.h trackbar.h
-                       displaywindow.h display.h)
-  SET(GRF_DISPLAY_SRCS idisplaywidget.c imagewidget.c chartwidget.c trackbar.c
-                       displaywindow.c display.c)
+  SET(GRF_DISPLAY_HDRS glshader.h glprogram.h idisplaywidget.h imagewidget.h
+                       chartwidget.h trackbar.h displaywindow.h display.h)
+  SET(GRF_DISPLAY_SRCS glshader.c glprogram.c idisplaywidget.c imagewidget.c
+                       chartwidget.c trackbar.c displaywindow.c display.c)
   GRF_CREATE_LIBRARY(display DISPLAY)
 ENDIF()
 #================================================================= CHART MODULE
