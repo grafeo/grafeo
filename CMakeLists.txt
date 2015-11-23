@@ -284,6 +284,8 @@ set(GRF_VERSION_MAJOR 0)
 set(GRF_VERSION_MINOR 0)
 set(GRF_VERSION_PATCH 7)
 set(GRF_VERSION_STRING ${GRF_VERSION_MAJOR}.${GRF_VERSION_MINOR}.${GRF_VERSION_PATCH})
+set(GRF_INSTALL_PATH "\"${CMAKE_INSTALL_PREFIX}\"")
+set(GRF_RESOURCE_PATH "\"${CMAKE_INSTALL_PREFIX}/share/grafeo\"")
 Message(STATUS "Library parameters setup...")
 #================================================================== CORE MODULE
 # Even though BUILD_CORE is OFF, if for example BUILD_IMGPROC is ON,
@@ -333,6 +335,8 @@ IF(BUILD_CHART)
       plotline.c legend.c chartpanel.c chartcontainer.c chart.c)
   GRF_CREATE_LIBRARY(chart CHART)
 ENDIF()
+#==================================================================== RESOURCES
+INSTALL(DIRECTORY data DESTINATION share/grafeo)
 #================================================================ DOCUMENTATION
 find_package(Doxygen)
 if(Doxygen_FOUND)
