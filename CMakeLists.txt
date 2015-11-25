@@ -52,6 +52,7 @@ FILE(READ "GPLHEADER" GRF_GPL_HEADER)
 option(BUILD_CORE    "Core Module (data structures, config, macros, types...)" ON)
 option(BUILD_DISPLAY "GUI Module (Requires Gtk)" ON)
 option(BUILD_IMGPROC "Image Processing Module (Requires LibJPEG and LibPNG)" ON)
+option(BUILD_GL      "OpenGL engine (Requires epoxy)" ON)
 option(BUILD_IFT     "Image Foresting Transform methods" ON)
 option(BUILD_CHART   "Component for creating charts" ON)
 option(BUILD_MEDICAL "Component for medical imaging solutions" ON)
@@ -269,8 +270,8 @@ Message(STATUS "Third party libraries loaded...")
 # Setting some constants for all modules
 SET(GRF_INCLUDE_DIR    ${CMAKE_CURRENT_SOURCE_DIR}/include/grafeo)
 SET(GRF_SOURCE_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/src)
-SET(GRF_MODULES_LOWER  core display ift imgproc chart medical)
-SET(GRF_MODULES_UPPER  CORE DISPLAY IFT IMGPROC CHART MEDICAL)
+SET(GRF_MODULES_LOWER  core display ift imgproc chart medical gl)
+SET(GRF_MODULES_UPPER  CORE DISPLAY IFT IMGPROC CHART MEDICAL GL)
 list(LENGTH GRF_MODULES_LOWER len1)
 math(EXPR   len2 "${len1} - 1")
 FOREACH(module_index RANGE ${len2})
@@ -316,6 +317,18 @@ IF(BUILD_MEDICAL)
   SET(GRF_MEDICAL_HDRS  znzlib.h dicom.h nifti1.h nifti1_io.h)
   SET(GRF_MEDICAL_SRCS  znzlib.c dicom.c nifti1_io.c)
   GRF_CREATE_LIBRARY(medical MEDICAL)
+ENDIF()
+#==================================================================== GL MODULE
+IF(BUILD_GL)
+  SET(GRF_GL_HDRS  glshader.h glprogram.h glmat.h glmaterial.h gllight.h
+                   globject.h glcontainer.h glmesh.h glloader.h glloader_obj.h
+                   glloader_dae.h glloader_3ds.h glloader_x3d.h glloader_md3.h
+                   glscene.h glcamera.h glrenderer.h)
+  SET(GRF_GL_SRCS  glshader.c glprogram.c glmat.c glmaterial.c gllight.c
+                   globject.c glcontainer.c glmesh.c glloader.c glloader_obj.c
+                   glloader_dae.c glloader_3ds.c glloader_x3d.c glloader_md3.c
+                   glscene.c glcamera.c glrenderer.c)
+  GRF_CREATE_LIBRARY(gl GL)
 ENDIF()
 #=============================================================== DISPLAY MODULE
 IF(BUILD_DISPLAY)
