@@ -325,11 +325,13 @@ IF(BUILD_GL)
   SET(GRF_GL_HDRS  glshader.h glprogram.h glmat.h glmaterial.h gllight.h
                    globject.h glcontainer.h glmesh.h glloader.h glloader_obj.h
                    glloader_dae.h glloader_3ds.h glloader_x3d.h glloader_md3.h
-                   glscene.h glcamera.h glrenderer.h)
+                   glscene.h glprojection.h glprojection_perspective.h
+                   glprojection_orthographic.h glcamera.h glrenderer.h)
   SET(GRF_GL_SRCS  glshader.c glprogram.c glmat.c glmaterial.c gllight.c
                    globject.c glcontainer.c glmesh.c glloader.c glloader_obj.c
                    glloader_dae.c glloader_3ds.c glloader_x3d.c glloader_md3.c
-                   glscene.c glcamera.c glrenderer.c)
+                   glscene.c glprojection.c glprojection_perspective.c
+                   glprojection_orthographic.c glcamera.c glrenderer.c)
   GRF_CREATE_LIBRARY(gl GL)
 ENDIF()
 #=============================================================== DISPLAY MODULE
