@@ -49,7 +49,10 @@ typedef struct _GrfGLCameraClass{
 GrfGLCamera*
 grf_gl_camera_new();
 /**
- * @brief grf_gl_camera_get_name
+ * @brief Gets a copy of the name.
+ *
+ * You must free the copy (or use g_autofree)
+ *
  * @param camera
  * @return
  */
@@ -67,49 +70,49 @@ grf_gl_camera_set_name(GrfGLCamera* camera, char* name);
  * @param camera
  */
 void
-grf_gl_camera_move_left(GrfGLCamera* camera, float units);
+grf_gl_camera_move_left(GrfGLCamera* camera, double units);
 /**
  * @brief grf_gl_camera_move_right
  * @param camera
  */
 void
-grf_gl_camera_move_right(GrfGLCamera* camera, float units);
+grf_gl_camera_move_right(GrfGLCamera* camera, double units);
 /**
  * @brief grf_gl_camera_move_forward
  * @param camera
  */
 void
-grf_gl_camera_move_forward(GrfGLCamera* camera, float units);
+grf_gl_camera_move_forward(GrfGLCamera* camera, double units);
 /**
  * @brief grf_gl_camera_move_behind
  * @param camera
  */
 void
-grf_gl_camera_move_behind(GrfGLCamera* camera, float units);
+grf_gl_camera_move_behind(GrfGLCamera* camera, double units);
 /**
  * @brief grf_gl_camera_pitch
  * @param camera
  */
 void
-grf_gl_camera_pitch(GrfGLCamera* camera, float angle);
+grf_gl_camera_pitch(GrfGLCamera* camera, double angle);
 /**
  * @brief grf_gl_camera_yaw
  * @param camera
  */
 void
-grf_gl_camera_yaw(GrfGLCamera* camera, float angle);
+grf_gl_camera_yaw(GrfGLCamera* camera, double angle);
 /**
  * @brief grf_gl_camera_roll
  * @param camera
  */
 void
-grf_gl_camera_roll(GrfGLCamera* camera, float angle);
+grf_gl_camera_roll(GrfGLCamera* camera, double angle);
 /**
  * @brief grf_gl_camera_rotate
  * @param camera
  */
 void
-grf_gl_camera_rotate(GrfGLCamera* camera, float angle, float x, float y, float z);
+grf_gl_camera_rotate(GrfGLCamera* camera, double angle, double x, double y, double z);
 /**
  * @brief grf_gl_camera_set_position
  * @param camera
@@ -168,41 +171,5 @@ grf_gl_camera_get_projection(GrfGLCamera* camera);
  */
 void
 grf_gl_camera_set_projection(GrfGLCamera* camera, GrfGLProjection* projection);
-
-/* Perspective Projection parameters
- *=================================*/
-/**
- * @brief grf_gl_camera_get_fov
- * @param camera
- * @return
- */
-float
-grf_gl_camera_get_projection_fov(GrfGLCamera* camera);
-/**
- * @brief grf_gl_camera_get_projection_near
- * @param camera
- * @return
- */
-float
-grf_gl_camera_get_projection_near(GrfGLCamera* camera);
-/**
- * @brief grf_gl_camera_get_projection_far
- * @param camera
- * @return
- */
-float
-grf_gl_camera_get_projection_far(GrfGLCamera* camera);
-/**
- * @brief grf_gl_camera_get_projection_aspect
- * @param camera
- * @return
- */
-float
-grf_gl_camera_get_projection_aspect(GrfGLCamera* camera);
-
-/* Ortographic Projection parameters
- *=================================*/
-
-grf_gl_camera_get_ortho
 
 #endif

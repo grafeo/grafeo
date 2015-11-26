@@ -29,6 +29,8 @@
 #define GRF_GL_PROJECTION_PERSPECTIVE_H
 #include <grafeo/gl.h>
 #include <glib-object.h>
+#include <string.h>
+#include <math.h>
 /*===========================================================================
  * CLASS DECLARATION
  *===========================================================================*/
@@ -107,13 +109,16 @@ void
 grf_gl_projection_perspective_set_far(GrfGLProjectionPerspective* proj, double far);
 /**
  * @brief grf_gl_projection_perspective_set_all
+ * @param proj
  * @param fov
  * @param aspect
  * @param near
  * @param far
  */
 void
-grf_gl_projection_perspective_set_all(double fov, double aspect, double near, double far);
+grf_gl_projection_perspective_set_all(GrfGLProjectionPerspective* proj,
+                                      double fov, double aspect,
+                                      double near, double far);
 /**
  * @brief grf_gl_projection_perspective_update
  * @param proj

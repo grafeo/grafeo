@@ -72,7 +72,7 @@ grf_gl_shader_new_from_text(char* shadersource, GLenum shadertype){
   priv->source             = shadersource;
   priv->id                 = glCreateShader(shadertype);
   priv->type               = shadertype;
-  glShaderSource(priv->id, 1, &priv->source, NULL);
+  glShaderSource(priv->id, 1, (const GLchar* const*)&priv->source, NULL);
   return shader;
 }
 

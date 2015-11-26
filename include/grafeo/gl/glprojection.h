@@ -36,18 +36,31 @@ typedef struct _GrfGLProjectionClass{
   GObjectClass parent_class;
 }GrfGLProjectionClass;
 /**
- * @brief grf_gl_projection_get_matrix
+ * @brief Get a copy of the projection matrix.
+ *
+ * After using it, you need to free the copy. Use g_autofree to automatically do this:
+ *
+ * ~~~c
+ * void something(GrfGLProjection* proj){
+ *   g_autofree double* matrix = grf_gl_projection_get_matrix(proj);
+ *
+ *   // ... manipulate matrix ...
+ *
+ *   // ... the matrix variable is automatically freed
+ * }
+ * ~~~
+ *
  * @param projection
  * @return
  */
-double*
+GrfGLMat4*
 grf_gl_projection_get_matrix(GrfGLProjection* projection);
 /**
  * @brief grf_gl_projection_get_matrix_ptr
  * @param projection
  * @return
  */
-double*
+GrfGLMat4*
 grf_gl_projection_get_matrix_ptr(GrfGLProjection* projection);
 /**
  * @brief grf_gl_projection_set_matrix
@@ -55,7 +68,12 @@ grf_gl_projection_get_matrix_ptr(GrfGLProjection* projection);
  * @param matrix
  */
 void
-grf_gl_projection_set_matrix(GrfGLProjection* projection, double* matrix);
-
-
+grf_gl_projection_set_matrix(GrfGLProjection* projection, GrfGLMat4* matrix);
+/**
+ * @brief grf_gl_projection_fill
+ * @param proj
+ * @param value
+ */
+void
+grf_gl_projection_fill(GrfGLProjection* proj, int value);
 #endif

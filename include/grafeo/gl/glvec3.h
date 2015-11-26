@@ -25,6 +25,9 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_GL_RENDERER_H
-#define GRF_GL_RENDERER_H
+#ifndef GRF_GL_VEC3_H
+#define GRF_GL_VEC3_H
+typedef struct _GrfGLVec3{
+  double data[3];
+}GrfGLVec3;
 #endif

@@ -261,7 +261,7 @@ IF(BUILD_TESTING)
     INCLUDE(Coveralls)
     SET(COVERALLS_REPO_TOKEN "jcNqZoqi87ip0EoPWLy5b8nzfFm4Z0MlL")
   ENDIF()
-  set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wunused-parameter -Wunused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
+  set(CMAKE_EXE_LINKER_FLAGS "-g -Wall -Wshadow -Wunused-variable -Wno-unused-function -Wunused -Wno-system-headers -pg -fprofile-arcs -ftest-coverage")
   set(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} ${CMAKE_EXE_LINKER_FLAGS})
   Message(STATUS "Tests parameters setup...")
 ENDIF()
@@ -301,6 +301,7 @@ IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
   CONFIGURE_FILE("${GRF_CORE_INCLUDE_DIR}/config.h.in"
                  "${GRF_CORE_INCLUDE_DIR}/config.h")
   GRF_CREATE_LIBRARY(core CORE)
+  SET(GRF_CORE_LIBRARIES grafeo_core)
 ENDIF()
 #=============================================================== IMGPROC MODULE
 IF(BUILD_IMGPROC OR BUILD_DISPLAY)
@@ -322,17 +323,18 @@ IF(BUILD_MEDICAL)
 ENDIF()
 #==================================================================== GL MODULE
 IF(BUILD_GL)
-  SET(GRF_GL_HDRS  glshader.h glprogram.h glmat.h glmaterial.h gllight.h
+  SET(GRF_GL_HDRS  glshader.h glprogram.h glvec3.h glmat.h glmaterial.h gllight.h
                    globject.h glcontainer.h glmesh.h glloader.h glloader_obj.h
                    glloader_dae.h glloader_3ds.h glloader_x3d.h glloader_md3.h
                    glscene.h glprojection.h glprojection_perspective.h
                    glprojection_orthographic.h glcamera.h glrenderer.h)
-  SET(GRF_GL_SRCS  glshader.c glprogram.c glmat.c glmaterial.c gllight.c
+  SET(GRF_GL_SRCS  glshader.c glprogram.c glvec3.c glmat.c glmaterial.c gllight.c
                    globject.c glcontainer.c glmesh.c glloader.c glloader_obj.c
                    glloader_dae.c glloader_3ds.c glloader_x3d.c glloader_md3.c
                    glscene.c glprojection.c glprojection_perspective.c
                    glprojection_orthographic.c glcamera.c glrenderer.c)
   GRF_CREATE_LIBRARY(gl GL)
+  SET(GRF_GL_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_gl ${gobject_LIBRARIES})
 ENDIF()
 #=============================================================== DISPLAY MODULE
 IF(BUILD_DISPLAY)
@@ -442,6 +444,11 @@ if(BUILD_TESTING)
       set(test_nifti_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
       set(test_dicom_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
     endif(BUILD_MEDICAL)
+    if(BUILD_GL)
+      LIST(APPEND TESTS_NAMES gl_projection gl_camera)
+      set(test_gl_projection_deps   ${GRF_GL_LIBRARIES})
+      set(test_gl_camera_deps       ${GRF_GL_LIBRARIES})
+    endif(BUILD_GL)
     
     include (CTest)
     list(LENGTH TESTS_NAMES len1)

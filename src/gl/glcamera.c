@@ -46,6 +46,10 @@ typedef struct _GrfGLCameraPrivate{
   GrfGLVec3* forward;           /**< Camera's front direction */
   GrfGLVec3* up;                /**< Camera's up direction */
 
+  double     pitch;             /**< Camera's pitch direction */
+  double     yaw;               /**< Camera's yaw direction */
+  double     roll;              /**< Camera's roll direction */
+
   char*      name;              /**< We can have several cameras */
 }GrfGLCameraPrivate;
 G_DEFINE_TYPE_WITH_PRIVATE(GrfGLCamera, grf_gl_camera, G_TYPE_OBJECT)
@@ -122,11 +126,11 @@ grf_gl_camera_new(){
 char*
 grf_gl_camera_get_name(GrfGLCamera* camera){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
-  g_autofree char* name = g_strdup(priv->name);
-  return g_steal_pointer(name);
+  gchar* name = g_strdup(priv->name);
+  return name;
 }
 
-char*
+void
 grf_gl_camera_set_name(GrfGLCamera *camera, char *name){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   if(priv->name) g_free(priv->name);
@@ -136,59 +140,61 @@ grf_gl_camera_set_name(GrfGLCamera *camera, char *name){
 // Movement
 
 void
-grf_gl_camera_move_right(GrfGLCamera *camera, float units){
+grf_gl_camera_move_right(GrfGLCamera *camera, double units){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   // priv->position += priv->right * units;
-  priv->position[0] += priv->right[0] * units;
-  priv->position[1] += priv->right[1] * units;
-  priv->position[2] += priv->right[2] * units;
+  priv->position->data[0] += priv->right->data[0] * units;
+  priv->position->data[1] += priv->right->data[1] * units;
+  priv->position->data[2] += priv->right->data[2] * units;
 }
 
 void
-grf_gl_camera_move_left(GrfGLCamera *camera, float units){
+grf_gl_camera_move_left(GrfGLCamera *camera, double units){
   grf_gl_camera_move_right(camera, -units);
 }
 
 void
-grf_gl_camera_move_forward(GrfGLCamera *camera, float units){
+grf_gl_camera_move_forward(GrfGLCamera *camera, double units){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
-  priv->position[0] += priv->forward[0] * units;
-  priv->position[1] += priv->forward[1] * units;
-  priv->position[2] += priv->forward[2] * units;
+  priv->position->data[0] += priv->forward->data[0] * units;
+  priv->position->data[1] += priv->forward->data[1] * units;
+  priv->position->data[2] += priv->forward->data[2] * units;
 }
 
 void
-grf_gl_camera_move_behind(GrfGLCamera *camera, float units){
+grf_gl_camera_move_behind(GrfGLCamera *camera, double units){
   grf_gl_camera_move_forward(camera, -units);
 }
 
 void
-grf_gl_camera_move_up(GrfGLCamera *camera, float units){
+grf_gl_camera_move_up(GrfGLCamera *camera, double units){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
-  priv->position[0] += priv->up[0] * units;
-  priv->position[1] += priv->up[1] * units;
-  priv->position[2] += priv->up[2] * units;
+  priv->position->data[0] += priv->up->data[0] * units;
+  priv->position->data[1] += priv->up->data[1] * units;
+  priv->position->data[2] += priv->up->data[2] * units;
 }
 
 void
-grf_gl_camera_move_down(GrfGLCamera *camera, float units){
+grf_gl_camera_move_down(GrfGLCamera *camera, double units){
   grf_gl_camera_move_up(camera, -units);
 }
 
 // Rotation
 
 void
-grf_gl_camera_pitch(GrfGLCamera *camera, float angle){
+grf_gl_camera_pitch(GrfGLCamera *camera, double angle){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   priv->pitch += angle;
 }
 
 void
-grf_gl_camera_yaw(GrfGLCamera *camera, float angle){
+grf_gl_camera_yaw(GrfGLCamera *camera, double angle){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   priv->yaw += angle;
 }
 
 void
-grf_gl_camera_roll(GrfGLCamera *camera, float angle){
+grf_gl_camera_roll(GrfGLCamera *camera, double angle){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   priv->roll += angle;
 }

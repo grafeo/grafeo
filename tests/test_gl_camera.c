@@ -25,6 +25,21 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_GL_RENDERER_H
-#define GRF_GL_RENDERER_H
-#endif
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <cmocka.h>
+#include <grafeo/gl.h>
+
+static void test_gl_camera(void** state){
+
+}
+
+int main(int argc, char** argv){
+  (void)argc;
+  (void)argv;
+  const struct CMUnitTest tests[1]={
+    cmocka_unit_test(test_gl_camera),
+  };
+  return cmocka_run_group_tests(tests,NULL,NULL);
+}

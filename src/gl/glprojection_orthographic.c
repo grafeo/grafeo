@@ -26,163 +26,179 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/gl.h>
-#define ORTHOGONAL_PROJECTION_LEFT   0
-#define ORTHOGONAL_PROJECTION_RIGHT  1
-#define ORTHOGONAL_PROJECTION_BOTTOM 2
-#define ORTHOGONAL_PROJECTION_TOP    3
-#define ORTHOGONAL_PROJECTION_NEAR   4
-#define ORTHOGONAL_PROJECTION_FAR    5
+#define ORTHOGRAPHIC_PROJECTION_LEFT   0
+#define ORTHOGRAPHIC_PROJECTION_RIGHT  1
+#define ORTHOGRAPHIC_PROJECTION_BOTTOM 2
+#define ORTHOGRAPHIC_PROJECTION_TOP    3
+#define ORTHOGRAPHIC_PROJECTION_NEAR   4
+#define ORTHOGRAPHIC_PROJECTION_FAR    5
 /*===========================================================================
  * PRIVATE API
  *===========================================================================*/
-typedef struct _GrfGLProjectionOrthogonalPrivate{
+typedef struct _GrfGLProjectionOrthographicPrivate{
   double params[6];
-}GrfGLProjectionOrthogonalPrivate;
+}GrfGLProjectionOrthographicPrivate;
 
-G_DEFINE_TYPE_WITH_PRIVATE(GrfGLProjectionOrthogonal,
-                           grf_gl_projection_orthogonal,
+G_DEFINE_TYPE_WITH_PRIVATE(GrfGLProjectionOrthographic,
+                           grf_gl_projection_orthographic,
                            GRF_TYPE_GL_PROJECTION)
 static void
-grf_gl_projection_orthogonal_init(GrfGLProjectionOrthogonal *self){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
+grf_gl_projection_orthographic_init(GrfGLProjectionOrthographic *self){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(self);
   memset(priv->params,0,6*sizeof(double));
 }
 
 static void
-grf_gl_projection_orthogonal_class_init(GrfGLProjectionOrthogonalClass *klass){
+grf_gl_projection_orthographic_class_init(GrfGLProjectionOrthographicClass *klass){
 
 }
-
-grf_gl_projection_orthogonal_update_left_right(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  double* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
-  matrix[0]    =   2.0f /
-                   (priv->params[ORTHOGONAL_PROJECTION_RIGHT] - priv->params[ORTHOGONAL_PROJECTION_LEFT]);
-  matrix[12]   = - (right + left) /
-                   (priv->params[ORTHOGONAL_PROJECTION_RIGHT] - priv->params[ORTHOGONAL_PROJECTION_LEFT]);
+static void
+grf_gl_projection_orthographic_update_left_right(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  matrix->data[0]   =   2.0f /
+                   (priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT] - priv->params[ORTHOGRAPHIC_PROJECTION_LEFT]);
+  matrix->data[12]  = - (priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT] + priv->params[ORTHOGRAPHIC_PROJECTION_LEFT]) /
+                   (priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT] - priv->params[ORTHOGRAPHIC_PROJECTION_LEFT]);
 }
-
-grf_gl_projection_orthogonal_update_bottom_top(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  double* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
-  matrix[5]    =   2.0f /
-                   (priv->params[ORTHOGONAL_PROJECTION_TOP] - priv->params[ORTHOGONAL_PROJECTION_BOTTOM]);
-  matrix[13]   = - (top + bottom) /
-                   (priv->params[ORTHOGONAL_PROJECTION_TOP] - priv->params[ORTHOGONAL_PROJECTION_BOTTOM]);
+static void
+grf_gl_projection_orthographic_update_bottom_top(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  matrix->data[5]    =   2.0f /
+                   (priv->params[ORTHOGRAPHIC_PROJECTION_TOP] - priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM]);
+  matrix->data[13]   = - (priv->params[ORTHOGRAPHIC_PROJECTION_TOP] + priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM]) /
+                   (priv->params[ORTHOGRAPHIC_PROJECTION_TOP] - priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM]);
 }
-
-grf_gl_projection_orthogonal_update_near_far(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  double* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
-  matrix[10]   = - 2.0f /
-                   (priv->params[ORTHOGONAL_PROJECTION_FAR] - priv->params[ORTHOGONAL_PROJECTION_NEAR]);
-  matrix[14]   = - (priv->params[ORTHOGONAL_PROJECTION_FAR] + priv->params[ORTHOGONAL_PROJECTION_NEAR]) /
-                   (priv->params[ORTHOGONAL_PROJECTION_FAR] - priv->params[ORTHOGONAL_PROJECTION_NEAR]);
+static void
+grf_gl_projection_orthographic_update_near_far(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  matrix->data[10]   = - 2.0f /
+                   (priv->params[ORTHOGRAPHIC_PROJECTION_FAR] - priv->params[ORTHOGRAPHIC_PROJECTION_NEAR]);
+  matrix->data[14]   = - (priv->params[ORTHOGRAPHIC_PROJECTION_FAR] + priv->params[ORTHOGRAPHIC_PROJECTION_NEAR]) /
+                   (priv->params[ORTHOGRAPHIC_PROJECTION_FAR] - priv->params[ORTHOGRAPHIC_PROJECTION_NEAR]);
 }
 
 /*===========================================================================
  * PUBLIC API
  *===========================================================================*/
-GrfGLProjectionOrthogonal*
-grf_gl_projection_orthogonal(double left, double right, double bottom, double top, double near, double far){
-  GrfGLProjectionOrthogonal* proj = g_object_new(GRF_TYPE_GL_PROJECTION_ORTHOGONAL, NULL);
-  grf_gl_projection_orthogonal_set_all(proj,left,right,bottom,top,near,far);
+GrfGLProjectionOrthographic*
+grf_gl_projection_orthographic(double left, double right, double bottom, double top, double near, double far){
+  GrfGLProjectionOrthographic* proj = g_object_new(GRF_TYPE_GL_PROJECTION_ORTHOGONAL, NULL);
+  grf_gl_projection_orthographic_set_all(proj,left,right,bottom,top,near,far);
   return proj;
 }
 /* Accessors
  *=================================*/
 double
-grf_gl_projection_orthogonal_get_left(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  return priv->params[ORTHOGONAL_PROJECTION_LEFT];
+grf_gl_projection_orthographic_get_left(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  return priv->params[ORTHOGRAPHIC_PROJECTION_LEFT];
 }
 
 double
-grf_gl_projection_orthogonal_get_right(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  return priv->params[ORTHOGONAL_PROJECTION_RIGHT];
+grf_gl_projection_orthographic_get_right(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  return priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT];
 }
 
 double
-grf_gl_projection_orthogonal_get_top(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  return priv->params[ORTHOGONAL_PROJECTION_TOP];
+grf_gl_projection_orthographic_get_top(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  return priv->params[ORTHOGRAPHIC_PROJECTION_TOP];
 }
 
 double
-grf_gl_projection_orthogonal_get_bottom(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  return priv->params[ORTHOGONAL_PROJECTION_BOTTOM];
+grf_gl_projection_orthographic_get_bottom(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  return priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM];
 }
 
 double
-grf_gl_projection_orthogonal_get_near(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  return priv->params[ORTHOGONAL_PROJECTION_NEAR];
+grf_gl_projection_orthographic_get_near(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  return priv->params[ORTHOGRAPHIC_PROJECTION_NEAR];
 }
 
 double
-grf_gl_projection_orthogonal_get_far(GrfGLProjectionOrthogonal* proj){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  return priv->params[ORTHOGONAL_PROJECTION_FAR];
+grf_gl_projection_orthographic_get_far(GrfGLProjectionOrthographic* proj){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  return priv->params[ORTHOGRAPHIC_PROJECTION_FAR];
 }
 
 /* Mutators
  *=================================*/
 void
-grf_gl_projection_orthogonal_set_left(GrfGLProjectionOrthogonal* proj,
+grf_gl_projection_orthographic_set_left(GrfGLProjectionOrthographic* proj,
                                       double left){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  priv->params[ORTHOGONAL_PROJECTION_LEFT] = left;
-  grf_gl_projection_orthogonal_update_left_right(proj);
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  priv->params[ORTHOGRAPHIC_PROJECTION_LEFT] = left;
+  grf_gl_projection_orthographic_update_left_right(proj);
 }
 
 void
-grf_gl_projection_orthogonal_set_right(GrfGLProjectionOrthogonal* proj,
+grf_gl_projection_orthographic_set_right(GrfGLProjectionOrthographic* proj,
                                        double right){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  priv->params[ORTHOGONAL_PROJECTION_RIGHT] = right;
-  grf_gl_projection_orthogonal_update_left_right(proj);
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT] = right;
+  grf_gl_projection_orthographic_update_left_right(proj);
 }
 
 void
-grf_gl_projection_orthogonal_set_top(GrfGLProjectionOrthogonal* proj,
+grf_gl_projection_orthographic_set_top(GrfGLProjectionOrthographic* proj,
                                      double top){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  priv->params[ORTHOGONAL_PROJECTION_TOP] = top;
-  grf_gl_projection_orthogonal_update_bottom_top(proj);
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  priv->params[ORTHOGRAPHIC_PROJECTION_TOP] = top;
+  grf_gl_projection_orthographic_update_bottom_top(proj);
 }
 
 void
-grf_gl_projection_orthogonal_set_bottom(GrfGLProjectionOrthogonal* proj,
+grf_gl_projection_orthographic_set_bottom(GrfGLProjectionOrthographic* proj,
                                         double bottom){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  priv->params[ORTHOGONAL_PROJECTION_BOTTOM] = bottom;
-  grf_gl_projection_orthogonal_update_bottom_top(proj);
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM] = bottom;
+  grf_gl_projection_orthographic_update_bottom_top(proj);
 }
 
 void
-grf_gl_projection_orthogonal_set_near(GrfGLProjectionOrthogonal* proj,
+grf_gl_projection_orthographic_set_near(GrfGLProjectionOrthographic* proj,
                                       double near){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  priv->params[ORTHOGONAL_PROJECTION_NEAR] = near;
-  grf_gl_projection_orthogonal_update_near_far(proj);
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  priv->params[ORTHOGRAPHIC_PROJECTION_NEAR] = near;
+  grf_gl_projection_orthographic_update_near_far(proj);
 
 }
 
 void
-grf_gl_projection_orthogonal_set_far(GrfGLProjectionOrthogonal* proj,
+grf_gl_projection_orthographic_set_far(GrfGLProjectionOrthographic* proj,
                                      double far){
-  GrfGLProjectionOrthogonalPrivate* priv = grf_gl_projection_orthogonal_get_instance_private(self);
-  priv->params[ORTHOGONAL_PROJECTION_FAR] = far;
-  grf_gl_projection_orthogonal_update_near_far(proj);
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  priv->params[ORTHOGRAPHIC_PROJECTION_FAR] = far;
+  grf_gl_projection_orthographic_update_near_far(proj);
 }
 
 void
-grf_gl_projection_orthogonal_update(GrfGLProjectionOrthogonal* proj){
-  double* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
-  memset(matrix,0,sizeof(matrix)*16);
-  grf_gl_projection_orthogonal_update_near_far(proj);
-  grf_gl_projection_orthogonal_update_bottom_top(proj);
-  grf_gl_projection_orthogonal_update_left_right(proj);
+grf_gl_projection_orthographic_set_all(GrfGLProjectionOrthographic* proj,
+                                     double left  , double right,
+                                     double bottom, double top,
+                                     double near  , double far){
+  GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
+  priv->params[ORTHOGRAPHIC_PROJECTION_LEFT]   = left;
+  priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT]  = right;
+  priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM] = bottom;
+  priv->params[ORTHOGRAPHIC_PROJECTION_TOP]    = top;
+  priv->params[ORTHOGRAPHIC_PROJECTION_NEAR]   = near;
+  priv->params[ORTHOGRAPHIC_PROJECTION_FAR]    = far;
+  grf_gl_projection_orthographic_update(proj);
+}
+
+void
+grf_gl_projection_orthographic_update(GrfGLProjectionOrthographic* proj){
+  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  grf_gl_projection_fill(GRF_GL_PROJECTION(proj), 0);
+  grf_gl_projection_orthographic_update_near_far(proj);
+  grf_gl_projection_orthographic_update_bottom_top(proj);
+  grf_gl_projection_orthographic_update_left_right(proj);
+  matrix->data[15] = 1.0;
 }
