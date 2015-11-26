@@ -30,9 +30,9 @@
 /*=================================
  * PRIVATE API
  *=================================*/
-#define MATRIX_SIZE 16*sizeof(float)
+#define MATRIX_SIZE 16*sizeof(double)
 typedef struct _GrfGLProjectionPrivate{
-  float matrix[16];
+  double matrix[16];
 }GrfGLProjectionPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GrfGLProjection, grf_gl_projection,G_TYPE_OBJECT)
@@ -44,7 +44,7 @@ G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GrfGLProjection, grf_gl_projection,G_TYPE_OB
 float*
 grf_gl_projection_get_matrix(GrfGLProjection* projection){
   GrfGLProjectionPrivate* priv = grf_gl_projection_get_instance_private(projection);
-  g_autofree float* matrix = g_slice_copy(MATRIX_SIZE,priv->matrix);
+  g_autofree double* matrix = g_slice_copy(MATRIX_SIZE,priv->matrix);
   return g_steal_pointer(matrix);
 }
 float*
@@ -54,7 +54,7 @@ grf_gl_projection_get_matrix_ptr(GrfGLProjection* projection){
 }
 
 void
-grf_gl_projection_set_matrix(GrfGLProjection* projection, float* matrix){
+grf_gl_projection_set_matrix(GrfGLProjection* projection, double* matrix){
   GrfGLProjectionPrivate* priv = grf_gl_projection_get_instance_private(projection);
   memcpy(priv->matrix,matrix,MATRIX_SIZE);
 }

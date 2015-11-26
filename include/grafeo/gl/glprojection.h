@@ -40,13 +40,22 @@ typedef struct _GrfGLProjectionClass{
  * @param projection
  * @return
  */
-float*
+double*
 grf_gl_projection_get_matrix(GrfGLProjection* projection);
+/**
+ * @brief grf_gl_projection_get_matrix_ptr
+ * @param projection
+ * @return
+ */
+double*
+grf_gl_projection_get_matrix_ptr(GrfGLProjection* projection);
 /**
  * @brief grf_gl_projection_set_matrix
  * @param projection
  * @param matrix
  */
 void
-grf_gl_projection_set_matrix(GrfGLProjection* projection, float* matrix);
+grf_gl_projection_set_matrix(GrfGLProjection* projection, double* matrix);
+
+
 #endif
