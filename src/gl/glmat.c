@@ -29,16 +29,8 @@
 /*===========================================================================
  * PRIVATE API
  *===========================================================================*/
-/*===========================================================================
- * PUBLIC API
- *===========================================================================*/
-GrfGLMat4
-grf_gl_mat4_eye(){
-  return (GrfGLMat4){{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}};
-}
-
-void
-grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis){
+static void
+grf_gl_create_rotation_matrix(GrfGLMat4* rotation, double angle, GrfGLVec3 axis){
   double a            = grf_to_rad(angle);
   double c            = cos(a);
   double cc           = 1-c;
@@ -62,27 +54,55 @@ grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis){
   double uw = u*w;
   double vw = v*w;
 
-  GrfGLMat4 rotation = grf_gl_mat4_eye();
+
   //GrfArray* rotation = grf_array_zeros(2,sizes,GRF_double);
 
-  rotation.data[0]  = u2*cc + c;
-  rotation.data[1]  = uv*cc + w*s;
-  rotation.data[2]  = uw*cc - v*s;
+  rotation->data[0]  = u2*cc + c;
+  rotation->data[1]  = uv*cc + w*s;
+  rotation->data[2]  = uw*cc - v*s;
 
-  rotation.data[4]  = uv*cc - w*s;
-  rotation.data[5]  = v2*cc + c;
-  rotation.data[6]  = vw*cc + u*s;
+  rotation->data[4]  = uv*cc - w*s;
+  rotation->data[5]  = v2*cc + c;
+  rotation->data[6]  = vw*cc + u*s;
 
-  rotation.data[8]  = uw*cc + v*s;
-  rotation.data[9]  = vw*cc - u*s;
-  rotation.data[10] = w2*cc + c;
+  rotation->data[8]  = uw*cc + v*s;
+  rotation->data[9]  = vw*cc - u*s;
+  rotation->data[10] = w2*cc + c;
+}
+/*===========================================================================
+ * PUBLIC API
+ *===========================================================================*/
+GrfGLMat4
+grf_gl_mat4_eye(){
+  return (GrfGLMat4){{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}};
+}
 
+void
+grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis){
+  GrfGLMat4 rotation = grf_gl_mat4_eye();
+  grf_gl_create_rotation_matrix(&rotation,angle,axis);
   grf_gl_mat4_mult_vec3(&rotation,vec);
 }
+
+void
+grf_gl_mat4_rotate_mat4(GrfGLMat4* mat, double angle, GrfGLVec3 axis){
+  GrfGLMat4 rotation = grf_gl_mat4_eye();
+  grf_gl_create_rotation_matrix(&rotation,angle,axis);
+  grf_gl_mat4_mult_mat4(&rotation,mat,mat);
+}
+
 void
 grf_gl_mat4_mult_vec3(GrfGLMat4* mat, GrfGLVec3* vec){
   GrfGLVec3 res = *vec;
   u_int8_t i;
+  GrfGLVec3 rows[3] = {{{mat->data[0],mat->data[4],mat->data[8]}},
+                       {{mat->data[1],mat->data[5],mat->data[9]}},
+                       {{mat->data[2],mat->data[6],mat->data[10]}}};
+  for(i = 0; i < 3; i++)
+    vec->data[i] = grf_gl_vec3_dot(&res,&rows[i]) + mat->data[12+i];
+}
+void
+grf_gl_mat4_mult_mat4(GrfGLMat4* mat1, GrfGLMat4* mat2, GrfGLMat4 output){
   GrfGLVec3 rows[3] = {{{mat->data[0],mat->data[4],mat->data[8]}},
                        {{mat->data[1],mat->data[5],mat->data[9]}},
                        {{mat->data[2],mat->data[6],mat->data[10]}}};
