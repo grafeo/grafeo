@@ -142,21 +142,14 @@ grf_gl_camera_perspective(GrfGLCamera* camera);
  * @param camera
  * @return
  */
-GrfGLMat4*
-grf_gl_camera_get_view_matrix(GrfGLCamera* camera);
-/**
- * @brief grf_gl_camera_get_projection_matrix
- * @param camera
- * @return
- */
-GrfGLMat4*
-grf_gl_camera_get_projection_matrix(GrfGLCamera* camera);
+GrfGLMat4
+grf_gl_camera_get_view(GrfGLCamera* camera);
 /**
  * @brief grf_gl_camera_get_position
  * @return
  */
-GrfGLVec3*
-grf_gl_camera_get_position();
+GrfGLVec3
+grf_gl_camera_get_position(GrfGLCamera* camera);
 /**
  * @brief return the projection
  * @param camera

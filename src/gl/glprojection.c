@@ -35,7 +35,7 @@ typedef struct _GrfGLProjectionPrivate{
   GrfGLMat4 matrix;
 }GrfGLProjectionPrivate;
 
-G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GrfGLProjection, grf_gl_projection,G_TYPE_OBJECT)
+G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GrfGLProjection, grf_gl_projection,G_TYPE_INITIALLY_UNOWNED)
 static void
 grf_gl_projection_init(GrfGLProjection *self){
   grf_gl_projection_fill(self, 0);

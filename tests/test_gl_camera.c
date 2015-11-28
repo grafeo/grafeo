@@ -32,7 +32,17 @@
 #include <grafeo/gl.h>
 
 static void test_gl_camera(void** state){
-
+  g_autoptr(GrfGLCamera) camera = grf_gl_camera_new();
+  assert_non_null(camera);
+  g_autofree char* name = grf_gl_camera_get_name(camera);
+  assert_null(name);
+  GrfGLVec3 position = grf_gl_camera_get_position(camera);
+  GrfGLVec3 position_default = {{0.0,0.0,0.0}};
+  assert_memory_equal(&position, &position_default, sizeof(GrfGLVec3));
+  g_autoptr(GrfGLProjection) proj1 = GRF_GL_PROJECTION(grf_gl_projection_perspective(45.0,640.0/480.0,0.1,100.0));
+  g_autoptr(GrfGLProjection) proj2 = GRF_GL_PROJECTION(grf_gl_projection_orthographic(-100,100,-100,100,-100,100));
+  grf_gl_camera_set_projection(camera, proj1);
+  grf_gl_camera_set_projection(camera, proj2);
 }
 
 int main(int argc, char** argv){

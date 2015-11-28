@@ -30,4 +30,53 @@
 typedef struct _GrfGLVec3{
   double data[3];
 }GrfGLVec3;
+
+/**
+ * @brief grf_gl_vec3_add
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_gl_vec3_add(GrfGLVec3* vec1, GrfGLVec3* vec2);
+
+/**
+ * @brief grf_gl_vec3_subtract
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_gl_vec3_subtract(GrfGLVec3* vec1, GrfGLVec3* vec2);
+
+/**
+ * @brief grf_gl_vec3_multiply
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_gl_vec3_multiply(GrfGLVec3* vec1, GrfGLVec3* vec2);
+
+/**
+ * @brief grf_gl_vec3_divide
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_gl_vec3_divide(GrfGLVec3* vec1, GrfGLVec3* vec2);
+
+/**
+ * @brief grf_gl_vec3_dot
+ * @param vec1
+ * @param vec2
+ * @return
+ */
+double
+grf_gl_vec3_dot(GrfGLVec3* vec1, GrfGLVec3* vec2);
+/**
+ * @brief grf_gl_vec3_multiply_scalar
+ * @param vec1
+ * @param scalar
+ */
+void
+grf_gl_vec3_multiply_scalar(GrfGLVec3* vec1, double scalar);
+
 #endif

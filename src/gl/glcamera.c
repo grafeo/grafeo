@@ -35,16 +35,16 @@
  * You must initialize everything in grf_gl_camera_init
  */
 typedef struct _GrfGLCameraPrivate{
-  GrfGLMat4* matrix_view;       /**< view matrix
+  GrfGLMat4 matrix_view;        /**< view matrix
                                      (camera extrinsic parameters) */
-  GrfGLMat4* matrix_projection; /**< projection matrix
+  GrfGLProjection* projection;  /**< projection matrix
                                      (camera intrinsic parameters) */
 
-  GrfGLVec3* position;          /**< Location of the camera */
+  GrfGLVec3  position;          /**< Location of the camera */
 
-  GrfGLVec3* right;             /**< Cemras's right direction */
-  GrfGLVec3* forward;           /**< Camera's front direction */
-  GrfGLVec3* up;                /**< Camera's up direction */
+  GrfGLVec3  right;             /**< Cemras's right direction */
+  GrfGLVec3  forward;           /**< Camera's front direction */
+  GrfGLVec3  up;                /**< Camera's up direction */
 
   double     pitch;             /**< Camera's pitch direction */
   double     yaw;               /**< Camera's yaw direction */
@@ -66,9 +66,7 @@ grf_gl_camera_dispose(GObject* object){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
 
   // Clear members
-  g_clear_object(&priv->matrix_view);
-  g_clear_object(&priv->matrix_projection);
-  g_clear_object(&priv->position);
+  g_clear_object(&priv->projection);
 
   // Continue process with superclasses
   G_OBJECT_CLASS (grf_gl_camera_parent_class)->dispose (object);
@@ -98,9 +96,9 @@ grf_gl_camera_finalize(GObject* object){
 static void
 grf_gl_camera_init(GrfGLCamera *self){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(self);
-  priv->matrix_projection = NULL;
-  priv->matrix_view       = NULL;
-  priv->position          = NULL;
+  priv->projection         = NULL;
+  memset(&priv->position,0,sizeof(GrfGLVec3));
+  memset(&priv->matrix_view,0,sizeof(GrfGLMat4));
   priv->name              = NULL;
 }
 
@@ -143,9 +141,9 @@ void
 grf_gl_camera_move_right(GrfGLCamera *camera, double units){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   // priv->position += priv->right * units;
-  priv->position->data[0] += priv->right->data[0] * units;
-  priv->position->data[1] += priv->right->data[1] * units;
-  priv->position->data[2] += priv->right->data[2] * units;
+  GrfGLVec3 right_scaled = priv->right;
+  grf_gl_vec3_multiply_scalar(&right_scaled, units);    // priv->right * units;
+  grf_gl_vec3_add(&priv->position, &right_scaled);
 }
 
 void
@@ -156,9 +154,11 @@ grf_gl_camera_move_left(GrfGLCamera *camera, double units){
 void
 grf_gl_camera_move_forward(GrfGLCamera *camera, double units){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
-  priv->position->data[0] += priv->forward->data[0] * units;
-  priv->position->data[1] += priv->forward->data[1] * units;
-  priv->position->data[2] += priv->forward->data[2] * units;
+
+  // priv->position += priv->forward * units;
+  GrfGLVec3 forward_scaled = priv->forward;
+  grf_gl_vec3_multiply_scalar(&forward_scaled, units);    // priv->forward * units;
+  grf_gl_vec3_add(&priv->position, &forward_scaled);
 }
 
 void
@@ -169,9 +169,11 @@ grf_gl_camera_move_behind(GrfGLCamera *camera, double units){
 void
 grf_gl_camera_move_up(GrfGLCamera *camera, double units){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
-  priv->position->data[0] += priv->up->data[0] * units;
-  priv->position->data[1] += priv->up->data[1] * units;
-  priv->position->data[2] += priv->up->data[2] * units;
+
+  // priv->position += priv->forward * units;
+  GrfGLVec3 up_scaled = priv->up;
+  grf_gl_vec3_multiply_scalar(&up_scaled, units);    // priv->forward * units;
+  grf_gl_vec3_add(&priv->position, &up_scaled);
 }
 
 void
@@ -197,4 +199,26 @@ void
 grf_gl_camera_roll(GrfGLCamera *camera, double angle){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   priv->roll += angle;
+}
+GrfGLVec3
+grf_gl_camera_get_position(GrfGLCamera *camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  return priv->position;
+}
+GrfGLProjection*
+grf_gl_camera_get_projection(GrfGLCamera* camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  return priv->projection;
+}
+
+GrfGLMat4
+grf_gl_camera_get_view(GrfGLCamera* camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  return priv->matrix_view;
+}
+
+void
+grf_gl_camera_set_projection(GrfGLCamera* camera, GrfGLProjection* projection){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  g_set_object(&priv->projection,projection);
 }

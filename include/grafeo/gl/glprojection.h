@@ -31,9 +31,9 @@
 #include <glib-object.h>
 
 #define GRF_TYPE_GL_PROJECTION grf_gl_projection_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfGLProjection, grf_gl_projection, GRF, GL_PROJECTION, GObject)
+G_DECLARE_DERIVABLE_TYPE(GrfGLProjection, grf_gl_projection, GRF, GL_PROJECTION, GInitiallyUnowned)
 typedef struct _GrfGLProjectionClass{
-  GObjectClass parent_class;
+  GInitiallyUnownedClass parent_class;
 }GrfGLProjectionClass;
 /**
  * @brief Get a copy of the projection matrix.
