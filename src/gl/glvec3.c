@@ -67,3 +67,23 @@ grf_gl_vec3_multiply_scalar(GrfGLVec3* vec1, double scalar){
   vec1->data[1] *= scalar;
   vec1->data[2] *= scalar;
 }
+void
+grf_gl_vec3_normalize(GrfGLVec3* vec){
+  double magnitude = grf_gl_vec3_get_magnitude(vec);
+  grf_gl_vec3_multiply_scalar(vec,1.0/magnitude);
+}
+double
+grf_gl_vec3_get_magnitude(GrfGLVec3* vec){
+  return sqrt(vec->data[0]*vec->data[0] + vec->data[1]*vec->data[1] + vec->data[2]*vec->data[2]);
+}
+GrfGLVec3
+grf_gl_vec3_cross(GrfGLVec3* vec1, GrfGLVec3* vec2){
+  double* d1 = vec1->data;
+  double* d2 = vec2->data;
+  GrfGLVec3 result;
+  double* d = result.data;
+  d[0] = d1[1] * d2[2] - d2[1] * d1[2];
+  d[1] = d1[2] * d2[0] - d2[2] * d1[0];
+  d[2] = d1[0] * d2[1] - d2[0] * d1[1];
+  return result;
+}

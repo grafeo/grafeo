@@ -112,6 +112,40 @@ grf_gl_camera_class_init(GrfGLCameraClass *klass){
   object_class->finalize = grf_gl_camera_finalize;
 }
 
+void
+grf_gl_camera_update_view_position(GrfGLCamera* camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  double* d = priv->matrix_view.data;
+  d[3]  = -grf_gl_vec3_dot(&priv->right,&priv->position);
+  d[7]  = -grf_gl_vec3_dot(&priv->up,&priv->position);
+  d[11] =  grf_gl_vec3_dot(&priv->forward,&priv->position);
+}
+
+void
+grf_gl_camera_update_view_forward(GrfGLCamera* camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  double* d = priv->matrix_view.data;
+  d[8 ] = -priv->forward.data[0];
+  d[9 ] = -priv->forward.data[1];
+  d[10] = -priv->forward.data[2];
+}
+
+void
+grf_gl_camera_update_view_right(GrfGLCamera* camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  double* d = priv->matrix_view.data;
+  d[0 ] = priv->right.data[0];
+  d[1 ] = priv->right.data[1];
+  d[2 ] = priv->right.data[2];
+}
+void
+grf_gl_camera_update_view_up(GrfGLCamera* camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+  double* d = priv->matrix_view.data;
+  d[4 ] = priv->up.data[0];
+  d[5 ] = priv->up.data[1];
+  d[6 ] = priv->up.data[2];
+}
 
 /*=================================
  * PUBLIC API
@@ -144,6 +178,7 @@ grf_gl_camera_move_right(GrfGLCamera *camera, double units){
   GrfGLVec3 right_scaled = priv->right;
   grf_gl_vec3_multiply_scalar(&right_scaled, units);    // priv->right * units;
   grf_gl_vec3_add(&priv->position, &right_scaled);
+  grf_gl_camera_update_view_position(camera);
 }
 
 void
@@ -159,6 +194,7 @@ grf_gl_camera_move_forward(GrfGLCamera *camera, double units){
   GrfGLVec3 forward_scaled = priv->forward;
   grf_gl_vec3_multiply_scalar(&forward_scaled, units);    // priv->forward * units;
   grf_gl_vec3_add(&priv->position, &forward_scaled);
+  grf_gl_camera_update_view_position(camera);
 }
 
 void
@@ -174,6 +210,7 @@ grf_gl_camera_move_up(GrfGLCamera *camera, double units){
   GrfGLVec3 up_scaled = priv->up;
   grf_gl_vec3_multiply_scalar(&up_scaled, units);    // priv->forward * units;
   grf_gl_vec3_add(&priv->position, &up_scaled);
+  grf_gl_camera_update_view_position(camera);
 }
 
 void
@@ -187,18 +224,33 @@ void
 grf_gl_camera_pitch(GrfGLCamera *camera, double angle){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   priv->pitch += angle;
+  grf_gl_mat4_rotate_vec3(&priv->forward, angle, priv->right);
+  grf_gl_mat4_rotate_vec3(&priv->up, angle, priv->right);
+  grf_gl_camera_update_view_forward(camera);
+  grf_gl_camera_update_view_up(camera);
+  grf_gl_camera_update_view_position(camera);
 }
 
 void
 grf_gl_camera_yaw(GrfGLCamera *camera, double angle){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   priv->yaw += angle;
+  grf_gl_mat4_rotate_vec3(&priv->forward, angle, priv->up);
+  grf_gl_mat4_rotate_vec3(&priv->right, angle, priv->up);
+  grf_gl_camera_update_view_forward(camera);
+  grf_gl_camera_update_view_right(camera);
+  grf_gl_camera_update_view_position(camera);
 }
 
 void
 grf_gl_camera_roll(GrfGLCamera *camera, double angle){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   priv->roll += angle;
+  grf_gl_mat4_rotate_vec3(&priv->right, angle, priv->forward);
+  grf_gl_mat4_rotate_vec3(&priv->up, angle, priv->forward);
+  grf_gl_camera_update_view_right(camera);
+  grf_gl_camera_update_view_up(camera);
+  grf_gl_camera_update_view_position(camera);
 }
 GrfGLVec3
 grf_gl_camera_get_position(GrfGLCamera *camera){
@@ -221,4 +273,31 @@ void
 grf_gl_camera_set_projection(GrfGLCamera* camera, GrfGLProjection* projection){
   GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
   g_set_object(&priv->projection,projection);
+}
+
+void
+grf_gl_camera_reset_view(GrfGLCamera* camera, GrfGLVec3 position, GrfGLVec3 target, GrfGLVec3 up_camera){
+  GrfGLCameraPrivate* priv = grf_gl_camera_get_instance_private(camera);
+
+  // Get Forward
+  priv->forward = target;
+  grf_gl_vec3_subtract(&priv->forward,&position);
+  grf_gl_vec3_normalize(&priv->forward);
+
+  // Get Right
+  priv->right = grf_gl_vec3_cross(&priv->forward, &up_camera);
+  grf_gl_vec3_normalize(&priv->right);
+
+  // Get Up
+  priv->up = grf_gl_vec3_cross(&priv->right,&priv->forward);
+  grf_gl_vec3_normalize(&priv->up);
+
+  // Get position
+  priv->position = position;
+  double* d = priv->matrix_view.data;
+  grf_gl_camera_update_view_right(camera);
+  grf_gl_camera_update_view_up(camera);
+  grf_gl_camera_update_view_forward(camera);
+  grf_gl_camera_update_view_position(camera);
+  d[15] = 1.0;
 }

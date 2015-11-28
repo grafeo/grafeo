@@ -27,7 +27,29 @@
 # ===================================================================*/
 #ifndef GRF_GL_MAT4_H
 #define GRF_GL_MAT4_H
+#include <grafeo/gl.h>
 typedef struct _GrfGLMat4{
   double data[16];
 }GrfGLMat4;
+/**
+ * @brief grf_gl_mat4_eye
+ * @return
+ */
+GrfGLMat4
+grf_gl_mat4_eye();
+/**
+ * @brief grf_gl_mat4_rotate_vec3
+ * @param vec
+ * @param angle
+ * @param axis
+ */
+void
+grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis);
+/**
+ * @brief grf_gl_mat4_mult_vec3
+ * @param mat
+ * @param vec
+ */
+void
+grf_gl_mat4_mult_vec3(GrfGLMat4* mat, GrfGLVec3* vec);
 #endif

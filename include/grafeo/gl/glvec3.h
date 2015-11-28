@@ -27,6 +27,9 @@
 # ===================================================================*/
 #ifndef GRF_GL_VEC3_H
 #define GRF_GL_VEC3_H
+#include <math.h>
+#define grf_to_rad(angle) (angle / 180.0 * M_PI  )
+#define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
 typedef struct _GrfGLVec3{
   double data[3];
 }GrfGLVec3;
@@ -72,11 +75,33 @@ grf_gl_vec3_divide(GrfGLVec3* vec1, GrfGLVec3* vec2);
 double
 grf_gl_vec3_dot(GrfGLVec3* vec1, GrfGLVec3* vec2);
 /**
+ * @brief grf_gl_vec3_cross
+ * @param vec1
+ * @param vec2
+ * @return
+ */
+GrfGLVec3
+grf_gl_vec3_cross(GrfGLVec3* vec1, GrfGLVec3* vec2);
+
+/**
  * @brief grf_gl_vec3_multiply_scalar
  * @param vec1
  * @param scalar
  */
 void
 grf_gl_vec3_multiply_scalar(GrfGLVec3* vec1, double scalar);
+/**
+ * @brief grf_gl_vec3_normalize
+ * @param vec
+ */
+void
+grf_gl_vec3_normalize(GrfGLVec3* vec);
+/**
+ * @brief grf_gl_vec3_get_magnitude
+ * @param vec
+ * @return
+ */
+double
+grf_gl_vec3_get_magnitude(GrfGLVec3* vec);
 
 #endif
