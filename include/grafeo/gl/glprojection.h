@@ -25,31 +25,55 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_GL_MAT4_H
-#define GRF_GL_MAT4_H
+#ifndef GRF_GL_PROJECTION_H
+#define GRF_GL_PROJECTION_H
 #include <grafeo/gl.h>
-typedef struct _GrfGLMat4{
-  double data[16];
-}GrfGLMat4;
+#include <glib-object.h>
+
+#define GRF_TYPE_GL_PROJECTION grf_gl_projection_get_type()
+G_DECLARE_DERIVABLE_TYPE(GrfGLProjection, grf_gl_projection, GRF, GL_PROJECTION, GInitiallyUnowned)
+typedef struct _GrfGLProjectionClass{
+  GInitiallyUnownedClass parent_class;
+}GrfGLProjectionClass;
 /**
- * @brief grf_gl_mat4_eye
+ * @brief Get a copy of the projection matrix.
+ *
+ * After using it, you need to free the copy. Use g_autofree to automatically do this:
+ *
+ * ~~~c
+ * void something(GrfGLProjection* proj){
+ *   g_autofree double* matrix = grf_gl_projection_get_matrix(proj);
+ *
+ *   // ... manipulate matrix ...
+ *
+ *   // ... the matrix variable is automatically freed
+ * }
+ * ~~~
+ *
+ * @param projection
  * @return
  */
-GrfGLMat4
-grf_gl_mat4_eye();
+GrfGLMat4*
+grf_gl_projection_get_matrix(GrfGLProjection* projection);
 /**
- * @brief grf_gl_mat4_rotate_vec3
- * @param vec
- * @param angle
- * @param axis
+ * @brief grf_gl_projection_get_matrix_ptr
+ * @param projection
+ * @return
+ */
+GrfGLMat4*
+grf_gl_projection_get_matrix_ptr(GrfGLProjection* projection);
+/**
+ * @brief grf_gl_projection_set_matrix
+ * @param projection
+ * @param matrix
  */
 void
-grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis);
+grf_gl_projection_set_matrix(GrfGLProjection* projection, GrfGLMat4* matrix);
 /**
- * @brief grf_gl_mat4_mult_vec3
- * @param mat
- * @param vec
+ * @brief grf_gl_projection_fill
+ * @param proj
+ * @param value
  */
 void
-grf_gl_mat4_mult_vec3(GrfGLMat4* mat, GrfGLVec3* vec);
+grf_gl_projection_fill(GrfGLProjection* proj, int value);
 #endif
