@@ -89,3 +89,18 @@ grf_gl_mat4_mult_vec3(GrfGLMat4* mat, GrfGLVec3* vec){
   for(i = 0; i < 3; i++)
     vec->data[i] = grf_gl_vec3_dot(&res,&rows[i]) + mat->data[12+i];
 }
+void
+grf_gl_mat4_mult_mat4(GrfGLMat4* mat1, GrfGLMat4* mat2, GrfGLMat4* output){
+  GrfGLVec4 rows1[4] = {{{mat1->data[0],mat1->data[4],mat1->data[8] ,mat1->data[12]}},
+                        {{mat1->data[1],mat1->data[5],mat1->data[9] ,mat1->data[13]}},
+                        {{mat1->data[2],mat1->data[6],mat1->data[10],mat1->data[14]}},
+                        {{mat1->data[3],mat1->data[7],mat1->data[11],mat1->data[15]}}};
+  GrfGLVec4 columns2[4] = {*(GrfGLVec4*)&mat2->data[0],
+                           *(GrfGLVec4*)&mat2->data[4],
+                           *(GrfGLVec4*)&mat2->data[8],
+                           *(GrfGLVec4*)&mat2->data[12]};
+  u_int8_t i, j, k = 0;
+  for(j = 0; j < 4; j++)
+    for(i = 0; i < 4; i++, k++)
+      output->data[k] = grf_gl_vec4_dot(&rows1[i],&columns2[j]);
+}
