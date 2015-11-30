@@ -29,17 +29,17 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
-#include <grafeo/display.h>
+#include <grafeo/chart.h>
 
-static void test_grf_chart_widget(void** state){
-  (void) state;
+static void test_grf_gl_loader_3ds(void** state){
+
 }
 
 int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_grf_chart_widget),
+    cmocka_unit_test(test_grf_gl_loader_3ds),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }
