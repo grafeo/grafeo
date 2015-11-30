@@ -46,6 +46,14 @@ grf_gl_mat4_eye();
 void
 grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis);
 /**
+ * @brief grf_gl_mat4_rotate_mat4
+ * @param mat
+ * @param angle
+ * @param axis
+ */
+void
+grf_gl_mat4_rotate_mat4(GrfGLMat4* mat, double angle, GrfGLVec3 axis);
+/**
  * @brief grf_gl_mat4_mult_vec3
  * @param mat
  * @param vec
