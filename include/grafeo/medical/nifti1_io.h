@@ -54,6 +54,12 @@ typedef enum _GrfAnalyze75OrientCode {
   GRF_A75_ORIENT_UNKNOWN       = 6
 } GrfAnalyze75OrientCode;
 
+typedef enum{
+  GRF_NIFTI_TYPE_ANALYZE,
+  GRF_NIFTI_TYPE_NIFTI1_1,
+  GRF_NIFTI_TYPE_NIFTI1_2,
+  GRF_NIFTI_TYPE_ASCII,
+} GrfNiftiFileType;
 /*-------------------- Some C convenience macros ----------------------------*/
 
 /* NIfTI-1.1 extension codes:
@@ -156,10 +162,36 @@ grf_nifti_image_get_qfac(GrfNiftiImage* image);
  * @param image
  * @return
  */
-int
+GrfEndianess
 grf_nifti_image_get_byteorder(GrfNiftiImage* image);
-
-
+/**
+ * @brief grf_nifti_image_get_filetype
+ * @param image
+ * @return
+ */
+GrfNiftiFileType
+grf_nifti_image_get_filetype(GrfNiftiImage* image);
+/**
+ * @brief grf_nifti_image_get_filename
+ * @param image
+ * @return
+ */
+char*
+grf_nifti_image_get_filename(GrfNiftiImage* image);
+/**
+ * @brief grf_nifti_image_get_iname
+ * @param image
+ * @return
+ */
+char*
+grf_nifti_image_get_iname(GrfNiftiImage* image);
+/**
+ * @brief grf_nifti_image_get_ndim
+ * @param image
+ * @return
+ */
+int
+grf_nifti_image_get_ndim(GrfNiftiImage* image);
 
 
 

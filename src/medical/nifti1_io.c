@@ -103,10 +103,125 @@ typedef struct _GrfNiftiImagePrivate{
 G_DEFINE_TYPE_WITH_PRIVATE(GrfNiftiImage, grf_nifti_image, GRF_TYPE_NDARRAY)
 static void
 grf_nifti_image_init(GrfNiftiImage *self){
-
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(self);
+  priv->fname = NULL;
+  priv->iname = NULL;
 }
 static void
 grf_nifti_image_class_init(GrfNiftiImageClass *klass){
+
+}
+/**
+ * @brief Creates a new GrfNiftiImage object
+ * @return
+ */
+static GrfNiftiImage*
+grf_nifti_image_new(){
+  return g_object_new(GRF_TYPE_NIFTI_IMAGE, NULL);
+}
+/**
+ * @brief grf_nifti_image_set_nsize
+ * @param image
+ * @param nsize
+ */
+void
+grf_nifti_image_set_nsize(GrfNiftiImage* image, GrfVec6 nsize){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize = nsize;
+}
+/**
+ * @brief grf_nifti_image_set_dsize
+ * @param image
+ * @param dsize
+ */
+void
+grf_nifti_image_set_dsize(GrfNiftiImage* image, GrfVec6 dsize){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->dsize = dsize;
+}
+/**
+ * @brief grf_nifti_image_set_qfac
+ * @param image
+ * @param qfac
+ */
+void
+grf_nifti_image_set_qfac(GrfNiftiImage* image, float qfac){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->qfac = qfac;
+}
+/**
+ * @brief grf_nifti_image_set_byteorder
+ * @param image
+ * @param byteorder
+ */
+void
+grf_nifti_image_set_byteorder(GrfNiftiImage* image, int byteorder){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->byteorder = byteorder;
+}
+/**
+ * @brief grf_nifti_image_set_filetype
+ * @param image
+ * @param filetype
+ */
+void
+grf_nifti_image_set_filetype(GrfNiftiImage* image, GrfNiftiFileType filetype){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nifti_type = filetype;
+}
+/**
+ * @brief grf_nifti_image_get_filename
+ * @param image
+ * @return
+ */
+void
+grf_nifti_image_set_filename(GrfNiftiImage* image, char* filename){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  if(priv->fname) g_free(priv->fname);
+  priv->fname = g_strdup(filename);
+}
+/**
+ * @brief grf_nifti_image_set_iname
+ * @param image
+ * @param filename
+ */
+void
+grf_nifti_image_set_iname(GrfNiftiImage* image, char* filename){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  if(priv->iname) g_free(priv->iname);
+  priv->iname = g_strdup(filename);
+}
+void
+grf_nifti_image_set_iname_offset(GrfNiftiImage* image, int iname_offset){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->iname_offset = iname_offset;
+}
+void
+grf_nifti_image_set_datatype(GrfNiftiImage* image, int datatype){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->datatype = datatype;
+}
+void
+grf_nifti_image_set_ndim(GrfNiftiImage* image, int ndim){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->ndim = ndim;
+}
+void
+grf_nifti_image_set_nx(GrfNiftiImage* image, int nx){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[0] = nx;
+}
+void
+grf_nifti_image_set_ny(GrfNiftiImage* image, int ny){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[1] = ny;
+}
+void
+grf_nifti_image_set_nz(GrfNiftiImage* image, int nz){
+
+}
+void
+grf_nifti_image_set_nt(GrfNiftiImage* image, int nt){
 
 }
 
@@ -353,72 +468,142 @@ grf_nifti_has_ascii_header( GrfZnzFile* fp )
 
    return 0;
 }
-/**
- * @brief Creates a new GrfNiftiImage object
- * @return
- */
-static GrfNiftiImage*
-grf_nifti_image_new(){
-  return g_object_new(GRF_TYPE_NIFTI_IMAGE, NULL);
-}
-/**
- * @brief grf_nifti_image_set_nsize
- * @param image
- * @param nsize
- */
-void
-grf_nifti_image_set_nsize(GrfNiftiImage* image, GrfVec6 nsize){
-  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
-  priv->nsize = nsize;
-}
-
-/**
- * @brief grf_nifti_image_set_dsize
- * @param image
- * @param dsize
- */
-void
-grf_nifti_image_set_dsize(GrfNiftiImage* image, GrfVec6 dsize){
-  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
-  priv->dsize = dsize;
-}
-
-/**
- * @brief grf_nifti_image_set_qfac
- * @param image
- * @param qfac
- */
-void
-grf_nifti_image_set_qfac(GrfNiftiImage* image, float qfac){
-  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
-  priv->qfac = qfac;
-}
-/**
- * @brief grf_nifti_image_set_byteorder
- * @param image
- * @param byteorder
- */
-void
-grf_nifti_image_set_byteorder(GrfNiftiImage* image, int byteorder){
-  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
-  priv->byteorder = byteorder;
-}
 
 /*----------------------------------------------------------------------*/
 /*! get the byte order for this CPU
 
-    - LSB_FIRST means least significant byte, first (little endian)
-    - MSB_FIRST means most significant byte, first (big endian)
+    - GRF_LITTLE_ENDIAN means least significant byte, first
+    - GRF_BIG_ENDIAN means most significant byte, first
 *//*--------------------------------------------------------------------*/
-int grf_nifti_short_order(void)   /* determine this CPU's byte order */
+GrfEndianess grf_nifti_short_order(void)   /* determine this CPU's byte order */
 {
   union { unsigned char bb[2] ;
           short         ss    ; } fred ;
 
   fred.bb[0] = 1 ; fred.bb[1] = 0 ;
 
-  return (fred.ss == 1) ? LSB_FIRST : MSB_FIRST ;
+  return (fred.ss == 1) ? GRF_LITTLE_ENDIAN : GRF_BIG_ENDIAN;
 }
+/*------------------------------------------------------------------------*/
+/* Un-escape a C string in place -- that is, convert XML escape sequences
+   back into their characters.  (This can be done in place since the
+   replacement is always smaller than the input.)  Escapes recognized are:
+     -  &lt;   ->  <
+     -  &gt;   ->  >
+     -  &quot; ->  "
+     -  &apos; ->  '
+     -  &amp;  ->  &
+   Also replace CR LF pair (Microsoft), or CR alone (Macintosh) with
+   LF (Unix), per the XML standard.
+   Return value is number of replacements made (if you care).
+--------------------------------------------------------------------------*/
+#undef  CR
+#undef  LF
+#define CR 0x0D
+#define LF 0x0A
+static int unescape_string( char *str )
+{
+   int ii,jj , nn,ll ;
+
+   if( str == NULL ) return 0 ;                /* no string? */
+   ll = (int)strlen(str) ; if( ll == 0 ) return 0 ;
+
+   /* scan for escapes: &something; */
+
+   for( ii=jj=nn=0 ; ii<ll ; ii++,jj++ ){ /* scan at ii; results go in at jj */
+
+     if( str[ii] == '&' ){  /* start of escape? */
+
+             if( ii+3 < ll        &&   /* &lt; */
+                 str[ii+1] == 'l' &&
+                 str[ii+2] == 't' &&
+                 str[ii+3] == ';'   ){ str[jj] = '<' ; ii += 3 ; nn++ ; }
+
+        else if( ii+3 < ll        &&   /* &gt; */
+                 str[ii+1] == 'g' &&
+                 str[ii+2] == 't' &&
+                 str[ii+3] == ';'   ){ str[jj] = '>' ; ii += 3 ; nn++ ; }
+
+        else if( ii+5 < ll        &&   /* &quot; */
+                 str[ii+1] == 'q' &&
+                 str[ii+2] == 'u' &&
+                 str[ii+3] == 'o' &&
+                 str[ii+4] == 't' &&
+                 str[ii+5] == ';'   ){ str[jj] = '"' ; ii += 5 ; nn++ ; }
+
+        else if( ii+5 < ll        &&   /* &apos; */
+                 str[ii+1] == 'a' &&
+                 str[ii+2] == 'p' &&
+                 str[ii+3] == 'o' &&
+                 str[ii+4] == 's' &&
+                 str[ii+5] == ';'   ){ str[jj] = '\'' ; ii += 5 ; nn++ ; }
+
+        else if( ii+4 < ll        &&  /* &amp; */
+                 str[ii+1] == 'a' &&
+                 str[ii+2] == 'm' &&
+                 str[ii+3] == 'p' &&
+                 str[ii+4] == ';'   ){ str[jj] = '&' ; ii += 4 ; nn++ ; }
+
+        /* although the comments above don't mention it,
+           we also look for XML style numeric escapes
+           of the forms &#32; (decimal) and &#xfd; (hex) */
+
+        else if( ii+3 < ll        &&
+                 str[ii+1] == '#' &&
+                 isdigit(str[ii+2]) ){   /* &#dec; */
+
+           unsigned int val='?' ; int kk=ii+3 ;
+           while( kk < ll && kk != ';' ) kk++ ;
+           sscanf( str+ii+2 , "%u" , &val ) ;
+           str[jj] = (char) val ; ii = kk ; nn++ ;
+        }
+
+        else if( ii+4 < ll        &&
+                 str[ii+1] == '#' &&
+                 str[ii+2] == 'x' &&
+                 isxdigit(str[ii+3]) ){   /* &#hex; */
+
+           unsigned int val='?' ; int kk=ii+4 ;
+           while( kk < ll && kk != ';' ) kk++ ;
+           sscanf( str+ii+3 , "%x" , &val ) ;
+           str[jj] = (char) val ; ii = kk ; nn++ ;
+        }
+
+        /* didn't start a recognized escape, so just copy as normal */
+
+        else if( jj < ii ){ str[jj] = str[ii] ; }
+
+     } else if( str[ii] == CR ) {  /* is a carriage return */
+
+        if( str[ii+1] == LF ){ str[jj] = LF ; ii++ ; nn++ ; }  /* CR LF */
+        else                 { str[jj] = LF ;      ; nn++ ; }  /* CR only */
+
+     } else { /* is a normal character, just copy to output */
+
+             if( jj < ii ){ str[jj] = str[ii] ; }
+     }
+
+     /* at this point, ii=index of last character used up in scan
+                       jj=index of last character written to (jj <= ii) */
+   }
+
+   if( jj < ll ) str[jj] = '\0' ; /* end string properly */
+
+   return nn ;
+}
+
+/* macro to check lhs string against "n1"; if it matches,
+   interpret rhs string as a number, and put it into nim->"n2" */
+#define QQNUM(n1,n2) if( strcmp(lhs,#n1)==0 ) grf_nifti_image_set_##n2(strtod(rhs,NULL))
+
+/* same, but where "n1" == "n2" */
+#define QNUM(nam)    QQNUM(nam,nam)
+
+/* macro to check lhs string against "nam"; if it matches,
+   put rhs string into nim->"nam" string, with max length = "ml" */
+#define QSTR(nam,ml) if(strcmp(lhs,#nam) == 0 )                           \
+                       grf_nifti_image_set_##nam(nim,rhs,ml)
+
 /*---------------------------------------------------------------------------*/
 /*! Take an XML-ish ASCII string and create a NIFTI image header to match.
 
@@ -449,7 +634,6 @@ grf_nifti_image_from_ascii( const char *str, int * bytes_read )
       fprintf(stderr,"** NIFA: failed to alloc nifti_image\n");
       return NULL;
    }
-   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
 
    grf_nifti_image_set_nsize(nim, (GrfVec6){{1,1,1,1,1,1}});
    grf_nifti_image_set_dsize(nim, (GrfVec6){{0,0,0,0,0,0}});
@@ -493,36 +677,33 @@ grf_nifti_image_from_ascii( const char *str, int * bytes_read )
      /* Now can do the assignment, based on lhs string.
         Start with special cases that don't fit the QNUM/QSTR macros. */
 
+
      if( strcmp(lhs,"nifti_type") == 0 ){
-            if( strcmp(rhs,"ANALYZE-7.5") == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_ANALYZE ;
+       if( strcmp(rhs,"ANALYZE-7.5") == 0 )
+         grf_nifti_image_set_filetype(nim,GRF_NIFTI_TYPE_ANALYZE);
        else if( strcmp(rhs,"NIFTI-1+")    == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_NIFTI1_1 ;
+         grf_nifti_image_set_filetype(nim, GRF_NIFTI_TYPE_NIFTI1_1);
        else if( strcmp(rhs,"NIFTI-1")     == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_NIFTI1_2 ;
+         grf_nifti_image_set_filetype(nim, GRF_NIFTI_TYPE_NIFTI1_2);
        else if( strcmp(rhs,"NIFTI-1A")    == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_ASCII ;
+         grf_nifti_image_set_filetype(nim, GRF_NIFTI_TYPE_ASCII);
      }
      else if( strcmp(lhs,"header_filename") == 0 ){
-       nim->fname = grf_nifti_strdup(rhs) ;
+       grf_nifti_image_set_filename(nim, rhs);
      }
      else if( strcmp(lhs,"image_filename") == 0 ){
-       nim->iname = grf_nifti_strdup(rhs) ;
+       grf_nifti_image_set_iname(nim, rhs);
      }
      else if( strcmp(lhs,"sto_xyz_matrix") == 0 ){
-       sscanf( rhs , "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f" ,
-               &(nim->sto_xyz.m[0][0]) , &(nim->sto_xyz.m[0][1]) ,
-               &(nim->sto_xyz.m[0][2]) , &(nim->sto_xyz.m[0][3]) ,
-               &(nim->sto_xyz.m[1][0]) , &(nim->sto_xyz.m[1][1]) ,
-               &(nim->sto_xyz.m[1][2]) , &(nim->sto_xyz.m[1][3]) ,
-               &(nim->sto_xyz.m[2][0]) , &(nim->sto_xyz.m[2][1]) ,
-               &(nim->sto_xyz.m[2][2]) , &(nim->sto_xyz.m[2][3]) ,
-               &(nim->sto_xyz.m[3][0]) , &(nim->sto_xyz.m[3][1]) ,
-               &(nim->sto_xyz.m[3][2]) , &(nim->sto_xyz.m[3][3])  ) ;
+       GrfMat4 sto_xyz;
+       double* m = sto_xyz.data;
+       sscanf( rhs , "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf" ,
+               &m[ 0], &m[ 1], &m[ 2], &m[ 3], &m[ 4], &m[ 5], &m[ 6], &m[ 7],
+               &m[ 8], &m[ 9], &m[10], &m[11], &m[12], &m[13], &m[14], &m[15]);
      }
      else if( strcmp(lhs,"byteorder") == 0 ){
-       if( strcmp(rhs,"MSB_FIRST") == 0 ) nim->byteorder = MSB_FIRST ;
-       if( strcmp(rhs,"LSB_FIRST") == 0 ) nim->byteorder = LSB_FIRST ;
+       if( strcmp(rhs,"MSB_FIRST") == 0 ) grf_nifti_image_set_byteorder(nim, GRF_BIG_ENDIAN);
+       if( strcmp(rhs,"LSB_FIRST") == 0 ) grf_nifti_image_set_byteorder(nim, GRF_LITTLE_ENDIAN);
      }
      else QQNUM(image_offset,iname_offset) ;
      else QNUM(datatype) ;
@@ -579,7 +760,7 @@ grf_nifti_image_from_ascii( const char *str, int * bytes_read )
 
    /* do miscellaneous checking and cleanup */
 
-   if( nim->ndim <= 0 ){ grf_nifti_image_free(nim); return NULL; } /* bad! */
+   if( grf_nifti_image_get_ndim(nim) <= 0 ){ g_clear_object(&nim); return NULL; } /* bad! */
 
    grf_nifti_datatype_sizes( nim->datatype, &(nim->nbyper), &(nim->swapsize) );
    if( nim->nbyper == 0 ){ grf_nifti_image_free(nim); return NULL; } /* bad! */
@@ -784,10 +965,22 @@ grf_nifti_image_get_qfac(GrfNiftiImage* image){
   return priv->qfac;
 }
 
-int
+GrfEndianess
 grf_nifti_image_get_byteorder(GrfNiftiImage* image){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   return priv->byteorder;
+}
+
+GrfNiftiFileType
+grf_nifti_image_get_filetype(GrfNiftiImage* image){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  return priv->nifti_type;
+}
+
+int
+grf_nifti_image_get_ndim(GrfNiftiImage* image){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  return priv->ndim;
 }
 
 /*****===================================================================*****/
@@ -5721,115 +5914,7 @@ GrfNiftiImage * grf_nifti_copy_nim_info(const GrfNiftiImage * src)
 }
 
 
-/*------------------------------------------------------------------------*/
-/* Un-escape a C string in place -- that is, convert XML escape sequences
-   back into their characters.  (This can be done in place since the
-   replacement is always smaller than the input.)  Escapes recognized are:
-     -  &lt;   ->  <
-     -  &gt;   ->  >
-     -  &quot; ->  "
-     -  &apos; ->  '
-     -  &amp;  ->  &
-   Also replace CR LF pair (Microsoft), or CR alone (Macintosh) with
-   LF (Unix), per the XML standard.
-   Return value is number of replacements made (if you care).
---------------------------------------------------------------------------*/
 
-#undef  CR
-#undef  LF
-#define CR 0x0D
-#define LF 0x0A
-
-static int unescape_string( char *str )
-{
-   int ii,jj , nn,ll ;
-
-   if( str == NULL ) return 0 ;                /* no string? */
-   ll = (int)strlen(str) ; if( ll == 0 ) return 0 ;
-
-   /* scan for escapes: &something; */
-
-   for( ii=jj=nn=0 ; ii<ll ; ii++,jj++ ){ /* scan at ii; results go in at jj */
-
-     if( str[ii] == '&' ){  /* start of escape? */
-
-             if( ii+3 < ll        &&   /* &lt; */
-                 str[ii+1] == 'l' &&
-                 str[ii+2] == 't' &&
-                 str[ii+3] == ';'   ){ str[jj] = '<' ; ii += 3 ; nn++ ; }
-
-        else if( ii+3 < ll        &&   /* &gt; */
-                 str[ii+1] == 'g' &&
-                 str[ii+2] == 't' &&
-                 str[ii+3] == ';'   ){ str[jj] = '>' ; ii += 3 ; nn++ ; }
-
-        else if( ii+5 < ll        &&   /* &quot; */
-                 str[ii+1] == 'q' &&
-                 str[ii+2] == 'u' &&
-                 str[ii+3] == 'o' &&
-                 str[ii+4] == 't' &&
-                 str[ii+5] == ';'   ){ str[jj] = '"' ; ii += 5 ; nn++ ; }
-
-        else if( ii+5 < ll        &&   /* &apos; */
-                 str[ii+1] == 'a' &&
-                 str[ii+2] == 'p' &&
-                 str[ii+3] == 'o' &&
-                 str[ii+4] == 's' &&
-                 str[ii+5] == ';'   ){ str[jj] = '\'' ; ii += 5 ; nn++ ; }
-
-        else if( ii+4 < ll        &&  /* &amp; */
-                 str[ii+1] == 'a' &&
-                 str[ii+2] == 'm' &&
-                 str[ii+3] == 'p' &&
-                 str[ii+4] == ';'   ){ str[jj] = '&' ; ii += 4 ; nn++ ; }
-
-        /* although the comments above don't mention it,
-           we also look for XML style numeric escapes
-           of the forms &#32; (decimal) and &#xfd; (hex) */
-
-        else if( ii+3 < ll        &&
-                 str[ii+1] == '#' &&
-                 isdigit(str[ii+2]) ){   /* &#dec; */
-
-           unsigned int val='?' ; int kk=ii+3 ;
-           while( kk < ll && kk != ';' ) kk++ ;
-           sscanf( str+ii+2 , "%u" , &val ) ;
-           str[jj] = (char) val ; ii = kk ; nn++ ;
-        }
-
-        else if( ii+4 < ll        &&
-                 str[ii+1] == '#' &&
-                 str[ii+2] == 'x' &&
-                 isxdigit(str[ii+3]) ){   /* &#hex; */
-
-           unsigned int val='?' ; int kk=ii+4 ;
-           while( kk < ll && kk != ';' ) kk++ ;
-           sscanf( str+ii+3 , "%x" , &val ) ;
-           str[jj] = (char) val ; ii = kk ; nn++ ;
-        }
-
-        /* didn't start a recognized escape, so just copy as normal */
-
-        else if( jj < ii ){ str[jj] = str[ii] ; }
-
-     } else if( str[ii] == CR ) {  /* is a carriage return */
-
-        if( str[ii+1] == LF ){ str[jj] = LF ; ii++ ; nn++ ; }  /* CR LF */
-        else                 { str[jj] = LF ;      ; nn++ ; }  /* CR only */
-
-     } else { /* is a normal character, just copy to output */
-
-             if( jj < ii ){ str[jj] = str[ii] ; }
-     }
-
-     /* at this point, ii=index of last character used up in scan
-                       jj=index of last character written to (jj <= ii) */
-   }
-
-   if( jj < ll ) str[jj] = '\0' ; /* end string properly */
-
-   return nn ;
-}
 
 /*------------------------------------------------------------------------*/
 /* Quotize (and escapize) one string, returning a new string.
