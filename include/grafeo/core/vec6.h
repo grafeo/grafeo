@@ -31,7 +31,7 @@
 #define grf_to_rad(angle) (angle / 180.0 * M_PI  )
 #define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
 typedef struct _GrfVec6{
-  double data[4];
+  double data[6];
 }GrfVec6;
 
 /**
