@@ -196,11 +196,12 @@ Message(STATUS "Library parameters setup...")
 # Even though BUILD_CORE is OFF, if for example BUILD_IMGPROC is ON,
 # the CORE module will be compiled
 IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
-  SET(GRF_CORE_HDRS     config.h i18n-lib.h  macro.h  type.h    hal.h  range.h
-                         slist.h     list.h  ndarray.h vec3.h vec4.h mat4.h queue.h bucket.h pqueue.h)
-  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c ndarray.c vec3.c vec4.c mat4.c
-                         queue.c bucket.c pqueue.c)
-  SET(GRF_CORE_TESTS    array vec3 vec4 mat4 list slist queue pqueue hal)
+  SET(GRF_CORE_HDRS     config.h i18n-lib.h  macro.h  type.h  hal.h  range.h
+                         slist.h     list.h  ndarray.h vec3.h vec4.h vec6.h mat4.h
+                        queue.h bucket.h pqueue.h)
+  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c ndarray.c vec3.c
+                         vec4.c vec6.c mat4.c queue.c bucket.c pqueue.c)
+  SET(GRF_CORE_TESTS    ndarray vec3 vec4 vec6 mat4 list slist queue pqueue hal)
   SET(GRF_CORE_LIBRARIES grafeo_core m)
   # configure a header file to pass some of the CMake settings
   # to the source code

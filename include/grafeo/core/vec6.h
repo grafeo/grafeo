@@ -25,21 +25,75 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
-#include <cmocka.h>
-#include <grafeo/core.h>
+#ifndef GRF_GL_VEC6_H
+#define GRF_GL_VEC6_H
+#include <math.h>
+#define grf_to_rad(angle) (angle / 180.0 * M_PI  )
+#define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
+typedef struct _GrfVec6{
+  double data[4];
+}GrfVec6;
 
-static void test_grf_gl_vec3(void** state){
+/**
+ * @brief grf_vec6_add
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec6_add(GrfVec6* vec1, GrfVec6* vec2);
 
-}
+/**
+ * @brief grf_vec6_subtract
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec6_subtract(GrfVec6* vec1, GrfVec6* vec2);
 
-int main(int argc, char** argv){
-  (void)argc;
-  (void)argv;
-  const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_grf_gl_vec3),
-  };
-  return cmocka_run_group_tests(tests,NULL,NULL);
-}
+/**
+ * @brief grf_vec6_multiply
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec6_multiply(GrfVec6* vec1, GrfVec6* vec2);
+
+/**
+ * @brief grf_vec6_divide
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec6_divide(GrfVec6* vec1, GrfVec6* vec2);
+
+/**
+ * @brief grf_vec6_dot
+ * @param vec1
+ * @param vec2
+ * @return
+ */
+double
+grf_vec6_dot(GrfVec6* vec1, GrfVec6* vec2);
+
+/**
+ * @brief grf_vec6_multiply_scalar
+ * @param vec1
+ * @param scalar
+ */
+void
+grf_vec6_multiply_scalar(GrfVec6* vec1, double scalar);
+/**
+ * @brief grf_vec6_normalize
+ * @param vec
+ */
+void
+grf_vec6_normalize(GrfVec6* vec);
+/**
+ * @brief grf_vec6_get_magnitude
+ * @param vec
+ * @return
+ */
+double
+grf_vec6_get_magnitude(GrfVec6* vec);
+
+#endif
