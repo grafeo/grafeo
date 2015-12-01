@@ -29,7 +29,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
-#include <grafeo/gl.h>
+#include <grafeo/core.h>
 
 static void test_grf_gl_vec4(void** state){
 
