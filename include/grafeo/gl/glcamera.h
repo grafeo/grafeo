@@ -134,25 +134,25 @@ grf_gl_camera_rotate(GrfGLCamera* camera, double angle, double x, double y, doub
  * @param camera
  */
 void
-grf_gl_camera_set_position(GrfGLCamera* camera, GrfGLVec3* position);
+grf_gl_camera_set_position(GrfGLCamera* camera, GrfVec3* position);
 /**
  * @brief grf_gl_camera_lookat
  * @param camera
  */
 void
-grf_gl_camera_lookat(GrfGLCamera* camera, GrfGLVec3* position);
+grf_gl_camera_lookat(GrfGLCamera* camera, GrfVec3* position);
 /**
  * @brief grf_gl_camera_get_view_matrix
  * @param camera
  * @return
  */
-GrfGLMat4
+GrfMat4
 grf_gl_camera_get_view(GrfGLCamera* camera);
 /**
  * @brief grf_gl_camera_get_position
  * @return
  */
-GrfGLVec3
+GrfVec3
 grf_gl_camera_get_position(GrfGLCamera* camera);
 /**
  * @brief return the projection
@@ -175,5 +175,5 @@ grf_gl_camera_set_projection(GrfGLCamera* camera, GrfGLProjection* projection);
  * @param up
  */
 void
-grf_gl_camera_reset_view(GrfGLCamera* camera, GrfGLVec3 position, GrfGLVec3 forward, GrfGLVec3 up);
+grf_gl_camera_reset_view(GrfGLCamera* camera, GrfVec3 position, GrfVec3 forward, GrfVec3 up);
 #endif

@@ -51,7 +51,7 @@ grf_gl_projection_perspective_class_init(GrfGLProjectionPerspectiveClass *klass)
 static void
 grf_gl_projection_perspective_update_fov_aspect(GrfGLProjectionPerspective* proj){
   GrfGLProjectionPerspectivePrivate* priv = grf_gl_projection_perspective_get_instance_private(proj);
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
   double fov    = priv->params[PERSPECTIVE_FOV];
   double aspect = priv->params[PERSPECTIVE_ASPECT];
   double tanHalfFovy = tan(fov/2.0f);
@@ -61,7 +61,7 @@ grf_gl_projection_perspective_update_fov_aspect(GrfGLProjectionPerspective* proj
 static void
 grf_gl_projection_perspective_update_near_far(GrfGLProjectionPerspective* proj){
   GrfGLProjectionPerspectivePrivate* priv = grf_gl_projection_perspective_get_instance_private(proj);
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
   double near   = priv->params[PERSPECTIVE_NEAR];
   double far    = priv->params[PERSPECTIVE_FAR];
   matrix->data[10] = -(far+near)/(far-near);
@@ -149,7 +149,7 @@ grf_gl_projection_perspective_set_all(GrfGLProjectionPerspective* proj,
 void
 grf_gl_projection_perspective_update(GrfGLProjectionPerspective* proj){
   grf_gl_projection_fill(GRF_GL_PROJECTION(proj),0);
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
   grf_gl_projection_perspective_update_fov_aspect(proj);
   grf_gl_projection_perspective_update_near_far(proj);
   matrix->data[11] = -1.0f;

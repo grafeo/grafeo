@@ -29,6 +29,7 @@
 #define GRF_GL_OBJECT_H
 #include <glib-object.h>
 #include <grafeo/gl.h>
+#include <grafeo/core.h>
 #define GRF_TYPE_GL_OBJECT grf_gl_object_get_type()
 G_DECLARE_DERIVABLE_TYPE(GrfGLObject, grf_gl_object, GRF, GL_OBJECT, GObject)
 typedef struct _GrfGLObjectClass{
@@ -52,7 +53,7 @@ grf_gl_object_new_with_name(char* name);
  * @param object
  * @return
  */
-GrfGLMat4
+GrfMat4
 grf_gl_object_get_model(GrfGLObject* object);
 /**
  * @brief grf_gl_object_set_model
@@ -60,13 +61,13 @@ grf_gl_object_get_model(GrfGLObject* object);
  * @param model
  */
 void
-grf_gl_object_set_model(GrfGLObject* object, GrfGLMat4 model);
+grf_gl_object_set_model(GrfGLObject* object, GrfMat4 model);
 /**
  * @brief grf_gl_object_get_position
  * @param object
  * @return
  */
-GrfGLVec3
+GrfVec3
 grf_gl_object_get_position(GrfGLObject* object);
 /**
  * @brief grf_gl_object_set_position
@@ -74,13 +75,13 @@ grf_gl_object_get_position(GrfGLObject* object);
  * @param position
  */
 void
-grf_gl_object_set_position(GrfGLObject* object, GrfGLVec3 position);
+grf_gl_object_set_position(GrfGLObject* object, GrfVec3 position);
 /**
  * @brief grf_gl_object_get_scale
  * @param object
  * @return
  */
-GrfGLVec3
+GrfVec3
 grf_gl_object_get_scale(GrfGLObject* object);
 /**
  * @brief grf_gl_object_set_scale
@@ -88,21 +89,21 @@ grf_gl_object_get_scale(GrfGLObject* object);
  * @param scale
  */
 void
-grf_gl_object_set_scale(GrfGLObject* object, GrfGLVec3 scale);
+grf_gl_object_set_scale(GrfGLObject* object, GrfVec3 scale);
 /**
  * @brief grf_gl_object_translate
  * @param object
  * @param amount
  */
 void
-grf_gl_object_translate(GrfGLObject* object, GrfGLVec3 amount);
+grf_gl_object_translate(GrfGLObject* object, GrfVec3 amount);
 /**
  * @brief grf_gl_object_scale
  * @param object
  * @param amount
  */
 void
-grf_gl_object_scale(GrfGLObject* object, GrfGLVec3 amount);
+grf_gl_object_scale(GrfGLObject* object, GrfVec3 amount);
 /**
  * @brief grf_gl_object_rotate
  * @param object
@@ -110,7 +111,7 @@ grf_gl_object_scale(GrfGLObject* object, GrfGLVec3 amount);
  * @param axis
  */
 void
-grf_gl_object_rotate(GrfGLObject* object, double angle, GrfGLVec3 axis);
+grf_gl_object_rotate(GrfGLObject* object, double angle, GrfVec3 axis);
 /**
  * @brief grf_gl_object_roll
  * @param object

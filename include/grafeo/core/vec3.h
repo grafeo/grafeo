@@ -30,78 +30,78 @@
 #include <math.h>
 #define grf_to_rad(angle) (angle / 180.0 * M_PI  )
 #define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
-typedef struct _GrfGLVec3{
+typedef struct _GrfVec3{
   double data[3];
-}GrfGLVec3;
+}GrfVec3;
 
 /**
- * @brief grf_gl_vec3_add
+ * @brief grf_vec3_add
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_add(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec3_add(GrfVec3* vec1, GrfVec3* vec2);
 
 /**
- * @brief grf_gl_vec3_subtract
+ * @brief grf_vec3_subtract
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_subtract(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec3_subtract(GrfVec3* vec1, GrfVec3* vec2);
 
 /**
- * @brief grf_gl_vec3_multiply
+ * @brief grf_vec3_multiply
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_multiply(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec3_multiply(GrfVec3* vec1, GrfVec3* vec2);
 
 /**
- * @brief grf_gl_vec3_divide
+ * @brief grf_vec3_divide
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_divide(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec3_divide(GrfVec3* vec1, GrfVec3* vec2);
 
 /**
- * @brief grf_gl_vec3_dot
+ * @brief grf_vec3_dot
  * @param vec1
  * @param vec2
  * @return
  */
 double
-grf_gl_vec3_dot(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec3_dot(GrfVec3* vec1, GrfVec3* vec2);
 /**
- * @brief grf_gl_vec3_cross
+ * @brief grf_vec3_cross
  * @param vec1
  * @param vec2
  * @return
  */
-GrfGLVec3
-grf_gl_vec3_cross(GrfGLVec3* vec1, GrfGLVec3* vec2);
+GrfVec3
+grf_vec3_cross(GrfVec3* vec1, GrfVec3* vec2);
 
 /**
- * @brief grf_gl_vec3_multiply_scalar
+ * @brief grf_vec3_multiply_scalar
  * @param vec1
  * @param scalar
  */
 void
-grf_gl_vec3_multiply_scalar(GrfGLVec3* vec1, double scalar);
+grf_vec3_multiply_scalar(GrfVec3* vec1, double scalar);
 /**
- * @brief grf_gl_vec3_normalize
+ * @brief grf_vec3_normalize
  * @param vec
  */
 void
-grf_gl_vec3_normalize(GrfGLVec3* vec);
+grf_vec3_normalize(GrfVec3* vec);
 /**
- * @brief grf_gl_vec3_get_magnitude
+ * @brief grf_vec3_get_magnitude
  * @param vec
  * @return
  */
 double
-grf_gl_vec3_get_magnitude(GrfGLVec3* vec);
+grf_vec3_get_magnitude(GrfVec3* vec);
 
 #endif

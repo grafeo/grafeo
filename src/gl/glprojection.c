@@ -30,9 +30,9 @@
 /*=================================
  * PRIVATE API
  *=================================*/
-#define MATRIX_SIZE sizeof(GrfGLMat4)
+#define MATRIX_SIZE sizeof(GrfMat4)
 typedef struct _GrfGLProjectionPrivate{
-  GrfGLMat4 matrix;
+  GrfMat4 matrix;
 }GrfGLProjectionPrivate;
 
 G_DEFINE_ABSTRACT_TYPE_WITH_PRIVATE(GrfGLProjection, grf_gl_projection,G_TYPE_INITIALLY_UNOWNED)
@@ -47,21 +47,21 @@ grf_gl_projection_class_init(GrfGLProjectionClass *klass){
 /*=================================
  * PUBLIC API
  *=================================*/
-GrfGLMat4*
+GrfMat4*
 grf_gl_projection_get_matrix(GrfGLProjection* projection){
   GrfGLProjectionPrivate* priv = grf_gl_projection_get_instance_private(projection);
-  GrfGLMat4* matrix = g_malloc(MATRIX_SIZE);
+  GrfMat4* matrix = g_malloc(MATRIX_SIZE);
   memcpy(matrix,&priv->matrix,MATRIX_SIZE);
   return matrix;
 }
-GrfGLMat4*
+GrfMat4*
 grf_gl_projection_get_matrix_ptr(GrfGLProjection* projection){
   GrfGLProjectionPrivate* priv = grf_gl_projection_get_instance_private(projection);
   return &priv->matrix;
 }
 
 void
-grf_gl_projection_set_matrix(GrfGLProjection* projection, GrfGLMat4* matrix){
+grf_gl_projection_set_matrix(GrfGLProjection* projection, GrfMat4* matrix){
   GrfGLProjectionPrivate* priv = grf_gl_projection_get_instance_private(projection);
   memcpy(priv->matrix.data,matrix->data,MATRIX_SIZE);
 }

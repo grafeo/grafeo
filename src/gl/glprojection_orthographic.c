@@ -55,7 +55,7 @@ grf_gl_projection_orthographic_class_init(GrfGLProjectionOrthographicClass *klas
 static void
 grf_gl_projection_orthographic_update_left_right(GrfGLProjectionOrthographic* proj){
   GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
   matrix->data[0]   =   2.0f /
                    (priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT] - priv->params[ORTHOGRAPHIC_PROJECTION_LEFT]);
   matrix->data[12]  = - (priv->params[ORTHOGRAPHIC_PROJECTION_RIGHT] + priv->params[ORTHOGRAPHIC_PROJECTION_LEFT]) /
@@ -64,7 +64,7 @@ grf_gl_projection_orthographic_update_left_right(GrfGLProjectionOrthographic* pr
 static void
 grf_gl_projection_orthographic_update_bottom_top(GrfGLProjectionOrthographic* proj){
   GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
   matrix->data[5]    =   2.0f /
                    (priv->params[ORTHOGRAPHIC_PROJECTION_TOP] - priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM]);
   matrix->data[13]   = - (priv->params[ORTHOGRAPHIC_PROJECTION_TOP] + priv->params[ORTHOGRAPHIC_PROJECTION_BOTTOM]) /
@@ -73,7 +73,7 @@ grf_gl_projection_orthographic_update_bottom_top(GrfGLProjectionOrthographic* pr
 static void
 grf_gl_projection_orthographic_update_near_far(GrfGLProjectionOrthographic* proj){
   GrfGLProjectionOrthographicPrivate* priv = grf_gl_projection_orthographic_get_instance_private(proj);
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
   matrix->data[10]   = - 2.0f /
                    (priv->params[ORTHOGRAPHIC_PROJECTION_FAR] - priv->params[ORTHOGRAPHIC_PROJECTION_NEAR]);
   matrix->data[14]   = - (priv->params[ORTHOGRAPHIC_PROJECTION_FAR] + priv->params[ORTHOGRAPHIC_PROJECTION_NEAR]) /
@@ -195,7 +195,7 @@ grf_gl_projection_orthographic_set_all(GrfGLProjectionOrthographic* proj,
 
 void
 grf_gl_projection_orthographic_update(GrfGLProjectionOrthographic* proj){
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj));
   grf_gl_projection_fill(GRF_GL_PROJECTION(proj), 0);
   grf_gl_projection_orthographic_update_near_far(proj);
   grf_gl_projection_orthographic_update_bottom_top(proj);

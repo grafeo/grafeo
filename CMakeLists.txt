@@ -196,11 +196,11 @@ Message(STATUS "Library parameters setup...")
 # Even though BUILD_CORE is OFF, if for example BUILD_IMGPROC is ON,
 # the CORE module will be compiled
 IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
-  SET(GRF_CORE_HDRS     config.h i18n-lib.h  macro.h  type.h    hal.h  range.h
-                         slist.h     list.h  array.h queue.h bucket.h pqueue.h)
-  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c array.c
+  SET(GRF_CORE_HDRS     config.h i18n-lib.h  macro.h  type.h  hal.h  range.h
+                         slist.h     list.h  array.h vec3.h vec4.h mat4.h  queue.h bucket.h pqueue.h)
+  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c array.c vec3.c vec4.c mat4.c
                          queue.c bucket.c pqueue.c)
-  SET(GRF_CORE_TESTS    array list slist queue pqueue hal)
+  SET(GRF_CORE_TESTS    array vec3 vec4 mat4 list slist queue pqueue hal)
   SET(GRF_CORE_LIBRARIES grafeo_core m)
   # configure a header file to pass some of the CMake settings
   # to the source code
@@ -227,17 +227,17 @@ IF(BUILD_IFT)
 ENDIF()
 #==================================================================== GL MODULE
 IF(BUILD_GL)
-  SET(GRF_GL_HDRS  glshader.h glprogram.h glvec3.h glvec4.h glmat.h glmaterial.h gllight.h
+  SET(GRF_GL_HDRS  glshader.h glprogram.h glmaterial.h gllight.h
                    globject.h glcontainer.h glmesh.h glloader.h glloader_obj.h
                    glloader_dae.h glloader_3ds.h glloader_x3d.h glloader_md3.h
                    glscene.h glprojection.h glprojection_perspective.h
                    glprojection_orthographic.h glcamera.h glrenderer.h)
-  SET(GRF_GL_SRCS  glshader.c glprogram.c glvec3.c glvec4.c glmat.c glmaterial.c gllight.c
+  SET(GRF_GL_SRCS  glshader.c glprogram.c glmaterial.c gllight.c
                    globject.c glcontainer.c glmesh.c glloader.c glloader_obj.c
                    glloader_dae.c glloader_3ds.c glloader_x3d.c glloader_md3.c
                    glscene.c glprojection.c glprojection_perspective.c
                    glprojection_orthographic.c glcamera.c glrenderer.c)
-  SET(GRF_GL_TESTS glshader glprogram glvec3 glvec4 glmat glmaterial gllight
+  SET(GRF_GL_TESTS glshader glprogram glmaterial gllight
                    globject glcontainer glmesh glloader glloader_obj
                    glloader_dae glloader_3ds glloader_x3d glloader_md3
                    glscene glprojection glprojection_perspective
