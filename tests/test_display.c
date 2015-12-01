@@ -32,7 +32,7 @@
 #include <cmocka.h>
 
 
-GrfArray*image, *image2;
+GrfNDArray*image, *image2;
 uint8_t pressionado;
 int variable1;
 void mouse_callback_1(GrfMouseEventType event, int x, int y, GrfMouseEventFlags flags, void* user_data){
@@ -42,7 +42,7 @@ void mouse_callback_1(GrfMouseEventType event, int x, int y, GrfMouseEventFlags 
   else if(event & GRF_MOUSE_EVENT_MOVE && pressionado){
     GrfScalar2D center = {x,y};
     GrfScalar4D color = grf_scalar4D_new(0,255,0,255);
-    grf_array_draw_circle(image,center,3,&color,-1,GRF_NEIGHBOR_8,0);
+    grf_ndarray_draw_circle(image,center,3,&color,-1,GRF_NEIGHBOR_8,0);
     grf_display_named("Figure1");
     grf_display_show(image);
   }
@@ -86,8 +86,8 @@ static void test_display(void** state){
   grf_display_show(image);
   key  = grf_display_waitkey();
 
-  grf_array_free(image);
-  grf_array_free(image2);
+  grf_ndarray_free(image);
+  grf_ndarray_free(image2);
 }
 
 int main(int argc, char** argv){

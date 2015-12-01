@@ -32,18 +32,18 @@
 
 int16_t*  dados, *offset;
 grfsize_t size[3];
-GrfArray* array = NULL;
-GrfArray* output = NULL;
+GrfNDArray* array = NULL;
+GrfNDArray* output = NULL;
 int       slice = 0;
 GrfNiftiImage* image;
 
 static void get_data(){
   dados    = (int16_t*)image->data;
   offset   = dados + slice*(256*256);
-  if(array)  grf_array_free(array);
-  if(output) grf_array_free(output);
-  array    = grf_array_from_data(offset,2,size,GRF_INT16);
-  output   = grf_array_as_type(array,GRF_UINT8);
+  if(array)  grf_ndarray_free(array);
+  if(output) grf_ndarray_free(output);
+  array    = grf_ndarray_from_data(offset,2,size,GRF_INT16);
+  output   = grf_ndarray_as_type(array,GRF_UINT8);
 }
 
 static void change_event(int pos){

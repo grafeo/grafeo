@@ -62,7 +62,7 @@ grf_display_setup(int* argc, char*** argv);
  * @param array the array representing the image to be displayed
  */
 void
-grf_display_show(GrfArray* array);
+grf_display_show(GrfNDArray* array);
 /**
  * @brief Lock the flow until a user presses the key
  * @return

@@ -49,14 +49,14 @@ typedef enum _GrfDataType{
   GRF_DOUBLE,
 }GrfDataType;
 
-typedef enum _GrfArrayOperation{
+typedef enum _GrfNDArrayOperation{
   GRF_SUM = 0,
   GRF_MULT,
   GRF_MAX,
   GRF_MIN,
   GRF_STD,
   GRF_MEAN
-}GrfArrayOperation;
+}GrfNDArrayOperation;
 
 typedef enum _GrfColorType{
   GRF_BIN = 0,

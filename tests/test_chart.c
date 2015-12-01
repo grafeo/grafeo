@@ -37,7 +37,7 @@ static void test_grf_chart_plot_1d(void** state){
   grfdim_t  dim         = 1;
   grfsize_t size        = 5;
   uint8_t   dados[5] = {5,4,6,2,1};
-  GrfArray* array       = grf_array_from_data(dados,dim,&size,GRF_UINT8);
+  GrfNDArray* array       = grf_ndarray_from_data(dados,dim,&size,GRF_UINT8);
 
   // Creating our chart
   GrfChart* chart = grf_chart_new();
@@ -86,7 +86,7 @@ static void test_grf_chart_plot_1d(void** state){
 
 //  grf_chart_plot();
 //  grf_chart_plot();
-  grf_array_free(array);
+  grf_ndarray_free(array);
 }
 
 int main(int argc, char** argv){

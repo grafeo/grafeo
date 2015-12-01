@@ -36,7 +36,7 @@
 #include <grafeo/ift.h>
 #include <math.h>
 
-static void assert_grf_array_equal(GrfArray* array1, GrfArray* array2){
+static void assert_grf_ndarray_equal(GrfNDArray* array1, GrfNDArray* array2){
   uint64_t i;
   assert_non_null(array1);
   assert_non_null(array2);
@@ -45,7 +45,7 @@ static void assert_grf_array_equal(GrfArray* array1, GrfArray* array2){
   for(i = 0; i < array1->dim; i++)
     assert_int_equal(array1->size[i],      array2->size[i]);
   for(i = 0; i < array1->num_elements; i++)
-    assert_true(grf_array_get_long_double_1D(array1,i) == grf_array_get_long_double_1D(array2,i));
+    assert_true(grf_ndarray_get_long_double_1D(array1,i) == grf_ndarray_get_long_double_1D(array2,i));
 }
 
 static void helper_test_grf_ift_img(const char*          imagepath,
@@ -57,26 +57,26 @@ static void helper_test_grf_ift_img(const char*          imagepath,
                                 GrfWeightFunc           weight_function,
                                 GrfOptimizationType      grf_ift_optimization){
   // Load images and seeds
-  GrfArray* image        = grf_image_read(imagepath);
-  GrfArray* labels       = grf_image_read(labels_filename);
+  GrfNDArray* image        = grf_image_read(imagepath);
+  GrfNDArray* labels       = grf_image_read(labels_filename);
 
-  grf_array_squeeze(image);
-  grf_array_squeeze(labels);
+  grf_ndarray_squeeze(image);
+  grf_ndarray_squeeze(labels);
 
-  GrfArray* seeds_labels         = grf_array_read_csv_type(seeds_labels_filename,  GRF_UINT16);
-  GrfArray* seeds_indices        = grf_array_read_csv_type(seeds_indices_filename, GRF_UINT64);
+  GrfNDArray* seeds_labels         = grf_ndarray_read_csv_type(seeds_labels_filename,  GRF_UINT16);
+  GrfNDArray* seeds_indices        = grf_ndarray_read_csv_type(seeds_indices_filename, GRF_UINT64);
 
   GrfIFT* ift = grf_ift_apply_array(image, map_dimension, GRF_NEIGHBOR_4, grf_ift_optimization, weight_function, path_connectivity, seeds_indices, seeds_labels);
 
-  GrfArray* label  = grf_array_as_type(ift->label, GRF_UINT8);
-  GrfArray* output = grf_array_mult_scalar(label, 255);
+  GrfNDArray* label  = grf_ndarray_as_type(ift->label, GRF_UINT8);
+  GrfNDArray* output = grf_ndarray_mult_scalar(label, 255);
   grf_image_write(output,"label_output.png");
-  grf_array_free(label);
-  grf_array_free(output);
+  grf_ndarray_free(label);
+  grf_ndarray_free(output);
 
   assert_non_null(ift);
 
-  assert_grf_array_equal(grf_ift_get_label(ift)        , labels);
+  assert_grf_ndarray_equal(grf_ift_get_label(ift)        , labels);
 }
 
 static void helper_test_ift(GrfPathConnectivityFunc path_connectivity, GrfOptimizationType grf_ift_optimization){
@@ -99,8 +99,8 @@ static void helper_test_ift(GrfPathConnectivityFunc path_connectivity, GrfOptimi
   uint8_t root_euc[4]        = {000,000,    000,003};
 
   // Define seeds
-  GrfArray* seeds_labels           = grf_array_new_1D_type(2,GRF_UINT16);
-  GrfArray* seeds_indices          = grf_array_new_1D_type(2,GRF_UINT64);
+  GrfNDArray* seeds_labels           = grf_ndarray_new_1D_type(2,GRF_UINT16);
+  GrfNDArray* seeds_indices          = grf_ndarray_new_1D_type(2,GRF_UINT64);
 
   seeds_labels->data_uint16[0]  = 0;
   seeds_labels->data_uint16[1]  = 1;
@@ -109,7 +109,7 @@ static void helper_test_ift(GrfPathConnectivityFunc path_connectivity, GrfOptimi
 
   // Generate the image
   uint32_t size[2] = {2,2};
-  GrfArray*   image   = grf_array_from_data(data, 2, size, GRF_UINT8);
+  GrfNDArray*   image   = grf_ndarray_from_data(data, 2, size, GRF_UINT8);
 
   // Run standard IFT
   GrfIFT*     ift     = grf_ift_apply_array(image, image->dim, GRF_NEIGHBOR_4, grf_ift_optimization, grf_weight_diff, path_connectivity, seeds_indices, seeds_labels);
@@ -124,39 +124,39 @@ static void helper_test_ift(GrfPathConnectivityFunc path_connectivity, GrfOptimi
   // Check Values
   if(grf_ift_optimization == GRF_MINIMIZATION){
     if(path_connectivity == grf_path_connectivity_norm_l2){
-      GrfArray* correct_predecessor  = grf_array_from_data(predecessor_euc,  2, size, GRF_UINT8);
-      GrfArray* correct_label        = grf_array_from_data(label_euc,        2, size, GRF_UINT8);
-      GrfArray* correct_connectivity = grf_array_from_data(connectivity_euc, 2, size, GRF_UINT8);
-      GrfArray* correct_root         = grf_array_from_data(root_euc,         2, size, GRF_UINT8);
-      assert_grf_array_equal(grf_ift_get_label(ift)        , correct_label);
-      assert_grf_array_equal(grf_ift_get_root(ift)         , correct_root);
-      assert_grf_array_equal(grf_ift_get_connectivity(ift) , correct_connectivity);
-      assert_grf_array_equal(grf_ift_get_predecessors(ift) , correct_predecessor);
+      GrfNDArray* correct_predecessor  = grf_ndarray_from_data(predecessor_euc,  2, size, GRF_UINT8);
+      GrfNDArray* correct_label        = grf_ndarray_from_data(label_euc,        2, size, GRF_UINT8);
+      GrfNDArray* correct_connectivity = grf_ndarray_from_data(connectivity_euc, 2, size, GRF_UINT8);
+      GrfNDArray* correct_root         = grf_ndarray_from_data(root_euc,         2, size, GRF_UINT8);
+      assert_grf_ndarray_equal(grf_ift_get_label(ift)        , correct_label);
+      assert_grf_ndarray_equal(grf_ift_get_root(ift)         , correct_root);
+      assert_grf_ndarray_equal(grf_ift_get_connectivity(ift) , correct_connectivity);
+      assert_grf_ndarray_equal(grf_ift_get_predecessors(ift) , correct_predecessor);
     }
     else{
-      GrfArray* correct_predecessor  = grf_array_from_data(predecessor,  2, size, GRF_UINT8);
-      GrfArray* correct_label        = grf_array_from_data(label,        2, size, GRF_UINT8);
-      GrfArray* correct_connectivity = grf_array_from_data(connectivity, 2, size, GRF_UINT8);
-      GrfArray* correct_root         = grf_array_from_data(root,         2, size, GRF_UINT8);
-      assert_grf_array_equal(grf_ift_get_label(ift)        , correct_label);
-      assert_grf_array_equal(grf_ift_get_root(ift)         , correct_root);
-      assert_grf_array_equal(grf_ift_get_connectivity(ift) , correct_connectivity);
-      assert_grf_array_equal(grf_ift_get_predecessors(ift) , correct_predecessor);
+      GrfNDArray* correct_predecessor  = grf_ndarray_from_data(predecessor,  2, size, GRF_UINT8);
+      GrfNDArray* correct_label        = grf_ndarray_from_data(label,        2, size, GRF_UINT8);
+      GrfNDArray* correct_connectivity = grf_ndarray_from_data(connectivity, 2, size, GRF_UINT8);
+      GrfNDArray* correct_root         = grf_ndarray_from_data(root,         2, size, GRF_UINT8);
+      assert_grf_ndarray_equal(grf_ift_get_label(ift)        , correct_label);
+      assert_grf_ndarray_equal(grf_ift_get_root(ift)         , correct_root);
+      assert_grf_ndarray_equal(grf_ift_get_connectivity(ift) , correct_connectivity);
+      assert_grf_ndarray_equal(grf_ift_get_predecessors(ift) , correct_predecessor);
     }
   }else{
-    GrfArray* correct_predecessor  = grf_array_from_data(predecessor_min,  2, size, GRF_UINT8);
-    GrfArray* correct_label        = grf_array_from_data(label_min,        2, size, GRF_UINT8);
-    GrfArray* correct_connectivity = grf_array_from_data(connectivity_min, 2, size, GRF_INT64);
-    GrfArray* correct_root         = grf_array_from_data(root_min,         2, size, GRF_UINT8);
-    assert_grf_array_equal(grf_ift_get_label(ift)        , correct_label);
-    assert_grf_array_equal(grf_ift_get_root(ift)         , correct_root);
-    assert_grf_array_equal(grf_ift_get_connectivity(ift) , correct_connectivity);
-    assert_grf_array_equal(grf_ift_get_predecessors(ift) , correct_predecessor);
+    GrfNDArray* correct_predecessor  = grf_ndarray_from_data(predecessor_min,  2, size, GRF_UINT8);
+    GrfNDArray* correct_label        = grf_ndarray_from_data(label_min,        2, size, GRF_UINT8);
+    GrfNDArray* correct_connectivity = grf_ndarray_from_data(connectivity_min, 2, size, GRF_INT64);
+    GrfNDArray* correct_root         = grf_ndarray_from_data(root_min,         2, size, GRF_UINT8);
+    assert_grf_ndarray_equal(grf_ift_get_label(ift)        , correct_label);
+    assert_grf_ndarray_equal(grf_ift_get_root(ift)         , correct_root);
+    assert_grf_ndarray_equal(grf_ift_get_connectivity(ift) , correct_connectivity);
+    assert_grf_ndarray_equal(grf_ift_get_predecessors(ift) , correct_predecessor);
   }
 
 
   grf_ift_free(ift);
-  grf_array_free(image);
+  grf_ndarray_free(image);
 }
 
 static void helper_test_grf_ift_4D(GrfPathConnectivityFunc connectivity_function, GrfOptimizationType optimization){
@@ -168,11 +168,11 @@ static void helper_test_grf_ift_4D(GrfPathConnectivityFunc connectivity_function
   uint16_t seeds_labels_data[2] = {0,1};
   uint32_t seeds_size[1]        = {2};
   uint16_t labels_data[8]       = {0,0,1,1,1,0,1,0};
-  GrfArray*   image                = grf_array_from_data(data                 , grf_image_dim+1 , size      , GRF_UINT8);
-  GrfArray*   correct_labels       = grf_array_from_data(labels_data          , grf_image_dim   , size      , GRF_UINT16);
-  GrfArray*   seeds_indices        = grf_array_from_data(seeds_indices_data   , 1           , seeds_size, GRF_UINT64);
-  GrfArray*   seeds_labels         = grf_array_from_data(seeds_labels_data    , 1           , seeds_size, GRF_UINT16);
-  GrfIFT* ift = grf_ift_apply_array(image,                 // GrfArray
+  GrfNDArray*   image                = grf_ndarray_from_data(data                 , grf_image_dim+1 , size      , GRF_UINT8);
+  GrfNDArray*   correct_labels       = grf_ndarray_from_data(labels_data          , grf_image_dim   , size      , GRF_UINT16);
+  GrfNDArray*   seeds_indices        = grf_ndarray_from_data(seeds_indices_data   , 1           , seeds_size, GRF_UINT64);
+  GrfNDArray*   seeds_labels         = grf_ndarray_from_data(seeds_labels_data    , 1           , seeds_size, GRF_UINT16);
+  GrfIFT* ift = grf_ift_apply_array(image,                 // GrfNDArray
                              grf_image_dim,             // Dimension of IFT Maps
                              GRF_NEIGHBOR_6,     // Adjacency
                              optimization,          // Maximization or Minimization
@@ -180,11 +180,11 @@ static void helper_test_grf_ift_4D(GrfPathConnectivityFunc connectivity_function
                              connectivity_function, // Path connectivity functions
                              seeds_indices,         // Indices for seeds
                              seeds_labels);         // Labels of seeds
-  assert_grf_array_equal(grf_ift_get_label(ift), correct_labels);
-  grf_array_free(image);
-  grf_array_free(correct_labels);
-  grf_array_free(seeds_indices);
-  grf_array_free(seeds_labels);
+  assert_grf_ndarray_equal(grf_ift_get_label(ift), correct_labels);
+  grf_ndarray_free(image);
+  grf_ndarray_free(correct_labels);
+  grf_ndarray_free(seeds_indices);
+  grf_ndarray_free(seeds_labels);
   grf_ift_free(ift);
 }
 
@@ -201,13 +201,13 @@ static void helper_test_grf_ift_3D(GrfPathConnectivityFunc connectivity_function
 
   uint16_t  labels_data[4]      = {  0,0,1,1};
   uint16_t  labels_data_3D[12]  = {  0,0,0, 0,0,0, 1,1,1, 1,1,1};
-  GrfArray*   image                = grf_array_from_data(data                 , grf_image_dim+1 , size      , GRF_UINT8);
-  GrfArray*   correct_labels       = grf_array_from_data(labels_data          , grf_image_dim   , size      , GRF_UINT16);
-  GrfArray*   correct_labels_3D    = grf_array_from_data(labels_data_3D       , grf_image_dim+1 , size      , GRF_UINT16);
-  GrfArray*   seeds_indices        = grf_array_from_data(seeds_indices_data   , 1           , seeds_size, GRF_UINT64);
-  GrfArray*   seeds_indices_3D     = grf_array_from_data(seeds_indices_data_3D, 1           , seeds_size, GRF_UINT64);
-  GrfArray*   seeds_labels         = grf_array_from_data(seeds_labels_data    , 1           , seeds_size, GRF_UINT16);
-  GrfIFT* ift = grf_ift_apply_array(image,                 // GrfArray
+  GrfNDArray*   image                = grf_ndarray_from_data(data                 , grf_image_dim+1 , size      , GRF_UINT8);
+  GrfNDArray*   correct_labels       = grf_ndarray_from_data(labels_data          , grf_image_dim   , size      , GRF_UINT16);
+  GrfNDArray*   correct_labels_3D    = grf_ndarray_from_data(labels_data_3D       , grf_image_dim+1 , size      , GRF_UINT16);
+  GrfNDArray*   seeds_indices        = grf_ndarray_from_data(seeds_indices_data   , 1           , seeds_size, GRF_UINT64);
+  GrfNDArray*   seeds_indices_3D     = grf_ndarray_from_data(seeds_indices_data_3D, 1           , seeds_size, GRF_UINT64);
+  GrfNDArray*   seeds_labels         = grf_ndarray_from_data(seeds_labels_data    , 1           , seeds_size, GRF_UINT16);
+  GrfIFT* ift = grf_ift_apply_array(image,                 // GrfNDArray
                              grf_image_dim,             // Dimension of IFT Maps
                              GRF_NEIGHBOR_4,     // Adjacency
                              optimization,          // Maximization or Minimization
@@ -215,7 +215,7 @@ static void helper_test_grf_ift_3D(GrfPathConnectivityFunc connectivity_function
                              connectivity_function, // Path connectivity functions
                              seeds_indices,         // Indices for seeds
                              seeds_labels);         // Labels of seeds
-  GrfIFT* grf_ift_3D = grf_ift_apply_array(image,                 // GrfArray
+  GrfIFT* grf_ift_3D = grf_ift_apply_array(image,                 // GrfNDArray
                                 grf_image_dim+1,           // Dimension of IFT Maps
                                 GRF_NEIGHBOR_6,     // Adjacency
                                 optimization,          // Maximization or Minimization
@@ -223,15 +223,15 @@ static void helper_test_grf_ift_3D(GrfPathConnectivityFunc connectivity_function
                                 connectivity_function, // Path connectivity functions
                                 seeds_indices_3D,      // Indices for seeds
                                 seeds_labels);         // Labels of seeds
-  assert_grf_array_equal(grf_ift_get_label(ift), correct_labels);
-  assert_grf_array_equal(grf_ift_get_label(grf_ift_3D), correct_labels_3D);
+  assert_grf_ndarray_equal(grf_ift_get_label(ift), correct_labels);
+  assert_grf_ndarray_equal(grf_ift_get_label(grf_ift_3D), correct_labels_3D);
 
-  grf_array_free(image);
-  grf_array_free(correct_labels);
-  grf_array_free(correct_labels_3D);
-  grf_array_free(seeds_indices);
-  grf_array_free(seeds_indices_3D);
-  grf_array_free(seeds_labels);
+  grf_ndarray_free(image);
+  grf_ndarray_free(correct_labels);
+  grf_ndarray_free(correct_labels_3D);
+  grf_ndarray_free(seeds_indices);
+  grf_ndarray_free(seeds_indices_3D);
+  grf_ndarray_free(seeds_labels);
   grf_ift_free(ift);
   grf_ift_free(grf_ift_3D);
 }
@@ -297,11 +297,11 @@ static void test_grf_ift_euc(void** state){
 
 static void test_grf_ift_distance_transform(void** state){
   (void) state;
-  GrfArray* image = grf_image_read_pgm("../data/distance_transform_input.pgm");
+  GrfNDArray* image = grf_image_read_pgm("../data/distance_transform_input.pgm");
 
-  GrfArray* result = grf_ift_distance_transform(image, GRF_NORM_L2);
+  GrfNDArray* result = grf_ift_distance_transform(image, GRF_NORM_L2);
   grf_image_write_png(result,"distance_transform_output.png");
-  grf_array_free(result);
+  grf_ndarray_free(result);
 }
 
 int main(int argc, char** argv){

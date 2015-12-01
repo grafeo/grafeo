@@ -57,7 +57,7 @@ grf_chart_new(){
 }
 
 GrfPlot*
-grf_chart_plot(GrfChart *chart, GrfArray *data_y){
+grf_chart_plot(GrfChart *chart, GrfNDArray *data_y){
   // Create the plot
   GrfPlotLine  * plot_line = grf_plot_line_new_with_data(data_y);
   GrfChartPanel* panel;

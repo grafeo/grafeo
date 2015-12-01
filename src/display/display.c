@@ -76,7 +76,7 @@ grf_display_named(const char* name){
 }
 
 void
-grf_display_show(GrfArray* array){
+grf_display_show(GrfNDArray* array){
   if(!cur_display)
     grf_display_named("Figure 1");
   grf_displaywindow_set_image(cur_display, array, TRUE);
@@ -257,7 +257,7 @@ grf_display_add_trackbar(const char* display_name,
 
 
 
-//void    display_show(GrfArray* array){
+//void    display_show(GrfNDArray* array){
 //  if(!display_num_windows()) cur_display = display_new("Figure 1");
 //  gtk_widget_show_all(cur_display->window);
 //}

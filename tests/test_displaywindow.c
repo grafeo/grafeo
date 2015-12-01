@@ -34,7 +34,7 @@ static void test_displaywindow(void** state){
   char* filenames[3]     = {"../data/trekkie-nerdbw.png",           // Gray
                             "../data/distance_transform_input.pgm", // Gray
                             "../data/trekkie-nerd.jpg"};            // Color
-  GrfArray* image = grf_image_read(filenames[0]);
+  GrfNDArray* image = grf_image_read(filenames[0]);
   GrfDisplayWindow* window = grf_displaywindow_new();
   grf_displaywindow_set_name(window, "teste");
   grf_displaywindow_set_image(window, image,TRUE);

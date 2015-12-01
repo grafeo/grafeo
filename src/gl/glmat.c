@@ -49,8 +49,8 @@ grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis){
   //uint32_t  size     = 3;
   //uint32_t  sizes[2] = {4,4};
   //double     ve[3]    = {x,y,z};
-  //GrfArray* axisn    = grf_array_from_data(ve,1,&size,GRF_double);
-  //GrfArray* axis     = grf_array_normalize(axisn);
+  //GrfNDArray* axisn    = grf_ndarray_from_data(ve,1,&size,GRF_double);
+  //GrfNDArray* axis     = grf_ndarray_normalize(axisn);
 
   double u  = axis.data[0];
   double v  = axis.data[1];
@@ -63,7 +63,7 @@ grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis){
   double vw = v*w;
 
   GrfGLMat4 rotation = grf_gl_mat4_eye();
-  //GrfArray* rotation = grf_array_zeros(2,sizes,GRF_double);
+  //GrfNDArray* rotation = grf_ndarray_zeros(2,sizes,GRF_double);
 
   rotation.data[0]  = u2*cc + c;
   rotation.data[1]  = uv*cc + w*s;

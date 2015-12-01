@@ -85,13 +85,13 @@ grf_displaywindow_new_with_name(char* name);
  * @param image
  */
 void
-grf_displaywindow_set_image(GrfDisplayWindow* display, GrfArray* image, gboolean invalidate);
+grf_displaywindow_set_image(GrfDisplayWindow* display, GrfNDArray* image, gboolean invalidate);
 /**
  * @brief grf_displaywindow_get_image
  * @param display
  * @return
  */
-GrfArray*
+GrfNDArray*
 grf_displaywindow_get_image(GrfDisplayWindow* display);
 /**
  * @brief grf_displaywindow_show

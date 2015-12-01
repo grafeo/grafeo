@@ -47,7 +47,7 @@ typedef struct _GrfPlotLinePrivate{
   GrfScalar4D       marker_face_color_alt;
   uint8_t           marker_size;
   uint8_t           marker_every;
-  GrfArray*         data;
+  GrfNDArray*         data;
 } GrfPlotLinePrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(GrfPlotLine, grf_plot_line, GRF_TYPE_PLOT)
@@ -84,7 +84,7 @@ grf_plot_line_new(){
 }
 
 GrfPlotLine*
-grf_plot_line_new_with_data(GrfArray* data){
+grf_plot_line_new_with_data(GrfNDArray* data){
   GrfPlotLine* plot_line = grf_plot_line_new();
   grf_plot_line_set_data(plot_line, data);
   return plot_line;
@@ -196,7 +196,7 @@ grf_plot_line_get_marker_every(GrfPlotLine* plot_line){
   return priv->marker_every;
 }
 
-GrfArray*
+GrfNDArray*
 grf_plot_line_get_data(GrfPlotLine* plot_line){
   GrfPlotLinePrivate* priv = grf_plot_line_get_instance_private(plot_line);
   return priv->data;
@@ -312,7 +312,7 @@ grf_plot_line_set_marker_every(GrfPlotLine* plot_line, uint8_t marker_every){
 }
 
 void
-grf_plot_line_set_data(GrfPlotLine* plot_line, GrfArray* data){
+grf_plot_line_set_data(GrfPlotLine* plot_line, GrfNDArray* data){
   GrfPlotLinePrivate* priv = grf_plot_line_get_instance_private(plot_line);
   priv->data = data;
 }

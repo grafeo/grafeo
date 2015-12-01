@@ -56,7 +56,7 @@ static void helper_test_imagewidget_move_event(GtkWidget* widget, GdkEvent* even
 
   GrfImageWidget* imagewidget         = GRF_IMAGEWIDGET(widget);
   float         * current_translation = grf_imagewidget_get_translation(imagewidget);
-  GrfArray      * image              = (GrfArray*)user_data;
+  GrfNDArray      * image              = (GrfNDArray*)user_data;
 
   gdk_event_get_coords(event, &x, &y);
 
@@ -67,7 +67,7 @@ static void helper_test_imagewidget_move_event(GtkWidget* widget, GdkEvent* even
     else{
       GrfScalar2D centro      = {x,y};
       GrfScalar4D cor         = grf_scalar4D_new (255,0,0,255);
-      grf_array_draw_circle(image,centro,3,&cor,-1,GRF_NEIGHBOR_8,0);
+      grf_ndarray_draw_circle(image,centro,3,&cor,-1,GRF_NEIGHBOR_8,0);
       grf_imagewidget_set_image(imagewidget, image,TRUE);
     }
   }
@@ -122,7 +122,7 @@ static void test_grf_imagewidget_show(void**state){
   char* filenames[3]     = {"../data/trekkie-nerdbw.png",           // Gray
                             "../data/distance_transform_input.pgm", // Gray
                             "../data/trekkie-nerd.jpg"};            // Color
-  GrfArray*  array_gray  = grf_image_read(filenames[0]);
+  GrfNDArray*  array_gray  = grf_image_read(filenames[0]);
   GtkWidget* imagewidget = grf_imagewidget_new();
   assert_true(GRF_IS_I_DISPLAY_WIDGET(imagewidget));
   GtkWidget* window      = gtk_window_new(GTK_WINDOW_TOPLEVEL);

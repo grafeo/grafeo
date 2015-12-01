@@ -100,7 +100,7 @@ float* grf_imagewidget_get_transform(GrfImageWidget* widget);
  * @param widget
  * @return
  */
-GrfArray*
+GrfNDArray*
 grf_imagewidget_get_image(GrfImageWidget* widget);
 
 /*====================*
@@ -146,7 +146,7 @@ grf_imagewidget_set_transform(GrfImageWidget* widget, float* transform, gboolean
  * @param invalidate
  */
 void
-grf_imagewidget_set_image(GrfImageWidget* widget, GrfArray* image, gboolean invalidate);
+grf_imagewidget_set_image(GrfImageWidget* widget, GrfNDArray* image, gboolean invalidate);
 /*======================*
        OTHER METHODS
  *======================*/

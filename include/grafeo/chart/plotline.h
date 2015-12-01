@@ -53,7 +53,7 @@ grf_plot_line_new();
  * @return
  */
 GrfPlotLine*
-grf_plot_line_new_with_data(GrfArray* array);
+grf_plot_line_new_with_data(GrfNDArray* array);
 
 /**
  * @brief grf_plot_line_get_format
@@ -333,7 +333,7 @@ grf_plot_line_set_marker_every(GrfPlotLine* plot_line, uint8_t marker_every);
  * @param data
  */
 void
-grf_plot_line_set_data(GrfPlotLine* plot_line, GrfArray* data);
+grf_plot_line_set_data(GrfPlotLine* plot_line, GrfNDArray* data);
 
 END_DECLS
 

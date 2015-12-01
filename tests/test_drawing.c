@@ -32,8 +32,8 @@
 #include <grafeo/imgproc.h>
 static void test_drawing_line(void** state){
   (void) state;
-  GrfArray* array = grf_array_new_3D(10,10,3);
-  grf_array_fill(array,0);
+  GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
+  grf_ndarray_fill(array,0);
 
   // Line Properties
   GrfScalar2D p0        = {-5, 0},
@@ -44,7 +44,7 @@ static void test_drawing_line(void** state){
   int         shift     = 0;
 
   // Draw Line
-  grf_array_draw_line(array, p0, p1, &color, thickness, line_type, shift);
+  grf_ndarray_draw_line(array, p0, p1, &color, thickness, line_type, shift);
 
   uint64_t x,y,c;
   // Print line
@@ -59,13 +59,13 @@ static void test_drawing_line(void** state){
   }
 
   // Free Array
-  grf_array_free(array);
+  grf_ndarray_free(array);
 }
 
 static void test_drawing_circle(void** state){
   (void) state;
-  GrfArray* array = grf_array_new_3D(10,10,3);
-  grf_array_fill(array,0);
+  GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
+  grf_ndarray_fill(array,0);
 
   // Circle Properties
   GrfScalar2D center    = {5, 5};
@@ -76,7 +76,7 @@ static void test_drawing_circle(void** state){
   int         shift     = 0;
 
   // Draw Line
-  grf_array_draw_circle(array, center, radius, &color, thickness, line_type, shift);
+  grf_ndarray_draw_circle(array, center, radius, &color, thickness, line_type, shift);
 
   uint64_t x,y,c;
   // Print line
@@ -91,7 +91,7 @@ static void test_drawing_circle(void** state){
   }
 
   // Free Array
-  grf_array_free(array);
+  grf_ndarray_free(array);
 }
 
 static void test_drawing_polyline(void** state){
@@ -103,8 +103,8 @@ static void test_drawing_line_arrow(void** state){
 }
 static void test_drawing_rectangle(void** state){
   (void) state;
-  GrfArray* array = grf_array_new_3D(10,10,3);
-  grf_array_fill(array,0);
+  GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
+  grf_ndarray_fill(array,0);
 
   // Rectangle Properties
   GrfRectangle rect     = grf_scalar4D_new(3,3,6,4);
@@ -114,7 +114,7 @@ static void test_drawing_rectangle(void** state){
   int         shift     = 0;
 
   // Draw Rectangle
-  grf_array_draw_rectangle(array,rect, &color, thickness, line_type, shift);
+  grf_ndarray_draw_rectangle(array,rect, &color, thickness, line_type, shift);
 
   uint64_t x,y,c;
   // Print line
@@ -129,7 +129,7 @@ static void test_drawing_rectangle(void** state){
   }
 
   // Free Array
-  grf_array_free(array);
+  grf_ndarray_free(array);
 
 }
 

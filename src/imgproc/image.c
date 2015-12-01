@@ -49,7 +49,7 @@ my_error_exit(j_common_ptr cinfo){
   longjmp(myerr->setjmp_buffer, 1);
 }
 
-GrfArray* grf_image_read(const char* filename){
+GrfNDArray* grf_image_read(const char* filename){
   const char* ext = strrchr(filename, '.') + 1;
   if     (strcasecmp(ext, "png") == 0) return grf_image_read_png(filename);
   else if(strcasecmp(ext, "jpg") == 0) return grf_image_read_jpg(filename);
@@ -57,7 +57,7 @@ GrfArray* grf_image_read(const char* filename){
   else if(strcasecmp(ext, "ppm") == 0) return grf_image_read_ppm(filename);
   return NULL;
 }
-GrfArray* grf_image_read_png(const char* filename){
+GrfNDArray* grf_image_read_png(const char* filename){
   png_structp png_ptr;
   png_infop info_ptr;
   unsigned char header[8];
@@ -96,7 +96,7 @@ GrfArray* grf_image_read_png(const char* filename){
   default:
     type = GRF_UINT8;  break;
   }
-  GrfArray* array = grf_array_new_with_size_type(3, size, type);
+  GrfNDArray* array = grf_ndarray_new_with_size_type(3, size, type);
   png_read_update_info(png_ptr, info_ptr);
 
   // Read file
@@ -110,7 +110,7 @@ GrfArray* grf_image_read_png(const char* filename){
   free(buffer);
   return array;
 }
-GrfArray* grf_image_read_jpg(const char* filename){
+GrfNDArray* grf_image_read_jpg(const char* filename){
   struct    jpeg_decompress_struct cinfo;
   struct    my_error_mgr jerr;
   FILE*     infile;
@@ -131,7 +131,7 @@ GrfArray* grf_image_read_jpg(const char* filename){
   jpeg_read_header(&cinfo, TRUE);
   jpeg_start_decompress(&cinfo);
   uint32_t size[3] = {cinfo.output_height, cinfo.output_width, cinfo.output_components};
-  GrfArray* array     = grf_array_new_with_size_type(3, size, GRF_UINT8);
+  GrfNDArray* array     = grf_ndarray_new_with_size_type(3, size, GRF_UINT8);
   row_stride       = size[1]*size[2];
   buffer           = (uint8_t**)malloc(sizeof(uint8_t*) * size[0]);
   uint32_t i;
@@ -150,7 +150,7 @@ static void _grf_image_read_pgm_skip_comments(char* s, size_t m, FILE* fp){
   while(fgets(s,m,fp) != NULL)
     if(s[0]!='#' && s[0]!='\n') break;
 }
-static GrfArray* _grf_image_read_ppm_pgm(const char* filename){
+static GrfNDArray* _grf_image_read_ppm_pgm(const char* filename){
   char version[4];
   char line[256];
   uint64_t i;
@@ -158,7 +158,7 @@ static GrfArray* _grf_image_read_ppm_pgm(const char* filename){
   uint16_t dim;
   uint64_t max_gray;
   FILE* fp     = fopen(filename,"rb");
-  GrfArray* array = NULL;
+  GrfNDArray* array = NULL;
 
   fgets(version, sizeof(version), fp);
   if(version[0] == 'P' && (version[1] == '5' || version[1] == '2' || version[1] == '6')){
@@ -169,7 +169,7 @@ static GrfArray* _grf_image_read_ppm_pgm(const char* filename){
     _grf_image_read_pgm_skip_comments(line,256,fp);
     sscanf(line, "%lu", &max_gray);
     uint32_t size[3] = {height, width,3};
-    array = grf_array_new_with_size_type(dim, size, GRF_UINT8);
+    array = grf_ndarray_new_with_size_type(dim, size, GRF_UINT8);
     if(version[1] == '2')
       for(i = 0; i < array->num_elements; i++)
         fscanf(fp, "%cu", &array->data_uint8[i]);
@@ -180,21 +180,21 @@ static GrfArray* _grf_image_read_ppm_pgm(const char* filename){
   return array;
 }
 
-GrfArray* grf_image_read_pgm(const char* filename){
+GrfNDArray* grf_image_read_pgm(const char* filename){
   return _grf_image_read_ppm_pgm(filename);
 }
-GrfArray* grf_image_read_ppm(const char* filename){
+GrfNDArray* grf_image_read_ppm(const char* filename){
   return _grf_image_read_ppm_pgm(filename);
 }
 
-void grf_image_write(GrfArray* array, const char* filename){
+void grf_image_write(GrfNDArray* array, const char* filename){
   const char* ext = strrchr(filename, '.') + 1;
   if     (strcasecmp(ext, "png") == 0) grf_image_write_png(array,filename);
   else if(strcasecmp(ext, "jpg") == 0) grf_image_write_jpg(array,filename);
   else if(strcasecmp(ext, "pgm") == 0) grf_image_write_pgm(array,filename);
   else if(strcasecmp(ext, "ppm") == 0) grf_image_write_ppm(array,filename);
 }
-void grf_image_write_png(GrfArray* array, const char* filename){
+void grf_image_write_png(GrfNDArray* array, const char* filename){
   /* create file */
   FILE *outfile = fopen(filename, "wb");
   if (!outfile)
@@ -242,7 +242,7 @@ void grf_image_write_png(GrfArray* array, const char* filename){
   free(buffer);
   fclose(outfile);
 }
-void grf_image_write_jpg(GrfArray* array, const char* filename){
+void grf_image_write_jpg(GrfNDArray* array, const char* filename){
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
   FILE* outfile;
@@ -271,9 +271,9 @@ void grf_image_write_jpg(GrfArray* array, const char* filename){
   jpeg_destroy_compress(&cinfo);
 }
 
-static void _grf_image_write_ppm_pgm(GrfArray* array, const char* filename, char format){
+static void _grf_image_write_ppm_pgm(GrfNDArray* array, const char* filename, char format){
   FILE* fp;
-  uint32_t i_max = (uint32_t) grf_array_reduce_max_num(array);
+  uint32_t i_max = (uint32_t) grf_ndarray_reduce_max_num(array);
   fp = fopen(filename, "wb");
   fprintf(fp, "P%c\n",format);
   fprintf(fp,"%d %d\n", array->size[1], array->size[0]);
@@ -282,26 +282,26 @@ static void _grf_image_write_ppm_pgm(GrfArray* array, const char* filename, char
   fclose(fp);
 }
 
-void   grf_image_write_pgm(GrfArray* array, const char* filename){
+void   grf_image_write_pgm(GrfNDArray* array, const char* filename){
   _grf_image_write_ppm_pgm(array, filename, 5);
 }
 
-void   grf_image_write_ppm(GrfArray* array, const char* filename){
+void   grf_image_write_ppm(GrfNDArray* array, const char* filename){
   _grf_image_write_ppm_pgm(array, filename, 6);
 }
 
-GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType destiny){
-  GrfArray* output;
+GrfNDArray* grf_image_cvt_color(GrfNDArray* array, GrfColorType origin, GrfColorType destiny){
+  GrfNDArray* output;
   uint64_t i;
 
   // Creating output array
   output = array;
   if(destiny == GRF_RGB || destiny == GRF_BGR)
-    output = grf_array_new_3D_type(array->size[0], array->size[1], 3, array->type);
+    output = grf_ndarray_new_3D_type(array->size[0], array->size[1], 3, array->type);
   else if(destiny == GRF_GRAY)
-    output = grf_array_new_2D_type(array->size[0], array->size[1], array->type);
+    output = grf_ndarray_new_2D_type(array->size[0], array->size[1], array->type);
   else if(destiny == GRF_RGBA || destiny == GRF_BGRA)
-    output = grf_array_new_3D_type(array->size[0], array->size[1], 4, array->type);
+    output = grf_ndarray_new_3D_type(array->size[0], array->size[1], 4, array->type);
 
   uint64_t i2;
   // Filling array

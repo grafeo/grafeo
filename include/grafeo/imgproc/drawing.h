@@ -32,13 +32,13 @@
 #include <float.h>
 
 BEGIN_DECLS
-void    grf_array_draw_line(GrfArray* array, GrfScalar2D p0, GrfScalar2D p1, GrfScalar4D *color, int thickness, int line_type, int shift);
+void    grf_ndarray_draw_line(GrfNDArray* array, GrfScalar2D p0, GrfScalar2D p1, GrfScalar4D *color, int thickness, int line_type, int shift);
 uint8_t grf_clip_line(GrfSize2D size_scaled, GrfScalar2D* p1, GrfScalar2D* p2);
-void    grf_array_draw_circle(GrfArray* array, GrfScalar2D center, int radius, GrfScalar4D* color, int thickness, int line_type, int shift);
-void    grf_array_draw_ellipse(GrfArray* array, GrfScalar2D center, GrfSize2D axes,double angle, double start_angle, double end_angle, GrfScalar4D* color, int thickness, int line_type, int shift);
-void    grf_array_draw_rectangle(GrfArray* array, GrfRectangle rect, GrfScalar4D* color, int thickness, int lineType, int shift);
+void    grf_ndarray_draw_circle(GrfNDArray* array, GrfScalar2D center, int radius, GrfScalar4D* color, int thickness, int line_type, int shift);
+void    grf_ndarray_draw_ellipse(GrfNDArray* array, GrfScalar2D center, GrfSize2D axes,double angle, double start_angle, double end_angle, GrfScalar4D* color, int thickness, int line_type, int shift);
+void    grf_ndarray_draw_rectangle(GrfNDArray* array, GrfRectangle rect, GrfScalar4D* color, int thickness, int lineType, int shift);
 void    grf_ellipse_to_poly(GrfScalar2D center, GrfSize2D axes, int angle, int arc_start, int arc_end, int delta, GrfScalar2D** pts, int *count);
-void    grf_array_draw_rectangle(GrfArray *array, GrfRectangle rect, GrfScalar4D *color, int thickness, int line_type, int shift);
-void    grf_array_draw_rectangle_2(GrfArray* array, GrfScalar2D top_left, GrfScalar2D bottom_right, GrfScalar4D* color, int thickness, int line_type, int shift);
+void    grf_ndarray_draw_rectangle(GrfNDArray *array, GrfRectangle rect, GrfScalar4D *color, int thickness, int line_type, int shift);
+void    grf_ndarray_draw_rectangle_2(GrfNDArray* array, GrfScalar2D top_left, GrfScalar2D bottom_right, GrfScalar4D* color, int thickness, int line_type, int shift);
 END_DECLS
 #endif

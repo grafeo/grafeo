@@ -26,8 +26,65 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/core.h>
+/*===========================================================================
+ * PRIVATE API
+ *===========================================================================*/
+/**
+ * @brief GrfNDArray Structure
+ *
+ * Each array will have its own data
+ *
+ * Each array will have its own size vector
+ *
+ * Support multidimensional arrays (dim > 2)
+ */
+typedef struct _GrfNDArrayPrivate{
+    uint16_t  dim;          /**< number of dimensions */
+    uint32_t* size;         /**< number of elements in each dimension */
+    uint64_t  num_elements; /**< number of elements of the array */
+    size_t    num_bytes;    /**< total number of bytes */
+    uint8_t   bitsize;      /**< number of bytes of each value*/
+    GrfDataType  type;         /**< data type of each element */
+    uint64_t* step;         /**< number of elements to increase an axis value */
+    uint8_t   contiguous;   /**< it can be iterated using a common loop */
+    uint8_t   owns_data;    /**< owner of its data */
+    union{
+        void*          data;
+        unsigned char* data_uint8;
+        uint16_t*      data_uint16;
+        uint32_t*      data_uint32;
+        uint64_t*      data_uint64;
+        char*          data_int8;
+        int16_t*       data_int16;
+        int32_t*       data_int32;
+        int64_t*       data_int64;
+        float*         data_float;
+        double*        data_double;
+        unsigned int*  data_int;
+    };
+}GrfNDArrayPrivate;
+G_DEFINE_TYPE_WITH_PRIVATE(GrfNDArray, grf_ndarray, G_TYPE_OBJECT)
 
-size_t calculate_bitsize(GrfDataType type){
+static void
+grf_ndarray_init(GrfNDArray *self){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(self);
+  priv->dim          = 0;
+  priv->size         = NULL;
+  priv->num_elements = 0;
+  priv->num_bytes    = 0;
+  priv->bitsize      = 0;
+  priv->type         = GRF_UINT8;
+  priv->step         = NULL;
+  priv->contiguous   = 1;
+  priv->owns_data    = 1;
+}
+
+static void
+grf_ndarray_class_init(GrfNDArrayClass *klass){
+
+}
+
+static size_t grf_ndarray_calculate_bitsize(GrfDataType type){
   switch(type){
       case GRF_UINT8:  return sizeof(uint8_t); break;
       case GRF_UINT16: return sizeof(uint16_t);break;
@@ -42,234 +99,222 @@ size_t calculate_bitsize(GrfDataType type){
   }
   return 0;
 }
+/*===========================================================================
+ * PUBLIC API
+ *===========================================================================*/
 
-/*-----------------------------------
- *     ARRAY CREATION FUNCTIONS
- *-----------------------------------*/
-GrfArray*    grf_array_new(){
-    GrfArray* array = malloc(sizeof(GrfArray));
-    array->dim = 0;
-    array->size = NULL;
-    array->num_elements = 0;
-    array->num_bytes = 0;
-    array->bitsize   = 0;
-    array->type = GRF_UINT8;
-    array->step = NULL;
-    array->contiguous = 1;
-    array->owns_data  = 1;
+/* Array Creation Functions
+ *=================================*/
+
+GrfNDArray*    grf_ndarray_new(){
+    return g_object_new(GRF_TYPE_NDARRAY, NULL);
+}
+GrfNDArray*    grf_ndarray_new_with_dim(uint16_t dim){
+    GrfNDArray* array        = grf_ndarray_new();
+    GrfNDArrayPrivate* priv  = grf_ndarray_get_instance_private(array);
+    priv->dim                = dim;
+    priv->size               = malloc(sizeof(uint32_t) * dim);
+    priv->step               = malloc(sizeof(uint64_t) * dim);
     return array;
 }
-GrfArray*    grf_array_new_with_dim(uint16_t dim){
-    GrfArray* array        = grf_array_new();
-    array->dim          = dim;
-    array->size         = malloc(sizeof(uint32_t) * dim);
-    array->step         = malloc(sizeof(uint64_t) * dim);
-    return array;
+GrfNDArray*    grf_ndarray_new_with_size(uint16_t dim, uint32_t* size){
+    return grf_ndarray_new_with_size_type(dim, size, GRF_UINT8);
 }
-GrfArray*    grf_array_new_with_size(uint16_t dim, uint32_t* size){
-    return grf_array_new_with_size_type(dim, size, GRF_UINT8);
-}
-void      grf_array_fill_header(GrfArray* array, uint32_t* size, GrfDataType type){
+void      grf_ndarray_fill_header(GrfNDArray* array, uint32_t* size, GrfDataType type){
+  GrfNDArrayPrivate* priv  = grf_ndarray_get_instance_private(array);
   uint16_t i;
-  array->num_elements = 1;
-  array->step[array->dim-1] = 1;
+  priv->num_elements = 1;
+  priv->step[array->dim-1] = 1;
   uint64_t step = 1;
   for(i = 0; i < array->dim; step*=size[array->dim-(i++)-1]){
-      array->size[i]        = size[i];
-      array->step[array->dim-i-1]  = step;
-      array->num_elements  *= size[i];
+      priv->size[i]        = size[i];
+      priv->step[array->dim-i-1]  = step;
+      priv->num_elements  *= size[i];
   }
-  array->bitsize      = calculate_bitsize(type);
-  array->num_bytes    = array->bitsize * array->num_elements;
-  array->type         = type;
+  priv->bitsize      = grf_ndarray_calculate_bitsize(type);
+  priv->num_bytes    = array->bitsize * array->num_elements;
+  priv->type         = type;
 }
-GrfArray*    grf_array_new_with_size_type(uint16_t dim, uint32_t* size, GrfDataType type){
-    GrfArray* array        = grf_array_new_with_dim(dim);
-    grf_array_fill_header(array, size, type);
-    array->data         = malloc(array->num_bytes);
-    return array;
+GrfNDArray*    grf_ndarray_new_with_size_type(uint16_t dim, uint32_t* size, GrfDataType type){
+  GrfNDArray* array        = grf_ndarray_new_with_dim(dim);
+  GrfNDArrayPrivate* priv  = grf_ndarray_get_instance_private(array);
+  grf_ndarray_fill_header(array, size, type);
+  priv->data         = malloc(array->num_bytes);
+  return array;
 }
-GrfArray*    grf_array_new_1D(uint32_t size1){
-    GrfArray* array        = grf_array_new_with_size(1, &size1);
-    return array;
+GrfNDArray*    grf_ndarray_new_1D(uint32_t size1){
+  return grf_ndarray_new_with_size(1, &size1);
 }
-GrfArray*    grf_array_new_2D(uint32_t size1, uint32_t size2){
-    uint32_t sizes[2]; 
-    sizes[0]            = size1;
-    sizes[1]            = size2;
-    GrfArray* array        = grf_array_new_with_size(2, sizes);
-    return array;
+GrfNDArray*    grf_ndarray_new_2D(uint32_t size1, uint32_t size2){
+  uint32_t sizes[2] = {size1, size2};
+  return grf_ndarray_new_with_size(2, sizes);
 }
-GrfArray*    grf_array_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
-    uint32_t sizes[3]; 
-    sizes[0]            = size1;
-    sizes[1]            = size2;
-    sizes[2]            = size3;
-    GrfArray* array        = grf_array_new_with_size(3, sizes);
-    return array;
+GrfNDArray*    grf_ndarray_new_3D(uint32_t size1, uint32_t size2, uint32_t size3){
+  uint32_t sizes[3] = {size1, size2, size3};
+  return grf_ndarray_new_with_size(3, sizes);
 }
-GrfArray*    grf_array_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4){
-    uint32_t sizes[4]; 
-    sizes[0]            = size1;
-    sizes[1]            = size2;
-    sizes[2]            = size3;
-    sizes[3]            = size4;
-    GrfArray* array        = grf_array_new_with_size(4, sizes);
-    return array;
+GrfNDArray*    grf_ndarray_new_4D(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4){
+  uint32_t sizes[4] = {size1, size2, size3, size4};
+  return grf_ndarray_new_with_size(4, sizes);
 }
-GrfArray*    grf_array_new_1D_type(uint32_t size1, GrfDataType type){
-    return grf_array_new_with_size_type(1, &size1, type);
+GrfNDArray*    grf_ndarray_new_1D_type(uint32_t size1, GrfDataType type){
+  return grf_ndarray_new_with_size_type(1, &size1, type);
 }
-GrfArray*    grf_array_new_2D_type(uint32_t size1, uint32_t size2, GrfDataType type){
-    uint32_t sizes[2]; 
-    sizes[0]            = size1;
-    sizes[1]            = size2;
-    return grf_array_new_with_size_type(2, sizes, type);
-
+GrfNDArray*    grf_ndarray_new_2D_type(uint32_t size1, uint32_t size2, GrfDataType type){
+  uint32_t sizes[2] = {size1, size2};
+  return grf_ndarray_new_with_size_type(2, sizes, type);
 }
-GrfArray*    grf_array_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, GrfDataType type){
-    uint32_t sizes[3]; 
-    sizes[0]            = size1;
-    sizes[1]            = size2;
-    sizes[2]            = size3;
-    return grf_array_new_with_size_type(3, sizes, type);
+GrfNDArray*    grf_ndarray_new_3D_type(uint32_t size1, uint32_t size2, uint32_t size3, GrfDataType type){
+  uint32_t sizes[3] = {size1, size2, size3};
+  return grf_ndarray_new_with_size_type(3, sizes, type);
 }
-GrfArray*
-grf_array_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, GrfDataType type){
-    uint32_t sizes[4]; 
-    sizes[0]            = size1;
-    sizes[1]            = size2;
-    sizes[2]            = size3;
-    sizes[3]            = size4;
-    return grf_array_new_with_size_type(4, sizes, type);
+GrfNDArray*
+grf_ndarray_new_4D_type(uint32_t size1, uint32_t size2, uint32_t size3, uint32_t size4, GrfDataType type){
+  uint32_t sizes[4] = {size1, size2, size3, size4};
+  return grf_ndarray_new_with_size_type(4, sizes, type);
 }
-GrfArray*
-grf_array_new_like(GrfArray* array){
-  return grf_array_new_with_size_type(array->dim, array->size, array->type);
+GrfNDArray*
+grf_ndarray_new_like(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return grf_ndarray_new_with_size_type(priv->dim, priv->size, priv->type);
 }
-GrfArray*
-grf_array_zeros(uint16_t dim, uint32_t* sizes, GrfDataType type){
-    GrfArray* array = grf_array_new_with_size_type(dim, sizes, type);
-    memset(array->data, 0, array->num_bytes);
-    return array;
+GrfNDArray*
+grf_ndarray_zeros(uint16_t dim, uint32_t* sizes, GrfDataType type){
+  GrfNDArray* array = grf_ndarray_new_with_size_type(dim, sizes, type);
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  memset(priv->data, 0, priv->num_bytes);
+  return array;
 }
-GrfArray*    grf_array_zeros_like(GrfArray *array){
-  return grf_array_zeros_like_type(array,array->type);
+GrfNDArray*    grf_ndarray_zeros_like(GrfNDArray *array){
+  return grf_ndarray_zeros_like_type(array,grf_ndarray_get_elemtype(array));
 }
 
-GrfArray*
-grf_array_zeros_like_type(GrfArray* array, GrfDataType type){
-  return grf_array_zeros(array->dim, array->size, type);
+GrfNDArray*
+grf_ndarray_zeros_like_type(GrfNDArray* array, GrfDataType type){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return grf_ndarray_zeros(priv->dim, priv->size, type);
 }
-GrfArray*
-grf_array_ones(uint16_t dim, uint32_t* sizes, GrfDataType type){
-    GrfArray* array = grf_array_new_with_size_type(dim, sizes, type);
-    grf_array_fill(array,1);
-    return array;
+GrfNDArray*
+grf_ndarray_ones(uint16_t dim, uint32_t* sizes, GrfDataType type){
+  GrfNDArray* array = grf_ndarray_new_with_size_type(dim, sizes, type);
+  grf_ndarray_fill(array,1);
+  return array;
 }
-GrfArray*    grf_array_ones_like(GrfArray *array){
-  return grf_array_ones_like_type(array, array->type);
+GrfNDArray*    grf_ndarray_ones_like(GrfNDArray *array){
+  return grf_ndarray_ones_like_type(array, grf_ndarray_get_elemtype(array));
 }
 
-GrfArray*
-grf_array_ones_like_type(GrfArray* array, GrfDataType type){
-  return grf_array_ones(array->dim, array->size, type);
+GrfNDArray*
+grf_ndarray_ones_like_type(GrfNDArray* array, GrfDataType type){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return grf_ndarray_ones(priv->dim, priv->size, type);
 }
-/*-----------------------------------
- *   ARRAY OPERATIONS FUNCTIONS
- *-----------------------------------*/
+/* Operations
+ *=================================*/
+static long double max_values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,
+                                 __INT16_MAX__,__INT32_MAX__ ,__INT64_MAX__ ,__FLT_MAX__   ,__DBL_MAX__};
 void
-grf_array_fill_max(GrfArray *array){
-  long double values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__,__UINT64_MAX__,__INT8_MAX__,__INT16_MAX__,__INT32_MAX__,__INT64_MAX__,__FLT_MAX__,__DBL_MAX__};
-  grf_array_fill(array, values[array->type]);
+grf_ndarray_fill_max(GrfNDArray *array){
+  grf_ndarray_fill(array, max_values[grf_ndarray_get_elemtype(array)]);
+}
+
+long double min_values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
+void
+grf_ndarray_fill_min(GrfNDArray *array){  
+  grf_ndarray_fill(array, min_values[grf_ndarray_get_elemtype(array)]);
 }
 void
-grf_array_fill_min(GrfArray *array){
-  long double values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
-  grf_array_fill(array, values[array->type]);
-}
-void
-grf_array_fill(GrfArray* array, long double value){
-    uint64_t i, ii, index_1d;
-    uint16_t* indices, atual, anterior;
-    if(!array->contiguous){
-      indices = malloc(sizeof(uint16_t) * array->dim);
-      memset(indices, 0, sizeof(uint16_t) * array->dim);
-    }
-    for(i = 0; i < array->num_elements; i++){
-      // Get index (contiguous or not)
-      if(!array->contiguous){
-        atual    = array->dim - 2;
-        anterior = atual + 1;
-        index_1d = 0;
-        // Get ND coords
-        for(ii = 0; ii < array->dim-1; ii++, atual--, anterior--){
-          indices[atual]   += indices[anterior]/array->size[anterior];
-          indices[anterior] = indices[anterior]%array->size[anterior];
-        }
-        // Convert to 1D
-        for(ii = 0; ii < array->dim; ii++)
-          index_1d += indices[ii] * array->step[ii];
+grf_ndarray_fill(GrfNDArray* array, long double value){
+  uint64_t i, ii, index_1d;
+  uint16_t* indices, atual, anterior;
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  if(!priv->contiguous){
+    indices = malloc(sizeof(uint16_t) * priv->dim);
+    memset(indices, 0, sizeof(uint16_t) * priv->dim);
+  }
+  for(i = 0; i < priv->num_elements; i++){
+    // Get index (contiguous or not)
+    if(!priv->contiguous){
+      atual    = priv->dim - 2;
+      anterior = atual + 1;
+      index_1d = 0;
+      // Get ND coords
+      for(ii = 0; ii < priv->dim-1; ii++, atual--, anterior--){
+        indices[atual]   += indices[anterior]/priv->size[anterior];
+        indices[anterior] = indices[anterior]%priv->size[anterior];
       }
-      // If it's contiguouos, just get counter
-      else index_1d = i;
-
-      // Update
-      switch(array->type){
-        case GRF_UINT8:  array->data_uint8[index_1d] = (uint8_t)value;break;
-        case GRF_UINT16: array->data_uint16[index_1d] = (uint16_t)value;break;
-        case GRF_UINT32: array->data_uint32[index_1d] = (uint32_t)value;break;
-        case GRF_UINT64: array->data_uint64[index_1d] = (uint64_t)value;break;
-        case GRF_INT8:   array->data_int8[index_1d] = (int8_t)value;break;
-        case GRF_INT16:  array->data_int16[index_1d] = (int16_t)value;break;
-        case GRF_INT32:  array->data_int32[index_1d] = (int32_t)value;break;
-        case GRF_INT64:  array->data_int64[index_1d] = (int64_t)value;break;
-        case GRF_FLOAT:  array->data_float[index_1d] = (float)value;break;
-        case GRF_DOUBLE: array->data_double[index_1d] = (double)value;break;
-      }
-      if(!array->contiguous) indices[array->dim-1]++;
+      // Convert to 1D
+      for(ii = 0; ii < priv->dim; ii++)
+        index_1d += indices[ii] * priv->step[ii];
     }
-    if(!array->contiguous) free(indices);
+    // If it's contiguouos, just get counter
+    else index_1d = i;
+
+    // Update
+    switch(priv->type){
+      case GRF_UINT8:  priv->data_uint8[index_1d] = (uint8_t)value;break;
+      case GRF_UINT16: priv->data_uint16[index_1d] = (uint16_t)value;break;
+      case GRF_UINT32: priv->data_uint32[index_1d] = (uint32_t)value;break;
+      case GRF_UINT64: priv->data_uint64[index_1d] = (uint64_t)value;break;
+      case GRF_INT8:   priv->data_int8[index_1d] = (int8_t)value;break;
+      case GRF_INT16:  priv->data_int16[index_1d] = (int16_t)value;break;
+      case GRF_INT32:  priv->data_int32[index_1d] = (int32_t)value;break;
+      case GRF_INT64:  priv->data_int64[index_1d] = (int64_t)value;break;
+      case GRF_FLOAT:  priv->data_float[index_1d] = (float)value;break;
+      case GRF_DOUBLE: priv->data_double[index_1d] = (double)value;break;
+    }
+    if(!priv->contiguous) indices[priv->dim-1]++;
+  }
+  if(!priv->contiguous) free(indices);
 }
-/*-----------------------------------
- *   ARRAY ACCESSOR FUNCTIONS
- *-----------------------------------*/
+
+/* Accessors
+ *=================================*/
+
 uint64_t
-grf_array_get_num_elements(GrfArray* array){
-    return array->num_elements;
+grf_ndarray_get_num_elements(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->num_elements;
 }
 GrfDataType
-grf_array_get_type(GrfArray* array){
-    return array->type;
+grf_ndarray_get_elemtype(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->type;
 }
 uint16_t
-grf_array_get_dim(GrfArray* array){
-    return array->dim;
+grf_ndarray_get_dim(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->dim;
 }
 uint32_t*
-grf_array_get_size(GrfArray* array){
-    return array->size;
+grf_ndarray_get_size(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->size;
 }
 void*
-grf_array_get_data(GrfArray* array){
-    return array->data;
+grf_ndarray_get_data(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->data;
 }
 uint8_t
-grf_array_get_bitsize(GrfArray* array){
-    return array->bitsize;
+grf_ndarray_get_bitsize(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->bitsize;
 }
 uint64_t
-grf_array_get_num_bytes(GrfArray* array){
-    return array->num_bytes;
+grf_ndarray_get_num_bytes(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->num_bytes;
 }
 
 int32_t*
-grf_array_index(GrfArray* array, int64_t index){
-  int32_t* indices = malloc(sizeof(int32_t) * array->dim);
+grf_ndarray_index(GrfNDArray* array, int64_t index){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  int32_t* indices = malloc(sizeof(int32_t) * priv->dim);
   uint8_t i;
   div_t division;
-  for(i = 0; i < array->dim; i++){
-    division   = div(index, array->step[i]);
+  for(i = 0; i < priv->dim; i++){
+    division   = div(index, priv->step[i]);
     indices[i] = division.quot;
     index      = division.rem;
   }
@@ -277,53 +322,57 @@ grf_array_index(GrfArray* array, int64_t index){
 }
 
 int64_t
-grf_array_index_1D(GrfArray* array, int32_t* indices){
+grf_ndarray_index_1D(GrfNDArray* array, int32_t* indices){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
   int64_t x = 0, i;
-  for(i = 0; i < array->dim; x += indices[i] * array->step[i], i++);
+  for(i = 0; i < priv->dim; x += indices[i] * priv->step[i], i++);
   return x;
 }
 
 uint8_t
-grf_array_index_is_valid(GrfArray *array, int32_t *indices){
+grf_ndarray_index_is_valid(GrfNDArray *array, int32_t *indices){
   uint8_t i;
-  for(i = 0; i < array->dim; i++)
-    if(indices[i] < 0 || indices[i] >= array->size[i]) return 0;
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  for(i = 0; i < priv->dim; i++)
+    if(indices[i] < 0 || indices[i] >= priv->size[i]) return 0;
   return 1;
 }
 
 uint8_t
-grf_array_index_1D_is_valid(GrfArray *array, int64_t index){
-  return index >= 0 && index < array->num_elements;
+grf_ndarray_index_1D_is_valid(GrfNDArray *array, int64_t index){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return index >= 0 && index < priv->num_elements;
 }
 void*
-grf_array_get_element(GrfArray* array, uint32_t* indices){
-    uint8_t* x = array->data_uint8;
+grf_ndarray_get_element(GrfNDArray* array, uint32_t* indices){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+    uint8_t* x = priv->data_uint8;
     int i;
     for(i = 0; i < array->dim; i++){
-         x += indices[i] * array->step[i] * array->bitsize;
+         x += indices[i] * priv->step[i] * array->bitsize;
     }
     return x;
 }
 void*
-grf_array_get_element_1D(GrfArray* array, uint64_t index){
+grf_ndarray_get_element_1D(GrfNDArray* array, uint64_t index){
   return array->data_uint8 + index * array->bitsize;
 }
 
 uint64_t*
-grf_array_get_step(GrfArray* array){
+grf_ndarray_get_step(GrfNDArray* array){
     return array->step;
 }
 
 void
-grf_array_set_element(GrfArray* array, uint32_t* indices, double value){
+grf_ndarray_set_element(GrfNDArray* array, uint32_t* indices, double value){
   uint64_t x = 0;
   uint8_t i;
   for(i = 0; i < array->dim; i++)
        x += indices[i] * array->step[i];
-  grf_array_set_element_1D(array, x, value);
+  grf_ndarray_set_element_1D(array, x, value);
 }
 
-void grf_array_set_element_1D(GrfArray* array, uint64_t i, double value){
+void grf_ndarray_set_element_1D(GrfNDArray* array, uint64_t i, double value){
   switch(array->type){
     case GRF_UINT8:  array->data_uint8[i] = (uint8_t)value; break;
     case GRF_UINT16: array->data_uint16[i] = (uint16_t)value; break;
@@ -338,7 +387,7 @@ void grf_array_set_element_1D(GrfArray* array, uint64_t i, double value){
   }
 }
 
-long double grf_array_get_long_double_1D(GrfArray* array1, uint64_t i){
+long double grf_ndarray_get_long_double_1D(GrfNDArray* array1, uint64_t i){
   long double value1;
   switch(array1->type){
     case GRF_UINT8: value1 = (long double)array1->data_uint8[i];break;
@@ -356,16 +405,16 @@ long double grf_array_get_long_double_1D(GrfArray* array1, uint64_t i){
 }
 
 void
-grf_array_free(GrfArray* array){
+grf_ndarray_free(GrfNDArray* array){
     if(array->data && array->owns_data) free(array->data);
     if(array->size) free(array->size);
     if(array->step) free(array->step);
     free(array);
 }
 
-GrfArray*
-grf_array_sub(GrfArray* array, GrfRange* ranges){
-    GrfArray* subarray = grf_array_new_with_dim(grf_array_get_dim(array));
+GrfNDArray*
+grf_ndarray_sub(GrfNDArray* array, GrfRange* ranges){
+    GrfNDArray* subarray = grf_ndarray_new_with_dim(grf_ndarray_get_dim(array));
     subarray->type = array->type;
     subarray->bitsize = array->bitsize;
     subarray->data = array->data;
@@ -391,26 +440,26 @@ grf_array_sub(GrfArray* array, GrfRange* ranges){
     return subarray;
 }
 
-GrfArray*
-grf_array_from_data(void* data, uint16_t dim, uint32_t* size, GrfDataType type){
-  GrfArray* array = grf_array_new_with_dim(dim);
-  grf_array_fill_header(array, size, type);
+GrfNDArray*
+grf_ndarray_from_data(void* data, uint16_t dim, uint32_t* size, GrfDataType type){
+  GrfNDArray* array = grf_ndarray_new_with_dim(dim);
+  grf_ndarray_fill_header(array, size, type);
   array->owns_data = 0;
   array->data      = data;
   return array;
 }
-GrfArray*
-grf_array_as_type(GrfArray* array, GrfDataType type){
+GrfNDArray*
+grf_ndarray_as_type(GrfNDArray* array, GrfDataType type){
   if(type != array->type){
-    GrfArray* array2 = grf_array_new_with_size_type(array->dim, array->size, type);
+    GrfNDArray* array2 = grf_ndarray_new_with_size_type(array->dim, array->size, type);
     uint64_t i;
     for(i = 0; i < array->num_elements; i++)
-      grf_array_set_element_1D(array2, i, grf_array_get_long_double_1D(array,i));
+      grf_ndarray_set_element_1D(array2, i, grf_ndarray_get_long_double_1D(array,i));
     return array2;
   }
   return array;
 }
-GrfArray*    grf_array_circular_indices(uint16_t dim, float radius){
+GrfNDArray*    grf_ndarray_circular_indices(uint16_t dim, float radius){
   int32_t dz, dy, dx, r2, i;
   uint32_t n;
 
@@ -428,7 +477,7 @@ GrfArray*    grf_array_circular_indices(uint16_t dim, float radius){
       }
   // Create the array
   uint32_t size[2] = {n-1,dim};
-  GrfArray* indices = grf_array_new_with_size_type(2,size,GRF_INT64);
+  GrfNDArray* indices = grf_ndarray_new_with_size_type(2,size,GRF_INT64);
 
   // Fill the array
   i = 0;
@@ -460,39 +509,39 @@ GrfArray*    grf_array_circular_indices(uint16_t dim, float radius){
   return indices;
 }
 
-GrfArray*
-grf_array_copy(GrfArray* array){
-  GrfArray* array2 = grf_array_new_like(array);
+GrfNDArray*
+grf_ndarray_copy(GrfNDArray* array){
+  GrfNDArray* array2 = grf_ndarray_new_like(array);
   memcpy(array2->data,array->data,array->num_bytes);
   return array2;
 }
 
-GrfArray*
-grf_array_reduce_min(GrfArray* array, int16_t* axes, uint16_t size){
-  return grf_array_reduce(array, axes, size, GRF_MIN);
+GrfNDArray*
+grf_ndarray_reduce_min(GrfNDArray* array, int16_t* axes, uint16_t size){
+  return grf_ndarray_reduce(array, axes, size, GRF_MIN);
 }
-GrfArray*
-grf_array_reduce_max(GrfArray* array, int16_t* axes, uint16_t size){
-  return grf_array_reduce(array, axes, size, GRF_MAX);
+GrfNDArray*
+grf_ndarray_reduce_max(GrfNDArray* array, int16_t* axes, uint16_t size){
+  return grf_ndarray_reduce(array, axes, size, GRF_MAX);
 }
-GrfArray*
-grf_array_reduce_std(GrfArray* array, int16_t* axes, uint16_t size){
-  return grf_array_reduce(array, axes, size, GRF_STD);
+GrfNDArray*
+grf_ndarray_reduce_std(GrfNDArray* array, int16_t* axes, uint16_t size){
+  return grf_ndarray_reduce(array, axes, size, GRF_STD);
 }
-GrfArray*
-grf_array_reduce_mult(GrfArray* array, int16_t* axes, uint16_t size){
-  return grf_array_reduce(array, axes, size, GRF_MULT);
+GrfNDArray*
+grf_ndarray_reduce_mult(GrfNDArray* array, int16_t* axes, uint16_t size){
+  return grf_ndarray_reduce(array, axes, size, GRF_MULT);
 }
-GrfArray*
-grf_array_reduce_sum(GrfArray* array, int16_t* axes, uint16_t size){
-  return grf_array_reduce(array, axes, size, GRF_SUM);
+GrfNDArray*
+grf_ndarray_reduce_sum(GrfNDArray* array, int16_t* axes, uint16_t size){
+  return grf_ndarray_reduce(array, axes, size, GRF_SUM);
 }
 
-GrfArray*
-grf_array_reduce(GrfArray* array, int16_t* axes, uint16_t size, GrfArrayOperation operation){
+GrfNDArray*
+grf_ndarray_reduce(GrfNDArray* array, int16_t* axes, uint16_t size, GrfNDArrayOperation operation){
   // Calculate size of reduced array
-  uint16_t  original_dim  = grf_array_get_dim(array);
-  uint32_t* original_size = grf_array_get_size(array);
+  uint16_t  original_dim  = grf_ndarray_get_dim(array);
+  uint32_t* original_size = grf_ndarray_get_size(array);
   uint16_t  reduced_dim   = original_dim-size;
   uint32_t* reduced_size  = malloc(sizeof(uint32_t)*reduced_dim);
   uint16_t* reduced_ind   = malloc(sizeof(uint16_t)*reduced_dim);
@@ -507,16 +556,16 @@ grf_array_reduce(GrfArray* array, int16_t* axes, uint16_t size, GrfArrayOperatio
   for(i = 0; i < reduced_dim; i++) num_reduced *= original_size[axes[i]];
 
   // Allocate a new array
-  GrfArray *reduced;
+  GrfNDArray *reduced;
   switch(operation){
     case GRF_SUM:
     case GRF_STD:
-    case GRF_MEAN: reduced = grf_array_zeros(reduced_dim,reduced_size,grf_array_get_type(array));break;
-    case GRF_MULT: reduced = grf_array_ones(reduced_dim,reduced_size,grf_array_get_type(array));break;
-    case GRF_MAX:  reduced = grf_array_new_with_size_type(reduced_dim, reduced_size, grf_array_get_type(array));
-                      grf_array_fill_min(reduced); break;
-    case GRF_MIN:  reduced = grf_array_new_with_size_type(reduced_dim, reduced_size, grf_array_get_type(array));
-                      grf_array_fill_max(reduced); break;
+    case GRF_MEAN: reduced = grf_ndarray_zeros(reduced_dim,reduced_size,grf_ndarray_get_elemtype(array));break;
+    case GRF_MULT: reduced = grf_ndarray_ones(reduced_dim,reduced_size,grf_ndarray_get_elemtype(array));break;
+    case GRF_MAX:  reduced = grf_ndarray_new_with_size_type(reduced_dim, reduced_size, grf_ndarray_get_elemtype(array));
+                      grf_ndarray_fill_min(reduced); break;
+    case GRF_MIN:  reduced = grf_ndarray_new_with_size_type(reduced_dim, reduced_size, grf_ndarray_get_elemtype(array));
+                      grf_ndarray_fill_max(reduced); break;
   }
 
   // ND indices of original array
@@ -607,7 +656,7 @@ grf_array_reduce(GrfArray* array, int16_t* axes, uint16_t size, GrfArrayOperatio
   }
 
   if(operation == GRF_MEAN){
-    grf_array_divide_scalar(reduced, num_reduced);
+    grf_ndarray_divide_scalar(reduced, num_reduced);
   }
 
   free(reduced_size);
@@ -618,7 +667,7 @@ grf_array_reduce(GrfArray* array, int16_t* axes, uint16_t size, GrfArrayOperatio
   return reduced;
 }
 
-void grf_array_squeeze(GrfArray* array){
+void grf_ndarray_squeeze(GrfNDArray* array){
   uint16_t current_pos = 0,i;
   for(i = current_pos; i < array->dim; i++){
     if(array->size[i] != 1) array->size[current_pos++] = array->size[i];
@@ -627,7 +676,7 @@ void grf_array_squeeze(GrfArray* array){
   array->size = realloc(array->size, current_pos * sizeof(uint32_t));
 }
 
-void grf_array_squeeze_axis(GrfArray* array, uint8_t num_axis, uint16_t* axis){
+void grf_ndarray_squeeze_axis(GrfNDArray* array, uint8_t num_axis, uint16_t* axis){
   uint16_t current_pos = axis[0], current_axis_pos = 0,i;
   for(i = current_pos; i < array->dim; i++){
     // Copy whether non single-dimension or not indicated by axis
@@ -643,8 +692,8 @@ void grf_array_squeeze_axis(GrfArray* array, uint8_t num_axis, uint16_t* axis){
   array->size = realloc(array->size, current_pos * sizeof(uint32_t));
 }
 
-GrfArray* grf_array_sum_scalar(GrfArray *array, double value){
-  GrfArray* new_array = grf_array_new_like(array);
+GrfNDArray* grf_ndarray_sum_scalar(GrfNDArray *array, double value){
+  GrfNDArray* new_array = grf_ndarray_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
@@ -662,8 +711,8 @@ GrfArray* grf_array_sum_scalar(GrfArray *array, double value){
   }
   return new_array;
 }
-GrfArray* grf_array_subtract_scalar(GrfArray *array, double value){
-  GrfArray* new_array = grf_array_new_like(array);
+GrfNDArray* grf_ndarray_subtract_scalar(GrfNDArray *array, double value){
+  GrfNDArray* new_array = grf_ndarray_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
@@ -681,8 +730,8 @@ GrfArray* grf_array_subtract_scalar(GrfArray *array, double value){
   }
   return new_array;
 }
-GrfArray* grf_array_mult_scalar(GrfArray *array, double value){
-  GrfArray* new_array = grf_array_new_like(array);
+GrfNDArray* grf_ndarray_mult_scalar(GrfNDArray *array, double value){
+  GrfNDArray* new_array = grf_ndarray_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
@@ -700,8 +749,8 @@ GrfArray* grf_array_mult_scalar(GrfArray *array, double value){
   }
   return new_array;
 }
-GrfArray* grf_array_divide_scalar(GrfArray *array, double value){
-  GrfArray* new_array = grf_array_new_like(array);
+GrfNDArray* grf_ndarray_divide_scalar(GrfNDArray *array, double value){
+  GrfNDArray* new_array = grf_ndarray_new_like(array);
   uint64_t i;
   for(i = 0; i < array->num_elements; i++){
     switch(array->type){
@@ -720,42 +769,42 @@ GrfArray* grf_array_divide_scalar(GrfArray *array, double value){
   return new_array;
 }
 
-GrfArray* grf_array_sum(GrfArray *array1, GrfArray *array2){
-  return grf_array_sum_to(array1, array2, NULL);
+GrfNDArray* grf_ndarray_sum(GrfNDArray *array1, GrfNDArray *array2){
+  return grf_ndarray_sum_to(array1, array2, NULL);
 }
-GrfArray* grf_array_subtract(GrfArray *array1, GrfArray *array2){
-  return grf_array_subtract_to(array1, array2, NULL);
+GrfNDArray* grf_ndarray_subtract(GrfNDArray *array1, GrfNDArray *array2){
+  return grf_ndarray_subtract_to(array1, array2, NULL);
 }
-GrfArray* grf_array_mult(GrfArray *array1, GrfArray *array2){
-  return grf_array_mult_to(array1, array2, NULL);
+GrfNDArray* grf_ndarray_mult(GrfNDArray *array1, GrfNDArray *array2){
+  return grf_ndarray_mult_to(array1, array2, NULL);
 }
-GrfArray* grf_array_divide(GrfArray *array1, GrfArray *array2){
-  return grf_array_divide_to(array1, array2, NULL);
+GrfNDArray* grf_ndarray_divide(GrfNDArray *array1, GrfNDArray *array2){
+  return grf_ndarray_divide_to(array1, array2, NULL);
 }
-long double grf_array_reduce_sum_num(GrfArray* array){
+long double grf_ndarray_reduce_sum_num(GrfNDArray* array){
   long double sum = 0;
   uint64_t i;
   for(i = 0; i < array->num_elements; i++)
-    sum += grf_array_get_long_double_1D(array,i);
+    sum += grf_ndarray_get_long_double_1D(array,i);
   return sum;
 }
-long double grf_array_reduce_max_num(GrfArray* array){
+long double grf_ndarray_reduce_max_num(GrfNDArray* array){
   long double num_max = __LDBL_MIN__;
   uint64_t i;
   for(i = 0; i < array->num_elements; i++)
-    num_max = max(num_max,grf_array_get_long_double_1D(array,i));
+    num_max = max(num_max,grf_ndarray_get_long_double_1D(array,i));
   return num_max;
 }
-long double grf_array_reduce_min_num(GrfArray* array){
+long double grf_ndarray_reduce_min_num(GrfNDArray* array){
   long double num_min = __LDBL_MAX__;
   uint64_t i;
   for(i = 0; i < array->num_elements; i++)
-    num_min = min(num_min,grf_array_get_long_double_1D(array,i));
+    num_min = min(num_min,grf_ndarray_get_long_double_1D(array,i));
   return num_min;
 }
 
-GrfArray* grf_array_sum_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
-  if(!new_array) new_array = grf_array_new_like(array1);
+GrfNDArray* grf_ndarray_sum_to(GrfNDArray* array1, GrfNDArray* array2, GrfNDArray* new_array){
+  if(!new_array) new_array = grf_ndarray_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
@@ -773,8 +822,8 @@ GrfArray* grf_array_sum_to(GrfArray* array1, GrfArray* array2, GrfArray* new_arr
   }
   return new_array;
 }
-GrfArray* grf_array_subtract_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
-  if(!new_array) new_array = grf_array_new_like(array1);
+GrfNDArray* grf_ndarray_subtract_to(GrfNDArray* array1, GrfNDArray* array2, GrfNDArray* new_array){
+  if(!new_array) new_array = grf_ndarray_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
@@ -792,8 +841,8 @@ GrfArray* grf_array_subtract_to(GrfArray* array1, GrfArray* array2, GrfArray* ne
   }
   return new_array;
 }
-GrfArray* grf_array_mult_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
-  if(!new_array) new_array = grf_array_new_like(array1);
+GrfNDArray* grf_ndarray_mult_to(GrfNDArray* array1, GrfNDArray* array2, GrfNDArray* new_array){
+  if(!new_array) new_array = grf_ndarray_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
@@ -811,8 +860,8 @@ GrfArray* grf_array_mult_to(GrfArray* array1, GrfArray* array2, GrfArray* new_ar
   }
   return new_array;
 }
-GrfArray* grf_array_divide_to(GrfArray* array1, GrfArray* array2, GrfArray* new_array){
-  if(!new_array) new_array = grf_array_new_like(array1);
+GrfNDArray* grf_ndarray_divide_to(GrfNDArray* array1, GrfNDArray* array2, GrfNDArray* new_array){
+  if(!new_array) new_array = grf_ndarray_new_like(array1);
   uint64_t i;
   for(i = 0; i < new_array->num_elements; i++){
     switch(new_array->type){
@@ -831,15 +880,15 @@ GrfArray* grf_array_divide_to(GrfArray* array1, GrfArray* array2, GrfArray* new_
   return new_array;
 }
 
-double grf_array_norm_difference(GrfArray* array1, GrfArray* array2, GrfNormType norm_type){
+double grf_ndarray_norm_difference(GrfNDArray* array1, GrfNDArray* array2, GrfNormType norm_type){
   long double value1;
   long double value2;
   long double value;
   double accum = 0;
   uint64_t i;
   for(i = 0; i < array1->num_elements;i++){
-    value1  = grf_array_get_long_double_1D(array1,i);
-    value2  = grf_array_get_long_double_1D(array2,i);
+    value1  = grf_ndarray_get_long_double_1D(array1,i);
+    value2  = grf_ndarray_get_long_double_1D(array2,i);
     value   = fabs(value2-value1);
     switch(norm_type){
       case GRF_NORM_L1:    accum += value;break;
@@ -857,7 +906,7 @@ double grf_array_norm_difference(GrfArray* array1, GrfArray* array2, GrfNormType
 /*-----------------------------------
  *       ARRAY IO FUNCTIONS
  *-----------------------------------*/
-static GrfArray* grf_array_read_csv_type_minimum(const char* filename, GrfDataType type, uint8_t automatic){
+static GrfNDArray* grf_ndarray_read_csv_type_minimum(const char* filename, GrfDataType type, uint8_t automatic){
   FILE* file = fopen(filename, "r");
   char* record, *line;
 
@@ -872,7 +921,7 @@ static GrfArray* grf_array_read_csv_type_minimum(const char* filename, GrfDataTy
   uint32_t width       = 0; // Number of columns
   uint8_t  first_line  = 1; // To calculate width once
   uint8_t  dim         = 1; // if height=1, the array is 1D
-  uint32_t size[2]     = {0,0};// GrfArray size
+  uint32_t size[2]     = {0,0};// GrfNDArray size
   uint8_t  is_integer  = 1; // If all numbers are integers, the
                             // array type reduces from float to int
   uint8_t  is_unsigned = 1; // If all numbers are positive, the
@@ -920,7 +969,7 @@ static GrfArray* grf_array_read_csv_type_minimum(const char* filename, GrfDataTy
     size[1] = width;
   }
   if(automatic){
-    // Get type of GrfArray
+    // Get type of GrfNDArray
     if(is_integer){
       if(is_unsigned){
         if(maximum <= __UINT64_MAX__){
@@ -960,7 +1009,7 @@ static GrfArray* grf_array_read_csv_type_minimum(const char* filename, GrfDataTy
   }
 
   // Create the array
-  GrfArray* array = grf_array_new_with_size_type(dim, size, type);
+  GrfNDArray* array = grf_ndarray_new_with_size_type(dim, size, type);
   for(i = 0; i < array->num_elements; i++){
     switch(type){
       case GRF_UINT8:  array->data_uint8[i]  = (uint8_t)  data[i];break;
@@ -981,24 +1030,24 @@ static GrfArray* grf_array_read_csv_type_minimum(const char* filename, GrfDataTy
   return array;
 }
 
-GrfArray* grf_array_read_csv(const char* filename){
-  return grf_array_read_csv_type_minimum(filename, GRF_UINT32, 1);
+GrfNDArray* grf_ndarray_read_csv(const char* filename){
+  return grf_ndarray_read_csv_type_minimum(filename, GRF_UINT32, 1);
 }
-GrfArray* grf_array_read_csv_type(const char* filename, GrfDataType type){
-  return grf_array_read_csv_type_minimum(filename, type, 0);
+GrfNDArray* grf_ndarray_read_csv_type(const char* filename, GrfDataType type){
+  return grf_ndarray_read_csv_type_minimum(filename, type, 0);
 }
 
-void grf_array_write_csv(GrfArray* array, const char* filename){
+void grf_ndarray_write_csv(GrfNDArray* array, const char* filename){
   FILE* file = fopen(filename, "w");
   char* line;
-  if(array->dim == 1) line = grf_array_join(array, ";");
-  else                line = grf_array_join(array,"\n;");
+  if(array->dim == 1) line = grf_ndarray_join(array, ";");
+  else                line = grf_ndarray_join(array,"\n;");
   fprintf(file,line);
   free(line);
   fclose(file);
 }
 
-char* grf_array_join(GrfArray* array, const char* delimiters){
+char* grf_ndarray_join(GrfNDArray* array, const char* delimiters){
   char* text, *cur_text;
   uint8_t d = 0;
   uint64_t i;
@@ -1048,10 +1097,10 @@ char* grf_array_join(GrfArray* array, const char* delimiters){
 }
 
 void
-grf_array_filter(GrfArray*          array,
+grf_ndarray_filter(GrfNDArray*          array,
                  GrfBoolDataFunc comparison_function,
-                 GrfArray**         result_indices,
-                 GrfArray**         result_values,
+                 GrfNDArray**         result_indices,
+                 GrfNDArray**         result_values,
                  void*              user_data){
   uint64_t total   = 1024;
   void* values  = malloc(total * array->bitsize);
@@ -1059,7 +1108,7 @@ grf_array_filter(GrfArray*          array,
   uint64_t j,i;
   // Get array of values and indices of filtered pixels
   for(i = 0, j = 0; i < array->num_elements; i++)
-    if(comparison_function(grf_array_get_element_1D(array,i),user_data)){
+    if(comparison_function(grf_ndarray_get_element_1D(array,i),user_data)){
       switch(array->type){
         case GRF_UINT8:  ((uint8_t*) values)[j] = array->data_uint8[i];break;
         case GRF_UINT16: ((uint16_t*)values)[j] = array->data_uint16[i];break;
@@ -1085,8 +1134,8 @@ grf_array_filter(GrfArray*          array,
   values  = realloc(values,j * array->bitsize);
   indices = realloc(indices,j * sizeof(uint64_t));
 
-  // Create GrfArray for values and indices
-  *result_indices = grf_array_new_with_dim(1);
+  // Create GrfNDArray for values and indices
+  *result_indices = grf_ndarray_new_with_dim(1);
   (*result_indices)->data_uint64 = indices;
   (*result_indices)->type    = GRF_UINT64;
   (*result_indices)->size[0] = j;
@@ -1098,7 +1147,7 @@ grf_array_filter(GrfArray*          array,
   (*result_indices)->step[0] = 1;
 
 
-  *result_values  = grf_array_new_with_dim(1);
+  *result_values  = grf_ndarray_new_with_dim(1);
   (*result_values)->data = values;
   (*result_values)->type    = array->type;
   (*result_values)->size[0] = j;
@@ -1112,36 +1161,36 @@ grf_array_filter(GrfArray*          array,
 /*-----------------------------------
  *     GEOMETRIC TRANSFORMATIONS
  *-----------------------------------*/
-GrfArray*
-grf_array_eye(uint32_t size, GrfDataType type){
+GrfNDArray*
+grf_ndarray_eye(uint32_t size, GrfDataType type){
   uint32_t* sizes = (uint32_t*)malloc(2*sizeof(uint32_t));
   sizes[0] = size;sizes[1] = size;
-  GrfArray* array = grf_array_zeros(2,sizes,type);
+  GrfNDArray* array = grf_ndarray_zeros(2,sizes,type);
   uint32_t i;
-  for(i = 0; i < size; i++) grf_array_set_element_1D(array,i*size+i,1.0f);
+  for(i = 0; i < size; i++) grf_ndarray_set_element_1D(array,i*size+i,1.0f);
   free(sizes);
   return array;
 }
 
-GrfArray*
-grf_array_translate(GrfArray* array, GrfArray* offset){
-  GrfArray* trans = grf_array_copy(array);
+GrfNDArray*
+grf_ndarray_translate(GrfNDArray* array, GrfNDArray* offset){
+  GrfNDArray* trans = grf_ndarray_copy(array);
   uint32_t size = array->size[0]-1;
   uint32_t index,i;
   long double sum;
   for(i = 0; i < size; i++) {
     index = (i+1)*(size+1)-1;
-    sum   = grf_array_get_long_double_1D(array,index)+grf_array_get_long_double_1D(offset,i);
-    grf_array_set_element_1D(trans,index,sum);
+    sum   = grf_ndarray_get_long_double_1D(array,index)+grf_ndarray_get_long_double_1D(offset,i);
+    grf_ndarray_set_element_1D(trans,index,sum);
   }
   return trans;
 }
 
-GrfArray*
-grf_array_translate_4f(GrfArray* array, float x, float y, float z){
-  GrfArray *trans;
-  if(array) trans = grf_array_copy(array);
-  else      trans = grf_array_eye(4,GRF_FLOAT);
+GrfNDArray*
+grf_ndarray_translate_4f(GrfNDArray* array, float x, float y, float z){
+  GrfNDArray *trans;
+  if(array) trans = grf_ndarray_copy(array);
+  else      trans = grf_ndarray_eye(4,GRF_FLOAT);
   trans->data_float[ 3] += x;
   trans->data_float[ 7] += y;
   trans->data_float[11] += z;
@@ -1149,7 +1198,7 @@ grf_array_translate_4f(GrfArray* array, float x, float y, float z){
 }
 
 void
-grf_array_transpose(GrfArray* array){
+grf_ndarray_transpose(GrfNDArray* array){
   long double tmp;
   uint64_t size = array->size[0];
   uint64_t index2 = size;
@@ -1157,40 +1206,40 @@ grf_array_transpose(GrfArray* array){
 
   for(y = 1, index2=size; y < size; y++){
     for(x = 0, index1=y,index2=y*size; x < y;  x++, index1 += size, index2++){
-      tmp = grf_array_get_long_double_1D(array,index1);
-      grf_array_set_element_1D(array,index1,grf_array_get_long_double_1D(array,index2));
-      grf_array_set_element_1D(array,index2,tmp);
+      tmp = grf_ndarray_get_long_double_1D(array,index1);
+      grf_ndarray_set_element_1D(array,index1,grf_ndarray_get_long_double_1D(array,index2));
+      grf_ndarray_set_element_1D(array,index2,tmp);
     }
   }
 }
 
-GrfArray*
-grf_array_scale(GrfArray* array, GrfArray* scale){
-  GrfArray* scaled = grf_array_copy(array);
+GrfNDArray*
+grf_ndarray_scale(GrfNDArray* array, GrfNDArray* scale){
+  GrfNDArray* scaled = grf_ndarray_copy(array);
   uint32_t size = array->size[0]-1;
   uint32_t i, index = 0;
   long double value = 0;
   for(i = 0; i < size; i++,index += size+1){
-    value = grf_array_get_long_double_1D(array,index)*grf_array_get_long_double_1D(scale,i);
-    grf_array_set_element_1D(scaled,index,value);
+    value = grf_ndarray_get_long_double_1D(array,index)*grf_ndarray_get_long_double_1D(scale,i);
+    grf_ndarray_set_element_1D(scaled,index,value);
   }
   return scaled;
 }
 
-GrfArray*
-grf_array_scale_4f(GrfArray* array, float x, float y, float z){
-  GrfArray *scaled;
-  if(array) scaled = grf_array_copy(array);
-  else      scaled = grf_array_eye(4,GRF_FLOAT);
+GrfNDArray*
+grf_ndarray_scale_4f(GrfNDArray* array, float x, float y, float z){
+  GrfNDArray *scaled;
+  if(array) scaled = grf_ndarray_copy(array);
+  else      scaled = grf_ndarray_eye(4,GRF_FLOAT);
   scaled->data_float[ 0] *= x;
   scaled->data_float[ 5] *= y;
   scaled->data_float[10] *= z;
   return scaled;
 }
 
-GrfArray*
-grf_array_ortho(float left,float right,float bottom,float top,float near,float far){
-  GrfArray* ortho = grf_array_eye(4,GRF_FLOAT);
+GrfNDArray*
+grf_ndarray_ortho(float left,float right,float bottom,float top,float near,float far){
+  GrfNDArray* ortho = grf_ndarray_eye(4,GRF_FLOAT);
   ortho->data_float[0]  =  2.0f/(right-left);
   ortho->data_float[5]  =  2.0f/(top-bottom);
   ortho->data_float[10] = -2.0f/(far-near);
@@ -1200,11 +1249,11 @@ grf_array_ortho(float left,float right,float bottom,float top,float near,float f
   return ortho;
 }
 
-GrfArray*
-grf_array_perspective(float fov, float aspect, float near, float far){
+GrfNDArray*
+grf_ndarray_perspective(float fov, float aspect, float near, float far){
   float tanHalfFovy = tan(fov/2.0f);
   uint32_t  size[2]     = {4,4};
-  GrfArray* perspective = grf_array_zeros(2,size,GRF_FLOAT);
+  GrfNDArray* perspective = grf_ndarray_zeros(2,size,GRF_FLOAT);
   perspective->data_float[0 ] = 1.0f/(aspect*tanHalfFovy);
   perspective->data_float[5 ] = 1.0f/(tanHalfFovy);
   perspective->data_float[10] = -(far+near)/(far-near);
@@ -1213,9 +1262,9 @@ grf_array_perspective(float fov, float aspect, float near, float far){
   return perspective;
 }
 
-GrfArray*
-grf_array_dot(GrfArray* array, GrfArray* array2){
-  GrfArray* result = grf_array_zeros_like(array);
+GrfNDArray*
+grf_ndarray_dot(GrfNDArray* array, GrfNDArray* array2){
+  GrfNDArray* result = grf_ndarray_zeros_like(array);
   float* data1  =  array->data_float;
   float* data2  = array2->data_float;
   float* datar  = result->data_float;
@@ -1235,9 +1284,9 @@ grf_array_dot(GrfArray* array, GrfArray* array2){
   }
   return result;
 }
-GrfArray*
-grf_array_normalize(GrfArray* array){
-  GrfArray* normalized = grf_array_copy(array);
+GrfNDArray*
+grf_ndarray_normalize(GrfNDArray* array){
+  GrfNDArray* normalized = grf_ndarray_copy(array);
 
   float* d = array->data_float;
   float* n = normalized->data_float;
@@ -1250,8 +1299,8 @@ grf_array_normalize(GrfArray* array){
   return normalized;
 }
 
-GrfArray*
-grf_array_rotate_4f(GrfArray* array, float angle_rad, float x,float y,float z){
+GrfNDArray*
+grf_ndarray_rotate_4f(GrfNDArray* array, float angle_rad, float x,float y,float z){
   float a            = angle_rad;
   float c            = cos(a);
   float cc           = 1-c;
@@ -1260,8 +1309,8 @@ grf_array_rotate_4f(GrfArray* array, float angle_rad, float x,float y,float z){
   uint32_t  size     = 3;
   uint32_t  sizes[2] = {4,4};
   float     ve[3]    = {x,y,z};
-  GrfArray* axisn    = grf_array_from_data(ve,1,&size,GRF_FLOAT);
-  GrfArray* axis     = grf_array_normalize(axisn);
+  GrfNDArray* axisn    = grf_ndarray_from_data(ve,1,&size,GRF_FLOAT);
+  GrfNDArray* axis     = grf_ndarray_normalize(axisn);
 
   float u  = axis->data_float[0];
   float v  = axis->data_float[1];
@@ -1273,7 +1322,7 @@ grf_array_rotate_4f(GrfArray* array, float angle_rad, float x,float y,float z){
   float uw = u*w;
   float vw = v*w;
 
-  GrfArray* rotation = grf_array_zeros(2,sizes,GRF_FLOAT);
+  GrfNDArray* rotation = grf_ndarray_zeros(2,sizes,GRF_FLOAT);
 
   rotation->data_float[0]  = u2+(1-u2)*c;
   rotation->data_float[1]  = uv*cc - w*s;
@@ -1290,16 +1339,16 @@ grf_array_rotate_4f(GrfArray* array, float angle_rad, float x,float y,float z){
   rotation->data_float[15] = 1;
 
   if(!array) return rotation;
-  GrfArray* result = grf_array_dot(array,rotation);
-  grf_array_free(rotation);
+  GrfNDArray* result = grf_ndarray_dot(array,rotation);
+  grf_ndarray_free(rotation);
   return result;
 }
 
-GrfArray*
-grf_array_cross(GrfArray* v1, GrfArray* v2){
+GrfNDArray*
+grf_ndarray_cross(GrfNDArray* v1, GrfNDArray* v2){
   float* f1 = v1->data_float;
   float* f2 = v2->data_float;
-  GrfArray* result = grf_array_zeros_like(v1);
+  GrfNDArray* result = grf_ndarray_zeros_like(v1);
   float* d = result->data_float;
   d[0] = f1[1] * f2[2] - f2[1] * f1[2];
   d[1] = f1[2] * f2[0] - f2[2] * f1[0];
@@ -1307,27 +1356,27 @@ grf_array_cross(GrfArray* v1, GrfArray* v2){
   return result;
 }
 
-GrfArray*
-grf_array_lookat_4f(float px,float py,float pz,
+GrfNDArray*
+grf_ndarray_lookat_4f(float px,float py,float pz,
                  float tx,float ty,float tz,
                  float ux,float uy,float uz){
-  GrfArray* result = grf_array_eye(4,GRF_FLOAT);
+  GrfNDArray* result = grf_ndarray_eye(4,GRF_FLOAT);
   uint32_t size   = 3;
 
   float up[3]     = {ux   ,uy   ,uz   };
-  GrfArray* upa    = grf_array_from_data(up,1,&size,GRF_FLOAT);
+  GrfNDArray* upa    = grf_ndarray_from_data(up,1,&size,GRF_FLOAT);
   float cme[3]    = {tx-px,ty-py,tz-pz};
 
-  GrfArray* fn = grf_array_from_data(cme,1,&size,GRF_FLOAT);
-  GrfArray* f  = grf_array_normalize(fn);
+  GrfNDArray* fn = grf_ndarray_from_data(cme,1,&size,GRF_FLOAT);
+  GrfNDArray* f  = grf_ndarray_normalize(fn);
   float*    ff = f->data_float;
 
-  GrfArray* sn = grf_array_cross(f,upa);
-  GrfArray* s  = grf_array_normalize(sn);
+  GrfNDArray* sn = grf_ndarray_cross(f,upa);
+  GrfNDArray* s  = grf_ndarray_normalize(sn);
   float*    sf = s->data_float;
 
-  GrfArray* un = grf_array_cross(s,f);
-  GrfArray* u  = grf_array_normalize(un);
+  GrfNDArray* un = grf_ndarray_cross(s,f);
+  GrfNDArray* u  = grf_ndarray_normalize(un);
   float*    uf = u->data_float;
 
   float* d = result->data_float;
@@ -1347,13 +1396,13 @@ grf_array_lookat_4f(float px,float py,float pz,
   d[7]  = -(uf[0]*px + uf[1]*py + uf[2]*pz);
   d[11] =  (ff[0]*px + ff[1]*py + ff[2]*pz);
 
-  grf_array_free(fn);
-  grf_array_free(sn);
-  grf_array_free(un);
-  grf_array_free(f);
-  grf_array_free(s);
-  grf_array_free(u);
-  grf_array_free(upa);
+  grf_ndarray_free(fn);
+  grf_ndarray_free(sn);
+  grf_ndarray_free(un);
+  grf_ndarray_free(f);
+  grf_ndarray_free(s);
+  grf_ndarray_free(u);
+  grf_ndarray_free(upa);
 
   return result;
 }

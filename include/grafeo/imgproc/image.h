@@ -39,52 +39,52 @@ BEGIN_DECLS
 
 
 /**
- * @brief      Read an image and generate an GrfArray (for now, PNG or JPG)
+ * @brief      Read an image and generate an GrfNDArray (for now, PNG or JPG)
  *
  * @param[in]  filename  the name of the image
  *
- * @return     GrfArray containing pixels data
+ * @return     GrfNDArray containing pixels data
  */
-GrfArray* grf_image_read(const char* filename);
+GrfNDArray* grf_image_read(const char* filename);
 
 /**
- * @brief      Read a PNG image and generate an GrfArray
+ * @brief      Read a PNG image and generate an GrfNDArray
  *
  * @param[in]  filename  the name of the image
  *
- * @return     GrfArray containing pixels data
+ * @return     GrfNDArray containing pixels data
  */
-GrfArray* grf_image_read_png(const char* filename);
+GrfNDArray* grf_image_read_png(const char* filename);
 
 /**
- * @brief      Read a JPG image and generate an GrfArray
+ * @brief      Read a JPG image and generate an GrfNDArray
  *
  * @param[in]  filename  the name of the image
  *
- * @return     GrfArray containing pixels data
+ * @return     GrfNDArray containing pixels data
  */
-GrfArray* grf_image_read_jpg(const char* filename);
+GrfNDArray* grf_image_read_jpg(const char* filename);
 
 /**
  * @brief grf_image_read_pgm
  * @param filename
  * @return
  */
-GrfArray* grf_image_read_pgm(const char* filename);
+GrfNDArray* grf_image_read_pgm(const char* filename);
 /**
  * @brief grf_image_read_ppm
  * @param filename
  * @return
  */
-GrfArray* grf_image_read_ppm(const char* filename);
+GrfNDArray* grf_image_read_ppm(const char* filename);
 
 /**
- * @brief      Generates a file with name `filename` from an GrfArray
+ * @brief      Generates a file with name `filename` from an GrfNDArray
  *
  * @param      array     Matriz de dados (height,
  * @param[in]  filename  name of file
  */
-void   grf_image_write(GrfArray* array, const char* filename);
+void   grf_image_write(GrfNDArray* array, const char* filename);
 
 /**
  * @brief      Generate a PNG file with name `filename`
@@ -92,7 +92,7 @@ void   grf_image_write(GrfArray* array, const char* filename);
  * @param      array     data array (height, width, number of channels)
  * @param[in]  filename  name of file
  */
-void   grf_image_write_png(GrfArray* array, const char* filename);
+void   grf_image_write_png(GrfNDArray* array, const char* filename);
 
 /**
  * @brief      Generate a JPG file with name `filename`
@@ -100,20 +100,20 @@ void   grf_image_write_png(GrfArray* array, const char* filename);
  * @param      array     pixels data (height, width, number of channels)
  * @param[in]  filename  name of file
  */
-void   grf_image_write_jpg(GrfArray* array, const char* filename);
+void   grf_image_write_jpg(GrfNDArray* array, const char* filename);
 
 /**
  * @brief grf_image_write_pgm
  * @param array
  * @param filename
  */
-void   grf_image_write_pgm(GrfArray* array, const char* filename);
+void   grf_image_write_pgm(GrfNDArray* array, const char* filename);
 /**
  * @brief grf_image_write_ppm
  * @param array
  * @param filename
  */
-void   grf_image_write_ppm(GrfArray* array, const char* filename);
+void   grf_image_write_ppm(GrfNDArray* array, const char* filename);
 
 /**
  * @brief      Convert an image from a color space to another
@@ -121,9 +121,9 @@ void   grf_image_write_ppm(GrfArray* array, const char* filename);
  * @param      array    pixels data
  * @param[in]  origin   current color space
  * @param[in]  destiny  desired color space
- * @return     New GrfArray based on desired color space
+ * @return     New GrfNDArray based on desired color space
  */
-GrfArray* grf_image_cvt_color(GrfArray* array, GrfColorType origin, GrfColorType destiny);
+GrfNDArray* grf_image_cvt_color(GrfNDArray* array, GrfColorType origin, GrfColorType destiny);
 
 typedef enum _GrfImageError{
   GRF_ERROR_FILE_OPEN = 0

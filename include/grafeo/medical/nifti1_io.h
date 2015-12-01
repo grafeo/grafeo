@@ -102,7 +102,7 @@ typedef enum _GrfAnalyze75OrientCode {
            for reading/writing formats in the nifti1 format.
  */
 typedef struct {                /*!< Image storage struct **/
-  GrfArray array;                /*!< data in array format */
+  GrfNDArray array;                /*!< data in array format */
 
   int ndim ;                    /*!< last dimension greater than 1 (1..7) */
   int nx ;                      /*!< dimensions of grid array             */

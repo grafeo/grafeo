@@ -192,7 +192,7 @@ grf_displaywindow_imagewidget_motion_event(GtkWidget* widget, GdkEvent* event, g
   char text_color[64];
   GrfDisplayWindow* display     = GRF_DISPLAYWINDOW(user_data);
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
-  GrfArray* image               = grf_displaywindow_get_image(display);
+  GrfNDArray* image               = grf_displaywindow_get_image(display);
   if(image){
     gdk_event_get_coords(event, &x, &y);
     float scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->displaywidget));
@@ -395,12 +395,12 @@ grf_displaywindow_new_with_name(char* name){
 }
 
 void
-grf_displaywindow_set_image(GrfDisplayWindow* display, GrfArray* image, gboolean invalidate){
+grf_displaywindow_set_image(GrfDisplayWindow* display, GrfNDArray* image, gboolean invalidate){
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
   grf_imagewidget_set_image(GRF_IMAGEWIDGET(priv->displaywidget), image, invalidate);
 }
 
-GrfArray*
+GrfNDArray*
 grf_displaywindow_get_image(GrfDisplayWindow* display){
   GrfDisplayWindowPrivate* priv = grf_displaywindow_get_instance_private(display);
   return grf_imagewidget_get_image(GRF_IMAGEWIDGET(priv->displaywidget));

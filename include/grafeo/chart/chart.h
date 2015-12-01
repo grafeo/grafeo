@@ -65,8 +65,8 @@ typedef struct _GrfChartClass{
 //  uint8_t           marker_size;
 //  uint8_t           marker_every;
 
-//  GrfArray        * data_x;
-//  GrfArray        * data_y;
+//  GrfNDArray        * data_x;
+//  GrfNDArray        * data_y;
 
 //}GrfPlotLine;
 
@@ -81,7 +81,7 @@ typedef struct _GrfChartClass{
 //  uint8_t           linewidth;      /**< */
 //  char**            tick_labels;    /**< */
 //  GrfOrientation    orientation;    /**< */
-//  GrfArray        * data_y;         /**< */
+//  GrfNDArray        * data_y;         /**< */
 //}GrfPlotBar;
 
 /* =======================
@@ -182,7 +182,7 @@ grf_chart_get_last_panel(GrfChart* chart);
  * @param data_y
  */
 GrfPlot*
-grf_chart_plot(GrfChart* chart, GrfArray* data_y);
+grf_chart_plot(GrfChart* chart, GrfNDArray* data_y);
 
 /**
  * @brief Same as grf_chart_plot, but with custom line and marker settings
@@ -191,7 +191,7 @@ grf_chart_plot(GrfChart* chart, GrfArray* data_y);
  * @return
  */
 GrfChart*
-grf_chart_plot_with_format(GrfArray* data_y,const char* format);
+grf_chart_plot_with_format(GrfNDArray* data_y,const char* format);
 
 /**
  * @brief Creates a default 2D line
@@ -200,7 +200,7 @@ grf_chart_plot_with_format(GrfArray* data_y,const char* format);
  * @return
  */
 GrfChart*
-grf_chart_plot2(GrfArray* data_x, GrfArray* data_y);
+grf_chart_plot2(GrfNDArray* data_x, GrfNDArray* data_y);
 
 /**
  * @brief Creates a default 2D line plot with custom line and marker settings
@@ -209,7 +209,7 @@ grf_chart_plot2(GrfArray* data_x, GrfArray* data_y);
  * @return
  */
 GrfChart*
-grf_chart_plot2_with_format(GrfArray* data_y,const char* format);
+grf_chart_plot2_with_format(GrfNDArray* data_y,const char* format);
 
 /**
  * @brief grf_chart_get_axis

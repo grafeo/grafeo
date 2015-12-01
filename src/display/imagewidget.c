@@ -40,8 +40,8 @@ typedef struct _GrfImageWidgetPrivate{
   float            translation_y;/**< Affine translation Y axis*/
   float            angle;        /**< Affine rotation*/
 
-  GrfArray*        image_original;
-  GrfArray*        image_output;
+  GrfNDArray*        image_original;
+  GrfNDArray*        image_output;
   cairo_surface_t* image_surface;
 } GrfImageWidgetPrivate;
 
@@ -201,7 +201,7 @@ grf_imagewidget_new(){
 
 // Update image
 void
-grf_imagewidget_set_image(GrfImageWidget* widget, GrfArray* image, gboolean invalidate){
+grf_imagewidget_set_image(GrfImageWidget* widget, GrfNDArray* image, gboolean invalidate){
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
   // Updating image variable
   priv->image_original        = image;
@@ -267,7 +267,7 @@ float* grf_imagewidget_get_transform(GrfImageWidget* widget){
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
   return priv->transform;
 }
-GrfArray*
+GrfNDArray*
 grf_imagewidget_get_image(GrfImageWidget *widget){
   GrfImageWidgetPrivate* priv = grf_imagewidget_get_instance_private(widget);
   return priv->image_original;

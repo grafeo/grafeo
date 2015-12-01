@@ -302,8 +302,8 @@ Message(STATUS "Library parameters setup...")
 # the CORE module will be compiled
 IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
   SET(GRF_CORE_HDRS     config.h i18n-lib.h  macro.h  type.h    hal.h  range.h
-                         slist.h     list.h  array.h queue.h bucket.h pqueue.h)
-  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c array.c
+                         slist.h     list.h  ndarray.h queue.h bucket.h pqueue.h)
+  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c ndarray.c
                          queue.c bucket.c pqueue.c)
   # configure a header file to pass some of the CMake settings
   # to the source code

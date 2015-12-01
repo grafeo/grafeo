@@ -35,11 +35,11 @@ BEGIN_DECLS
  * @brief Structure for managing IFT data
  */
 typedef struct _GrfIFT{
-  GrfArray* original;    /**< Original array */
-  GrfArray* label;       /**< Label map */
-  GrfArray* predecessors;/**< Predecessors map */
-  GrfArray* connectivity;/**< Connectivity map */
-  GrfArray* root;        /**< Root map */
+  GrfNDArray* original;    /**< Original array */
+  GrfNDArray* label;       /**< Label map */
+  GrfNDArray* predecessors;/**< Predecessors map */
+  GrfNDArray* connectivity;/**< Connectivity map */
+  GrfNDArray* root;        /**< Root map */
 }GrfIFT;
 
 /**
@@ -48,7 +48,7 @@ typedef struct _GrfIFT{
  * edges instances with weight values.
  */
 typedef double
-(*GrfWeightFunc)(GrfArray* array, uint64_t index1, uint64_t index2);
+(*GrfWeightFunc)(GrfNDArray* array, uint64_t index1, uint64_t index2);
 
 /**
  * @brief Path connectivity (just the non-trivial cases).
@@ -80,7 +80,7 @@ GrfIFT*   grf_ift_new();
  * @return
  * @memberof GrfIFT
  */
-GrfIFT*   grf_ift_new_from_array(GrfArray* array, uint8_t map_dimension);
+GrfIFT*   grf_ift_new_from_array(GrfNDArray* array, uint8_t map_dimension);
 /**
  * @brief Run IFT in an array
  * @param array
@@ -94,14 +94,14 @@ GrfIFT*   grf_ift_new_from_array(GrfArray* array, uint8_t map_dimension);
  * @return
  * @memberof GrfIFT
  */
-GrfIFT*   grf_ift_apply_array(GrfArray* array,
+GrfIFT*   grf_ift_apply_array(GrfNDArray* array,
                        uint16_t map_dimension,
                        GrfAdjacency adjacency,
                        GrfOptimizationType optimization_type,
                        GrfWeightFunc weight_function,
                        GrfPathConnectivityFunc path_connectivity,
-                       GrfArray* seeds_indices,
-                       GrfArray* seeds_labels);
+                       GrfNDArray* seeds_indices,
+                       GrfNDArray* seeds_labels);
 /**
  * @brief path_connectivity_sum
  * @param ift
@@ -172,7 +172,7 @@ double grf_path_connectivity_norm_inf(GrfIFT* ift, uint64_t index_s, uint64_t in
  * @param index2
  * @return
  */
-double grf_weight_diff(GrfArray *array, uint64_t index1, uint64_t index2);
+double grf_weight_diff(GrfNDArray *array, uint64_t index1, uint64_t index2);
 /**
  * @brief weight_diff_3
  * @param array
@@ -180,7 +180,7 @@ double grf_weight_diff(GrfArray *array, uint64_t index1, uint64_t index2);
  * @param index2
  * @return
  */
-double grf_weight_diff_3(GrfArray* array, uint64_t index1, uint64_t index2);
+double grf_weight_diff_3(GrfNDArray* array, uint64_t index1, uint64_t index2);
 /**
  * @brief grf_ift_free
  * @param ift
@@ -197,68 +197,68 @@ void   grf_ift_free(GrfIFT* ift);
  * @return
  * @memberof GrfIFT
  */
-GrfArray* grf_ift_get_label(GrfIFT* ift);
+GrfNDArray* grf_ift_get_label(GrfIFT* ift);
 /**
  * @brief Get the predecessors map of the IFT
  * @param ift
  * @return
  */
-GrfArray* grf_ift_get_predecessors(GrfIFT* ift);
+GrfNDArray* grf_ift_get_predecessors(GrfIFT* ift);
 /**
  * @brief Get connectivity map of the IFT
  * @param ift
  * @return
  * @memberof GrfIFT
  */
-GrfArray* grf_ift_get_connectivity(GrfIFT* ift);
+GrfNDArray* grf_ift_get_connectivity(GrfIFT* ift);
 /**
  * @brief Get root map of the IFT
  * @param ift
  * @return
  */
-GrfArray* grf_ift_get_root(GrfIFT* ift);
+GrfNDArray* grf_ift_get_root(GrfIFT* ift);
 /**
  * @brief Get original array (e.g. image) of the IFT
  * @param ift
  * @return
  * @memberof GrfIFT
  */
-GrfArray* grf_ift_get_original(GrfIFT* ift);
+GrfNDArray* grf_ift_get_original(GrfIFT* ift);
 /**
  * @brief Set label map of the IFT
  * @param ift
  * @param label
  * @memberof GrfIFT
  */
-void grf_ift_set_label(GrfIFT* ift, GrfArray* label);
+void grf_ift_set_label(GrfIFT* ift, GrfNDArray* label);
 /**
  * @brief Set connectivity map of the IFT
  * @param ift
  * @param connectivity
  * @memberof GrfIFT
  */
-void grf_ift_set_connectivity(GrfIFT* ift, GrfArray* connectivity);
+void grf_ift_set_connectivity(GrfIFT* ift, GrfNDArray* connectivity);
 /**
  * @brief Set original array of the IFT
  * @param ift
  * @param original
  * @memberof GrfIFT
  */
-void grf_ift_set_original(GrfIFT* ift, GrfArray* original);
+void grf_ift_set_original(GrfIFT* ift, GrfNDArray* original);
 /**
  * @brief Set predecessors map of the IFT
  * @param ift
  * @param predecessors
  * @memberof GrfIFT
  */
-void grf_ift_set_predecessors(GrfIFT* ift, GrfArray* predecessors);
+void grf_ift_set_predecessors(GrfIFT* ift, GrfNDArray* predecessors);
 /**
  * @brief Set root map of the IFT
  * @param ift
  * @param root
  * @memberof GrfIFT
  */
-void grf_ift_set_root(GrfIFT* ift, GrfArray* root);
+void grf_ift_set_root(GrfIFT* ift, GrfNDArray* root);
 /* ====================== *
  *     IFT OPERATIONS
  * ====================== */
@@ -268,7 +268,7 @@ void grf_ift_set_root(GrfIFT* ift, GrfArray* root);
  * @param norm_type
  * @return
  */
-GrfArray* grf_ift_distance_transform(GrfArray* array, GrfNormType norm_type);
+GrfNDArray* grf_ift_distance_transform(GrfNDArray* array, GrfNormType norm_type);
 
 END_DECLS
 
