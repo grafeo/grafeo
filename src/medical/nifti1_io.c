@@ -33,25 +33,13 @@
  *===========================================================================*/
 typedef struct _GrfNiftiImagePrivate{
   int    ndim ;                  /*!< last dimension greater than 1 (1..7) */
-  int    nx ;                    /*!< dimensions of grid array             */
-  int    ny ;                    /*!< dimensions of grid array             */
-  int    nz ;                    /*!< dimensions of grid array             */
-  int    nt ;                    /*!< dimensions of grid array             */
-  int    nu ;                    /*!< dimensions of grid array             */
-  int    nv ;                    /*!< dimensions of grid array             */
-  int    nw ;                    /*!< dimensions of grid array             */
+  GrfVec6 nsize;                 /*!< array of sizes for each dimension    */
   int    dim[8] ;                /*!< dim[0]=ndim, dim[1]=nx, etc.         */
   size_t nvox ;                  /*!< number of voxels = nx*ny*nz*...*nw   */
   int    nbyper ;                /*!< bytes per voxel, matches datatype    */
   int    datatype ;              /*!< type of data in voxels: DT_* code    */
 
-  float  dx ;                    /*!< grid spacings      */
-  float  dy ;                    /*!< grid spacings      */
-  float  dz ;                    /*!< grid spacings      */
-  float  dt ;                    /*!< grid spacings      */
-  float  du ;                    /*!< grid spacings      */
-  float  dv ;                    /*!< grid spacings      */
-  float  dw ;                    /*!< grid spacings      */
+  GrfVec6 dsize;                 /*!< array of grid spacings for each dim  */
   float  pixdim[8] ;             /*!< pixdim[1]=dx, etc. */
 
   float  scl_slope ;             /*!< scaling parameter - slope        */
@@ -373,7 +361,64 @@ static GrfNiftiImage*
 grf_nifti_image_new(){
   return g_object_new(GRF_TYPE_NIFTI_IMAGE, NULL);
 }
+/**
+ * @brief grf_nifti_image_set_nsize
+ * @param image
+ * @param nsize
+ */
+void
+grf_nifti_image_set_nsize(GrfNiftiImage* image, GrfVec6 nsize){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize = nsize;
+}
 
+/**
+ * @brief grf_nifti_image_set_dsize
+ * @param image
+ * @param dsize
+ */
+void
+grf_nifti_image_set_dsize(GrfNiftiImage* image, GrfVec6 dsize){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->dsize = dsize;
+}
+
+/**
+ * @brief grf_nifti_image_set_qfac
+ * @param image
+ * @param qfac
+ */
+void
+grf_nifti_image_set_qfac(GrfNiftiImage* image, float qfac){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->qfac = qfac;
+}
+/**
+ * @brief grf_nifti_image_set_byteorder
+ * @param image
+ * @param byteorder
+ */
+void
+grf_nifti_image_set_byteorder(GrfNiftiImage* image, int byteorder){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->byteorder = byteorder;
+}
+
+/*----------------------------------------------------------------------*/
+/*! get the byte order for this CPU
+
+    - LSB_FIRST means least significant byte, first (little endian)
+    - MSB_FIRST means most significant byte, first (big endian)
+*//*--------------------------------------------------------------------*/
+int grf_nifti_short_order(void)   /* determine this CPU's byte order */
+{
+  union { unsigned char bb[2] ;
+          short         ss    ; } fred ;
+
+  fred.bb[0] = 1 ; fred.bb[1] = 0 ;
+
+  return (fred.ss == 1) ? LSB_FIRST : MSB_FIRST ;
+}
 /*---------------------------------------------------------------------------*/
 /*! Take an XML-ish ASCII string and create a NIFTI image header to match.
 
@@ -406,10 +451,10 @@ grf_nifti_image_from_ascii( const char *str, int * bytes_read )
    }
    GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
 
-   grf_nifti_image_set_nsize(nim, (GrfVec6){1,1,1,1,1,1});
-   grf_nifti_image_set_dsize(nim, (GrfVec6){0,0,0,0,0,0});
+   grf_nifti_image_set_nsize(nim, (GrfVec6){{1,1,1,1,1,1}});
+   grf_nifti_image_set_dsize(nim, (GrfVec6){{0,0,0,0,0,0}});
    grf_nifti_image_set_qfac(nim, 1.0);
-   grf_nifti_image_set_byteorder(grf_nifti_short_order());
+   grf_nifti_image_set_byteorder(nim,grf_nifti_short_order());
 
    /* starting at str[spos], scan for "equations" of the form
          lhs = 'rhs'
@@ -719,6 +764,30 @@ GrfNiftiImage *grf_nifti_image_read( const char *hname , gboolean read_data )
    }
 
    return nim ;
+}
+
+GrfVec6
+grf_nifti_image_get_nsize(GrfNiftiImage* image){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  return priv->nsize;
+}
+
+GrfVec6
+grf_nifti_image_get_dsize(GrfNiftiImage* image){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  return priv->dsize;
+}
+
+float
+grf_nifti_image_get_qfac(GrfNiftiImage* image){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  return priv->qfac;
+}
+
+int
+grf_nifti_image_get_byteorder(GrfNiftiImage* image){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  return priv->byteorder;
 }
 
 /*****===================================================================*****/
@@ -6063,21 +6132,6 @@ char *grf_nifti_image_to_ascii( const GrfNiftiImage *nim )
 
 /*---------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------*/
-/*! get the byte order for this CPU
-
-    - LSB_FIRST means least significant byte, first (little endian)
-    - MSB_FIRST means most significant byte, first (big endian)
-*//*--------------------------------------------------------------------*/
-int grf_nifti_short_order(void)   /* determine this CPU's byte order */
-{
-   union { unsigned char bb[2] ;
-           short         ss    ; } fred ;
-
-   fred.bb[0] = 1 ; fred.bb[1] = 0 ;
-
-   return (fred.ss == 1) ? LSB_FIRST : MSB_FIRST ;
-}
 
 /*---------------------------------------------------------------------------*/
 

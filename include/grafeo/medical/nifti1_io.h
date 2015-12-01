@@ -130,9 +130,34 @@ typedef struct _GrfNiftiImageClass{
  */
 GrfNiftiImage*
 grf_nifti_image_read(const char *hname, gboolean read_data);
-
-
-
+/**
+ * @brief grf_nifti_image_get_nsize
+ * @param image
+ * @return
+ */
+GrfVec6
+grf_nifti_image_get_nsize(GrfNiftiImage* image);
+/**
+ * @brief grf_nifti_image_get_dsize
+ * @param image
+ * @return
+ */
+GrfVec6
+grf_nifti_image_get_dsize(GrfNiftiImage* image);
+/**
+ * @brief grf_nifti_image_get_qfac
+ * @param image
+ * @return
+ */
+float
+grf_nifti_image_get_qfac(GrfNiftiImage* image);
+/**
+ * @brief grf_nifti_image_get_byteorder
+ * @param image
+ * @return
+ */
+int
+grf_nifti_image_get_byteorder(GrfNiftiImage* image);
 
 
 
