@@ -42,12 +42,12 @@ static void test_gl_camera(void** state){
 
   // Reset camera view
   grf_gl_camera_reset_view(camera,
-                           (GrfGLVec3){{0,0,0}},  // Position
-                           (GrfGLVec3){{0,0,-1}}, // Target
-                           (GrfGLVec3){{0,1,0}}); // Up
+                           (GrfVec3){{0,0,0}},  // Position
+                           (GrfVec3){{0,0,-1}}, // Target
+                           (GrfVec3){{0,1,0}}); // Up
 
-  GrfGLMat4 view         = grf_gl_camera_get_view(camera);
-  GrfGLMat4 view_correct = grf_gl_mat4_eye();
+  GrfMat4 view         = grf_gl_camera_get_view(camera);
+  GrfMat4 view_correct = grf_mat4_eye();
   u_int8_t i;
   for(i = 0; i < 16; i++) assert_true(view.data[i] == view_correct.data[i]);
 
@@ -55,20 +55,20 @@ static void test_gl_camera(void** state){
   grf_gl_camera_move_behind(camera,5.0);
 
   view         = grf_gl_camera_get_view(camera);
-  GrfGLMat4 view_correct2 = {{1,0,0,0, 0,1,0,0, 0,0,1,-5.0, 0.0,0,0,1}};
+  GrfMat4 view_correct2 = {{1,0,0,0, 0,1,0,0, 0,0,1,-5.0, 0.0,0,0,1}};
   for(i = 0; i < 16; i++) assert_true(view.data[i] == view_correct2.data[i]);
 
   // Moving camera right
   grf_gl_camera_move_right(camera, 3.5);
   view         = grf_gl_camera_get_view(camera);
-  GrfGLMat4 view_correct3 = {{1,0,0,-3.5, 0,1,0,0, 0,0,1,-5.0, 0.0,0,0,1}};
+  GrfMat4 view_correct3 = {{1,0,0,-3.5, 0,1,0,0, 0,0,1,-5.0, 0.0,0,0,1}};
   for(i = 0; i < 16; i++) assert_true(view.data[i] == view_correct3.data[i]);
 
   // Moving camera down
   double down = 7.6;
   grf_gl_camera_move_down(camera, down);
   view         = grf_gl_camera_get_view(camera);
-  GrfGLMat4 view_correct4 = {{1,0,0,-3.5, 0,1,0,down, 0,0,1,-5.0, 0.0,0,0,1}};
+  GrfMat4 view_correct4 = {{1,0,0,-3.5, 0,1,0,down, 0,0,1,-5.0, 0.0,0,0,1}};
   for(i = 0; i < 16; i++) assert_true(view.data[i] == view_correct4.data[i]);
 
   // Yaw (rotate at y-axis)
@@ -78,7 +78,7 @@ static void test_gl_camera(void** state){
   //  forward => -right
   grf_gl_camera_yaw(camera, 90.0);
   view         = grf_gl_camera_get_view(camera);
-  GrfGLMat4 view_correct5 = {{0,0,-1,5, 0,1,0,down, 1,0,0,-3.5, 0.0,0,0,1}};
+  GrfMat4 view_correct5 = {{0,0,-1,5, 0,1,0,down, 1,0,0,-3.5, 0.0,0,0,1}};
   for(i = 0; i < 16; i++) assert_true(fabs(view.data[i] - view_correct5.data[i]) < 1e-10);
 
   // Pitch (rotate at x-axis)
@@ -88,7 +88,7 @@ static void test_gl_camera(void** state){
   //  forward => up
   grf_gl_camera_pitch(camera, 90.0);
   view         = grf_gl_camera_get_view(camera);
-  GrfGLMat4 view_correct6 = {{0,0,-1,5, 1,0,0,-3.5, 0,-1,0,-down, 0,0,0,1}};
+  GrfMat4 view_correct6 = {{0,0,-1,5, 1,0,0,-3.5, 0,-1,0,-down, 0,0,0,1}};
   for(i = 0; i < 16; i++) assert_true(fabs(view.data[i] - view_correct6.data[i]) < 1e-10);
 
   // Roll (rotate at z-axis)
@@ -98,7 +98,7 @@ static void test_gl_camera(void** state){
   //  right => -up
   grf_gl_camera_roll(camera, 90.0);
   view         = grf_gl_camera_get_view(camera);
-  GrfGLMat4 view_correct7 = {{-1,0,0,3.5, 0,0,-1,5, 0,-1,0,-down, 0,0,0,1}};
+  GrfMat4 view_correct7 = {{-1,0,0,3.5, 0,0,-1,5, 0,-1,0,-down, 0,0,0,1}};
   for(i = 0; i < 16; i++) assert_true(fabs(view.data[i] - view_correct7.data[i]) < 1e-10);
 }
 

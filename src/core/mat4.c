@@ -30,13 +30,13 @@
  * PRIVATE API
  *===========================================================================*/
 static void
-grf_gl_create_rotation_matrix(GrfGLMat4* rotation, double angle, GrfGLVec3 axis){
+grf_gl_create_rotation_matrix(GrfMat4* rotation, double angle, GrfVec3 axis){
   double a            = grf_to_rad(angle);
   double c            = cos(a);
   double cc           = 1-c;
   double s            = sin(a);
 
-  grf_gl_vec3_normalize(&axis);
+  grf_vec3_normalize(&axis);
 
   //uint32_t  size     = 3;
   //uint32_t  sizes[2] = {4,4};
@@ -72,47 +72,47 @@ grf_gl_create_rotation_matrix(GrfGLMat4* rotation, double angle, GrfGLVec3 axis)
 /*===========================================================================
  * PUBLIC API
  *===========================================================================*/
-GrfGLMat4
-grf_gl_mat4_eye(){
-  return (GrfGLMat4){{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}};
+GrfMat4
+grf_mat4_eye(){
+  return (GrfMat4){{1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1}};
 }
 
 void
-grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis){
-  GrfGLMat4 rotation = grf_gl_mat4_eye();
+grf_mat4_rotate_vec3(GrfVec3* vec, double angle, GrfVec3 axis){
+  GrfMat4 rotation = grf_mat4_eye();
   grf_gl_create_rotation_matrix(&rotation,angle,axis);
-  grf_gl_mat4_mult_vec3(&rotation,vec);
+  grf_mat4_mult_vec3(&rotation,vec);
 }
 
 void
-grf_gl_mat4_rotate_mat4(GrfGLMat4* mat, double angle, GrfGLVec3 axis){
-  GrfGLMat4 rotation = grf_gl_mat4_eye();
+grf_mat4_rotate_mat4(GrfMat4* mat, double angle, GrfVec3 axis){
+  GrfMat4 rotation = grf_mat4_eye();
   grf_gl_create_rotation_matrix(&rotation,angle,axis);
-  grf_gl_mat4_mult_mat4(&rotation,mat,mat);
+  grf_mat4_mult_mat4(&rotation,mat,mat);
 }
 
 void
-grf_gl_mat4_mult_vec3(GrfGLMat4* mat, GrfGLVec3* vec){
-  GrfGLVec3 res = *vec;
+grf_mat4_mult_vec3(GrfMat4* mat, GrfVec3* vec){
+  GrfVec3 res = *vec;
   u_int8_t i;
-  GrfGLVec3 rows[3] = {{{mat->data[0],mat->data[4],mat->data[8]}},
+  GrfVec3 rows[3] = {{{mat->data[0],mat->data[4],mat->data[8]}},
                        {{mat->data[1],mat->data[5],mat->data[9]}},
                        {{mat->data[2],mat->data[6],mat->data[10]}}};
   for(i = 0; i < 3; i++)
-    vec->data[i] = grf_gl_vec3_dot(&res,&rows[i]) + mat->data[12+i];
+    vec->data[i] = grf_vec3_dot(&res,&rows[i]) + mat->data[12+i];
 }
 void
-grf_gl_mat4_mult_mat4(GrfGLMat4* mat1, GrfGLMat4* mat2, GrfGLMat4* output){
-  GrfGLVec4 rows1[4] = {{{mat1->data[0],mat1->data[4],mat1->data[8] ,mat1->data[12]}},
+grf_mat4_mult_mat4(GrfMat4* mat1, GrfMat4* mat2, GrfMat4* output){
+  GrfVec4 rows1[4] = {{{mat1->data[0],mat1->data[4],mat1->data[8] ,mat1->data[12]}},
                         {{mat1->data[1],mat1->data[5],mat1->data[9] ,mat1->data[13]}},
                         {{mat1->data[2],mat1->data[6],mat1->data[10],mat1->data[14]}},
                         {{mat1->data[3],mat1->data[7],mat1->data[11],mat1->data[15]}}};
-  GrfGLVec4 columns2[4] = {*(GrfGLVec4*)&mat2->data[0],
-                           *(GrfGLVec4*)&mat2->data[4],
-                           *(GrfGLVec4*)&mat2->data[8],
-                           *(GrfGLVec4*)&mat2->data[12]};
+  GrfVec4 columns2[4] = {*(GrfVec4*)&mat2->data[0],
+                           *(GrfVec4*)&mat2->data[4],
+                           *(GrfVec4*)&mat2->data[8],
+                           *(GrfVec4*)&mat2->data[12]};
   u_int8_t i, j, k = 0;
   for(j = 0; j < 4; j++)
     for(i = 0; i < 4; i++, k++)
-      output->data[k] = grf_gl_vec4_dot(&rows1[i],&columns2[j]);
+      output->data[k] = grf_vec4_dot(&rows1[i],&columns2[j]);
 }

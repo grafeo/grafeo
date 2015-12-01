@@ -30,10 +30,10 @@
  * PRIVATE API
  *=================================*/
 typedef struct _GrfGLObjectPrivate{
-  GrfGLMat4 matrix_model;
-  GrfGLVec3 position;
-  GrfGLVec3 scale;
-  GrfGLVec3 rotation;
+  GrfMat4 matrix_model;
+  GrfVec3 position;
+  GrfVec3 scale;
+  GrfVec3 rotation;
 }GrfGLObjectPrivate;
 
 G_DEFINE_TYPE_WITH_PRIVATE(GrfGLObject, grf_gl_object, G_TYPE_OBJECT)
@@ -62,75 +62,75 @@ grf_gl_object_new_with_name(char* name){
   return object;
 }
 
-GrfGLMat4
+GrfMat4
 grf_gl_object_get_model(GrfGLObject* object){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
   return priv->matrix_model;
 }
 
 void
-grf_gl_object_set_model(GrfGLObject* object, GrfGLMat4 model){
+grf_gl_object_set_model(GrfGLObject* object, GrfMat4 model){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
   priv->matrix_model = model;
 }
 
-GrfGLVec3
+GrfVec3
 grf_gl_object_get_position(GrfGLObject* object){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
   return priv->position;
 }
 
 void
-grf_gl_object_set_position(GrfGLObject* object, GrfGLVec3 position){
+grf_gl_object_set_position(GrfGLObject* object, GrfVec3 position){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
   priv->position = position;
 }
 
-GrfGLVec3
+GrfVec3
 grf_gl_object_get_scale(GrfGLObject* object){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
   return priv->scale;
 }
 
 void
-grf_gl_object_set_scale(GrfGLObject* object, GrfGLVec3 scale){
+grf_gl_object_set_scale(GrfGLObject* object, GrfVec3 scale){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
   priv->scale = scale;
 }
 
 void
-grf_gl_object_translate(GrfGLObject* object, GrfGLVec3 amount){
+grf_gl_object_translate(GrfGLObject* object, GrfVec3 amount){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
-  grf_gl_vec3_add(&priv->position,&amount);
-  memcpy(&priv->matrix_model.data[12],priv->position.data, sizeof(GrfGLVec3));
+  grf_vec3_add(&priv->position,&amount);
+  memcpy(&priv->matrix_model.data[12],priv->position.data, sizeof(GrfVec3));
 }
 
 void
-grf_gl_object_scale(GrfGLObject* object, GrfGLVec3 amount){
+grf_gl_object_scale(GrfGLObject* object, GrfVec3 amount){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
-  grf_gl_vec3_multiply(&priv->scale,&amount);
+  grf_vec3_multiply(&priv->scale,&amount);
   priv->matrix_model.data[(0<<2)+0] = priv->scale.data[0];
   priv->matrix_model.data[(1<<2)+1] = priv->scale.data[1];
   priv->matrix_model.data[(2<<2)+2] = priv->scale.data[2];
 }
 
 void
-grf_gl_object_rotate(GrfGLObject* object, double angle, GrfGLVec3 axis){
+grf_gl_object_rotate(GrfGLObject* object, double angle, GrfVec3 axis){
   GrfGLObjectPrivate* priv = grf_gl_object_get_instance_private(object);
-  grf_gl_mat4_rotate_mat4(&priv->matrix_model,angle,axis);
+  grf_mat4_rotate_mat4(&priv->matrix_model,angle,axis);
 }
 
 void
 grf_gl_object_roll(GrfGLObject* object, double amount){
-  grf_gl_object_rotate(object,amount,(GrfGLVec3){{0,0,1}});
+  grf_gl_object_rotate(object,amount,(GrfVec3){{0,0,1}});
 }
 
 void
 grf_gl_object_pitch(GrfGLObject* object, double amount){
-  grf_gl_object_rotate(object,amount,(GrfGLVec3){{1,0,0}});
+  grf_gl_object_rotate(object,amount,(GrfVec3){{1,0,0}});
 }
 
 void
 grf_gl_object_yaw(GrfGLObject* object, double amount){
-  grf_gl_object_rotate(object,amount,(GrfGLVec3){{0,1,0}});
+  grf_gl_object_rotate(object,amount,(GrfVec3){{0,1,0}});
 }

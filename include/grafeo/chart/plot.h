@@ -27,6 +27,7 @@
 # ===================================================================*/
 #ifndef GRF_PLOT_H
 #define GRF_PLOT_H
+#include <grafeo/core.h>
 #include <grafeo/chart.h>
 G_BEGIN_DECLS
 

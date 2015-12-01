@@ -28,57 +28,62 @@
 #include <grafeo/gl.h>
 
 void
-grf_gl_vec4_add(GrfGLVec4* vec1, GrfGLVec4* vec2){
+grf_vec3_add(GrfVec3* vec1, GrfVec3* vec2){
   vec1->data[0] += vec2->data[0];
   vec1->data[1] += vec2->data[1];
   vec1->data[2] += vec2->data[2];
-  vec1->data[3] += vec2->data[3];
 }
 
 void
-grf_gl_vec4_subtract(GrfGLVec4* vec1, GrfGLVec4* vec2){
+grf_vec3_subtract(GrfVec3* vec1, GrfVec3* vec2){
   vec1->data[0] -= vec2->data[0];
   vec1->data[1] -= vec2->data[1];
   vec1->data[2] -= vec2->data[2];
-  vec1->data[3] -= vec2->data[3];
 }
 
 void
-grf_gl_vec4_multiply(GrfGLVec4* vec1, GrfGLVec4* vec2){
+grf_vec3_multiply(GrfVec3* vec1, GrfVec3* vec2){
   vec1->data[0] *= vec2->data[0];
   vec1->data[1] *= vec2->data[1];
   vec1->data[2] *= vec2->data[2];
-  vec1->data[3] *= vec2->data[3];
 }
 
 void
-grf_gl_vec4_divide(GrfGLVec4* vec1, GrfGLVec4* vec2){
+grf_vec3_divide(GrfVec3* vec1, GrfVec3* vec2){
   vec1->data[0] /= vec2->data[0];
   vec1->data[1] /= vec2->data[1];
   vec1->data[2] /= vec2->data[2];
-  vec1->data[3] /= vec2->data[3];
 }
 
 double
-grf_gl_vec4_dot(GrfGLVec4* vec1, GrfGLVec4* vec2){
+grf_vec3_dot(GrfVec3* vec1, GrfVec3* vec2){
   return  vec1->data[0]*vec2->data[0] +
           vec1->data[1]*vec2->data[1] +
-          vec1->data[2]*vec2->data[2] +
-          vec1->data[3]*vec2->data[3];
+          vec1->data[2]*vec2->data[2];
 }
 void
-grf_gl_vec4_multiply_scalar(GrfGLVec4* vec1, double scalar){
+grf_vec3_multiply_scalar(GrfVec3* vec1, double scalar){
   vec1->data[0] *= scalar;
   vec1->data[1] *= scalar;
   vec1->data[2] *= scalar;
-  vec1->data[3] *= scalar;
 }
 void
-grf_gl_vec4_normalize(GrfGLVec4* vec){
-  double magnitude = grf_gl_vec4_get_magnitude(vec);
-  grf_gl_vec4_multiply_scalar(vec,1.0/magnitude);
+grf_vec3_normalize(GrfVec3* vec){
+  double magnitude = grf_vec3_get_magnitude(vec);
+  grf_vec3_multiply_scalar(vec,1.0/magnitude);
 }
 double
-grf_gl_vec4_get_magnitude(GrfGLVec4* vec){
-  return sqrt(grf_gl_vec4_dot(vec,vec));
+grf_vec3_get_magnitude(GrfVec3* vec){
+  return sqrt(vec->data[0]*vec->data[0] + vec->data[1]*vec->data[1] + vec->data[2]*vec->data[2]);
+}
+GrfVec3
+grf_vec3_cross(GrfVec3* vec1, GrfVec3* vec2){
+  double* d1 = vec1->data;
+  double* d2 = vec2->data;
+  GrfVec3 result;
+  double* d = result.data;
+  d[0] = d1[1] * d2[2] - d2[1] * d1[2];
+  d[1] = d1[2] * d2[0] - d2[2] * d1[0];
+  d[2] = d1[0] * d2[1] - d2[0] * d1[1];
+  return result;
 }

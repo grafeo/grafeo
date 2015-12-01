@@ -29,9 +29,9 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
-#include <grafeo/chart.h>
+#include <grafeo/core.h>
 
-static void test_grf_gl_mat(void** state){
+static void test_grf_gl_mat4(void** state){
 
 }
 
@@ -39,7 +39,7 @@ int main(int argc, char** argv){
   (void)argc;
   (void)argv;
   const struct CMUnitTest tests[1]={
-    cmocka_unit_test(test_grf_gl_mat),
+    cmocka_unit_test(test_grf_gl_mat4),
   };
   return cmocka_run_group_tests(tests,NULL,NULL);
 }

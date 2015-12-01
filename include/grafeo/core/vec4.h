@@ -25,47 +25,75 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_GL_MAT4_H
-#define GRF_GL_MAT4_H
-#include <grafeo/gl.h>
-typedef struct _GrfGLMat4{
-  double data[16];
-}GrfGLMat4;
+#ifndef GRF_GL_VEC4_H
+#define GRF_GL_VEC4_H
+#include <math.h>
+#define grf_to_rad(angle) (angle / 180.0 * M_PI  )
+#define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
+typedef struct _GrfVec4{
+  double data[4];
+}GrfVec4;
+
 /**
- * @brief grf_gl_mat4_eye
+ * @brief grf_vec4_add
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec4_add(GrfVec4* vec1, GrfVec4* vec2);
+
+/**
+ * @brief grf_vec4_subtract
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec4_subtract(GrfVec4* vec1, GrfVec4* vec2);
+
+/**
+ * @brief grf_vec4_multiply
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec4_multiply(GrfVec4* vec1, GrfVec4* vec2);
+
+/**
+ * @brief grf_vec4_divide
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec4_divide(GrfVec4* vec1, GrfVec4* vec2);
+
+/**
+ * @brief grf_vec4_dot
+ * @param vec1
+ * @param vec2
  * @return
  */
-GrfGLMat4
-grf_gl_mat4_eye();
+double
+grf_vec4_dot(GrfVec4* vec1, GrfVec4* vec2);
+
 /**
- * @brief grf_gl_mat4_rotate_vec3
- * @param vec
- * @param angle
- * @param axis
+ * @brief grf_vec4_multiply_scalar
+ * @param vec1
+ * @param scalar
  */
 void
-grf_gl_mat4_rotate_vec3(GrfGLVec3* vec, double angle, GrfGLVec3 axis);
+grf_vec4_multiply_scalar(GrfVec4* vec1, double scalar);
 /**
- * @brief grf_gl_mat4_rotate_mat4
- * @param mat
- * @param angle
- * @param axis
- */
-void
-grf_gl_mat4_rotate_mat4(GrfGLMat4* mat, double angle, GrfGLVec3 axis);
-/**
- * @brief grf_gl_mat4_mult_vec3
- * @param mat
+ * @brief grf_vec4_normalize
  * @param vec
  */
 void
-grf_gl_mat4_mult_vec3(GrfGLMat4* mat, GrfGLVec3* vec);
+grf_vec4_normalize(GrfVec4* vec);
 /**
- * @brief grf_gl_mat4_mult_mat4
- * @param mat1
- * @param mat2
- * @param output
+ * @brief grf_vec4_get_magnitude
+ * @param vec
+ * @return
  */
-void
-grf_gl_mat4_mult_mat4(GrfGLMat4* mat1, GrfGLMat4* mat2, GrfGLMat4* output);
+double
+grf_vec4_get_magnitude(GrfVec4* vec);
+
 #endif
