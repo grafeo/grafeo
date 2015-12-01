@@ -110,6 +110,11 @@ typedef enum _GrfSliceType{
   GRF_SLICE_CUSTOM
 }GrfSliceType;
 
+typedef enum _GrfEndianess{
+  GRF_LITTLE_ENDIAN = 0,
+  GRF_BIG_ENDIAN    = 1
+}GrfEndianess;
+
 /**
   * @brief Optimization type: Minimization or Maximization
   */
