@@ -25,7 +25,7 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/gl.h>
+#include <grafeo/core.h>
 
 void
 grf_vec3_add(GrfVec3* vec1, GrfVec3* vec2){

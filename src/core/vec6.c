@@ -28,57 +28,69 @@
 #include <grafeo/core.h>
 
 void
-grf_vec4_add(GrfVec4* vec1, GrfVec4* vec2){
+grf_vec6_add(GrfVec6* vec1, GrfVec6* vec2){
   vec1->data[0] += vec2->data[0];
   vec1->data[1] += vec2->data[1];
   vec1->data[2] += vec2->data[2];
   vec1->data[3] += vec2->data[3];
+  vec1->data[4] += vec2->data[4];
+  vec1->data[5] += vec2->data[5];
 }
 
 void
-grf_vec4_subtract(GrfVec4* vec1, GrfVec4* vec2){
+grf_vec6_subtract(GrfVec6* vec1, GrfVec6* vec2){
   vec1->data[0] -= vec2->data[0];
   vec1->data[1] -= vec2->data[1];
   vec1->data[2] -= vec2->data[2];
   vec1->data[3] -= vec2->data[3];
+  vec1->data[4] -= vec2->data[4];
+  vec1->data[5] -= vec2->data[5];
 }
 
 void
-grf_vec4_multiply(GrfVec4* vec1, GrfVec4* vec2){
+grf_vec6_multiply(GrfVec6* vec1, GrfVec6* vec2){
   vec1->data[0] *= vec2->data[0];
   vec1->data[1] *= vec2->data[1];
   vec1->data[2] *= vec2->data[2];
   vec1->data[3] *= vec2->data[3];
+  vec1->data[4] *= vec2->data[4];
+  vec1->data[5] *= vec2->data[5];
 }
 
 void
-grf_vec4_divide(GrfVec4* vec1, GrfVec4* vec2){
+grf_vec6_divide(GrfVec6* vec1, GrfVec6* vec2){
   vec1->data[0] /= vec2->data[0];
   vec1->data[1] /= vec2->data[1];
   vec1->data[2] /= vec2->data[2];
   vec1->data[3] /= vec2->data[3];
+  vec1->data[4] /= vec2->data[4];
+  vec1->data[5] /= vec2->data[5];
 }
 
 double
-grf_vec4_dot(GrfVec4* vec1, GrfVec4* vec2){
+grf_vec6_dot(GrfVec6* vec1, GrfVec6* vec2){
   return  vec1->data[0]*vec2->data[0] +
           vec1->data[1]*vec2->data[1] +
           vec1->data[2]*vec2->data[2] +
-          vec1->data[3]*vec2->data[3];
+          vec1->data[3]*vec2->data[3] +
+          vec1->data[4]*vec2->data[4] +
+          vec1->data[5]*vec2->data[5];
 }
 void
-grf_vec4_multiply_scalar(GrfVec4* vec1, double scalar){
+grf_vec6_multiply_scalar(GrfVec6* vec1, double scalar){
   vec1->data[0] *= scalar;
   vec1->data[1] *= scalar;
   vec1->data[2] *= scalar;
   vec1->data[3] *= scalar;
+  vec1->data[4] *= scalar;
+  vec1->data[5] *= scalar;
 }
 void
-grf_vec4_normalize(GrfVec4* vec){
-  double magnitude = grf_vec4_get_magnitude(vec);
-  grf_vec4_multiply_scalar(vec,1.0/magnitude);
+grf_vec6_normalize(GrfVec6* vec){
+  double magnitude = grf_vec6_get_magnitude(vec);
+  grf_vec6_multiply_scalar(vec,1.0/magnitude);
 }
 double
-grf_vec4_get_magnitude(GrfVec4* vec){
-  return sqrt(grf_vec4_dot(vec,vec));
+grf_vec6_get_magnitude(GrfVec6* vec){
+  return sqrt(grf_vec6_dot(vec,vec));
 }
