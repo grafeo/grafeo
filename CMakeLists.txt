@@ -326,8 +326,8 @@ IF(BUILD_IFT)
 ENDIF()
 #=============================================================== MEDICAL MODULE
 IF(BUILD_MEDICAL)
-  SET(GRF_MEDICAL_HDRS  znzlib.h dicom.h nifti1.h nifti1_io.h)
-  SET(GRF_MEDICAL_SRCS  znzlib.c dicom.c nifti1_io.c)
+  SET(GRF_MEDICAL_HDRS  znzfile.h dicom.h nifti1.h nifti1_io.h)
+  SET(GRF_MEDICAL_SRCS  znzfile.c dicom.c nifti1_io.c)
   GRF_CREATE_LIBRARY(medical MEDICAL)
 ENDIF()
 #==================================================================== GL MODULE

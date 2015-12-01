@@ -170,8 +170,8 @@ get_size(GrfImageWidget* imagewidget, GtkOrientation direction, int* minimal, in
   uint8_t             index;
   uint16_t            size_min;
   GrfImageWidgetPrivate* priv           = grf_imagewidget_get_instance_private(imagewidget);
-  uint32_t          * size_original  = priv->image_original? priv->image_original->size: NULL;
-  uint32_t          * size_output    = priv->image_output  ? priv->image_output->size  : NULL;
+  uint32_t          * size_original  = priv->image_original? grf_ndarray_get_size(priv->image_original): NULL;
+  uint32_t          * size_output    = priv->image_output  ? grf_ndarray_get_size(priv->image_output)  : NULL;
   switch(direction){
   case GTK_ORIENTATION_HORIZONTAL:
     index = 1; size_min = 320;
@@ -207,16 +207,20 @@ grf_imagewidget_set_image(GrfImageWidget* widget, GrfNDArray* image, gboolean in
   priv->image_original        = image;
 
   // Converting to appropriate format
-  if(image->dim == 2 || image->size[2] == 1)
+  uint16_t dim = grf_ndarray_get_dim(image);
+  uint32_t* size = grf_ndarray_get_size(image);
+  if(dim == 2 || size[2] == 1)
     priv->image_output   = grf_image_cvt_color(image,GRF_GRAY, GRF_BGRA);
   else
     priv->image_output   = grf_image_cvt_color(image,GRF_RGB, GRF_BGRA);
 
-  int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24,priv->image_output->size[1]);
-  priv->image_surface = cairo_image_surface_create_for_data(priv->image_output->data_uint8,
+  uint32_t* size_output = grf_ndarray_get_size(priv->image_output);
+  void* data = grf_ndarray_get_data(priv->image_output);
+  int stride = cairo_format_stride_for_width(CAIRO_FORMAT_RGB24,size_output[1]);
+  priv->image_surface = cairo_image_surface_create_for_data((uint8_t*)data,
                                                             CAIRO_FORMAT_RGB24,
-                                                            priv->image_output->size[1],
-                                                            priv->image_output->size[0],
+                                                            size_output[1],
+                                                            size_output[0],
                                                             stride);
 
   if(invalidate)

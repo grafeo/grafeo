@@ -6,10 +6,11 @@ GrfIFT* grf_ift_new(){
 
 GrfIFT* grf_ift_new_from_array(GrfNDArray* array, uint8_t map_dimension){
   GrfIFT* ift = grf_ift_new();
-  ift->label        = grf_ndarray_zeros(map_dimension, array->size, GRF_UINT16);
-  ift->predecessors = grf_ndarray_zeros(map_dimension, array->size, GRF_UINT64);
-  ift->connectivity = grf_ndarray_zeros(map_dimension, array->size, GRF_INT64);
-  ift->root         = grf_ndarray_zeros(map_dimension, array->size, GRF_UINT64);
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  ift->label        = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT16);
+  ift->predecessors = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT64);
+  ift->connectivity = grf_ndarray_zeros(map_dimension, array_size, GRF_INT64);
+  ift->root         = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT64);
   ift->original     = array;
   return ift;
 }
@@ -19,7 +20,8 @@ GrfIFT*   grf_ift_apply_array(GrfNDArray *array, uint16_t map_dimension, GrfAdja
   GrfIFT* ift          = grf_ift_new_from_array(array, map_dimension);
 
   // Auxiliary structures
-  GrfNDArray* visited    = grf_ndarray_zeros(map_dimension, array->size, GRF_UINT8);
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  GrfNDArray* visited  = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT8);
   GrfQueue* queue      = grf_queue_new();
 
 
@@ -35,12 +37,20 @@ GrfIFT*   grf_ift_apply_array(GrfNDArray *array, uint16_t map_dimension, GrfAdja
   }
   if(seeds_indices){
     uint64_t i;
-    for(i = 0; i < seeds_indices->num_elements; i++){
-      uint64_t seed_index = seeds_indices->data_uint64[i];
-      ift->connectivity->data_int64[seed_index] = seed_connectivity;
-      ift->label->data_uint16[seed_index]       = seeds_labels->data_uint16[i];
-      ift->root->data_uint64[seed_index]        = seed_index;
-      ift->predecessors->data_uint64[seed_index]= seed_index;
+    uint64_t* seeds_indices_data = (uint64_t*)grf_ndarray_get_data(seeds_indices);
+    uint16_t* seeds_labels_data  = (uint16_t*)grf_ndarray_get_data(seeds_labels);
+
+    int64_t*  connectivity_data = grf_ndarray_get_data(ift->connectivity);
+    int16_t*  label_data        = grf_ndarray_get_data(ift->label);
+    uint64_t* root_data         = grf_ndarray_get_data(ift->root);
+    uint64_t* predecessors_data = grf_ndarray_get_data(ift->predecessors);
+
+    for(i = 0; i < grf_ndarray_get_num_elements(seeds_indices); i++){
+      uint64_t seed_index = seeds_indices_data[i];
+      connectivity_data[seed_index] = seed_connectivity;
+      label_data[seed_index]       = seeds_labels_data[i];
+      root_data[seed_index]        = seed_index;
+      predecessors_data[seed_index]= seed_index;
       // (re)insert unvisited neighbors
       if(optimization_type == GRF_MINIMIZATION)
         grf_pqueue_append_at(queue, INT64_TO_POINTER(seed_connectivity), UINT64_TO_POINTER(seed_index), int64_compare_function);
@@ -77,9 +87,9 @@ GrfIFT*   grf_ift_apply_array(GrfNDArray *array, uint16_t map_dimension, GrfAdja
     case GRF_NEIGHBOR_18:num_neighbors = 18;break;
     case GRF_NEIGHBOR_26:num_neighbors = 26;break;
   }
-
-  int32_t*  index_t_nd   = malloc(sizeof(int32_t)*ift->label->dim);
-  uint32_t* index_t_nd_u = malloc(sizeof(uint32_t)*ift->label->dim);
+  uint16_t  label_dim    = grf_ndarray_get_dim(ift->label);
+  int32_t*  index_t_nd   = malloc(sizeof(int32_t)*label_dim);
+  uint32_t* index_t_nd_u = malloc(sizeof(uint32_t)*label_dim);
 
   while(!grf_queue_is_empty(queue)){
 
@@ -98,7 +108,7 @@ GrfIFT*   grf_ift_apply_array(GrfNDArray *array, uint16_t map_dimension, GrfAdja
 
       // Calculate neighbor index
       uint8_t j;
-      for(j = 0; j < ift->label->dim; j++)
+      for(j = 0; j < label_dim; j++)
         if(map_dimension == 2)
           index_t_nd[j] = (int32_t)index_nd[j] + neighbors_relative_2D[i][j];
         else
@@ -107,7 +117,7 @@ GrfIFT*   grf_ift_apply_array(GrfNDArray *array, uint16_t map_dimension, GrfAdja
       // Verify if it's valid (inside array region)
       if(grf_ndarray_index_is_valid(visited, index_t_nd)){
 
-        for(j = 0; j < ift->label->dim; j++)
+        for(j = 0; j < label_dim; j++)
           index_t_nd_u[j] = (uint32_t)index_t_nd[j];
 
         index_t = grf_ndarray_index_1D(ift->label, index_t_nd);
@@ -199,30 +209,41 @@ void grf_ift_set_root(GrfIFT* ift, GrfNDArray* root){
 }
 
 double grf_path_connectivity_sum(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  return ift->connectivity->data_int64[index_s] +
+  int64_t* connectivity_data = (int64_t*)grf_ndarray_get_data(ift->connectivity);
+  uint64_t* original_step = grf_ndarray_get_step(ift->original);
+  uint16_t label_dim = grf_ndarray_get_dim(ift->label);
+  return connectivity_data[index_s] +
          weight_function(ift->original,
-                         index_s*ift->original->step[ift->label->dim-1],
-                         index_t*ift->original->step[ift->label->dim-1]);
+                         index_s*original_step[label_dim-1],
+                         index_t*original_step[label_dim-1]);
 }
 
 double grf_path_connectivity_max(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  return max(ift->connectivity->data_int64[index_s],
+  int64_t* connectivity_data = (int64_t*)grf_ndarray_get_data(ift->connectivity);
+  uint64_t* original_step = grf_ndarray_get_step(ift->original);
+  uint16_t label_dim = grf_ndarray_get_dim(ift->label);
+  return max(connectivity_data[index_s],
              weight_function(ift->original,
-                             index_s*ift->original->step[ift->label->dim-1],
-                             index_t*ift->original->step[ift->label->dim-1]));
+                             index_s*original_step[label_dim-1],
+                             index_t*original_step[label_dim-1]));
 }
 
 double grf_path_connectivity_min(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function){
-  return min(ift->connectivity->data_int64[index_s],
+  int64_t* connectivity_data = (int64_t*)grf_ndarray_get_data(ift->connectivity);
+  uint64_t* original_step = grf_ndarray_get_step(ift->original);
+  uint16_t label_dim = grf_ndarray_get_dim(ift->label);
+  return min(connectivity_data[index_s],
              weight_function(ift->original,
-                             index_s*ift->original->step[ift->label->dim-1],
-                             index_t*ift->original->step[ift->label->dim-1]));
+                             index_s*original_step[label_dim-1],
+                             index_t*original_step[label_dim-1]));
 }
 
 double _grf_path_connectivity_norm(GrfIFT* ift, uint64_t index_s, uint64_t index_t, GrfWeightFunc weight_function, GrfNormType norm_type){
   (void) weight_function;
-  uint64_t index_r = ift->root->data_uint64[index_s];
-  uint32_t size = (uint32_t)ift->original->dim;
+  uint64_t* root_data = (uint64_t*) grf_ndarray_get_data(ift->root);
+  uint16_t original_dim = grf_ndarray_get_dim(ift->original);
+  uint64_t index_r = root_data[index_s];
+  uint32_t size = (uint32_t)original_dim;
   GrfNDArray* grf_ndarray_r = grf_ndarray_from_data(grf_ndarray_index(ift->original,index_r),1,&size,GRF_INT32);
   GrfNDArray* grf_ndarray_t = grf_ndarray_from_data(grf_ndarray_index(ift->original,index_t),1,&size,GRF_INT32);
 
@@ -247,19 +268,7 @@ void   grf_ift_free(GrfIFT* ift){
 }
 
 double grf_weight_diff(GrfNDArray *array, uint64_t index1, uint64_t index2){
-  switch (array->type){
-    case GRF_UINT8:  return fabs((double) array->data_uint8[index1]  - (double) array->data_uint8[index2]);break;
-    case GRF_UINT16: return fabs((double) array->data_uint16[index1] - (double) array->data_uint16[index2]);break;
-    case GRF_UINT32: return fabs((double) array->data_uint32[index1] - (double) array->data_uint32[index2]);break;
-    case GRF_UINT64: return fabs((double) array->data_uint64[index1] - (double) array->data_uint64[index2]);break;
-    case GRF_INT8:   return fabs((double) array->data_int8[index1]   - (double) array->data_int8[index2]);break;
-    case GRF_INT16:  return fabs((double) array->data_int16[index1]  - (double) array->data_int16[index2]);break;
-    case GRF_INT32:  return fabs((double) array->data_int32[index1]  - (double) array->data_int32[index2]);break;
-    case GRF_INT64:  return fabs((double) array->data_int64[index1]  - (double) array->data_int64[index2]);break;
-    case GRF_FLOAT:  return fabs((double) array->data_float[index1]  - (double) array->data_float[index2]);break;
-    case GRF_DOUBLE: return fabs((double) array->data_double[index1] - (double) array->data_double[index2]);break;
-  }
-  return 0;
+  return fabs((double)(grf_ndarray_get_long_double_1D(array,index1) - grf_ndarray_get_long_double_1D(array,index2)));
 }
 
 double grf_weight_diff_3(GrfNDArray* array, uint64_t index1, uint64_t index2){
@@ -284,9 +293,10 @@ GrfNDArray* grf_ift_distance_transform(GrfNDArray* array, GrfNormType norm_type)
   }
 
   // Get seeds
-  uint64_t seed_indices_data[array->num_elements];
+  uint64_t array_num_elements = grf_ndarray_get_num_elements(array);
+  uint64_t seed_indices_data[array_num_elements];
   uint32_t i, s = 0;
-  for(i = 0; i < array->num_elements; i++)
+  for(i = 0; i < array_num_elements; i++)
     if(grf_ndarray_get_long_double_1D(array, i)) seed_indices_data[s++] = i;
   GrfNDArray* seed_indices = grf_ndarray_from_data(seed_indices_data, 1, &s, GRF_UINT64);
   GrfNDArray* seed_labels  = grf_ndarray_ones(1, &s, GRF_UINT16);

@@ -198,16 +198,19 @@ grf_displaywindow_imagewidget_motion_event(GtkWidget* widget, GdkEvent* event, g
     float scale = grf_imagewidget_get_scale(GRF_IMAGEWIDGET(priv->displaywidget));
     x /= scale;
     y /= scale;
-
-    if(x <= image->size[1] && y <= image->size[0]){
+    uint32_t* image_size = grf_ndarray_get_size(image);
+    if(x <= image_size[1] && y <= image_size[0]){
       // Position in Statusbar
       sprintf(text_position,"Pos: %d %d", (int)x,(int)y);
       gtk_statusbar_push(GTK_STATUSBAR(priv->statusbar), priv->context, text_position);
 
       // Color in Statusbar
-      uint64_t    pixel_index = ((int)y)*image->step[0]+((int)x)*image->step[1];
-      uint8_t  *  pixel       = &image->data_uint8[pixel_index];
-      if(image->dim == 2 || image->size[2] == 1)
+      uint64_t* image_step = grf_ndarray_get_step(image);
+      uint8_t* image_data = (uint8_t*)grf_ndarray_get_data(image);
+      uint64_t    pixel_index = ((int)y)*image_step[0]+((int)x)*image_step[1];
+      uint8_t  *  pixel       = &image_data[pixel_index];
+      uint16_t image_dim = grf_ndarray_get_dim(image);
+      if(image_dim == 2 || image_size[2] == 1)
         sprintf(text_color,"(G = %03d)", pixel[0]);
       else
         sprintf(text_color,"(<span color=\"red\">R=%03d</span>, <span color=\"green\">G=%03d</span>, <span color=\"blue\">B=%03d</span>)", pixel[2],pixel[1],pixel[0]);

@@ -104,7 +104,8 @@ GrfNDArray* grf_image_read_png(const char* filename){
   uint8_t**buffer   = (uint8_t**)malloc(sizeof(uint8_t*) * size[0]);
   size_t row_stride = png_get_rowbytes(png_ptr, info_ptr);
   uint32_t i;
-  for(i = 0; i < size[0]; i++) buffer[i] = array->data_uint8 + row_stride * i;
+  uint8_t* array_data = (uint8_t*) grf_ndarray_get_data(array);
+  for(i = 0; i < size[0]; i++) buffer[i] = array_data + row_stride * i;
   png_read_image(png_ptr, buffer);
   fclose(infile);
   free(buffer);
@@ -135,7 +136,8 @@ GrfNDArray* grf_image_read_jpg(const char* filename){
   row_stride       = size[1]*size[2];
   buffer           = (uint8_t**)malloc(sizeof(uint8_t*) * size[0]);
   uint32_t i;
-  for(i = 0; i < size[0]; i++) buffer[i] = array->data_uint8 + row_stride * i;
+  uint8_t* array_data = (uint8_t*) grf_ndarray_get_data(array);
+  for(i = 0; i < size[0]; i++) buffer[i] = array_data + row_stride * i;
   i = 0;
   while(cinfo.output_scanline < cinfo.output_height){
     jpeg_read_scanlines(&cinfo, &buffer[i++], 1);
@@ -170,11 +172,13 @@ static GrfNDArray* _grf_image_read_ppm_pgm(const char* filename){
     sscanf(line, "%lu", &max_gray);
     uint32_t size[3] = {height, width,3};
     array = grf_ndarray_new_with_size_type(dim, size, GRF_UINT8);
+    uint64_t array_num_elements = grf_ndarray_get_num_elements(array);
+    uint8_t* array_data = (uint8_t*) grf_ndarray_get_data(array);
     if(version[1] == '2')
-      for(i = 0; i < array->num_elements; i++)
-        fscanf(fp, "%cu", &array->data_uint8[i]);
+      for(i = 0; i < array_num_elements; i++)
+        fscanf(fp, "%cu", &array_data[i]);
     else
-      fread(array->data_uint8, sizeof(uint8_t), array->num_elements,fp);
+      fread(array_data, sizeof(uint8_t), array_num_elements,fp);
   }
   fclose(fp);
   return array;
@@ -216,9 +220,11 @@ void grf_image_write_png(GrfNDArray* array, const char* filename){
   if (setjmp(png_jmpbuf(png_ptr)))
     abort_("[write_png_file] Error during writing header");
 
-  int color_type = (array->dim > 2 && array->size[2] == 3)?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_GRAY;
-  png_set_IHDR(png_ptr, info_ptr, array->size[1], array->size[0],
-               array->bitsize << 3, color_type, PNG_INTERLACE_NONE,
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  uint8_t array_bitsize = grf_ndarray_get_bitsize(array);
+  int color_type = (grf_ndarray_get_dim(array) > 2 && array_size[2] == 3)?PNG_COLOR_TYPE_RGB:PNG_COLOR_TYPE_GRAY;
+  png_set_IHDR(png_ptr, info_ptr, array_size[1], array_size[0],
+               array_bitsize << 3, color_type, PNG_INTERLACE_NONE,
                PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
   png_write_info(png_ptr, info_ptr);
@@ -227,9 +233,11 @@ void grf_image_write_png(GrfNDArray* array, const char* filename){
   if (setjmp(png_jmpbuf(png_ptr)))
     abort_("[write_png_file] Error during writing bytes");
 
-  uint8_t**buffer   = (uint8_t**)malloc(sizeof(uint8_t*) * array->size[0]);
+  uint8_t**buffer   = (uint8_t**)malloc(sizeof(uint8_t*) * array_size[0]);
   uint32_t i;
-  for(i = 0; i < array->size[0]; i++) buffer[i] = array->data_uint8 + array->step[0] * i * array->bitsize;
+  uint8_t* array_data_uint8 = (uint8_t*)grf_ndarray_get_data(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
+  for(i = 0; i < array_size[0]; i++) buffer[i] = array_data_uint8 + array_step[0] * i * array_bitsize;
   png_write_image(png_ptr, buffer);
 
   /* end write */
@@ -247,7 +255,11 @@ void grf_image_write_jpg(GrfNDArray* array, const char* filename){
   struct jpeg_error_mgr jerr;
   FILE* outfile;
   uint8_t* row_pointer[1];
-  row_pointer[0] = array->data_uint8;
+  uint8_t* array_data_uint8 = (uint8_t*)grf_ndarray_get_data(array);
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  uint16_t array_dim = grf_ndarray_get_dim(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
+  row_pointer[0] = array_data_uint8;
   cinfo.err = jpeg_std_error(&jerr);
   jpeg_create_compress(&cinfo);
   if((outfile = fopen(filename, "wb"))==NULL){
@@ -255,16 +267,16 @@ void grf_image_write_jpg(GrfNDArray* array, const char* filename){
     exit(1);
   }
   jpeg_stdio_dest(&cinfo, outfile);
-  cinfo.image_width = array->size[1];
-  cinfo.image_height = array->size[0];
-  cinfo.input_components = (array->dim > 2)?array->size[2]:1;
-  cinfo.in_color_space = (array->dim > 2 && array->size[2] == 3)?JCS_RGB:JCS_GRAYSCALE;
+  cinfo.image_width = array_size[1];
+  cinfo.image_height = array_size[0];
+  cinfo.input_components = (array_dim > 2)?array_size[2]:1;
+  cinfo.in_color_space = (array_dim > 2 && array_size[2] == 3)?JCS_RGB:JCS_GRAYSCALE;
   jpeg_set_defaults(&cinfo);
   jpeg_set_quality(&cinfo, 1, TRUE);
   jpeg_start_compress(&cinfo, TRUE);
-  while(cinfo.next_scanline < array->size[0]){
+  while(cinfo.next_scanline < array_size[0]){
     jpeg_write_scanlines(&cinfo, row_pointer, 1);
-    row_pointer[0] += array->step[0];
+    row_pointer[0] += array_step[0];
   }
   jpeg_finish_compress(&cinfo);
   fclose(outfile);
@@ -274,11 +286,14 @@ void grf_image_write_jpg(GrfNDArray* array, const char* filename){
 static void _grf_image_write_ppm_pgm(GrfNDArray* array, const char* filename, char format){
   FILE* fp;
   uint32_t i_max = (uint32_t) grf_ndarray_reduce_max_num(array);
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  uint64_t array_num_elements = grf_ndarray_get_num_elements(array);
+  uint8_t* array_data_uint8 = (uint8_t*)grf_ndarray_get_data(array);
   fp = fopen(filename, "wb");
   fprintf(fp, "P%c\n",format);
-  fprintf(fp,"%d %d\n", array->size[1], array->size[0]);
+  fprintf(fp,"%d %d\n", array_size[1], array_size[0]);
   fprintf(fp, "%d\n",i_max);
-  fwrite(array->data_uint8,sizeof(uint8_t),array->num_elements,fp);
+  fwrite(array_data_uint8,sizeof(uint8_t),array_num_elements,fp);
   fclose(fp);
 }
 
@@ -296,69 +311,76 @@ GrfNDArray* grf_image_cvt_color(GrfNDArray* array, GrfColorType origin, GrfColor
 
   // Creating output array
   output = array;
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  GrfDataType array_type = grf_ndarray_get_elemtype(array);
   if(destiny == GRF_RGB || destiny == GRF_BGR)
-    output = grf_ndarray_new_3D_type(array->size[0], array->size[1], 3, array->type);
+    output = grf_ndarray_new_3D_type(array_size[0], array_size[1], 3, array_type);
   else if(destiny == GRF_GRAY)
-    output = grf_ndarray_new_2D_type(array->size[0], array->size[1], array->type);
+    output = grf_ndarray_new_2D_type(array_size[0], array_size[1], array_type);
   else if(destiny == GRF_RGBA || destiny == GRF_BGRA)
-    output = grf_ndarray_new_3D_type(array->size[0], array->size[1], 4, array->type);
+    output = grf_ndarray_new_3D_type(array_size[0], array_size[1], 4, array_type);
 
   uint64_t i2;
   // Filling array
+
+  uint64_t array_num_elements = grf_ndarray_get_num_elements(array);
+  uint64_t output_num_elements = grf_ndarray_get_num_elements(output);
+  uint8_t* array_data_uint8 = (uint8_t*)grf_ndarray_get_data(array);
+  uint8_t* output_data_uint8 = (uint8_t*)grf_ndarray_get_data(output);
   if(origin == GRF_GRAY){
     if(destiny == GRF_RGB){
-      for(i = 0; i < array->num_elements; i++){
-        output->data_uint8[3*i  ] = array->data_uint8[i];
-        output->data_uint8[3*i+1] = array->data_uint8[i];
-        output->data_uint8[3*i+2] = array->data_uint8[i];
+      for(i = 0; i < array_num_elements; i++){
+        output_data_uint8[3*i  ] = array_data_uint8[i];
+        output_data_uint8[3*i+1] = array_data_uint8[i];
+        output_data_uint8[3*i+2] = array_data_uint8[i];
       }
     }else if(destiny == GRF_RGBA){
-      for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
-        output->data_uint8[i2  ] = array->data_uint8[i];
-        output->data_uint8[i2+1] = array->data_uint8[i];
-        output->data_uint8[i2+2] = array->data_uint8[i];
-        output->data_uint8[i2+3] = 255;
+      for(i = 0,i2 = 0; i < array_num_elements; i++,i2 = i << 2){
+        output_data_uint8[i2  ] = array_data_uint8[i];
+        output_data_uint8[i2+1] = array_data_uint8[i];
+        output_data_uint8[i2+2] = array_data_uint8[i];
+        output_data_uint8[i2+3] = 255;
       }
     }
     else if(destiny == GRF_BGRA){
-      for(i = 0,i2 = 0; i < array->num_elements; i++,i2 = i << 2){
-        output->data_uint8[i2+2] = array->data_uint8[i];
-        output->data_uint8[i2+1] = array->data_uint8[i];
-        output->data_uint8[i2  ] = array->data_uint8[i];
-        output->data_uint8[i2+3] = 255;
+      for(i = 0,i2 = 0; i < array_num_elements; i++,i2 = i << 2){
+        output_data_uint8[i2+2] = array_data_uint8[i];
+        output_data_uint8[i2+1] = array_data_uint8[i];
+        output_data_uint8[i2  ] = array_data_uint8[i];
+        output_data_uint8[i2+3] = 255;
       }
     }
   }else if(origin == GRF_RGB){
     if(destiny == GRF_GRAY){
-      for(i = 0; i < output->num_elements; i++){
-        output->data_uint8[i] = (uint8_t)(
-                                0.299*(double)array->data_uint8[3*i  ] +
-                                0.587*(double)array->data_uint8[3*i+1] +
-                                0.114*(double)array->data_uint8[3*i+2]);
+      for(i = 0; i < output_num_elements; i++){
+        output_data_uint8[i] = (uint8_t)(
+                                0.299*(double)array_data_uint8[3*i  ] +
+                                0.587*(double)array_data_uint8[3*i+1] +
+                                0.114*(double)array_data_uint8[3*i+2]);
       }
     }else if(destiny == GRF_BGR){
-      uint64_t size_gray = output->num_elements/3;
+      uint64_t size_gray = output_num_elements/3;
       for(i = 0; i < size_gray; i++){
-        output->data_uint8[3*i  ] = array->data_uint8[3*i+2];
-        output->data_uint8[3*i+1] = array->data_uint8[3*i+1];
-        output->data_uint8[3*i+2] = array->data_uint8[3*i  ];
+        output_data_uint8[3*i  ] = array_data_uint8[3*i+2];
+        output_data_uint8[3*i+1] = array_data_uint8[3*i+1];
+        output_data_uint8[3*i+2] = array_data_uint8[3*i  ];
       }
     }else if(destiny == GRF_RGBA){
-      uint64_t size_gray = array->num_elements/3;
+      uint64_t size_gray = array_num_elements/3;
       for(i = 0; i < size_gray; i++){
-        output->data_uint8[4*i  ] = array->data_uint8[3*i];
-        output->data_uint8[4*i+1] = array->data_uint8[3*i+1];
-        output->data_uint8[4*i+2] = array->data_uint8[3*i+2];
-        output->data_uint8[4*i+3] = 255;
+        output_data_uint8[4*i  ] = array_data_uint8[3*i];
+        output_data_uint8[4*i+1] = array_data_uint8[3*i+1];
+        output_data_uint8[4*i+2] = array_data_uint8[3*i+2];
+        output_data_uint8[4*i+3] = 255;
       }
     }
     else if(destiny == GRF_BGRA){
-      uint64_t size_gray = array->num_elements/3, i3;
+      uint64_t size_gray = array_num_elements/3, i3;
       for(i = 0, i2 = 0, i3 = 0; i < size_gray; i++, i2 = i << 2, i3 = (i<<1)+i){
-        output->data_uint8[i2  ] = array->data_uint8[i3+2];
-        output->data_uint8[i2+1] = array->data_uint8[i3+1];
-        output->data_uint8[i2+2] = array->data_uint8[i3];
-        output->data_uint8[i2+3] = 255;
+        output_data_uint8[i2  ] = array_data_uint8[i3+2];
+        output_data_uint8[i2+1] = array_data_uint8[i3+1];
+        output_data_uint8[i2+2] = array_data_uint8[i3];
+        output_data_uint8[i2+3] = 255;
       }
     }
   }

@@ -152,22 +152,25 @@ grf_ndarray_draw_line_no_shift(GrfNDArray* array, GrfScalar2D p1, GrfScalar2D p2
 
   // BEGIN
   count = -1;
-
-  if( (unsigned)p1.x >= (unsigned)(array->size[1]) ||
-      (unsigned)p2.x >= (unsigned)(array->size[1]) ||
-      (unsigned)p1.y >= (unsigned)(array->size[0]) ||
-      (unsigned)p2.y >= (unsigned)(array->size[0]) )
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
+  uint16_t array_dim = grf_ndarray_get_dim(array);
+  uint8_t* array_data_uint8 = (uint8_t*) grf_ndarray_get_data(array);
+  if( (unsigned)p1.x >= (unsigned)(array_size[1]) ||
+      (unsigned)p2.x >= (unsigned)(array_size[1]) ||
+      (unsigned)p1.y >= (unsigned)(array_size[0]) ||
+      (unsigned)p2.y >= (unsigned)(array_size[0]) )
   {
-    GrfSize2D size = {array->size[0],array->size[1]};
+    GrfSize2D size = {array_size[0],array_size[1]};
       if( !grf_clip_line( size, &p1, &p2 ) ){
-          ptr = array->data_uint8;
+          ptr = array_data_uint8;
           err = plusDelta = minusDelta = plusStep = minusStep = count = 0;
           return;
       }
   }
 
-  int bt_pix0 = array->dim == 2?1:(int)array->size[2], bt_pix = bt_pix0;
-  size_t istep = array->step[0];
+  int bt_pix0 = array_dim == 2?1:(int)array_size[2], bt_pix = bt_pix0;
+  size_t istep = array_step[0];
 
   int dx = p2.x - p1.x;
   int dy = p2.y - p1.y;
@@ -183,7 +186,7 @@ grf_ndarray_draw_line_no_shift(GrfNDArray* array, GrfScalar2D p1, GrfScalar2D p2
       bt_pix = (bt_pix ^ s) - s;
   }
 
-  ptr = (uint8_t*)(array->data_uint8 + p1.y * istep + p1.x * bt_pix0);
+  ptr = (uint8_t*)(array_data_uint8 + p1.y * istep + p1.x * bt_pix0);
 
   s = dy < 0 ? -1 : 0;
   dy = (dy ^ s) - s;
@@ -220,7 +223,7 @@ grf_ndarray_draw_line_no_shift(GrfNDArray* array, GrfScalar2D p1, GrfScalar2D p2
   // END
 
   int i,j;
-  int pix_size       = array->dim == 2?1:array->size[2];
+  int pix_size       = array_dim == 2?1:array_size[2];
   int* color         = ((int*)_color);
 
   for( i = 0; i < count; i++)  {
@@ -243,11 +246,15 @@ grf_ndarray_draw_line_neighbor_8(GrfNDArray* array, GrfScalar2D p1, GrfScalar2D 
   int ax, ay;
   int x,y,i,j;
   int x_step, y_step;
-  int pix_size = array->dim == 2? 1:array->size[2];
-  uint8_t *tptr, *ptr = array->data_uint8;
-  GrfSize2D* size        = (GrfSize2D*) array->size;
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
+  uint16_t array_dim = grf_ndarray_get_dim(array);
+  uint8_t* array_data_uint8 = (uint8_t*) grf_ndarray_get_data(array);
+  int pix_size = array_dim == 2? 1:array_size[2];
+  uint8_t *tptr, *ptr = array_data_uint8;
+  GrfSize2D* size        = (GrfSize2D*) array_size;
   GrfSize2D  size_scaled = {size->width * XY_ONE, size->height * XY_ONE};
-  uint64_t step = array->step[0];
+  uint64_t step = array_step[0];
 
   // We need to clip the line
   // If the line is completely outside rectangle, exit
@@ -369,9 +376,13 @@ grf_ndarray_fill_convex_poly(GrfNDArray* array, GrfScalar2D* v, int npts, GrfSca
   int i, y, imin  = 0, left = 0, right = 1, x1, x2;
   int delta       = shift ? 1 << (shift - 1) : 0;
   int edges       = npts;
-  uint8_t* ptr    = array->data_uint8;
-  GrfSize2D* size = (GrfSize2D*) array->size;
-  int pix_size    = array->dim < 3? 1:array->size[2];
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
+  uint16_t array_dim = grf_ndarray_get_dim(array);
+  uint8_t* array_data_uint8 = (uint8_t*) grf_ndarray_get_data(array);
+  uint8_t* ptr    = array_data_uint8;
+  GrfSize2D* size = (GrfSize2D*) array_size;
+  int pix_size    = array_dim < 3? 1:array_size[2];
 
   if( line_type < GRF_ANTIALIASED)
       delta1 = delta2 = XY_ONE >> 1;
@@ -435,7 +446,7 @@ grf_ndarray_fill_convex_poly(GrfNDArray* array, GrfScalar2D* v, int npts, GrfSca
   edge[0].di = 1;
   edge[1].di = npts - 1;
 
-  ptr += array->step[0]*y;
+  ptr += array_step[0]*y;
 
   do
   {
@@ -504,7 +515,7 @@ grf_ndarray_fill_convex_poly(GrfNDArray* array, GrfScalar2D* v, int npts, GrfSca
 
       edge[left].x = x1;
       edge[right].x = x2;
-      ptr += array->step[0];
+      ptr += array_step[0];
   }
   while( ++y <= ymax );
 }
@@ -581,10 +592,14 @@ grf_ndarray_draw_line_thick(GrfNDArray* array, GrfScalar2D p1, GrfScalar2D p2, G
 
 static void
 grf_ndarray_draw_circle_direct   (GrfNDArray* array, GrfScalar2D center, int radius, GrfScalar4D* _color, int fill){
-  GrfSize2D  size     = {array->size[1],array->size[0]};
-  size_t     step     = array->step[0];
-  int        pix_size = array->dim == 2?1:array->size[2];
-  uint8_t*   ptr      = array->data_uint8;
+  uint32_t* array_size = grf_ndarray_get_size(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
+  uint16_t array_dim = grf_ndarray_get_dim(array);
+  uint8_t* array_data_uint8 = (uint8_t*) grf_ndarray_get_data(array);
+  GrfSize2D  size     = {array_size[1],array_size[0]};
+  size_t     step     = array_step[0];
+  int        pix_size = array_dim == 2?1:array_size[2];
+  uint8_t*   ptr      = array_data_uint8;
   uint8_t    color[3] = {_color->x, _color->y, _color->z};
   int err = 0, dx = radius, dy = 0, plus = 1, minus = (radius << 1) - 1;
   int inside = center.x >= radius && center.x < size.width - radius &&
@@ -820,11 +835,12 @@ grf_ndarray_fill_edge_collection(GrfNDArray* array, GrfScalar4D* edges, int num_
   (void) color;
   GrfScalar4D tmp;
   int i, total = num_edges;
+  uint32_t* array_size = grf_ndarray_get_size(array);
   //int y;
-  GrfSize2D* size = (GrfSize2D*) array->size;
+  GrfSize2D* size = (GrfSize2D*) array_size;
   //GrfScalar4D* e;
   int y_max = INT_MIN, x_max = INT_MIN, y_min = INT_MAX, x_min = INT_MAX;
-  //int pix_size = array->dim < 3?1:array->size[2];
+  //int pix_size = array_dim < 3?1:array_size[2];
 
   if( total < 2 )
       return;
