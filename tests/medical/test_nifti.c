@@ -25,7 +25,9 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#include <grafeo/display.h>
+#ifdef HAVE_GTK3
+  #include <grafeo/display.h>
+#endif
 #include <grafeo/medical.h>
 #include <setjmp.h>
 #include <cmocka.h>
@@ -46,12 +48,14 @@ static void get_data(){
   output   = grf_ndarray_as_type(array,GRF_UINT8);
 }
 
+#ifdef HAVE_GTK3
 static void change_event(int pos){
   slice = pos;
   get_data();
   grf_display_named("Figure1");
   grf_display_show(output);
 }
+#endif
 
 static void test_grf_nifti_open(void** state){
   image = grf_nifti_image_read("../data/MRHead.nii.gz",1);
@@ -72,13 +76,14 @@ static void test_grf_nifti_open(void** state){
   slice = 0;
   get_data();
 
+#ifdef HAVE_GTK3
   grf_display_setup(NULL, NULL);
   grf_display_named("Figure1");
   grf_display_add_trackbar("Figure1","slice num",&slice,0,129,change_event);
   grf_display_show(output);
   uint8_t key = 0;while(key != 27) key = grf_display_waitkey();
   grf_image_write(output,"teste.png");
-
+#endif
 
   //znzFile file = nifti_image_open("../data/MRHead.nii.gz","w6h",&image);
   grf_nifti_image_free(image);

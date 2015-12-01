@@ -25,37 +25,21 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_PLOT_H
-#define GRF_PLOT_H
-#include <grafeo/core.h>
+#include <stdarg.h>
+#include <stddef.h>
+#include <setjmp.h>
+#include <cmocka.h>
 #include <grafeo/chart.h>
-G_BEGIN_DECLS
 
-#define GRF_TYPE_PLOT grf_plot_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfPlot, grf_plot, GRF, PLOT, GObject)
+static void test_grf_gl_scene(void** state){
 
-typedef struct _GrfPlotClass{
-  GObjectClass parent_class;
-  void  (*set_label) (GrfPlot* plot, char* label);
-  char* (*get_label) (GrfPlot* plot);
-}GrfPlotClass;
+}
 
-/**
- * @brief grf_plot_get_label
- * @param plot
- * @return
- */
-char*
-grf_plot_get_label(GrfPlot* plot);
-
-/**
- * @brief grf_plot_set_label
- * @param plot
- * @param label
- */
-void
-grf_plot_set_label(GrfPlot* plot, char* label);
-
-
-G_END_DECLS
-#endif
+int main(int argc, char** argv){
+  (void)argc;
+  (void)argv;
+  const struct CMUnitTest tests[1]={
+    cmocka_unit_test(test_grf_gl_scene),
+  };
+  return cmocka_run_group_tests(tests,NULL,NULL);
+}

@@ -25,37 +25,47 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_PLOT_H
-#define GRF_PLOT_H
+#ifndef GRF_GL_MAT4_H
+#define GRF_GL_MAT4_H
 #include <grafeo/core.h>
-#include <grafeo/chart.h>
-G_BEGIN_DECLS
-
-#define GRF_TYPE_PLOT grf_plot_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfPlot, grf_plot, GRF, PLOT, GObject)
-
-typedef struct _GrfPlotClass{
-  GObjectClass parent_class;
-  void  (*set_label) (GrfPlot* plot, char* label);
-  char* (*get_label) (GrfPlot* plot);
-}GrfPlotClass;
-
+typedef struct _GrfMat4{
+  double data[16];
+}GrfMat4;
 /**
- * @brief grf_plot_get_label
- * @param plot
+ * @brief grf_mat4_eye
  * @return
  */
-char*
-grf_plot_get_label(GrfPlot* plot);
-
+GrfMat4
+grf_mat4_eye();
 /**
- * @brief grf_plot_set_label
- * @param plot
- * @param label
+ * @brief grf_mat4_rotate_vec3
+ * @param vec
+ * @param angle
+ * @param axis
  */
 void
-grf_plot_set_label(GrfPlot* plot, char* label);
-
-
-G_END_DECLS
+grf_mat4_rotate_vec3(GrfVec3* vec, double angle, GrfVec3 axis);
+/**
+ * @brief grf_mat4_rotate_mat4
+ * @param mat
+ * @param angle
+ * @param axis
+ */
+void
+grf_mat4_rotate_mat4(GrfMat4* mat, double angle, GrfVec3 axis);
+/**
+ * @brief grf_mat4_mult_vec3
+ * @param mat
+ * @param vec
+ */
+void
+grf_mat4_mult_vec3(GrfMat4* mat, GrfVec3* vec);
+/**
+ * @brief grf_mat4_mult_mat4
+ * @param mat1
+ * @param mat2
+ * @param output
+ */
+void
+grf_mat4_mult_mat4(GrfMat4* mat1, GrfMat4* mat2, GrfMat4* output);
 #endif

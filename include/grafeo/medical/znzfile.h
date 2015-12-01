@@ -89,7 +89,23 @@ grf_znzfile_open(const char *path, const char *mode, gboolean use_compression);
  */
 GrfZnzFile*
 grf_znzfile_dopen(int fd, const char *mode, gboolean use_compression);
-
+/**
+ * @brief grf_znzfile_read_header
+ * @param znzfile
+ * @param buf
+ * @param size
+ * @param nmemb
+ * @return
+ */
+size_t
+grf_znzfile_read_header(GrfZnzFile* znzfile, void* buf, size_t size, size_t nmemb);
+/**
+ * @brief grf_znzfile_rewind
+ * @param znzfile
+ * @return
+ */
+int
+grf_znzfile_rewind(GrfZnzFile* znzfile);
 
 
 //struct GrfZnzPtr {

@@ -54,125 +54,16 @@ option(BUILD_DISPLAY "GUI Module (Requires Gtk)" ON)
 option(BUILD_IMGPROC "Image Processing Module (Requires LibJPEG and LibPNG)" ON)
 option(BUILD_GL      "OpenGL engine (Requires epoxy)" ON)
 option(BUILD_IFT     "Image Foresting Transform methods" ON)
-option(BUILD_CHART   "Component for creating charts" ON)
+option(BUILD_CHART   "Component for creating charts" OFF)
 option(BUILD_MEDICAL "Component for medical imaging solutions" ON)
 option(BUILD_TESTING "" ON)
 option(BUILD_DOCS    "Build doxygen documentation" OFF)
 option(COVERALLS     "Generate coveralls data" OFF)
 option(COVERALLS_UPLOAD "Upload the generated coveralls json" ON)
 option(DEBUG_INFO    "Compile Grafeo with debug information?" ON)
+
 #================================================== CUSTOM FUNCTIONS AND MACROS
-
-# ------------------
-# If we don't find a required third party library, we can compile its source code
-# and use them
-# ------------------
-MACRO (load_submodule nome nome_lib)
-    set(${nome}CMakeArgs
-       -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-       -DCMAKE_INSTALL_PREFIX=${CMAKE_SOURCE_DIR}/external
-       -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-       -DUNIT_TESTING=OFF
-       )
-
-    ExternalProject_Add(${nome_lib}Download
-        PREFIX ${CMAKE_SOURCE_DIR}/external
-        SOURCE_DIR ${CMAKE_SOURCE_DIR}/external/${nome_lib}
-        BINARY_DIR ${CMAKE_BINARY_DIR}/external/${nome_lib}-build
-        STAMP_DIR ${CMAKE_BINARY_DIR}/external/${nome_lib}-stamp
-        TMP_DIR ${CMAKE_BINARY_DIR}/external/${nome_lib}-tmp
-        INSTALL_DIR ${CMAKE_BINARY_DIR}/external
-        set(libnome ${nome}CMakeArgs)
-        CMAKE_ARGS ${libnome}
-        # GIT_REPOSITORY "git://git.cryptomilk.org/projects/cmocka.git"
-        #GIT_TAG "origin/master"
-        #GIT_SUBMODULES ""
-        UPDATE_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/${nome_lib}
-        DOWNLOAD_COMMAND cd ${CMAKE_SOURCE_DIR} && git submodule update --init --recursive external/${nome_lib}
-    )
-    STRING(TOUPPER ${nome_lib} NOME_LIB_UPPER)
-    set(${NOME_LIB_UPPER}_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/external/include)
-    set(${NOME_LIB_UPPER}_LIB_DIR ${CMAKE_SOURCE_DIR}/external/lib)
-    add_library(${nome_lib} SHARED IMPORTED)
-    set_target_properties(${nome_lib} PROPERTIES
-        IMPORTED_LOCATION ${EXTERNAL_LIB_DIR}/lib${nome_lib}.so)
-ENDMACRO()
-# ------------------
-# Concatenate header files from a module
-# ------------------
-function(GRF_CAT IN_FILE OUT_FILE lowername)
-  file(READ ${IN_FILE} CONTENTS)
-  # Remove gpl header
-  string(REGEX REPLACE "/\\*[^*]*\\*/(.*)" "\\1" CONTENTS2 "${CONTENTS}")
-  string(REGEX REPLACE "#include <grafeo/${lowername}.h>" "" CONTENTS2 "${CONTENTS2}")
-  file(APPEND ${OUT_FILE} "${CONTENTS2}")
-endfunction()
-
-# ------------------
-# Get current Year
-# ------------------
-MACRO (TODAY RESULT)
-    IF (WIN32)
-        EXECUTE_PROCESS(COMMAND "date" "/T" OUTPUT_VARIABLE ${RESULT})
-        string(REGEX REPLACE "(..)/(..)/(....).*" "\\3" ${RESULT} ${${RESULT}})
-    ELSEIF(UNIX)
-        EXECUTE_PROCESS(COMMAND "date" "+%Y" OUTPUT_VARIABLE ${RESULT})
-        #string(REGEX REPLACE "(..)/(..)/..(..).*" "\\3\\2\\1" ${RESULT} ${${RESULT}})
-    ELSE (WIN32)
-        MESSAGE(SEND_ERROR "date not implemented")
-        SET(${RESULT} 000000)
-    ENDIF (WIN32)
-ENDMACRO (TODAY)
-# ------------------
-# Create the library components
-# ------------------
-MACRO(GRF_CREATE_LIBRARY lowername UPPERNAME)
-  # Prepare a temporary file to "cat" to:
-  FILE(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in "${GRF_GPL_HEADER}")
-
-  SET(HDRS GRF_${UPPERNAME}_HDRS)
-  SET(SRCS GRF_${UPPERNAME}_SRCS)
-  SET(INCLUDE_DIR GRF_${UPPERNAME}_INCLUDE_DIR)
-  SET(SOURCE_DIR  GRF_${UPPERNAME}_SOURCE_DIR)
-  FOREACH(HDR ${${HDRS}})
-    # Append directory to headers
-    LIST(APPEND HDRS_ABSOLUTE ${${INCLUDE_DIR}}/${HDR})
-    SET(GRF_HDRS_DOXYGEN "${GRF_HDRS_DOXYGEN}\n INPUT+=${${INCLUDE_DIR}}/${HDR}")
-    # Concatenate header files
-    GRF_CAT(${${INCLUDE_DIR}}/${HDR} ${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in ${lowername})
-  ENDFOREACH()
-  LIST(APPEND GRF_HDRS ${HDRS_ABSOLUTE})
-
-  # Copy the temporary file to the final location
-  CONFIGURE_FILE(${CMAKE_CURRENT_BINARY_DIR}/${lowername}.h.in ${GRF_INCLUDE_DIR}/${lowername}.h)
-
-  # Append directory to sources
-  SET(SRCS_ABSOLUTE)
-  FOREACH(SOURCE ${${SRCS}})
-    LIST(APPEND SRCS_ABSOLUTE ${${SOURCE_DIR}}/${SOURCE})
-  ENDFOREACH()
-  LIST(APPEND GRF_SRCS ${SRCS_ABSOLUTE})
-
-  # Create the library
-  ADD_LIBRARY(grafeo_${lowername} SHARED ${SRCS_ABSOLUTE} ${HDRS_ABSOLUTE})
-  # Create the links
-  SET_TARGET_PROPERTIES(grafeo_${lowername} PROPERTIES
-    VERSION   ${GRF_VERSION_STRING}
-    SOVERSION ${GRF_VERSION_MAJOR})
-  # Add to install script
-  INSTALL(TARGETS grafeo_${lowername} LIBRARY DESTINATION lib)
-  INSTALL(FILES ${GRF_INCLUDE_DIR}/${lowername}.h DESTINATION include/grafeo)
-  Message(STATUS "${UPPERNAME} module compilation configured...")
-ENDMACRO()
-macro(GRF_USE_C99)
-  if (CMAKE_VERSION VERSION_LESS "3.1")
-    if (CMAKE_C_COMPILER_ID STREQUAL "GNU")
-      set (CMAKE_C_FLAGS "--std=gnu99 ${CMAKE_C_FLAGS}")
-    endif ()
-  else ()
-    set (CMAKE_C_STANDARD 99)
-  endif ()
-endmacro(GRF_USE_C99)
+include(cmake/grfmacros.cmake)
 #======================================================== THIRD PARTY LIBRARIES
 IF(CMAKE_VERSION  VERSION_LESS "2.8.11")
   TODAY(GRF_CURRENT_YEAR)
@@ -189,6 +80,7 @@ if(BUILD_IMGPROC OR BUILD_DISPLAY)
     if(NOT PNG_FOUND)
         load_submodule(PNG png)
     endif(NOT PNG_FOUND)
+    add_definitions(-DHAVE_PNG)
 endif()
 # ------------------
 # JPG
@@ -198,6 +90,7 @@ if(BUILD_IMGPROC OR BUILD_DISPLAY)
     if(NOT JPEG_FOUND)
 
     endif(NOT JPEG_FOUND)
+    add_definitions(-DHAVE_JPEG)
 endif()
 # ------------------
 # Zlib
@@ -210,17 +103,19 @@ endif()
 # ------------------
 # GObject
 # ------------------
-IF(BUILD_CHART)
-  pkg_check_modules(gobject REQUIRED gobject-2.0)
-  INCLUDE_DIRECTORIES(${gobject_INCLUDE_DIRS})
-ENDIF(BUILD_CHART)
+IF(BUILD_CHART OR BUILD_GL)
+  pkg_check_modules(GOBJECT REQUIRED gobject-2.0)
+  INCLUDE_DIRECTORIES(${GOBJECT_INCLUDE_DIRS})
+  add_definitions(-DHAVE_GOBJECT)
+ENDIF()
 # ------------------
 # GTK
 # ------------------
 IF(BUILD_DISPLAY)
   pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
-  pkg_check_modules(goocanvas REQUIRED goocanvas-2.0)
-  INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS} ${goocanvas_INCLUDE_DIRS})
+  pkg_check_modules(GOOCANVAS REQUIRED goocanvas-2.0)
+  INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS} ${GOOCANVAS_INCLUDE_DIRS})
+  add_definitions(-DHAVE_GTK3)
 endif()
 # ------------------
 # CMOCKA: for testing
@@ -302,48 +197,53 @@ Message(STATUS "Library parameters setup...")
 # the CORE module will be compiled
 IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
   SET(GRF_CORE_HDRS     config.h i18n-lib.h  macro.h  type.h    hal.h  range.h
-                         slist.h     list.h  ndarray.h queue.h bucket.h pqueue.h)
-  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c ndarray.c
+                         slist.h     list.h  ndarray.h vec3.h vec4.h mat4.h queue.h bucket.h pqueue.h)
+  SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c ndarray.c vec3.c vec4.c mat4.c
                          queue.c bucket.c pqueue.c)
+  SET(GRF_CORE_TESTS    array vec3 vec4 mat4 list slist queue pqueue hal)
+  SET(GRF_CORE_LIBRARIES grafeo_core m)
   # configure a header file to pass some of the CMake settings
   # to the source code
   CONFIGURE_FILE("${GRF_CORE_INCLUDE_DIR}/config.h.in"
                  "${GRF_CORE_INCLUDE_DIR}/config.h")
   GRF_CREATE_LIBRARY(core CORE)
-  SET(GRF_CORE_LIBRARIES grafeo_core)
+
 ENDIF()
 #=============================================================== IMGPROC MODULE
 IF(BUILD_IMGPROC OR BUILD_DISPLAY)
   SET(GRF_IMGPROC_HDRS  image.h  drawing.h)
   SET(GRF_IMGPROC_SRCS  image.c  drawing.c)
+  SET(GRF_IMGPROC_TESTS image    drawing)
+  SET(GRF_IMGPROC_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_imgproc jpeg png)
   GRF_CREATE_LIBRARY(imgproc IMGPROC)
 ENDIF()
 #=================================================================== IFT MODULE
 IF(BUILD_IFT)
   SET(GRF_IFT_HDRS  ift.h)
   SET(GRF_IFT_SRCS  ift.c)
-  GRF_CREATE_LIBRARY(ift IFT)
-ENDIF()
-#=============================================================== MEDICAL MODULE
-IF(BUILD_MEDICAL)
-  SET(GRF_MEDICAL_HDRS  znzfile.h dicom.h nifti1.h nifti1_io.h)
-  SET(GRF_MEDICAL_SRCS  znzfile.c dicom.c nifti1_io.c)
-  GRF_CREATE_LIBRARY(medical MEDICAL)
+  SET(GRF_IFT_TESTS ift)
+  SET(GRF_IFT_LIBRARIES ${GRF_CORE_LIBRARIES} ${GRF_IMGPROC_LIBRARIES} grafeo_ift)
+  GRF_CREATE_LIBRARY(ift IFT)  
 ENDIF()
 #==================================================================== GL MODULE
 IF(BUILD_GL)
-  SET(GRF_GL_HDRS  glshader.h glprogram.h glvec3.h glmat.h glmaterial.h gllight.h
+  SET(GRF_GL_HDRS  glshader.h glprogram.h glmaterial.h gllight.h
                    globject.h glcontainer.h glmesh.h glloader.h glloader_obj.h
                    glloader_dae.h glloader_3ds.h glloader_x3d.h glloader_md3.h
                    glscene.h glprojection.h glprojection_perspective.h
                    glprojection_orthographic.h glcamera.h glrenderer.h)
-  SET(GRF_GL_SRCS  glshader.c glprogram.c glvec3.c glmat.c glmaterial.c gllight.c
+  SET(GRF_GL_SRCS  glshader.c glprogram.c glmaterial.c gllight.c
                    globject.c glcontainer.c glmesh.c glloader.c glloader_obj.c
                    glloader_dae.c glloader_3ds.c glloader_x3d.c glloader_md3.c
                    glscene.c glprojection.c glprojection_perspective.c
                    glprojection_orthographic.c glcamera.c glrenderer.c)
+  SET(GRF_GL_TESTS glshader glprogram glmaterial gllight
+                   globject glcontainer glmesh glloader glloader_obj
+                   glloader_dae glloader_3ds glloader_x3d glloader_md3
+                   glscene glprojection glprojection_perspective
+                   glprojection_orthographic glcamera glrenderer)
+  SET(GRF_GL_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_gl ${GOBJECT_LIBRARIES})
   GRF_CREATE_LIBRARY(gl GL)
-  SET(GRF_GL_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_gl ${gobject_LIBRARIES})
 ENDIF()
 #=============================================================== DISPLAY MODULE
 IF(BUILD_DISPLAY)
@@ -351,7 +251,17 @@ IF(BUILD_DISPLAY)
                        chartwidget.h trackbar.h displaywindow.h display.h)
   SET(GRF_DISPLAY_SRCS glshader.c glprogram.c idisplaywidget.c imagewidget.c
                        chartwidget.c trackbar.c displaywindow.c display.c)
+  SET(GRF_DISPLAY_TESTS imagewidget chartwidget trackbar displaywindow display)
+  SET(GRF_DISPLAY_LIBRARIES ${GRF_CORE_LIBRARIES} ${GRF_IMGPROC_LIBRARIES} grafeo_display ${GTK3_LIBRARIES} ${GOOCANVAS_LIBRARIES})
   GRF_CREATE_LIBRARY(display DISPLAY)
+ENDIF()
+#=============================================================== MEDICAL MODULE
+IF(BUILD_MEDICAL)
+  SET(GRF_MEDICAL_HDRS  znzfile.h dicom.h nifti1.h nifti1_io.h)
+  SET(GRF_MEDICAL_SRCS  znzfile.c dicom.c nifti1_io.c)
+  SET(GRF_MEDICAL_TESTS dicom nifti)
+  SET(GRF_MEDICAL_LIBRARIES ${GRF_CORE_LIBRARIES} ${GRF_DISPLAY_LIBRARIES} grafeo_medical ${ZLIB_LIBRARIES})
+  GRF_CREATE_LIBRARY(medical MEDICAL)
 ENDIF()
 #================================================================= CHART MODULE
 IF(BUILD_CHART)
@@ -359,6 +269,9 @@ IF(BUILD_CHART)
       plotline.h legend.h chartpanel.h chartcontainer.h chart.h)
   SET(GRF_CHART_SRCS fontproperties.c config.c chartcomponent.c axis.c plot.c
       plotline.c legend.c chartpanel.c chartcontainer.c chart.c)
+  SET(GRF_CHART_TESTS fontproperties config chartcomponent axis plot plotline
+      legend chartpanel chartcontainer chart)
+  SET(GRF_CHART_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_chart ${GOBJECT_LIBRARIES})
   GRF_CREATE_LIBRARY(chart CHART)
 ENDIF()
 #==================================================================== RESOURCES
@@ -405,83 +318,8 @@ if(BUILD_TESTING)
       coveralls_setup("${GRF_SRCS}" ${COVERALLS_UPLOAD} "${CMAKE_SOURCE_DIR}/cmake/")
     ENDIF()
 
-    # Array
-    LIST(APPEND TESTS_NAMES
-      array
-      image
-      list
-      slist
-      queue
-      pqueue
-      ift
-      drawing
-      hal
-    )
-    IF(BUILD_DISPLAY)
-      LIST(APPEND TESTS_NAMES imagewidget)
-      LIST(APPEND TESTS_NAMES chartwidget)
-      LIST(APPEND TESTS_NAMES display)
-      LIST(APPEND TESTS_NAMES displaywindow)
-      set(test_imagewidget_deps   grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
-      set(test_chartwidget_deps   grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
-      set(test_display_deps       grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
-      set(test_displaywindow_deps grafeo_core grafeo_imgproc grafeo_ift grafeo_display grafeo_chart ${goocanvas_LIBRARIES} png jpeg ${GTK3_LIBRARIES})
-    endif(BUILD_DISPLAY)
-    set(test_array_deps   grafeo_core)
-    set(test_image_deps   grafeo_core grafeo_imgproc png jpeg)
-    set(test_list_deps    grafeo_core)
-    set(test_slist_deps   grafeo_core)
-    set(test_queue_deps   grafeo_core)
-    set(test_pqueue_deps  grafeo_core)
-    set(test_ift_deps     grafeo_core grafeo_imgproc grafeo_ift png jpeg)
-    set(test_drawing_deps grafeo_core grafeo_imgproc png jpeg)
-    set(test_hal_deps     grafeo_core)
-    if(BUILD_CHART)
-      LIST(APPEND TESTS_NAMES axis)
-      LIST(APPEND TESTS_NAMES plot)
-      LIST(APPEND TESTS_NAMES chartpanel)
-      LIST(APPEND TESTS_NAMES chartcontainer)
-      LIST(APPEND TESTS_NAMES chart)
-      set(test_axis_deps            grafeo_core grafeo_chart ${gobject_LIBRARIES})
-      set(test_plot_deps            grafeo_core grafeo_chart ${gobject_LIBRARIES})
-      set(test_chartpanel_deps      grafeo_core grafeo_chart ${gobject_LIBRARIES})
-      set(test_chartcontainer_deps  grafeo_core grafeo_chart ${gobject_LIBRARIES})
-      set(test_chart_deps           grafeo_core grafeo_chart ${gobject_LIBRARIES})
-    endif(BUILD_CHART)
-    if(BUILD_MEDICAL)
-      LIST(APPEND TESTS_NAMES nifti dicom)
-      set(test_nifti_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
-      set(test_dicom_deps           grafeo_core grafeo_imgproc grafeo_display grafeo_medical jpeg png ${gobject_LIBRARIES} ${ZLIB_LIBRARIES} ${GTK3_LIBRARIES} ${goocanvas_LIBRARIES})
-    endif(BUILD_MEDICAL)
-    if(BUILD_GL)
-      LIST(APPEND TESTS_NAMES gl_projection gl_camera)
-      set(test_gl_projection_deps   ${GRF_GL_LIBRARIES})
-      set(test_gl_camera_deps       ${GRF_GL_LIBRARIES})
-    endif(BUILD_GL)
-    
-    include (CTest)
-    list(LENGTH TESTS_NAMES len1)
-
-    math(EXPR len2 "${len1}-1")
-
-    foreach(val RANGE ${len2})
-      list(GET TESTS_NAMES ${val} testname)
-      set(test_deps test_${testname}_deps)
-      
-      if(NOT CMOCKA_FOUND)
-          include_directories(${EXTERNAL_INCLUDE_DIR})
-          #link_directories(${CMAKE_SOURCE_DIR}/external/lib)
-          add_executable       (test_${testname} tests/test_${testname}.c)
-          GRF_USE_C99()
-          
-          target_link_libraries(test_${testname} ${${test_deps}} cmocka m)
-          add_dependencies     (test_${testname} cmockaDownload)
-          #target_link_libraries(test_array grafeo cmocka m)
-      else()
-          add_executable       (test_${testname} tests/test_${testname}.c)
-          target_link_libraries(test_${testname} ${${test_deps}} cmocka m)
-      endif(NOT CMOCKA_FOUND)
-      add_test             (test_${testname}       test_${testname})
-    endforeach()
+    FOREACH(GRF_MODULE ${GRF_MODULES_LOWER})
+      GRF_CREATE_TESTS(${GRF_MODULE})
+    ENDFOREACH()
     Message(STATUS "Tests compilation configured...")
 endif(BUILD_TESTING)

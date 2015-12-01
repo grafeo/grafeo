@@ -25,55 +25,83 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_GL_PROJECTION_H
-#define GRF_GL_PROJECTION_H
-#include <grafeo/gl.h>
-#include <glib-object.h>
+#ifndef GRF_GL_VEC3_H
+#define GRF_GL_VEC3_H
+#include <math.h>
+#define grf_to_rad(angle) (angle / 180.0 * M_PI  )
+#define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
+typedef struct _GrfVec3{
+  double data[3];
+}GrfVec3;
 
-#define GRF_TYPE_GL_PROJECTION grf_gl_projection_get_type()
-G_DECLARE_DERIVABLE_TYPE(GrfGLProjection, grf_gl_projection, GRF, GL_PROJECTION, GInitiallyUnowned)
-typedef struct _GrfGLProjectionClass{
-  GInitiallyUnownedClass parent_class;
-}GrfGLProjectionClass;
 /**
- * @brief Get a copy of the projection matrix.
- *
- * After using it, you need to free the copy. Use g_autofree to automatically do this:
- *
- * ~~~c
- * void something(GrfGLProjection* proj){
- *   g_autofree double* matrix = grf_gl_projection_get_matrix(proj);
- *
- *   // ... manipulate matrix ...
- *
- *   // ... the matrix variable is automatically freed
- * }
- * ~~~
- *
- * @param projection
- * @return
- */
-GrfMat4*
-grf_gl_projection_get_matrix(GrfGLProjection* projection);
-/**
- * @brief grf_gl_projection_get_matrix_ptr
- * @param projection
- * @return
- */
-GrfMat4*
-grf_gl_projection_get_matrix_ptr(GrfGLProjection* projection);
-/**
- * @brief grf_gl_projection_set_matrix
- * @param projection
- * @param matrix
+ * @brief grf_vec3_add
+ * @param vec1
+ * @param vec2
  */
 void
-grf_gl_projection_set_matrix(GrfGLProjection* projection, GrfMat4* matrix);
+grf_vec3_add(GrfVec3* vec1, GrfVec3* vec2);
+
 /**
- * @brief grf_gl_projection_fill
- * @param proj
- * @param value
+ * @brief grf_vec3_subtract
+ * @param vec1
+ * @param vec2
  */
 void
-grf_gl_projection_fill(GrfGLProjection* proj, int value);
+grf_vec3_subtract(GrfVec3* vec1, GrfVec3* vec2);
+
+/**
+ * @brief grf_vec3_multiply
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec3_multiply(GrfVec3* vec1, GrfVec3* vec2);
+
+/**
+ * @brief grf_vec3_divide
+ * @param vec1
+ * @param vec2
+ */
+void
+grf_vec3_divide(GrfVec3* vec1, GrfVec3* vec2);
+
+/**
+ * @brief grf_vec3_dot
+ * @param vec1
+ * @param vec2
+ * @return
+ */
+double
+grf_vec3_dot(GrfVec3* vec1, GrfVec3* vec2);
+/**
+ * @brief grf_vec3_cross
+ * @param vec1
+ * @param vec2
+ * @return
+ */
+GrfVec3
+grf_vec3_cross(GrfVec3* vec1, GrfVec3* vec2);
+
+/**
+ * @brief grf_vec3_multiply_scalar
+ * @param vec1
+ * @param scalar
+ */
+void
+grf_vec3_multiply_scalar(GrfVec3* vec1, double scalar);
+/**
+ * @brief grf_vec3_normalize
+ * @param vec
+ */
+void
+grf_vec3_normalize(GrfVec3* vec);
+/**
+ * @brief grf_vec3_get_magnitude
+ * @param vec
+ * @return
+ */
+double
+grf_vec3_get_magnitude(GrfVec3* vec);
+
 #endif

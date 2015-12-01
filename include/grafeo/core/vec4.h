@@ -25,83 +25,75 @@
 #   License along with Grafeo.  If not, see
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
-#ifndef GRF_GL_VEC3_H
-#define GRF_GL_VEC3_H
+#ifndef GRF_GL_VEC4_H
+#define GRF_GL_VEC4_H
 #include <math.h>
 #define grf_to_rad(angle) (angle / 180.0 * M_PI  )
 #define grf_to_deg(angle) (angle * 180.0 * M_1_PI)
-typedef struct _GrfGLVec3{
-  double data[3];
-}GrfGLVec3;
+typedef struct _GrfVec4{
+  double data[4];
+}GrfVec4;
 
 /**
- * @brief grf_gl_vec3_add
+ * @brief grf_vec4_add
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_add(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec4_add(GrfVec4* vec1, GrfVec4* vec2);
 
 /**
- * @brief grf_gl_vec3_subtract
+ * @brief grf_vec4_subtract
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_subtract(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec4_subtract(GrfVec4* vec1, GrfVec4* vec2);
 
 /**
- * @brief grf_gl_vec3_multiply
+ * @brief grf_vec4_multiply
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_multiply(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec4_multiply(GrfVec4* vec1, GrfVec4* vec2);
 
 /**
- * @brief grf_gl_vec3_divide
+ * @brief grf_vec4_divide
  * @param vec1
  * @param vec2
  */
 void
-grf_gl_vec3_divide(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec4_divide(GrfVec4* vec1, GrfVec4* vec2);
 
 /**
- * @brief grf_gl_vec3_dot
+ * @brief grf_vec4_dot
  * @param vec1
  * @param vec2
  * @return
  */
 double
-grf_gl_vec3_dot(GrfGLVec3* vec1, GrfGLVec3* vec2);
-/**
- * @brief grf_gl_vec3_cross
- * @param vec1
- * @param vec2
- * @return
- */
-GrfGLVec3
-grf_gl_vec3_cross(GrfGLVec3* vec1, GrfGLVec3* vec2);
+grf_vec4_dot(GrfVec4* vec1, GrfVec4* vec2);
 
 /**
- * @brief grf_gl_vec3_multiply_scalar
+ * @brief grf_vec4_multiply_scalar
  * @param vec1
  * @param scalar
  */
 void
-grf_gl_vec3_multiply_scalar(GrfGLVec3* vec1, double scalar);
+grf_vec4_multiply_scalar(GrfVec4* vec1, double scalar);
 /**
- * @brief grf_gl_vec3_normalize
+ * @brief grf_vec4_normalize
  * @param vec
  */
 void
-grf_gl_vec3_normalize(GrfGLVec3* vec);
+grf_vec4_normalize(GrfVec4* vec);
 /**
- * @brief grf_gl_vec3_get_magnitude
+ * @brief grf_vec4_get_magnitude
  * @param vec
  * @return
  */
 double
-grf_gl_vec3_get_magnitude(GrfGLVec3* vec);
+grf_vec4_get_magnitude(GrfVec4* vec);
 
 #endif

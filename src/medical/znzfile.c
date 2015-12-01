@@ -186,6 +186,60 @@ grf_znzfile_dopen(int fd, const char *mode, gboolean use_compression){
   return znzfile;
 }
 
+size_t
+grf_znzfile_read_header(GrfZnzFile* znzfile, void* buf, size_t size, size_t nmemb){
+
+  size_t     remain = size*nmemb;
+  char     * cbuf = (char *)buf;
+  unsigned   n2read;
+  int        nread;
+
+  if (znzfile == NULL) { return 0; }
+  GrfZnzFilePrivate* priv = grf_znzfile_get_instance_private(znzfile);
+#ifdef HAVE_ZLIB
+  if (priv->zfptr!=NULL) {
+    /* gzread/write take unsigned int length, so maybe read in int pieces
+       (noted by M Hanke, example given by M Adler)   6 July 2010 [rickr] */
+    while( remain > 0 ) {
+       n2read = (remain < ZNZ_MAX_BLOCK_SIZE) ? remain : ZNZ_MAX_BLOCK_SIZE;
+       nread = gzread(priv->zfptr, (void *)cbuf, n2read);
+       if( nread < 0 ) return nread; /* returns -1 on error */
+
+       remain -= nread;
+       cbuf += nread;
+
+       /* require reading n2read bytes, so we don't get stuck */
+       if( nread < (int)n2read ) break;  /* return will be short */
+    }
+
+    /* warn of a short read that will seem complete */
+    if( remain > 0 && remain < size )
+       fprintf(stderr,"** znzread: read short by %u bytes\n",(unsigned)remain);
+
+    return nmemb - remain/size;   /* return number of members processed */
+  }
+#endif
+  return fread(buf,size,nmemb,priv->nzfptr);
+}
+
+int
+grf_znzfile_rewind(GrfZnzFile* znzfile)
+{
+  if (znzfile==NULL) { return 0; }
+  GrfZnzFilePrivate* priv = grf_znzfile_get_instance_private(znzfile);
+#ifdef HAVE_ZLIB
+  /* On some systems, gzrewind() fails for uncompressed files.
+     Use gzseek(), instead.               10, May 2005 [rickr]
+
+     if (stream->zfptr!=NULL) return gzrewind(stream->zfptr);
+  */
+
+  if (priv->zfptr!=NULL) return (int)gzseek(priv->zfptr, 0L, SEEK_SET);
+#endif
+  rewind(priv->nzfptr);
+  return 0;
+}
+
 //int grf_Xznzclose(GrfZnzFile * file)
 //{
 //  int retval = 0;

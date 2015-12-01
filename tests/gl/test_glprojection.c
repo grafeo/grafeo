@@ -43,7 +43,7 @@ static void test_gl_projection_orthographic(void** state){
   assert_int_equal(grf_gl_projection_orthographic_get_far(proj_ortho),100);
 
   // Testing projection matrix
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj_ortho));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj_ortho));
   double verdades[16] = {0.01,    0.0,   0.0,  0.0,// 1st column
                          0.0,    0.01,   0.0,  0.0,// 2nd column
                          0.0,     0.0, -0.01,  0.0,// 3rd column
@@ -52,7 +52,7 @@ static void test_gl_projection_orthographic(void** state){
   assert_memory_equal(verdades, matrix->data, 16*sizeof(double));
 
   // Testing get_matrix, which gives a matrix clone
-  g_autofree GrfGLMat4* matrix2 = grf_gl_projection_get_matrix(GRF_GL_PROJECTION(proj_ortho));
+  g_autofree GrfMat4* matrix2 = grf_gl_projection_get_matrix(GRF_GL_PROJECTION(proj_ortho));
   matrix2->data[0] = 500.0;
   assert_false(matrix2->data[0] == matrix->data[0]);
 
@@ -87,29 +87,29 @@ static void test_gl_projection_perspective(void** state){
   assert_true(grf_gl_projection_perspective_get_far(proj_persp)    == far);
 
   // Testing projection matrix
-  GrfGLMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj_persp));
+  GrfMat4* matrix = grf_gl_projection_get_matrix_ptr(GRF_GL_PROJECTION(proj_persp));
 
   double verdades[16] = {1.0/(aspect*halftanfov),    0.0,   0.0,  0.0,// 1st column
                          0.0,     1.0/halftanfov,   0.0,  0.0,// 2nd column
                          0.0,     0.0, (far+near)/(near-far),  -1.0,// 3rd column
                          0.0,     0.0,  2*far*near/(near-far),  0.0,// 4th column
                         };
-  assert_memory_equal(verdades, matrix->data, sizeof(GrfGLMat4));
+  assert_memory_equal(verdades, matrix->data, sizeof(GrfMat4));
 
   // Testing get_matrix, which gives a matrix clone
-  g_autofree GrfGLMat4* matrix2 = grf_gl_projection_get_matrix(GRF_GL_PROJECTION(proj_persp));
+  g_autofree GrfMat4* matrix2 = grf_gl_projection_get_matrix(GRF_GL_PROJECTION(proj_persp));
   matrix2->data[0] = 500.0;
   assert_false(matrix2->data[0] == matrix->data[0]);
 
   // Testing setting another matrix
   grf_gl_projection_set_matrix(GRF_GL_PROJECTION(proj_persp),matrix2);
   verdades[0] = 500.0;
-  assert_memory_equal(verdades, matrix->data, sizeof(GrfGLMat4));
+  assert_memory_equal(verdades, matrix->data, sizeof(GrfMat4));
 
   // Testing setters
   grf_gl_projection_perspective_set_all(proj_persp,angle,aspect,near,far);
   verdades[0] = 1.0/(aspect*halftanfov);
-  assert_memory_equal(verdades, matrix->data, sizeof(GrfGLMat4));
+  assert_memory_equal(verdades, matrix->data, sizeof(GrfMat4));
 }
 
 int main(int argc, char** argv){

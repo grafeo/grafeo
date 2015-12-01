@@ -26,6 +26,8 @@
 #   <http://www.gnu.org/licenses/>.
 # ===================================================================*/
 #include <grafeo/medical.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 /*===========================================================================
  * PRIVATE API
  *===========================================================================*/
@@ -76,11 +78,11 @@ typedef struct _GrfNiftiImagePrivate{
          qoffset_x , qoffset_y , qoffset_z ,
          qfac      ;
 
-  mat44  qto_xyz ;               /*!< qform: transform (i,j,k) to (x,y,z) */
-  mat44  qto_ijk ;               /*!< qform: transform (x,y,z) to (i,j,k) */
+  GrfMat4 qto_xyz ;               /*!< qform: transform (i,j,k) to (x,y,z) */
+  GrfMat4 qto_ijk ;               /*!< qform: transform (x,y,z) to (i,j,k) */
 
-  mat44  sto_xyz ;               /*!< sform: transform (i,j,k) to (x,y,z) */
-  mat44  sto_ijk ;               /*!< sform: transform (x,y,z) to (i,j,k) */
+  GrfMat4 sto_xyz ;               /*!< sform: transform (i,j,k) to (x,y,z) */
+  GrfMat4 sto_ijk ;               /*!< sform: transform (x,y,z) to (i,j,k) */
 
   float  toffset ;               /*!< time coordinate offset */
 
@@ -120,6 +122,513 @@ grf_nifti_image_class_init(GrfNiftiImageClass *klass){
 
 }
 
+/*----------------------------------------------------------------------*/
+/*! check the end of the filename for a valid nifti extension
+
+    Valid extensions are currently .nii, .hdr, .img, .nia,
+    or any of them followed by .gz.  Note that '.' is part of
+    the extension.
+
+    \return a pointer to the extension (within the filename), or NULL
+*//*--------------------------------------------------------------------*/
+char *
+grf_nifti_find_file_extension( const char * name )
+{
+   char * ext;
+   int    len;
+
+   if ( ! name ) return NULL;
+
+   len = (int)strlen(name);
+   if ( len < 4 ) return NULL;
+
+   ext = (char *)name + len - 4;
+
+   if ( (strcmp(ext, ".hdr") == 0) || (strcmp(ext, ".img") == 0) ||
+        (strcmp(ext, ".nia") == 0) || (strcmp(ext, ".nii") == 0) )
+      return ext;
+
+#ifdef HAVE_ZLIB
+   if ( len < 7 ) return NULL;
+
+   ext = (char *)name + len - 7;
+
+   if ( (strcmp(ext, ".hdr.gz") == 0) || (strcmp(ext, ".img.gz") == 0) ||
+        (strcmp(ext, ".nii.gz") == 0) )
+      return ext;
+#endif
+   return NULL;
+}
+
+/*----------------------------------------------------------------------*/
+/*! return whether the filename is valid
+
+    The name is considered valid if its length is positive, excluding
+    any nifti filename extension.
+    fname input         |  return | result of nifti_makebasename
+    ====================================================================
+    "myimage"           |  1      | "myimage"
+    "myimage.tif"       |  1      | "myimage.tif"
+    "myimage.tif.gz"    |  1      | "myimage.tif"
+    "myimage.nii"       |  1      | "myimage"
+    ".nii"              |  0      | <ERROR - basename has zero length>
+    ".myhiddenimage"    |  1      | ".myhiddenimage"
+    ".myhiddenimage.nii |  1      | ".myhiddenimage"
+*//*--------------------------------------------------------------------*/
+gboolean
+grf_nifti_validfilename(const char* fname)
+{
+   char * ext;
+
+   /* check input file(s) for sanity */
+   if( fname == NULL || *fname == '\0' ){
+      return FALSE;
+   }
+
+   ext = grf_nifti_find_file_extension(fname);
+
+   if ( ext && ext == fname ) {   /* then no filename prefix */
+      return FALSE;
+   }
+
+   return TRUE;
+}
+/*----------------------------------------------------------------------*/
+/*! duplicate the filename, while clearing any extension
+
+    This allocates memory for basename which should eventually be freed.
+*//*--------------------------------------------------------------------*/
+char *
+grf_nifti_makebasename(const char* fname)
+{
+   char *basename, *ext;
+
+   basename = g_strdup(fname);
+
+   ext = grf_nifti_find_file_extension(basename);
+   if ( ext ) *ext = '\0';  /* clear out extension */
+
+   return basename;  /* in either case */
+}
+/*----------------------------------------------------------------------*/
+/*! simple check for file existence
+
+    \return 1 on existence, 0 otherwise
+*//*--------------------------------------------------------------------*/
+gboolean
+grf_nifti_fileexists(const char* fname)
+{
+  GrfZnzFile* fp = grf_znzfile_open(fname, "rb", TRUE);
+  if(fp){
+    g_clear_object(fp);
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/*----------------------------------------------------------------------*/
+/*! check current directory for existing header file
+
+    \return filename of header on success and NULL if no appropriate file
+            could be found
+
+    NB: it allocates memory for hdrname which should be freed
+        when no longer required
+*//*-------------------------------------------------------------------*/
+char *
+grf_nifti_findhdrname(const char* fname)
+{
+   char *basename, *hdrname, *ext;
+   char  elist[2][5] = { ".hdr", ".nii" };
+   int   efirst;
+
+   /**- check input file(s) for sanity */
+   if( !grf_nifti_validfilename(fname) ) return NULL;
+
+   basename = grf_nifti_makebasename(fname);
+   if( !basename ) return NULL;   /* only on string alloc failure */
+
+   /**- return filename if it has a valid extension and exists
+         (except if it is an .img file (and maybe .gz)) */
+   ext = grf_nifti_find_file_extension(fname);
+   if ( ext && grf_nifti_fileexists(fname) ) {
+     if ( strncmp(ext,".img",4) != 0 ){
+        hdrname = g_strdup(fname);
+        free(basename);
+        return hdrname;
+     }
+   }
+
+   /* So the requested name is a basename, contains .img, or does not exist. */
+   /* In any case, use basename. */
+
+   /**- if .img, look for .hdr, .hdr.gz, .nii, .nii.gz, in that order */
+   /**- else,    look for .nii, .nii.gz, .hdr, .hdr.gz, in that order */
+
+   /* if we get more extension choices, this could be a loop */
+
+   if ( ext && strncmp(ext,".img",4) == 0 ) efirst = 0;
+   else                                     efirst = 1;
+
+   hdrname = (char *)calloc(sizeof(char),strlen(basename)+8);
+   if( !hdrname ){
+      fprintf(stderr,"** nifti_findhdrname: failed to alloc hdrname\n");
+      free(basename);
+      return NULL;
+   }
+
+   strcpy(hdrname,basename);
+   strcat(hdrname,elist[efirst]);
+   if (grf_nifti_fileexists(hdrname)) { free(basename); return hdrname; }
+#ifdef HAVE_ZLIB
+   strcat(hdrname,".gz");
+   if (grf_nifti_fileexists(hdrname)) { free(basename); return hdrname; }
+#endif
+
+   /* okay, try the other possibility */
+
+   efirst = 1 - efirst;
+
+   strcpy(hdrname,basename);
+   strcat(hdrname,elist[efirst]);
+   if (grf_nifti_fileexists(hdrname)) { free(basename); return hdrname; }
+#ifdef HAVE_ZLIB
+   strcat(hdrname,".gz");
+   if (grf_nifti_fileexists(hdrname)) { free(basename); return hdrname; }
+#endif
+
+   /**- if nothing has been found, return NULL */
+   free(basename);
+   free(hdrname);
+   return NULL;
+}
+/*----------------------------------------------------------------------*/
+/*! return whether the filename ends in ".gz"
+*//*--------------------------------------------------------------------*/
+gboolean
+grf_nifti_is_gzfile(const char* fname)
+{
+  /* return true if the filename ends with .gz */
+  if (fname == NULL) { return FALSE; }
+#ifdef HAVE_ZLIB
+  { /* just so len doesn't generate compile warning */
+     int len;
+     len = (int)strlen(fname);
+     if (len < 3) return FALSE;  /* so we don't search before the name */
+     if (strcmp(fname + strlen(fname) - 3,".gz")==0) { return TRUE; }
+  }
+#endif
+  return FALSE;
+}
+/*---------------------------------------------------------------------------*/
+/*! return the size of a file, in bytes
+
+    \return size of file on success, -1 on error or no file
+
+    changed to return int, -1 means no file or error      20 Dec 2004 [rickr]
+*//*-------------------------------------------------------------------------*/
+int
+grf_nifti_get_filesize( const char *pathname )
+{
+   struct stat buf ; int ii ;
+
+   if( pathname == NULL || *pathname == '\0' ) return -1 ;
+   ii = stat( pathname , &buf ); if( ii != 0 ) return -1 ;
+   return (unsigned int)buf.st_size ;
+}
+/*----------------------------------------------------------------------
+ * has_ascii_header  - see if the NIFTI header is an ASCII format
+ *
+ * If the file starts with the ASCII string "<nifti_image", then
+ * process the dataset as a type-3 .nia file.
+ *
+ * return:  -1 on error, 1 if true, or 0 if false
+ *
+ * NOTE: this is NOT part of the NIFTI-1 standard
+ *----------------------------------------------------------------------*/
+static int
+grf_nifti_has_ascii_header( GrfZnzFile* fp )
+{
+   char  buf[16];
+   int   nread;
+
+   if(fp == NULL) return 0;
+
+   nread = (int)grf_znzfile_read_header(fp, buf, 1, 12);
+   buf[12] = '\0';
+
+   if( nread < 12 ) return -1;
+
+   grf_znzfile_rewind(fp);  /* move back to the beginning, and check */
+
+   if( strcmp(buf, "<nifti_image") == 0 ) return 1;
+
+   return 0;
+}
+/**
+ * @brief Creates a new GrfNiftiImage object
+ * @return
+ */
+static GrfNiftiImage*
+grf_nifti_image_new(){
+  return g_object_new(GRF_TYPE_NIFTI_IMAGE, NULL);
+}
+
+/*---------------------------------------------------------------------------*/
+/*! Take an XML-ish ASCII string and create a NIFTI image header to match.
+
+    NULL is returned if enough information isn't present in the input string.
+    - The image data can later be loaded with nifti_image_load().
+    - The struct returned here can be liberated with nifti_image_free().
+    - Not a lot of error checking is done here to make sure that the
+      input values are reasonable!
+*//*-------------------------------------------------------------------------*/
+GrfNiftiImage*
+grf_nifti_image_from_ascii( const char *str, int * bytes_read )
+{
+   char lhs[1024] , rhs[1024] ;
+   int ii , spos, nn;
+   GrfNiftiImage *nim ;              /* will be output */
+
+   if( str == NULL || *str == '\0' ) return NULL ;  /* bad input!? */
+
+   /* scan for opening string */
+
+   spos = 0 ;
+   ii = sscanf( str+spos , "%1023s%n" , lhs , &nn ) ; spos += nn ;
+   if( ii == 0 || strcmp(lhs,"<nifti_image") != 0 ) return NULL ;
+
+   /* create empty image struct */
+   nim = grf_nifti_image_new();
+   if(!nim){
+      fprintf(stderr,"** NIFA: failed to alloc nifti_image\n");
+      return NULL;
+   }
+   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
+
+   grf_nifti_image_set_nsize(nim, (GrfVec6){1,1,1,1,1,1});
+   grf_nifti_image_set_dsize(nim, (GrfVec6){0,0,0,0,0,0});
+   grf_nifti_image_set_qfac(nim, 1.0);
+   grf_nifti_image_set_byteorder(grf_nifti_short_order());
+
+   /* starting at str[spos], scan for "equations" of the form
+         lhs = 'rhs'
+      and assign rhs values into the struct component named by lhs */
+
+   while(1){
+
+     while( isspace((int) str[spos]) ) spos++ ;  /* skip whitespace */
+     if( str[spos] == '\0' ) break ;       /* end of string? */
+
+     /* get lhs string */
+
+     ii = sscanf( str+spos , "%1023s%n" , lhs , &nn ) ; spos += nn ;
+     if( ii == 0 || strcmp(lhs,"/>") == 0 ) break ;  /* end of input? */
+
+     /* skip whitespace and the '=' marker */
+
+     while( isspace((int) str[spos]) || str[spos] == '=' ) spos++ ;
+     if( str[spos] == '\0' ) break ;       /* end of string? */
+
+     /* if next character is a quote ', copy everything up to next '
+        otherwise, copy everything up to next nonblank              */
+
+     if( str[spos] == '\'' ){
+        ii = spos+1 ;
+        while( str[ii] != '\0' && str[ii] != '\'' ) ii++ ;
+        nn = ii-spos-1 ; if( nn > 1023 ) nn = 1023 ;
+        memcpy(rhs,str+spos+1,nn) ; rhs[nn] = '\0' ;
+        spos = (str[ii] == '\'') ? ii+1 : ii ;
+     } else {
+        ii = sscanf( str+spos , "%1023s%n" , rhs , &nn ) ; spos += nn ;
+        if( ii == 0 ) break ;  /* nothing found? */
+     }
+     unescape_string(rhs) ;  /* remove any XML escape sequences */
+
+     /* Now can do the assignment, based on lhs string.
+        Start with special cases that don't fit the QNUM/QSTR macros. */
+
+     if( strcmp(lhs,"nifti_type") == 0 ){
+            if( strcmp(rhs,"ANALYZE-7.5") == 0 )
+               nim->nifti_type = GRF_NIFTI_FTYPE_ANALYZE ;
+       else if( strcmp(rhs,"NIFTI-1+")    == 0 )
+               nim->nifti_type = GRF_NIFTI_FTYPE_NIFTI1_1 ;
+       else if( strcmp(rhs,"NIFTI-1")     == 0 )
+               nim->nifti_type = GRF_NIFTI_FTYPE_NIFTI1_2 ;
+       else if( strcmp(rhs,"NIFTI-1A")    == 0 )
+               nim->nifti_type = GRF_NIFTI_FTYPE_ASCII ;
+     }
+     else if( strcmp(lhs,"header_filename") == 0 ){
+       nim->fname = grf_nifti_strdup(rhs) ;
+     }
+     else if( strcmp(lhs,"image_filename") == 0 ){
+       nim->iname = grf_nifti_strdup(rhs) ;
+     }
+     else if( strcmp(lhs,"sto_xyz_matrix") == 0 ){
+       sscanf( rhs , "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f" ,
+               &(nim->sto_xyz.m[0][0]) , &(nim->sto_xyz.m[0][1]) ,
+               &(nim->sto_xyz.m[0][2]) , &(nim->sto_xyz.m[0][3]) ,
+               &(nim->sto_xyz.m[1][0]) , &(nim->sto_xyz.m[1][1]) ,
+               &(nim->sto_xyz.m[1][2]) , &(nim->sto_xyz.m[1][3]) ,
+               &(nim->sto_xyz.m[2][0]) , &(nim->sto_xyz.m[2][1]) ,
+               &(nim->sto_xyz.m[2][2]) , &(nim->sto_xyz.m[2][3]) ,
+               &(nim->sto_xyz.m[3][0]) , &(nim->sto_xyz.m[3][1]) ,
+               &(nim->sto_xyz.m[3][2]) , &(nim->sto_xyz.m[3][3])  ) ;
+     }
+     else if( strcmp(lhs,"byteorder") == 0 ){
+       if( strcmp(rhs,"MSB_FIRST") == 0 ) nim->byteorder = MSB_FIRST ;
+       if( strcmp(rhs,"LSB_FIRST") == 0 ) nim->byteorder = LSB_FIRST ;
+     }
+     else QQNUM(image_offset,iname_offset) ;
+     else QNUM(datatype) ;
+     else QNUM(ndim) ;
+     else QNUM(nx) ;
+     else QNUM(ny) ;
+     else QNUM(nz) ;
+     else QNUM(nt) ;
+     else QNUM(nu) ;
+     else QNUM(nv) ;
+     else QNUM(nw) ;
+     else QNUM(dx) ;
+     else QNUM(dy) ;
+     else QNUM(dz) ;
+     else QNUM(dt) ;
+     else QNUM(du) ;
+     else QNUM(dv) ;
+     else QNUM(dw) ;
+     else QNUM(cal_min) ;
+     else QNUM(cal_max) ;
+     else QNUM(scl_slope) ;
+     else QNUM(scl_inter) ;
+     else QNUM(intent_code) ;
+     else QNUM(intent_p1) ;
+     else QNUM(intent_p2) ;
+     else QNUM(intent_p3) ;
+     else QSTR(intent_name,15) ;
+     else QNUM(toffset) ;
+     else QNUM(xyz_units) ;
+     else QNUM(time_units) ;
+     else QSTR(descrip,79) ;
+     else QSTR(aux_file,23) ;
+     else QNUM(qform_code) ;
+     else QNUM(quatern_b) ;
+     else QNUM(quatern_c) ;
+     else QNUM(quatern_d) ;
+     else QNUM(qoffset_x) ;
+     else QNUM(qoffset_y) ;
+     else QNUM(qoffset_z) ;
+     else QNUM(qfac) ;
+     else QNUM(sform_code) ;
+     else QNUM(freq_dim) ;
+     else QNUM(phase_dim) ;
+     else QNUM(slice_dim) ;
+     else QNUM(slice_code) ;
+     else QNUM(slice_start) ;
+     else QNUM(slice_end) ;
+     else QNUM(slice_duration) ;
+     else QNUM(num_ext) ;
+
+   } /* end of while loop */
+
+   if( bytes_read ) *bytes_read = spos+1;         /* "process" last '\n' */
+
+   /* do miscellaneous checking and cleanup */
+
+   if( nim->ndim <= 0 ){ grf_nifti_image_free(nim); return NULL; } /* bad! */
+
+   grf_nifti_datatype_sizes( nim->datatype, &(nim->nbyper), &(nim->swapsize) );
+   if( nim->nbyper == 0 ){ grf_nifti_image_free(nim); return NULL; } /* bad! */
+
+   nim->dim[0] = nim->ndim ;
+   nim->dim[1] = nim->nx ; nim->pixdim[1] = nim->dx ;
+   nim->dim[2] = nim->ny ; nim->pixdim[2] = nim->dy ;
+   nim->dim[3] = nim->nz ; nim->pixdim[3] = nim->dz ;
+   nim->dim[4] = nim->nt ; nim->pixdim[4] = nim->dt ;
+   nim->dim[5] = nim->nu ; nim->pixdim[5] = nim->du ;
+   nim->dim[6] = nim->nv ; nim->pixdim[6] = nim->dv ;
+   nim->dim[7] = nim->nw ; nim->pixdim[7] = nim->dw ;
+
+   nim->nvox = (size_t)nim->nx * nim->ny * nim->nz
+                     * nim->nt * nim->nu * nim->nv * nim->nw ;
+
+   if( nim->qform_code > 0 )
+     nim->qto_xyz = grf_nifti_quatern_to_mat44(
+                      nim->quatern_b, nim->quatern_c, nim->quatern_d,
+                      nim->qoffset_x, nim->qoffset_y, nim->qoffset_z,
+                      nim->dx       , nim->dy       , nim->dz       ,
+                      nim->qfac                                      ) ;
+   else
+     nim->qto_xyz = grf_nifti_quatern_to_mat44(
+                      0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ,
+                      nim->dx , nim->dy , nim->dz , 0.0 ) ;
+
+
+   nim->qto_ijk = grf_nifti_mat44_inverse( nim->qto_xyz ) ;
+
+   if( nim->sform_code > 0 )
+     nim->sto_ijk = grf_nifti_mat44_inverse( nim->sto_xyz ) ;
+
+   return nim ;
+}
+/*----------------------------------------------------------------------*/
+/*! grf_nifti_read_ascii_image  - process as a type-3 .nia image file
+
+   return NULL on failure
+
+   NOTE: this is NOT part of the NIFTI-1 standard
+*//*--------------------------------------------------------------------*/
+GrfNiftiImage * grf_nifti_read_ascii_image(GrfZnzFile* fp, char *fname, int flen,
+                                     int read_data)
+{
+   GrfNiftiImage   * nim;
+   int               slen, txt_size, remain, rv = 0;
+   g_autofree char * sbuf;
+   char              lfunc[25] = { "nifti_read_ascii_image" };
+
+   if(grf_nifti_is_gzfile(fname))
+     return NULL;
+   slen = flen;  /* slen will be our buffer length */
+
+   if( slen > 65530 ) slen = 65530;
+   sbuf = (char *)g_malloc0(sizeof(char)*(slen+1));
+   if(!sbuf){
+      fprintf(stderr,"** %s: failed to alloc %d bytes for sbuf",lfunc,65530);
+      return NULL;
+   }
+   grf_znzfile_read_header(fp, sbuf , 1 , slen);
+   nim = grf_nifti_image_from_ascii( sbuf, &txt_size ) ; free( sbuf ) ;
+   if( nim == NULL ){
+      LNI_FERR(lfunc,"failed nifti_image_from_ascii()",fname);
+      free(fname);  grf_znzclose(fp);  return NULL;
+   }
+   nim->nifti_type = GRF_NIFTI_FTYPE_ASCII ;
+
+   /* compute remaining space for extensions */
+   remain = flen - txt_size - (int)grf_nifti_get_volsize(nim);
+   if( remain > 4 ){
+      /* read extensions (reposition file pointer, first) */
+      grf_znzseek(fp, txt_size, SEEK_SET);
+      (void) grf_nifti_read_extensions(nim, fp, remain);
+   }
+
+   free(fname);
+   grf_znzclose( fp ) ;
+
+   nim->iname_offset = -1 ;  /* check from the end of the file */
+
+   if( read_data ) rv = grf_nifti_image_load( nim ) ;
+   else            {nim->data = NULL ;nim->array.data = NULL;}
+
+   /* check for nifti_image_load() failure, maybe bail out */
+   if( read_data && rv != 0 ){
+      if( g_opts.debug > 1 )
+         fprintf(stderr,"-d failed image_load, free nifti image struct\n");
+      free(nim);
+      return NULL;
+   }
+
+   return nim ;
+}
 /*===========================================================================
  * PUBLIC API
  *===========================================================================*/
@@ -127,36 +636,27 @@ GrfNiftiImage *grf_nifti_image_read( const char *hname , gboolean read_data )
 {
    struct GrfNifti1Header  nhdr;
    GrfNiftiImage          *nim;
-   GrfZnzFile              fp;
-   int                    rv, ii , filesize, remaining;
-   char                   fname[] = { "nifti_image_read" };
-   char                  *hfile=NULL;
+   GrfZnzFile*             fp = NULL;
+   int                     rv, ii , filesize, remaining;
+   char                    fname[] = { "nifti_image_read" };
+   g_autofree char        *hfile=NULL;
 
    /**- determine filename to use for header */
    hfile = grf_nifti_findhdrname(hname);
    if( hfile == NULL ){
-      if(g_opts.debug > 0)
-         LNI_FERR(fname,"failed to find header file for", hname);
       return NULL;  /* check return */
-   } else if( g_opts.debug > 1 )
-      fprintf(stderr,"-d %s: found header filename '%s'\n",fname,hfile);
+   }
 
    if( grf_nifti_is_gzfile(hfile) ) filesize = -1;  /* unknown */
    else                         filesize = grf_nifti_get_filesize(hfile);
 
-   fp = grf_znzopen(hfile, "rb", grf_nifti_is_gzfile(hfile));
-   if( grf_znz_isnull(fp) ){
-      if( g_opts.debug > 0 ) LNI_FERR(fname,"failed to open header file",hfile);
-      free(hfile);
-      return NULL;
-   }
+   fp = grf_znzfile_open(hfile, "rb", grf_nifti_is_gzfile(hfile));
+   if(fp == NULL) return NULL;
 
-   rv = grf_has_ascii_header( fp );
-   if( rv < 0 ){
-      if( g_opts.debug > 0 ) LNI_FERR(fname,"short header read",hfile);
-      grf_znzclose( fp );
-      free(hfile);
-      return NULL;
+   rv = grf_nifti_has_ascii_header( fp );
+   if(rv < 0){
+     g_clear_object(fp);
+     return NULL;
    }
    else if ( rv == 1 )  /* process special file type */
       return grf_nifti_read_ascii_image( fp, hfile, filesize, read_data );
@@ -336,7 +836,7 @@ static char *escapize_string   (const char *str);
 
 /* internal I/O routines */
 static GrfZnzFile grf_nifti_image_load_prep( GrfNiftiImage *nim );
-static int     grf_has_ascii_header(GrfZnzFile fp);
+static int     grf_nifti_has_ascii_header(GrfZnzFile fp);
 /*---------------------------------------------------------------------------*/
 
 
@@ -2330,19 +2830,6 @@ size_t grf_nifti_get_volsize(const GrfNiftiImage *nim)
 
 
 /*----------------------------------------------------------------------*/
-/*! simple check for file existence
-
-    \return 1 on existence, 0 otherwise
-*//*--------------------------------------------------------------------*/
-int nifti_fileexists(const char* fname)
-{
-   GrfZnzFile fp;
-   fp = grf_znzopen( fname , "rb" , 1 ) ;
-   if( !grf_znz_isnull(fp) )  { grf_znzclose(fp);  return 1; }
-   return 0; /* fp is NULL */
-}
-
-/*----------------------------------------------------------------------*/
 /*! return whether the filename is valid
 
     The name is considered valid if the file basename has length greater than
@@ -2384,102 +2871,6 @@ int grf_nifti_is_complete_filename(const char* fname)
 }
 
 /*----------------------------------------------------------------------*/
-/*! return whether the filename is valid
-
-    The name is considered valid if its length is positive, excluding
-    any nifti filename extension.
-    fname input         |  return | result of nifti_makebasename
-    ====================================================================
-    "myimage"           |  1      | "myimage"
-    "myimage.tif"       |  1      | "myimage.tif"
-    "myimage.tif.gz"    |  1      | "myimage.tif"
-    "myimage.nii"       |  1      | "myimage"
-    ".nii"              |  0      | <ERROR - basename has zero length>
-    ".myhiddenimage"    |  1      | ".myhiddenimage"
-    ".myhiddenimage.nii |  1      | ".myhiddenimage"
-*//*--------------------------------------------------------------------*/
-int grf_nifti_validfilename(const char* fname)
-{
-   char * ext;
-
-   /* check input file(s) for sanity */
-   if( fname == NULL || *fname == '\0' ){
-      if ( g_opts.debug > 1 )
-         fprintf(stderr,"-- empty filename in nifti_validfilename()\n");
-      return 0;
-   }
-
-   ext = grf_nifti_find_file_extension(fname);
-
-   if ( ext && ext == fname ) {   /* then no filename prefix */
-      if ( g_opts.debug > 0 )
-         fprintf(stderr,"-- no prefix for filename '%s'\n", fname);
-      return 0;
-   }
-
-   return 1;
-}
-
-/*----------------------------------------------------------------------*/
-/*! check the end of the filename for a valid nifti extension
-
-    Valid extensions are currently .nii, .hdr, .img, .nia,
-    or any of them followed by .gz.  Note that '.' is part of
-    the extension.
-
-    \return a pointer to the extension (within the filename), or NULL
-*//*--------------------------------------------------------------------*/
-char * grf_nifti_find_file_extension( const char * name )
-{
-   char * ext;
-   int    len;
-
-   if ( ! name ) return NULL;
-
-   len = (int)strlen(name);
-   if ( len < 4 ) return NULL;
-
-   ext = (char *)name + len - 4;
-
-   if ( (strcmp(ext, ".hdr") == 0) || (strcmp(ext, ".img") == 0) ||
-        (strcmp(ext, ".nia") == 0) || (strcmp(ext, ".nii") == 0) )
-      return ext;
-
-#ifdef HAVE_ZLIB
-   if ( len < 7 ) return NULL;
-
-   ext = (char *)name + len - 7;
-
-   if ( (strcmp(ext, ".hdr.gz") == 0) || (strcmp(ext, ".img.gz") == 0) ||
-        (strcmp(ext, ".nii.gz") == 0) )
-      return ext;
-#endif
-
-   if( g_opts.debug > 1 )
-      fprintf(stderr,"** find_file_ext: failed for name '%s'\n", name);
-
-   return NULL;
-}
-
-/*----------------------------------------------------------------------*/
-/*! return whether the filename ends in ".gz"
-*//*--------------------------------------------------------------------*/
-int grf_nifti_is_gzfile(const char* fname)
-{
-  /* return true if the filename ends with .gz */
-  if (fname == NULL) { return 0; }
-#ifdef HAVE_ZLIB
-  { /* just so len doesn't generate compile warning */
-     int len;
-     len = (int)strlen(fname);
-     if (len < 3) return 0;  /* so we don't search before the name */
-     if (strcmp(fname + strlen(fname) - 3,".gz")==0) { return 1; }
-  }
-#endif
-  return 0;
-}
-
-/*----------------------------------------------------------------------*/
 /*! return whether the given library was compiled with HAVE_ZLIB set
 *//*--------------------------------------------------------------------*/
 int grf_nifti_compiled_with_zlib(void)
@@ -2489,23 +2880,6 @@ int grf_nifti_compiled_with_zlib(void)
 #else
     return 0;
 #endif
-}
-
-/*----------------------------------------------------------------------*/
-/*! duplicate the filename, while clearing any extension
-
-    This allocates memory for basename which should eventually be freed.
-*//*--------------------------------------------------------------------*/
-char * grf_nifti_makebasename(const char* fname)
-{
-   char *basename, *ext;
-
-   basename=grf_nifti_strdup(fname);
-
-   ext = grf_nifti_find_file_extension(basename);
-   if ( ext ) *ext = '\0';  /* clear out extension */
-
-   return basename;  /* in either case */
 }
 
 /*----------------------------------------------------------------------*/
@@ -2529,83 +2903,6 @@ void grf_nifti_set_skip_blank_ext( int skip )
 {
     g_opts.skip_blank_ext = skip ? 1 : 0;
 }
-
-/*----------------------------------------------------------------------*/
-/*! check current directory for existing header file
-
-    \return filename of header on success and NULL if no appropriate file
-            could be found
-
-    NB: it allocates memory for hdrname which should be freed
-        when no longer required
-*//*-------------------------------------------------------------------*/
-char * grf_nifti_findhdrname(const char* fname)
-{
-   char *basename, *hdrname, *ext;
-   char  elist[2][5] = { ".hdr", ".nii" };
-   int   efirst;
-
-   /**- check input file(s) for sanity */
-   if( !grf_nifti_validfilename(fname) ) return NULL;
-
-   basename = grf_nifti_makebasename(fname);
-   if( !basename ) return NULL;   /* only on string alloc failure */
-
-   /**- return filename if it has a valid extension and exists
-         (except if it is an .img file (and maybe .gz)) */
-   ext = grf_nifti_find_file_extension(fname);
-   if ( ext && nifti_fileexists(fname) ) {
-     if ( strncmp(ext,".img",4) != 0 ){
-        hdrname = grf_nifti_strdup(fname);
-        free(basename);
-        return hdrname;
-     }
-   }
-
-   /* So the requested name is a basename, contains .img, or does not exist. */
-   /* In any case, use basename. */
-
-   /**- if .img, look for .hdr, .hdr.gz, .nii, .nii.gz, in that order */
-   /**- else,    look for .nii, .nii.gz, .hdr, .hdr.gz, in that order */
-
-   /* if we get more extension choices, this could be a loop */
-
-   if ( ext && strncmp(ext,".img",4) == 0 ) efirst = 0;
-   else                                     efirst = 1;
-
-   hdrname = (char *)calloc(sizeof(char),strlen(basename)+8);
-   if( !hdrname ){
-      fprintf(stderr,"** nifti_findhdrname: failed to alloc hdrname\n");
-      free(basename);
-      return NULL;
-   }
-
-   strcpy(hdrname,basename);
-   strcat(hdrname,elist[efirst]);
-   if (nifti_fileexists(hdrname)) { free(basename); return hdrname; }
-#ifdef HAVE_ZLIB
-   strcat(hdrname,".gz");
-   if (nifti_fileexists(hdrname)) { free(basename); return hdrname; }
-#endif
-
-   /* okay, try the other possibility */
-
-   efirst = 1 - efirst;
-
-   strcpy(hdrname,basename);
-   strcat(hdrname,elist[efirst]);
-   if (nifti_fileexists(hdrname)) { free(basename); return hdrname; }
-#ifdef HAVE_ZLIB
-   strcat(hdrname,".gz");
-   if (nifti_fileexists(hdrname)) { free(basename); return hdrname; }
-#endif
-
-   /**- if nothing has been found, return NULL */
-   free(basename);
-   free(hdrname);
-   return NULL;
-}
-
 
 /*------------------------------------------------------------------------*/
 /*! check current directory for existing image file
@@ -2640,7 +2937,7 @@ char * grf_nifti_findimgname(const char* fname , int nifti_type)
    if( nifti_type == GRF_NIFTI_FTYPE_ASCII ){
       strcpy(imgname,basename);
       strcat(imgname,".nia");
-      if (nifti_fileexists(imgname)) { free(basename); return imgname; }
+      if (grf_nifti_fileexists(imgname)) { free(basename); return imgname; }
 
    } else {
 
@@ -2654,20 +2951,20 @@ char * grf_nifti_findimgname(const char* fname , int nifti_type)
 
       strcpy(imgname,basename);
       strcat(imgname,ext[first]);
-      if (nifti_fileexists(imgname)) { free(basename); return imgname; }
+      if (grf_nifti_fileexists(imgname)) { free(basename); return imgname; }
 #ifdef HAVE_ZLIB  /* then also check for .gz */
       strcat(imgname,".gz");
-      if (nifti_fileexists(imgname)) { free(basename); return imgname; }
+      if (grf_nifti_fileexists(imgname)) { free(basename); return imgname; }
 #endif
 
       /* failed to find image file with expected extension, try the other */
 
       strcpy(imgname,basename);
       strcat(imgname,ext[1-first]);  /* can do this with only 2 choices */
-      if (nifti_fileexists(imgname)) { free(basename); return imgname; }
+      if (grf_nifti_fileexists(imgname)) { free(basename); return imgname; }
 #ifdef HAVE_ZLIB  /* then also check for .gz */
       strcat(imgname,".gz");
-      if (nifti_fileexists(imgname)) { free(basename); return imgname; }
+      if (grf_nifti_fileexists(imgname)) { free(basename); return imgname; }
 #endif
    }
 
@@ -2719,7 +3016,7 @@ char * grf_nifti_makehdrname(const char * prefix, int nifti_type, int check,
 #endif
 
    /* check for existence failure */
-   if( check && nifti_fileexists(iname) ){
+   if( check && grf_nifti_fileexists(iname) ){
       fprintf(stderr,"** failure: header file '%s' already exists\n",iname);
       free(iname);
       return NULL;
@@ -2772,7 +3069,7 @@ char * grf_nifti_makeimgname(const char * prefix, int nifti_type, int check,
 #endif
 
    /* check for existence failure */
-   if( check && nifti_fileexists(iname) ){
+   if( check && grf_nifti_fileexists(iname) ){
       fprintf(stderr,"** failure: image file '%s' already exists\n",iname);
       free(iname);
       return NULL;
@@ -3590,7 +3887,7 @@ GrfNifti1Header * grf_nifti_read_header(const char * hname, int * swapped, int c
 
    free(hfile);  /* done with filename */
 
-   if( grf_has_ascii_header(fp) == 1 ){
+   if( grf_nifti_has_ascii_header(fp) == 1 ){
       grf_znzclose( fp );
       if( g_opts.debug > 0 )
          LNI_FERR(fname,"ASCII header type not supported",hname);
@@ -3768,100 +4065,10 @@ static int need_nhdr_swap( short dim0, int hdrsize )
 
 
 
-/*----------------------------------------------------------------------
- * has_ascii_header  - see if the NIFTI header is an ASCII format
- *
- * If the file starts with the ASCII string "<nifti_image", then
- * process the dataset as a type-3 .nia file.
- *
- * return:  -1 on error, 1 if true, or 0 if false
- *
- * NOTE: this is NOT part of the NIFTI-1 standard
- *----------------------------------------------------------------------*/
-static int grf_has_ascii_header( GrfZnzFile fp )
-{
-   char  buf[16];
-   int   nread;
-
-   if( grf_znz_isnull(fp) ) return 0;
-
-   nread = (int)grf_znzread( buf, 1, 12, fp );
-   buf[12] = '\0';
-
-   if( nread < 12 ) return -1;
-
-   grf_znzrewind(fp);  /* move back to the beginning, and check */
-
-   if( strcmp(buf, "<nifti_image") == 0 ) return 1;
-
-   return 0;
-}
 
 
-/*----------------------------------------------------------------------*/
-/*! grf_nifti_read_ascii_image  - process as a type-3 .nia image file
 
-   return NULL on failure
 
-   NOTE: this is NOT part of the NIFTI-1 standard
-*//*--------------------------------------------------------------------*/
-GrfNiftiImage * grf_nifti_read_ascii_image(GrfZnzFile fp, char *fname, int flen,
-                                     int read_data)
-{
-   GrfNiftiImage * nim;
-   int           slen, txt_size, remain, rv = 0;
-   char        * sbuf, lfunc[25] = { "nifti_read_ascii_image" };
-
-   if( grf_nifti_is_gzfile(fname) ){
-     LNI_FERR(lfunc,"compression not supported for file type NIFTI_FTYPE_ASCII",
-              fname);
-     free(fname);  grf_znzclose(fp);  return NULL;
-   }
-   slen = flen;  /* slen will be our buffer length */
-
-   if( g_opts.debug > 1 )
-      fprintf(stderr,"-d %s: have ASCII NIFTI file of size %d\n",fname,slen);
-
-   if( slen > 65530 ) slen = 65530 ;
-   sbuf = (char *)calloc(sizeof(char),slen+1) ;
-   if( !sbuf ){
-      fprintf(stderr,"** %s: failed to alloc %d bytes for sbuf",lfunc,65530);
-      free(fname);  grf_znzclose(fp);  return NULL;
-   }
-   grf_znzread( sbuf , 1 , slen , fp ) ;
-   nim = grf_nifti_image_from_ascii( sbuf, &txt_size ) ; free( sbuf ) ;
-   if( nim == NULL ){
-      LNI_FERR(lfunc,"failed nifti_image_from_ascii()",fname);
-      free(fname);  grf_znzclose(fp);  return NULL;
-   }
-   nim->nifti_type = GRF_NIFTI_FTYPE_ASCII ;
-
-   /* compute remaining space for extensions */
-   remain = flen - txt_size - (int)grf_nifti_get_volsize(nim);
-   if( remain > 4 ){
-      /* read extensions (reposition file pointer, first) */
-      grf_znzseek(fp, txt_size, SEEK_SET);
-      (void) grf_nifti_read_extensions(nim, fp, remain);
-   }
-
-   free(fname);
-   grf_znzclose( fp ) ;
-
-   nim->iname_offset = -1 ;  /* check from the end of the file */
-
-   if( read_data ) rv = grf_nifti_image_load( nim ) ;
-   else            {nim->data = NULL ;nim->array.data = NULL;}
-
-   /* check for nifti_image_load() failure, maybe bail out */
-   if( read_data && rv != 0 ){
-      if( g_opts.debug > 1 )
-         fprintf(stderr,"-d failed image_load, free nifti image struct\n");
-      free(nim);
-      return NULL;
-   }
-
-   return nim ;
-}
 
 
 /*----------------------------------------------------------------------
@@ -5892,206 +6099,6 @@ int grf_nifti_short_order(void)   /* determine this CPU's byte order */
 
 #define QSTR(nam,ml) if( strcmp(lhs,#nam) == 0 )                           \
                        strncpy(nim->nam,rhs,ml), nim->nam[ml]='\0'
-
-/*---------------------------------------------------------------------------*/
-/*! Take an XML-ish ASCII string and create a NIFTI image header to match.
-
-    NULL is returned if enough information isn't present in the input string.
-    - The image data can later be loaded with nifti_image_load().
-    - The struct returned here can be liberated with nifti_image_free().
-    - Not a lot of error checking is done here to make sure that the
-      input values are reasonable!
-*//*-------------------------------------------------------------------------*/
-GrfNiftiImage *grf_nifti_image_from_ascii( const char *str, int * bytes_read )
-{
-   char lhs[1024] , rhs[1024] ;
-   int ii , spos, nn;
-   GrfNiftiImage *nim ;              /* will be output */
-
-   if( str == NULL || *str == '\0' ) return NULL ;  /* bad input!? */
-
-   /* scan for opening string */
-
-   spos = 0 ;
-   ii = sscanf( str+spos , "%1023s%n" , lhs , &nn ) ; spos += nn ;
-   if( ii == 0 || strcmp(lhs,"<nifti_image") != 0 ) return NULL ;
-
-   /* create empty image struct */
-
-   nim = (GrfNiftiImage *) calloc( 1 , sizeof(GrfNiftiImage) ) ;
-   if( !nim ){
-      fprintf(stderr,"** NIFA: failed to alloc nifti_image\n");
-      return NULL;
-   }
-
-   nim->nx = nim->ny = nim->nz = nim->nt
-           = nim->nu = nim->nv = nim->nw = 1 ;
-   nim->dx = nim->dy = nim->dz = nim->dt
-           = nim->du = nim->dv = nim->dw = 0 ;
-   nim->qfac = 1.0 ;
-
-   nim->byteorder = grf_nifti_short_order() ;
-
-   /* starting at str[spos], scan for "equations" of the form
-         lhs = 'rhs'
-      and assign rhs values into the struct component named by lhs */
-
-   while(1){
-
-     while( isspace((int) str[spos]) ) spos++ ;  /* skip whitespace */
-     if( str[spos] == '\0' ) break ;       /* end of string? */
-
-     /* get lhs string */
-
-     ii = sscanf( str+spos , "%1023s%n" , lhs , &nn ) ; spos += nn ;
-     if( ii == 0 || strcmp(lhs,"/>") == 0 ) break ;  /* end of input? */
-
-     /* skip whitespace and the '=' marker */
-
-     while( isspace((int) str[spos]) || str[spos] == '=' ) spos++ ;
-     if( str[spos] == '\0' ) break ;       /* end of string? */
-
-     /* if next character is a quote ', copy everything up to next '
-        otherwise, copy everything up to next nonblank              */
-
-     if( str[spos] == '\'' ){
-        ii = spos+1 ;
-        while( str[ii] != '\0' && str[ii] != '\'' ) ii++ ;
-        nn = ii-spos-1 ; if( nn > 1023 ) nn = 1023 ;
-        memcpy(rhs,str+spos+1,nn) ; rhs[nn] = '\0' ;
-        spos = (str[ii] == '\'') ? ii+1 : ii ;
-     } else {
-        ii = sscanf( str+spos , "%1023s%n" , rhs , &nn ) ; spos += nn ;
-        if( ii == 0 ) break ;  /* nothing found? */
-     }
-     unescape_string(rhs) ;  /* remove any XML escape sequences */
-
-     /* Now can do the assignment, based on lhs string.
-        Start with special cases that don't fit the QNUM/QSTR macros. */
-
-     if( strcmp(lhs,"nifti_type") == 0 ){
-            if( strcmp(rhs,"ANALYZE-7.5") == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_ANALYZE ;
-       else if( strcmp(rhs,"NIFTI-1+")    == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_NIFTI1_1 ;
-       else if( strcmp(rhs,"NIFTI-1")     == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_NIFTI1_2 ;
-       else if( strcmp(rhs,"NIFTI-1A")    == 0 )
-               nim->nifti_type = GRF_NIFTI_FTYPE_ASCII ;
-     }
-     else if( strcmp(lhs,"header_filename") == 0 ){
-       nim->fname = grf_nifti_strdup(rhs) ;
-     }
-     else if( strcmp(lhs,"image_filename") == 0 ){
-       nim->iname = grf_nifti_strdup(rhs) ;
-     }
-     else if( strcmp(lhs,"sto_xyz_matrix") == 0 ){
-       sscanf( rhs , "%f %f %f %f %f %f %f %f %f %f %f %f %f %f %f %f" ,
-               &(nim->sto_xyz.m[0][0]) , &(nim->sto_xyz.m[0][1]) ,
-               &(nim->sto_xyz.m[0][2]) , &(nim->sto_xyz.m[0][3]) ,
-               &(nim->sto_xyz.m[1][0]) , &(nim->sto_xyz.m[1][1]) ,
-               &(nim->sto_xyz.m[1][2]) , &(nim->sto_xyz.m[1][3]) ,
-               &(nim->sto_xyz.m[2][0]) , &(nim->sto_xyz.m[2][1]) ,
-               &(nim->sto_xyz.m[2][2]) , &(nim->sto_xyz.m[2][3]) ,
-               &(nim->sto_xyz.m[3][0]) , &(nim->sto_xyz.m[3][1]) ,
-               &(nim->sto_xyz.m[3][2]) , &(nim->sto_xyz.m[3][3])  ) ;
-     }
-     else if( strcmp(lhs,"byteorder") == 0 ){
-       if( strcmp(rhs,"MSB_FIRST") == 0 ) nim->byteorder = MSB_FIRST ;
-       if( strcmp(rhs,"LSB_FIRST") == 0 ) nim->byteorder = LSB_FIRST ;
-     }
-     else QQNUM(image_offset,iname_offset) ;
-     else QNUM(datatype) ;
-     else QNUM(ndim) ;
-     else QNUM(nx) ;
-     else QNUM(ny) ;
-     else QNUM(nz) ;
-     else QNUM(nt) ;
-     else QNUM(nu) ;
-     else QNUM(nv) ;
-     else QNUM(nw) ;
-     else QNUM(dx) ;
-     else QNUM(dy) ;
-     else QNUM(dz) ;
-     else QNUM(dt) ;
-     else QNUM(du) ;
-     else QNUM(dv) ;
-     else QNUM(dw) ;
-     else QNUM(cal_min) ;
-     else QNUM(cal_max) ;
-     else QNUM(scl_slope) ;
-     else QNUM(scl_inter) ;
-     else QNUM(intent_code) ;
-     else QNUM(intent_p1) ;
-     else QNUM(intent_p2) ;
-     else QNUM(intent_p3) ;
-     else QSTR(intent_name,15) ;
-     else QNUM(toffset) ;
-     else QNUM(xyz_units) ;
-     else QNUM(time_units) ;
-     else QSTR(descrip,79) ;
-     else QSTR(aux_file,23) ;
-     else QNUM(qform_code) ;
-     else QNUM(quatern_b) ;
-     else QNUM(quatern_c) ;
-     else QNUM(quatern_d) ;
-     else QNUM(qoffset_x) ;
-     else QNUM(qoffset_y) ;
-     else QNUM(qoffset_z) ;
-     else QNUM(qfac) ;
-     else QNUM(sform_code) ;
-     else QNUM(freq_dim) ;
-     else QNUM(phase_dim) ;
-     else QNUM(slice_dim) ;
-     else QNUM(slice_code) ;
-     else QNUM(slice_start) ;
-     else QNUM(slice_end) ;
-     else QNUM(slice_duration) ;
-     else QNUM(num_ext) ;
-
-   } /* end of while loop */
-
-   if( bytes_read ) *bytes_read = spos+1;         /* "process" last '\n' */
-
-   /* do miscellaneous checking and cleanup */
-
-   if( nim->ndim <= 0 ){ grf_nifti_image_free(nim); return NULL; } /* bad! */
-
-   grf_nifti_datatype_sizes( nim->datatype, &(nim->nbyper), &(nim->swapsize) );
-   if( nim->nbyper == 0 ){ grf_nifti_image_free(nim); return NULL; } /* bad! */
-
-   nim->dim[0] = nim->ndim ;
-   nim->dim[1] = nim->nx ; nim->pixdim[1] = nim->dx ;
-   nim->dim[2] = nim->ny ; nim->pixdim[2] = nim->dy ;
-   nim->dim[3] = nim->nz ; nim->pixdim[3] = nim->dz ;
-   nim->dim[4] = nim->nt ; nim->pixdim[4] = nim->dt ;
-   nim->dim[5] = nim->nu ; nim->pixdim[5] = nim->du ;
-   nim->dim[6] = nim->nv ; nim->pixdim[6] = nim->dv ;
-   nim->dim[7] = nim->nw ; nim->pixdim[7] = nim->dw ;
-
-   nim->nvox = (size_t)nim->nx * nim->ny * nim->nz
-                     * nim->nt * nim->nu * nim->nv * nim->nw ;
-
-   if( nim->qform_code > 0 )
-     nim->qto_xyz = grf_nifti_quatern_to_mat44(
-                      nim->quatern_b, nim->quatern_c, nim->quatern_d,
-                      nim->qoffset_x, nim->qoffset_y, nim->qoffset_z,
-                      nim->dx       , nim->dy       , nim->dz       ,
-                      nim->qfac                                      ) ;
-   else
-     nim->qto_xyz = grf_nifti_quatern_to_mat44(
-                      0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ,
-                      nim->dx , nim->dy , nim->dz , 0.0 ) ;
-
-
-   nim->qto_ijk = grf_nifti_mat44_inverse( nim->qto_xyz ) ;
-
-   if( nim->sform_code > 0 )
-     nim->sto_ijk = grf_nifti_mat44_inverse( nim->sto_xyz ) ;
-
-   return nim ;
-}
-
 
 /*---------------------------------------------------------------------------*/
 /*! validate the nifti_image
