@@ -108,7 +108,7 @@ typedef enum{
 #define GRF_NIFTI_A2P  4    /* Anterior to Posterior */
 #define GRF_NIFTI_I2S  5    /* Inferior to Superior  */
 #define GRF_NIFTI_S2I  6    /* Superior to Inferior  */
-
+#define LNI_MAX_NIA_EXT_LEN 100000 /* consider a longer extension invalid */
 /*===========================================================================
  * CLASS DECLARATION
  *===========================================================================*/
@@ -141,14 +141,14 @@ grf_nifti_image_read(const char *hname, gboolean read_data);
  * @param image
  * @return
  */
-GrfVec6
+GrfVec7
 grf_nifti_image_get_nsize(GrfNiftiImage* image);
 /**
  * @brief grf_nifti_image_get_dsize
  * @param image
  * @return
  */
-GrfVec6
+GrfVec7
 grf_nifti_image_get_dsize(GrfNiftiImage* image);
 /**
  * @brief grf_nifti_image_get_qfac
@@ -192,6 +192,16 @@ grf_nifti_image_get_iname(GrfNiftiImage* image);
  */
 int
 grf_nifti_image_get_ndim(GrfNiftiImage* image);
+/**
+ * @brief return the total volume size, in bytes
+ *
+ * This is computed as nvox * nbyper.
+ *
+ * @param nim
+ * @return
+ */
+size_t
+grf_nifti_image_get_volsize(GrfNiftiImage *nim);
 
 
 

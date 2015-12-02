@@ -106,6 +106,32 @@ grf_znzfile_read_header(GrfZnzFile* znzfile, void* buf, size_t size, size_t nmem
  */
 int
 grf_znzfile_rewind(GrfZnzFile* znzfile);
+/**
+ * @brief grf_znzfile_seek
+ * @param file
+ * @param offset
+ * @param whence
+ * @return
+ */
+long
+grf_znzfile_seek(GrfZnzFile* file, long offset, int whence);
+/**
+ * @brief grf_znzfile_tell
+ * @param file
+ * @return
+ */
+long
+grf_znzfile_tell(GrfZnzFile* file);
+/**
+ * @brief grf_znzread
+ * @param file
+ * @param buf
+ * @param size
+ * @param nmemb
+ * @return
+ */
+size_t
+grf_znzfile_read(GrfZnzFile* file, void* buf, size_t size, size_t nmemb);
 
 
 //struct GrfZnzPtr {

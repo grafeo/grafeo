@@ -32,39 +32,39 @@
  * PRIVATE API
  *===========================================================================*/
 typedef struct _GrfNiftiImagePrivate{
-  int    ndim ;                  /*!< last dimension greater than 1 (1..7) */
-  GrfVec6 nsize;                 /*!< array of sizes for each dimension    */
-  int    dim[8] ;                /*!< dim[0]=ndim, dim[1]=nx, etc.         */
-  size_t nvox ;                  /*!< number of voxels = nx*ny*nz*...*nw   */
-  int    nbyper ;                /*!< bytes per voxel, matches datatype    */
-  int    datatype ;              /*!< type of data in voxels: DT_* code    */
+  int     ndim ;                  /*!< last dimension greater than 1 (1..7) */
+  GrfVec7 nsize;                 /*!< array of sizes for each dimension    */
+  int     dim[8] ;                /*!< dim[0]=ndim, dim[1]=nx, etc.         */
+  size_t  nvox ;                  /*!< number of voxels = nx*ny*nz*...*nw   */
+  int     nbyper ;                /*!< bytes per voxel, matches datatype    */
+  int     datatype ;              /*!< type of data in voxels: DT_* code    */
 
-  GrfVec6 dsize;                 /*!< array of grid spacings for each dim  */
-  float  pixdim[8] ;             /*!< pixdim[1]=dx, etc. */
+  GrfVec7 dsize;                 /*!< array of grid spacings for each dim  */
+  float   pixdim[8] ;             /*!< pixdim[1]=dx, etc. */
 
-  float  scl_slope ;             /*!< scaling parameter - slope        */
-  float  scl_inter ;             /*!< scaling parameter - intercept    */
+  float   scl_slope ;             /*!< scaling parameter - slope        */
+  float   scl_inter ;             /*!< scaling parameter - intercept    */
 
-  float  cal_min ;               /*!< calibration parameter, minimum   */
-  float  cal_max ;               /*!< calibration parameter, maximum   */
+  float   cal_min ;               /*!< calibration parameter, minimum   */
+  float   cal_max ;               /*!< calibration parameter, maximum   */
 
-  int    qform_code ;            /*!< codes for (x,y,z) space meaning  */
-  int    sform_code ;            /*!< codes for (x,y,z) space meaning  */
+  int     qform_code ;            /*!< codes for (x,y,z) space meaning  */
+  int     sform_code ;            /*!< codes for (x,y,z) space meaning  */
 
-  int    freq_dim  ;             /*!< indexes (1,2,3, or 0) for MRI    */
-  int    phase_dim ;             /*!< directions in dim[]/pixdim[]     */
-  int    slice_dim ;             /*!< directions in dim[]/pixdim[]     */
+  int     freq_dim  ;             /*!< indexes (1,2,3, or 0) for MRI    */
+  int     phase_dim ;             /*!< directions in dim[]/pixdim[]     */
+  int     slice_dim ;             /*!< directions in dim[]/pixdim[]     */
 
-  int    slice_code  ;           /*!< code for slice timing pattern    */
-  int    slice_start ;           /*!< index for start of slices        */
-  int    slice_end   ;           /*!< index for end of slices          */
-  float  slice_duration ;        /*!< time between individual slices   */
+  int     slice_code  ;           /*!< code for slice timing pattern    */
+  int     slice_start ;           /*!< index for start of slices        */
+  int     slice_end   ;           /*!< index for end of slices          */
+  float   slice_duration ;        /*!< time between individual slices   */
 
   /*! quaternion transform parameters
     [when writing a dataset, these are used for qform, NOT qto_xyz]   */
-  float  quatern_b , quatern_c , quatern_d ,
-         qoffset_x , qoffset_y , qoffset_z ,
-         qfac      ;
+  float   quatern_b , quatern_c , quatern_d ,
+          qoffset_x , qoffset_y , qoffset_z ,
+          qfac      ;
 
   GrfMat4 qto_xyz ;               /*!< qform: transform (i,j,k) to (x,y,z) */
   GrfMat4 qto_ijk ;               /*!< qform: transform (x,y,z) to (i,j,k) */
@@ -72,28 +72,28 @@ typedef struct _GrfNiftiImagePrivate{
   GrfMat4 sto_xyz ;               /*!< sform: transform (i,j,k) to (x,y,z) */
   GrfMat4 sto_ijk ;               /*!< sform: transform (x,y,z) to (i,j,k) */
 
-  float  toffset ;               /*!< time coordinate offset */
+  float   toffset ;               /*!< time coordinate offset */
 
-  int    xyz_units  ;            /*!< dx,dy,dz units: NIFTI_UNITS_* code  */
-  int    time_units ;            /*!< dt       units: NIFTI_UNITS_* code  */
+  int     xyz_units  ;            /*!< dx,dy,dz units: NIFTI_UNITS_* code  */
+  int     time_units ;            /*!< dt       units: NIFTI_UNITS_* code  */
 
-  int    nifti_type ;            /*!< 0==ANALYZE, 1==NIFTI-1 (1 file),
+  int     nifti_type ;            /*!< 0==ANALYZE, 1==NIFTI-1 (1 file),
                                                  2==NIFTI-1 (2 files),
                                                  3==NIFTI-ASCII (1 file) */
-  int    intent_code ;           /*!< statistic type (or something)       */
-  float  intent_p1 ;             /*!< intent parameters                   */
-  float  intent_p2 ;             /*!< intent parameters                   */
-  float  intent_p3 ;             /*!< intent parameters                   */
-  char   intent_name[16] ;       /*!< optional description of intent data */
+  int     intent_code ;           /*!< statistic type (or something)       */
+  float   intent_p1 ;             /*!< intent parameters                   */
+  float   intent_p2 ;             /*!< intent parameters                   */
+  float   intent_p3 ;             /*!< intent parameters                   */
+  char    intent_name[16] ;       /*!< optional description of intent data */
 
-  char   descrip[80]  ;          /*!< optional text to describe dataset   */
-  char   aux_file[24] ;          /*!< auxiliary filename                  */
+  char    descrip[80]  ;          /*!< optional text to describe dataset   */
+  char    aux_file[24] ;          /*!< auxiliary filename                  */
 
-  char * fname ;                 /*!< header filename (.hdr or .nii)         */
-  char * iname ;                 /*!< image filename  (.img or .nii)         */
-  int    iname_offset ;          /*!< offset into iname where data starts    */
-  int    swapsize ;              /*!< swap unit in image data (might be 0)   */
-  int    byteorder ;             /*!< byte order on disk (MSB_ or LSB_FIRST) */
+  char *  fname ;                 /*!< header filename (.hdr or .nii)         */
+  char *  iname ;                 /*!< image filename  (.img or .nii)         */
+  int     iname_offset ;          /*!< offset into iname where data starts    */
+  int     swapsize ;              /*!< swap unit in image data (might be 0)   */
+  int     byteorder ;             /*!< byte order on disk (MSB_ or LSB_FIRST) */
   //void * data ;                  /*!< pointer to data: nbyper*nvox bytes     */
 
   int                    num_ext ;  /*!< number of extensions in ext_list       */
@@ -125,7 +125,7 @@ grf_nifti_image_new(){
  * @param nsize
  */
 void
-grf_nifti_image_set_nsize(GrfNiftiImage* image, GrfVec6 nsize){
+grf_nifti_image_set_nsize(GrfNiftiImage* image, GrfVec7 nsize){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   priv->nsize = nsize;
 }
@@ -135,7 +135,7 @@ grf_nifti_image_set_nsize(GrfNiftiImage* image, GrfVec6 nsize){
  * @param dsize
  */
 void
-grf_nifti_image_set_dsize(GrfNiftiImage* image, GrfVec6 dsize){
+grf_nifti_image_set_dsize(GrfNiftiImage* image, GrfVec7 dsize){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   priv->dsize = dsize;
 }
@@ -185,44 +185,246 @@ grf_nifti_image_set_filename(GrfNiftiImage* image, char* filename){
  * @param image
  * @param filename
  */
-void
+static void
 grf_nifti_image_set_iname(GrfNiftiImage* image, char* filename){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   if(priv->iname) g_free(priv->iname);
   priv->iname = g_strdup(filename);
 }
-void
+static void
 grf_nifti_image_set_iname_offset(GrfNiftiImage* image, int iname_offset){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   priv->iname_offset = iname_offset;
 }
-void
+static void
 grf_nifti_image_set_datatype(GrfNiftiImage* image, int datatype){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   priv->datatype = datatype;
 }
-void
+static void
 grf_nifti_image_set_ndim(GrfNiftiImage* image, int ndim){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   priv->ndim = ndim;
 }
-void
+static void
 grf_nifti_image_set_nx(GrfNiftiImage* image, int nx){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   priv->nsize.data[0] = nx;
 }
-void
+static void
 grf_nifti_image_set_ny(GrfNiftiImage* image, int ny){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   priv->nsize.data[1] = ny;
 }
-void
+static void
 grf_nifti_image_set_nz(GrfNiftiImage* image, int nz){
-
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[2] = nz;
 }
-void
+static void
 grf_nifti_image_set_nt(GrfNiftiImage* image, int nt){
-
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[3] = nt;
+}
+static void
+grf_nifti_image_set_nu(GrfNiftiImage* image, int nu){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[4] = nu;
+}
+static void
+grf_nifti_image_set_nv(GrfNiftiImage* image, int nv){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[5] = nv;
+}
+static void
+grf_nifti_image_set_nw(GrfNiftiImage* image, int nw){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[6] = nw;
+}
+static void
+grf_nifti_image_set_dx(GrfNiftiImage* image, int dx){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[0] = dx;
+}
+static void
+grf_nifti_image_set_dy(GrfNiftiImage* image, int dy){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[1] = dy;
+}
+static void
+grf_nifti_image_set_dz(GrfNiftiImage* image, int dz){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[2] = dz;
+}
+static void
+grf_nifti_image_set_dt(GrfNiftiImage* image, int dt){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[3] = dt;
+}
+static void
+grf_nifti_image_set_du(GrfNiftiImage* image, int du){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[4] = du;
+}
+static void
+grf_nifti_image_set_dv(GrfNiftiImage* image, int dv){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[5] = dv;
+}
+static void
+grf_nifti_image_set_dw(GrfNiftiImage* image, int dw){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->nsize.data[6] = dw;
+}
+static void
+grf_nifti_image_set_cal_min(GrfNiftiImage* image, float cal_min){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->cal_min = cal_min;
+}
+static void
+grf_nifti_image_set_cal_max(GrfNiftiImage* image, float cal_max){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->cal_max = cal_max;
+}
+static void
+grf_nifti_image_set_xyz_units(GrfNiftiImage* image, int xyz_units){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->xyz_units = xyz_units;
+}
+static void
+grf_nifti_image_set_time_units(GrfNiftiImage* image, int time_units){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->time_units = time_units;
+}
+static void
+grf_nifti_image_set_descrip(GrfNiftiImage* image, char* descrip, int max_length){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  strncpy(priv->descrip,descrip,max_length);
+}
+static void
+grf_nifti_image_set_aux_file(GrfNiftiImage* image, char* aux_file, int max_length){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  strncpy(priv->aux_file,aux_file,max_length);
+}
+static void
+grf_nifti_image_set_intent_p1(GrfNiftiImage* image, float intent_p1){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->intent_p1 = intent_p1;
+}
+static void
+grf_nifti_image_set_intent_p2(GrfNiftiImage* image, float intent_p2){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->intent_p2 = intent_p2;
+}
+static void
+grf_nifti_image_set_intent_p3(GrfNiftiImage* image, float intent_p3){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->intent_p3 = intent_p3;
+}
+static void
+grf_nifti_image_set_scl_slope(GrfNiftiImage* image, float scl_slope){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->scl_slope = scl_slope;
+}
+static void
+grf_nifti_image_set_scl_inter(GrfNiftiImage* image, float scl_inter){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->scl_inter = scl_inter;
+}
+static void
+grf_nifti_image_set_intent_code(GrfNiftiImage* image, float intent_code){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->intent_code = intent_code;
+}
+static void
+grf_nifti_image_set_toffset(GrfNiftiImage* image, float toffset){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->toffset = toffset;
+}
+static void
+grf_nifti_image_set_intent_name(GrfNiftiImage* image, char* intent_name, int max_length){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  strncpy(priv->intent_name,intent_name,max_length);
+}
+static void
+grf_nifti_image_set_sform_code(GrfNiftiImage* image, int sform_code){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->sform_code = sform_code;
+}
+static void
+grf_nifti_image_set_freq_dim(GrfNiftiImage* image, int freq_dim){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->freq_dim = freq_dim;
+}
+static void
+grf_nifti_image_set_phase_dim(GrfNiftiImage* image, int phase_dim){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->phase_dim = phase_dim;
+}
+static void
+grf_nifti_image_set_slice_dim(GrfNiftiImage* image, int slice_dim){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->slice_dim = slice_dim;
+}
+static void
+grf_nifti_image_set_slice_code(GrfNiftiImage* image, int slice_code){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->slice_code = slice_code;
+}
+static void
+grf_nifti_image_set_slice_start(GrfNiftiImage* image, int slice_start){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->slice_start = slice_start;
+}
+static void
+grf_nifti_image_set_slice_end(GrfNiftiImage* image, int slice_end){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->slice_end = slice_end;
+}
+static void
+grf_nifti_image_set_slice_duration(GrfNiftiImage* image, float slice_duration){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->slice_duration = slice_duration;
+}
+static void
+grf_nifti_image_set_num_ext(GrfNiftiImage* image, int num_ext){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->num_ext = num_ext;
+}
+static void
+grf_nifti_image_set_qform_code(GrfNiftiImage* image, int qform_code){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->qform_code = qform_code;
+}
+static void
+grf_nifti_image_set_quatern_b(GrfNiftiImage* image, float quatern_b){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->quatern_b = quatern_b;
+}
+static void
+grf_nifti_image_set_quatern_c(GrfNiftiImage* image, float quatern_c){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->quatern_c = quatern_c;
+}
+static void
+grf_nifti_image_set_quatern_d(GrfNiftiImage* image, float quatern_d){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->quatern_d = quatern_d;
+}
+static void
+grf_nifti_image_set_qoffset_x(GrfNiftiImage* image, float qoffset_x){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->qoffset_x = qoffset_x;
+}
+static void
+grf_nifti_image_set_qoffset_y(GrfNiftiImage* image, float qoffset_y){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->qoffset_y = qoffset_y;
+}
+static void
+grf_nifti_image_set_qoffset_z(GrfNiftiImage* image, float qoffset_z){
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
+  priv->qoffset_y = qoffset_z;
 }
 
 /*----------------------------------------------------------------------*/
@@ -234,7 +436,7 @@ grf_nifti_image_set_nt(GrfNiftiImage* image, int nt){
 
     \return a pointer to the extension (within the filename), or NULL
 *//*--------------------------------------------------------------------*/
-char *
+static char *
 grf_nifti_find_file_extension( const char * name )
 {
    char * ext;
@@ -278,7 +480,7 @@ grf_nifti_find_file_extension( const char * name )
     ".myhiddenimage"    |  1      | ".myhiddenimage"
     ".myhiddenimage.nii |  1      | ".myhiddenimage"
 *//*--------------------------------------------------------------------*/
-gboolean
+static gboolean
 grf_nifti_validfilename(const char* fname)
 {
    char * ext;
@@ -301,7 +503,7 @@ grf_nifti_validfilename(const char* fname)
 
     This allocates memory for basename which should eventually be freed.
 *//*--------------------------------------------------------------------*/
-char *
+static char *
 grf_nifti_makebasename(const char* fname)
 {
    char *basename, *ext;
@@ -318,7 +520,7 @@ grf_nifti_makebasename(const char* fname)
 
     \return 1 on existence, 0 otherwise
 *//*--------------------------------------------------------------------*/
-gboolean
+static gboolean
 grf_nifti_fileexists(const char* fname)
 {
   GrfZnzFile* fp = grf_znzfile_open(fname, "rb", TRUE);
@@ -338,7 +540,7 @@ grf_nifti_fileexists(const char* fname)
     NB: it allocates memory for hdrname which should be freed
         when no longer required
 *//*-------------------------------------------------------------------*/
-char *
+static char *
 grf_nifti_findhdrname(const char* fname)
 {
    char *basename, *hdrname, *ext;
@@ -408,7 +610,7 @@ grf_nifti_findhdrname(const char* fname)
 /*----------------------------------------------------------------------*/
 /*! return whether the filename ends in ".gz"
 *//*--------------------------------------------------------------------*/
-gboolean
+static gboolean
 grf_nifti_is_gzfile(const char* fname)
 {
   /* return true if the filename ends with .gz */
@@ -430,7 +632,7 @@ grf_nifti_is_gzfile(const char* fname)
 
     changed to return int, -1 means no file or error      20 Dec 2004 [rickr]
 *//*-------------------------------------------------------------------------*/
-int
+static int
 grf_nifti_get_filesize( const char *pathname )
 {
    struct stat buf ; int ii ;
@@ -475,7 +677,8 @@ grf_nifti_has_ascii_header( GrfZnzFile* fp )
     - GRF_LITTLE_ENDIAN means least significant byte, first
     - GRF_BIG_ENDIAN means most significant byte, first
 *//*--------------------------------------------------------------------*/
-GrfEndianess grf_nifti_short_order(void)   /* determine this CPU's byte order */
+static GrfEndianess
+grf_nifti_short_order(void)   /* determine this CPU's byte order */
 {
   union { unsigned char bb[2] ;
           short         ss    ; } fred ;
@@ -501,7 +704,8 @@ GrfEndianess grf_nifti_short_order(void)   /* determine this CPU's byte order */
 #undef  LF
 #define CR 0x0D
 #define LF 0x0A
-static int unescape_string( char *str )
+static int
+unescape_string( char *str )
 {
    int ii,jj , nn,ll ;
 
@@ -591,10 +795,182 @@ static int unescape_string( char *str )
 
    return nn ;
 }
+/*--------------------------------------------------------------------------*/
+/*! Given a datatype code, set number of bytes per voxel and the swapsize.
+
+    \param datatype nifti1 datatype code
+    \param nbyper   pointer to return value: number of bytes per voxel
+    \param swapsize pointer to return value: size of swap blocks
+
+    \return appropriate values at nbyper and swapsize
+
+    The swapsize is set to 0 if this datatype doesn't ever need swapping.
+
+    \sa NIFTI1_DATATYPES in nifti1.h
+*//*------------------------------------------------------------------------*/
+#define ASSIF(p,v) if( (p)!=NULL ) *(p) = (v)
+static void
+grf_nifti_datatype_sizes( int datatype , int *nbyper, int *swapsize )
+{
+   int nb=0, ss=0 ;
+   switch( datatype ){
+     case GRF_DT_INT8:
+     case GRF_DT_UINT8:       nb =  1 ; ss =  0 ; break ;
+
+     case GRF_DT_INT16:
+     case GRF_DT_UINT16:      nb =  2 ; ss =  2 ; break ;
+
+     case GRF_DT_RGB24:       nb =  3 ; ss =  0 ; break ;
+     case GRF_DT_RGBA32:      nb =  4 ; ss =  0 ; break ;
+
+     case GRF_DT_INT32:
+     case GRF_DT_UINT32:
+     case GRF_DT_FLOAT32:     nb =  4 ; ss =  4 ; break ;
+
+     case GRF_DT_COMPLEX64:   nb =  8 ; ss =  4 ; break ;
+
+     case GRF_DT_FLOAT64:
+     case GRF_DT_INT64:
+     case GRF_DT_UINT64:      nb =  8 ; ss =  8 ; break ;
+
+     case GRF_DT_FLOAT128:    nb = 16 ; ss = 16 ; break ;
+
+     case GRF_DT_COMPLEX128:  nb = 16 ; ss =  8 ; break ;
+
+     case GRF_DT_COMPLEX256:  nb = 32 ; ss = 16 ; break ;
+   }
+
+   ASSIF(nbyper,nb) ; ASSIF(swapsize,ss) ; return ;
+}
+/*---------------------------------------------------------------------------*/
+/*! Given the quaternion parameters (etc.), compute a transformation matrix.
+
+   See comments in nifti1.h for details.
+     - qb,qc,qd = quaternion parameters
+     - qx,qy,qz = offset parameters
+     - dx,dy,dz = grid stepsizes (non-negative inputs are set to 1.0)
+     - qfac     = sign of dz step (< 0 is negative; >= 0 is positive)
+
+   <pre>
+   If qx=qy=qz=0, dx=dy=dz=1, then the output is a rotation matrix.
+   For qfac >= 0, the rotation is proper.
+   For qfac <  0, the rotation is improper.
+   </pre>
+
+   \see "QUATERNION REPRESENTATION OF ROTATION MATRIX" in nifti1.h
+   \see nifti_mat44_to_quatern, nifti_make_orthog_mat44,
+       nifti_mat44_to_orientation
+
+*//*-------------------------------------------------------------------------*/
+static GrfMat4
+grf_nifti_quatern_to_mat4( float qb, float qc, float qd,
+                           float qx, float qy, float qz,
+                           float dx, float dy, float dz, float qfac )
+{
+   GrfMat4 R ;
+   double a,b=qb,c=qc,d=qd , xd,yd,zd ;
+
+   /* last row is always [ 0 0 0 1 ] */
+
+   memset(&R.data[12],0,sizeof(double)*3);
+   R.data[15] = 1.0;
+
+   /* compute a parameter from b,c,d */
+
+   a = 1.0l - (b*b + c*c + d*d) ;
+   if( a < 1.e-7l ){                   /* special case */
+     a = 1.0l / sqrt(b*b+c*c+d*d) ;
+     b *= a ; c *= a ; d *= a ;        /* normalize (b,c,d) vector */
+     a = 0.0l ;                        /* a = 0 ==> 180 degree rotation */
+   } else{
+     a = sqrt(a) ;                     /* angle = 2*arccos(a) */
+   }
+
+   /* load rotation matrix, including scaling factors for voxel sizes */
+
+   xd = (dx > 0.0) ? dx : 1.0l ;       /* make sure are positive */
+   yd = (dy > 0.0) ? dy : 1.0l ;
+   zd = (dz > 0.0) ? dz : 1.0l ;
+
+   if( qfac < 0.0 ) zd = -zd ;         /* left handedness? */
+
+   R.data[ 0] =        (a*a+b*b-c*c-d*d) * xd ;
+   R.data[ 4] = 2.0l * (b*c-a*d        ) * yd ;
+   R.data[ 8] = 2.0l * (b*d+a*c        ) * zd ;
+   R.data[ 1] = 2.0l * (b*c+a*d        ) * xd ;
+   R.data[ 5] =        (a*a+c*c-b*b-d*d) * yd ;
+   R.data[ 9] = 2.0l * (c*d-a*b        ) * zd ;
+   R.data[ 2] = 2.0l * (b*d-a*c        ) * xd ;
+   R.data[ 6] = 2.0l * (c*d+a*b        ) * yd ;
+   R.data[10] =        (a*a+d*d-c*c-b*b) * zd ;
+
+   /* load offsets */
+
+   R.data[12] = qx;
+   R.data[13] = qy;
+   R.data[14] = qz;
+
+   return R ;
+}
+/*---------------------------------------------------------------------------*/
+/*! Compute the inverse of a bordered 4x4 matrix.
+
+     <pre>
+   - Some numerical code fragments were generated by Maple 8.
+   - If a singular matrix is input, the output matrix will be all zero.
+   - You can check for this by examining the [3][3] element, which will
+     be 1.0 for the normal case and 0.0 for the bad case.
+
+     The input matrix should have the form:
+        [ r11 r12 r13 v1 ]
+        [ r21 r22 r23 v2 ]
+        [ r31 r32 r33 v3 ]
+        [  0   0   0   1 ]
+     </pre>
+*//*-------------------------------------------------------------------------*/
+static GrfMat4
+grf_nifti_mat4_inverse( GrfMat4 R )
+{
+   double r11,r12,r13,r21,r22,r23,r31,r32,r33,v1,v2,v3 , deti ;
+   GrfMat4 Q ;
+                                                       /*  INPUT MATRIX IS:  */
+   r11 = R.data[ 0]; r12 = R.data[ 4]; r13 = R.data[ 8];  /* [ r11 r12 r13 v1 ] */
+   r21 = R.data[ 1]; r22 = R.data[ 5]; r23 = R.data[ 9];  /* [ r21 r22 r23 v2 ] */
+   r31 = R.data[ 2]; r32 = R.data[ 6]; r33 = R.data[10];  /* [ r31 r32 r33 v3 ] */
+   v1  = R.data[12]; v2  = R.data[13]; v3  = R.data[14];  /* [  0   0   0   1 ] */
+
+   deti = r11*r22*r33-r11*r32*r23-r21*r12*r33
+         +r21*r32*r13+r31*r12*r23-r31*r22*r13 ;
+
+   if( deti != 0.0l ) deti = 1.0l / deti ;
+
+   Q.data[ 0] = deti*( r22*r33-r32*r23) ;
+   Q.data[ 4] = deti*(-r12*r33+r32*r13) ;
+   Q.data[ 8] = deti*( r12*r23-r22*r13) ;
+   Q.data[12] = deti*(-r12*r23*v3+r12*v2*r33+r22*r13*v3
+                     -r22*v1*r33-r32*r13*v2+r32*v1*r23) ;
+
+   Q.data[ 1] = deti*(-r21*r33+r31*r23) ;
+   Q.data[ 5] = deti*( r11*r33-r31*r13) ;
+   Q.data[ 9] = deti*(-r11*r23+r21*r13) ;
+   Q.data[13] = deti*( r11*r23*v3-r11*v2*r33-r21*r13*v3
+                     +r21*v1*r33+r31*r13*v2-r31*v1*r23) ;
+
+   Q.data[2]  = deti*( r21*r32-r31*r22) ;
+   Q.data[6]  = deti*(-r11*r32+r31*r12) ;
+   Q.data[10] = deti*( r11*r22-r21*r12) ;
+   Q.data[14] = deti*(-r11*r22*v3+r11*r32*v2+r21*r12*v3
+                     -r21*r32*v1-r31*r12*v2+r31*r22*v1) ;
+
+   Q.data[3]  = Q.data[7] = Q.data[11] = 0.0l ;
+   Q.data[15] = (deti == 0.0l) ? 0.0l : 1.0l ; /* failure flag if deti == 0 */
+
+   return Q ;
+}
 
 /* macro to check lhs string against "n1"; if it matches,
    interpret rhs string as a number, and put it into nim->"n2" */
-#define QQNUM(n1,n2) if( strcmp(lhs,#n1)==0 ) grf_nifti_image_set_##n2(strtod(rhs,NULL))
+#define QQNUM(n1,n2) if( strcmp(lhs,#n1)==0 ) grf_nifti_image_set_##n2(nim,strtod(rhs,NULL))
 
 /* same, but where "n1" == "n2" */
 #define QNUM(nam)    QQNUM(nam,nam)
@@ -613,7 +989,7 @@ static int unescape_string( char *str )
     - Not a lot of error checking is done here to make sure that the
       input values are reasonable!
 *//*-------------------------------------------------------------------------*/
-GrfNiftiImage*
+static GrfNiftiImage*
 grf_nifti_image_from_ascii( const char *str, int * bytes_read )
 {
    char lhs[1024] , rhs[1024] ;
@@ -635,8 +1011,8 @@ grf_nifti_image_from_ascii( const char *str, int * bytes_read )
       return NULL;
    }
 
-   grf_nifti_image_set_nsize(nim, (GrfVec6){{1,1,1,1,1,1}});
-   grf_nifti_image_set_dsize(nim, (GrfVec6){{0,0,0,0,0,0}});
+   grf_nifti_image_set_nsize(nim, (GrfVec7){{1,1,1,1,1,1,1}});
+   grf_nifti_image_set_dsize(nim, (GrfVec7){{0,0,0,0,0,0,0}});
    grf_nifti_image_set_qfac(nim, 1.0);
    grf_nifti_image_set_byteorder(nim,grf_nifti_short_order());
 
@@ -759,42 +1135,255 @@ grf_nifti_image_from_ascii( const char *str, int * bytes_read )
    if( bytes_read ) *bytes_read = spos+1;         /* "process" last '\n' */
 
    /* do miscellaneous checking and cleanup */
+   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
+   if( priv->ndim <= 0 ){ g_clear_object(&nim); return NULL; } /* bad! */
 
-   if( grf_nifti_image_get_ndim(nim) <= 0 ){ g_clear_object(&nim); return NULL; } /* bad! */
+   grf_nifti_datatype_sizes( priv->datatype, &(priv->nbyper), &(priv->swapsize) );
+   if( priv->nbyper == 0 ){ g_clear_object(&nim); return NULL; } /* bad! */
 
-   grf_nifti_datatype_sizes( nim->datatype, &(nim->nbyper), &(nim->swapsize) );
-   if( nim->nbyper == 0 ){ grf_nifti_image_free(nim); return NULL; } /* bad! */
+   priv->dim[0] = priv->ndim ;
+   priv->dim[1] = priv->nsize.data[0] ; priv->pixdim[1] = priv->dsize.data[0] ;
+   priv->dim[2] = priv->nsize.data[1] ; priv->pixdim[2] = priv->dsize.data[1] ;
+   priv->dim[3] = priv->nsize.data[2] ; priv->pixdim[3] = priv->dsize.data[2] ;
+   priv->dim[4] = priv->nsize.data[3] ; priv->pixdim[4] = priv->dsize.data[3] ;
+   priv->dim[5] = priv->nsize.data[4] ; priv->pixdim[5] = priv->dsize.data[4] ;
+   priv->dim[6] = priv->nsize.data[5] ; priv->pixdim[6] = priv->dsize.data[5] ;
+   priv->dim[7] = priv->nsize.data[6] ; priv->pixdim[7] = priv->dsize.data[6] ;
 
-   nim->dim[0] = nim->ndim ;
-   nim->dim[1] = nim->nx ; nim->pixdim[1] = nim->dx ;
-   nim->dim[2] = nim->ny ; nim->pixdim[2] = nim->dy ;
-   nim->dim[3] = nim->nz ; nim->pixdim[3] = nim->dz ;
-   nim->dim[4] = nim->nt ; nim->pixdim[4] = nim->dt ;
-   nim->dim[5] = nim->nu ; nim->pixdim[5] = nim->du ;
-   nim->dim[6] = nim->nv ; nim->pixdim[6] = nim->dv ;
-   nim->dim[7] = nim->nw ; nim->pixdim[7] = nim->dw ;
+   priv->nvox = 1;
+   uint8_t i;
+   for(i = 0; i < 7; i++) priv->nvox *= priv->nsize.data[i];
 
-   nim->nvox = (size_t)nim->nx * nim->ny * nim->nz
-                     * nim->nt * nim->nu * nim->nv * nim->nw ;
-
-   if( nim->qform_code > 0 )
-     nim->qto_xyz = grf_nifti_quatern_to_mat44(
-                      nim->quatern_b, nim->quatern_c, nim->quatern_d,
-                      nim->qoffset_x, nim->qoffset_y, nim->qoffset_z,
-                      nim->dx       , nim->dy       , nim->dz       ,
-                      nim->qfac                                      ) ;
+   if( priv->qform_code > 0 )
+     priv->qto_xyz = grf_nifti_quatern_to_mat4(
+                      priv->quatern_b, priv->quatern_c, priv->quatern_d,
+                      priv->qoffset_x, priv->qoffset_y, priv->qoffset_z,
+                      priv->dsize.data[0],  priv->dsize.data[1],  priv->dsize.data[2],
+                      priv->qfac) ;
    else
-     nim->qto_xyz = grf_nifti_quatern_to_mat44(
+     priv->qto_xyz = grf_nifti_quatern_to_mat4(
                       0.0 , 0.0 , 0.0 , 0.0 , 0.0 , 0.0 ,
-                      nim->dx , nim->dy , nim->dz , 0.0 ) ;
+                      priv->dsize.data[0] , priv->dsize.data[1] , priv->dsize.data[2] , 0.0 ) ;
 
 
-   nim->qto_ijk = grf_nifti_mat44_inverse( nim->qto_xyz ) ;
+   priv->qto_ijk = grf_nifti_mat4_inverse( priv->qto_xyz ) ;
 
-   if( nim->sform_code > 0 )
-     nim->sto_ijk = grf_nifti_mat44_inverse( nim->sto_xyz ) ;
+   if( priv->sform_code > 0 )
+     priv->sto_ijk = grf_nifti_mat4_inverse( priv->sto_xyz ) ;
 
    return nim ;
+}
+/*----------------------------------------------------------------------*/
+/*! swap 4 bytes at a time from the given list of n sets of 4 bytes
+*//*--------------------------------------------------------------------*/
+static void
+grf_nifti_swap_4bytes( int n , void *ar )    /* 4 bytes at a time */
+{
+   register int ii ;
+   unsigned char * cp0 = (unsigned char *)ar, * cp1, * cp2 ;
+   register unsigned char tval ;
+
+   for( ii=0 ; ii < n ; ii++ ){
+       cp1 = cp0; cp2 = cp0+3;
+       tval = *cp1;  *cp1 = *cp2;  *cp2 = tval;
+       cp1++;  cp2--;
+       tval = *cp1;  *cp1 = *cp2;  *cp2 = tval;
+       cp0 += 4;
+   }
+   return ;
+}
+/*----------------------------------------------------------------------*/
+/*! check whether the extension code is valid
+
+    \return 1 if valid, 0 otherwise
+*//*--------------------------------------------------------------------*/
+static gboolean
+grf_nifti_is_valid_ecode( int ecode )
+{
+   if( ecode < GRF_NIFTI_ECODE_IGNORE  ||   /* minimum code number (0) */
+       ecode > GRF_NIFTI_MAX_ECODE     ||   /* maximum code number     */
+       ecode & 1 )                      /* cannot be odd           */
+      return FALSE;
+
+   return TRUE;
+}
+/*----------------------------------------------------------------------
+ * check for valid size and code, as well as can be done
+ *----------------------------------------------------------------------*/
+static gboolean
+grf_nifti_check_extension(GrfNiftiImage *nim, int size, int code, int rem)
+{
+  /* check for bad code before bad size */
+  if( ! grf_nifti_is_valid_ecode(code) ) {
+    return FALSE;
+  }
+
+  if( size < 16 ){
+    return FALSE;
+  }
+
+  if( size > rem ){
+    return FALSE;
+  }
+
+  if( size & 0xf ){
+    return FALSE;
+  }
+
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
+  if( priv->nifti_type == GRF_NIFTI_TYPE_ASCII && size > LNI_MAX_NIA_EXT_LEN ){
+    return FALSE;
+  }
+
+  return TRUE;
+}
+
+/*----------------------------------------------------------------------
+ * nifti_read_next_extension  - read a single extension from the file
+ *
+ * return (>= 0 is okay):
+ *
+ *     success      : esize
+ *     no extension : 0
+ *     error        : -1
+ *----------------------------------------------------------------------*/
+static int grf_nifti_read_next_extension( GrfNifti1Extension * nex, GrfNiftiImage *nim,
+                                      int remain, GrfZnzFile* fp )
+{
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
+  int swap = priv->byteorder != grf_nifti_short_order();
+  int count, size, code;
+
+  /* first clear nex */
+  nex->esize = nex->ecode = 0;
+  nex->edata = NULL;
+
+  if( remain < 16 ){
+     return 0;
+  }
+
+  /* must start with 4-byte size and code */
+  count = (int)grf_znzfile_read(fp, &size, 4, 1);
+  if( count == 1 ) count += (int)grf_znzfile_read(fp, &code, 4, 1);
+
+  if( count != 2 ){
+     grf_znzfile_seek(fp, -4*count, SEEK_CUR); /* back up past any read */
+     return 0;                        /* no extension, no error condition */
+  }
+
+  if( swap ){
+     grf_nifti_swap_4bytes(1, &size);
+     grf_nifti_swap_4bytes(1, &code);
+  }
+
+  if( !grf_nifti_check_extension(nim, size, code, remain) ){
+     if( grf_znzfile_seek(fp, -8, SEEK_CUR) < 0 ){      /* back up past any read */
+        fprintf(stderr,"** failure to back out of extension read!\n");
+        return -1;
+     }
+     return 0;
+  }
+
+  /* now get the actual data */
+  nex->esize = size;
+  nex->ecode = code;
+
+  size -= 8;  /* subtract space for size and code in extension */
+  nex->edata = (char *)malloc(size * sizeof(char));
+  if( !nex->edata ){
+     fprintf(stderr,"** failed to allocate %d bytes for extension\n",size);
+     return -1;
+  }
+
+  count = (int)grf_znzfile_read(fp,nex->edata, 1, size);
+  if( count < size ){
+     free(nex->edata);
+     nex->edata = NULL;
+     return -1;
+  }
+
+  /* success! */
+  return nex->esize;
+}
+
+/*----------------------------------------------------------------------
+ * Read the extensions into the nifti_image struct   08 Dec 2004 [rickr]
+ *
+ * This function is called just after the header struct is read in, and
+ * it is assumed the file pointer has not moved.  The value in remain
+ * is assumed to be accurate, reflecting the bytes of space for potential
+ * extensions.
+ *
+ * return the number of extensions read in, or < 0 on error
+ *----------------------------------------------------------------------*/
+static int
+grf_nifti_read_extensions( GrfNiftiImage *nim, GrfZnzFile* fp, int remain )
+{
+   GrfNifti1Extender    extdr;      /* defines extension existence  */
+   GrfNifti1Extension   extn;       /* single extension to process  */
+   GrfNifti1Extension * Elist;      /* list of processed extensions */
+   int                posn, count;
+
+   if( !nim || !fp ) {
+      return -1;
+   }
+
+   posn = grf_znzfile_tell(fp);
+   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
+   if( (posn != sizeof(GrfNifti1Header)) &&
+       (priv->nifti_type != GRF_NIFTI_TYPE_ASCII) )
+      fprintf(stderr,"** WARNING: posn not header size (%d, %d)\n",
+              posn, (int)sizeof(GrfNifti1Header));
+
+   if( remain < 16 )
+      return 0;
+
+
+   count = (int)grf_znzfile_read(fp, extdr.extension, 1, 4); /* get extender */
+
+   if( count < 4 ){
+      return 0;
+   }
+
+   if( extdr.extension[0] != 1 ){
+      return 0;
+   }
+
+   remain -= 4;
+
+   /* so we expect extensions, but have no idea of how many there may be */
+
+   count = 0;
+   Elist = NULL;
+   while (grf_nifti_read_next_extension(&extn, nim, remain, fp) > 0)
+   {
+      if( grf_nifti_add_exten_to_list(&extn, &Elist, count+1) < 0 ){
+         if( g_opts.debug > 0 )
+            fprintf(stderr,"** failed adding ext %d to list\n", count);
+         return -1;
+      }
+
+      /* we have a new extension */
+      if( g_opts.debug > 1 ){
+         fprintf(stderr,"+d found extension #%d, code = 0x%x, size = %d\n",
+                 count, extn.ecode, extn.esize);
+         if( extn.ecode == GRF_NIFTI_ECODE_AFNI && g_opts.debug > 2 ) /* ~XML */
+            fprintf(stderr,"   AFNI extension: %.*s\n",
+                    extn.esize-8,extn.edata);
+         else if( extn.ecode == GRF_NIFTI_ECODE_COMMENT && g_opts.debug > 2 )
+            fprintf(stderr,"   COMMENT extension: %.*s\n",        /* TEXT */
+                    extn.esize-8,extn.edata);
+      }
+      remain -= extn.esize;
+      count++;
+   }
+
+   if( g_opts.debug > 2 ) fprintf(stderr,"+d found %d extension(s)\n", count);
+
+   nim->num_ext = count;
+   nim->ext_list = Elist;
+
+   return count;
 }
 /*----------------------------------------------------------------------*/
 /*! grf_nifti_read_ascii_image  - process as a type-3 .nia image file
@@ -824,16 +1413,17 @@ GrfNiftiImage * grf_nifti_read_ascii_image(GrfZnzFile* fp, char *fname, int flen
    grf_znzfile_read_header(fp, sbuf , 1 , slen);
    nim = grf_nifti_image_from_ascii( sbuf, &txt_size ) ; free( sbuf ) ;
    if( nim == NULL ){
-      LNI_FERR(lfunc,"failed nifti_image_from_ascii()",fname);
-      free(fname);  grf_znzclose(fp);  return NULL;
+     g_clear_object(&fp);
+     return NULL;
    }
-   nim->nifti_type = GRF_NIFTI_FTYPE_ASCII ;
+   GrfNiftiImagePrivate *priv = grf_nifti_image_get_instance_private(nim);
+   priv->nifti_type = GRF_NIFTI_TYPE_ASCII;
 
    /* compute remaining space for extensions */
-   remain = flen - txt_size - (int)grf_nifti_get_volsize(nim);
+   remain = flen - txt_size - (int)grf_nifti_image_get_volsize(nim);
    if( remain > 4 ){
       /* read extensions (reposition file pointer, first) */
-      grf_znzseek(fp, txt_size, SEEK_SET);
+      grf_znzfile_seek(fp, txt_size, SEEK_SET);
       (void) grf_nifti_read_extensions(nim, fp, remain);
    }
 
@@ -947,13 +1537,13 @@ GrfNiftiImage *grf_nifti_image_read( const char *hname , gboolean read_data )
    return nim ;
 }
 
-GrfVec6
+GrfVec7
 grf_nifti_image_get_nsize(GrfNiftiImage* image){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   return priv->nsize;
 }
 
-GrfVec6
+GrfVec7
 grf_nifti_image_get_dsize(GrfNiftiImage* image){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   return priv->dsize;
@@ -981,6 +1571,12 @@ int
 grf_nifti_image_get_ndim(GrfNiftiImage* image){
   GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(image);
   return priv->ndim;
+}
+size_t
+grf_nifti_image_get_volsize(GrfNiftiImage *nim)
+{
+  GrfNiftiImagePrivate* priv = grf_nifti_image_get_instance_private(nim);
+  return (size_t)(priv->nbyper) * (size_t)(priv->nvox) ; /* total bytes */
 }
 
 /*****===================================================================*****/
@@ -2042,119 +2638,6 @@ char *grf_nifti_orientation_string( int ii )
    return "Unknown" ;
 }
 
-/*--------------------------------------------------------------------------*/
-/*! Given a datatype code, set number of bytes per voxel and the swapsize.
-
-    \param datatype nifti1 datatype code
-    \param nbyper   pointer to return value: number of bytes per voxel
-    \param swapsize pointer to return value: size of swap blocks
-
-    \return appropriate values at nbyper and swapsize
-
-    The swapsize is set to 0 if this datatype doesn't ever need swapping.
-
-    \sa NIFTI1_DATATYPES in nifti1.h
-*//*------------------------------------------------------------------------*/
-void grf_nifti_datatype_sizes( int datatype , int *nbyper, int *swapsize )
-{
-   int nb=0, ss=0 ;
-   switch( datatype ){
-     case GRF_DT_INT8:
-     case GRF_DT_UINT8:       nb =  1 ; ss =  0 ; break ;
-
-     case GRF_DT_INT16:
-     case GRF_DT_UINT16:      nb =  2 ; ss =  2 ; break ;
-
-     case GRF_DT_RGB24:       nb =  3 ; ss =  0 ; break ;
-     case GRF_DT_RGBA32:      nb =  4 ; ss =  0 ; break ;
-
-     case GRF_DT_INT32:
-     case GRF_DT_UINT32:
-     case GRF_DT_FLOAT32:     nb =  4 ; ss =  4 ; break ;
-
-     case GRF_DT_COMPLEX64:   nb =  8 ; ss =  4 ; break ;
-
-     case GRF_DT_FLOAT64:
-     case GRF_DT_INT64:
-     case GRF_DT_UINT64:      nb =  8 ; ss =  8 ; break ;
-
-     case GRF_DT_FLOAT128:    nb = 16 ; ss = 16 ; break ;
-
-     case GRF_DT_COMPLEX128:  nb = 16 ; ss =  8 ; break ;
-
-     case GRF_DT_COMPLEX256:  nb = 32 ; ss = 16 ; break ;
-   }
-
-   ASSIF(nbyper,nb) ; ASSIF(swapsize,ss) ; return ;
-}
-
-/*---------------------------------------------------------------------------*/
-/*! Given the quaternion parameters (etc.), compute a transformation matrix.
-
-   See comments in nifti1.h for details.
-     - qb,qc,qd = quaternion parameters
-     - qx,qy,qz = offset parameters
-     - dx,dy,dz = grid stepsizes (non-negative inputs are set to 1.0)
-     - qfac     = sign of dz step (< 0 is negative; >= 0 is positive)
-
-   <pre>
-   If qx=qy=qz=0, dx=dy=dz=1, then the output is a rotation matrix.
-   For qfac >= 0, the rotation is proper.
-   For qfac <  0, the rotation is improper.
-   </pre>
-
-   \see "QUATERNION REPRESENTATION OF ROTATION MATRIX" in nifti1.h
-   \see nifti_mat44_to_quatern, nifti_make_orthog_mat44,
-       nifti_mat44_to_orientation
-
-*//*-------------------------------------------------------------------------*/
-mat44 grf_nifti_quatern_to_mat44( float qb, float qc, float qd,
-                              float qx, float qy, float qz,
-                              float dx, float dy, float dz, float qfac )
-{
-   mat44 R ;
-   double a,b=qb,c=qc,d=qd , xd,yd,zd ;
-
-   /* last row is always [ 0 0 0 1 ] */
-
-   R.m[3][0]=R.m[3][1]=R.m[3][2] = 0.0 ; R.m[3][3]= 1.0 ;
-
-   /* compute a parameter from b,c,d */
-
-   a = 1.0l - (b*b + c*c + d*d) ;
-   if( a < 1.e-7l ){                   /* special case */
-     a = 1.0l / sqrt(b*b+c*c+d*d) ;
-     b *= a ; c *= a ; d *= a ;        /* normalize (b,c,d) vector */
-     a = 0.0l ;                        /* a = 0 ==> 180 degree rotation */
-   } else{
-     a = sqrt(a) ;                     /* angle = 2*arccos(a) */
-   }
-
-   /* load rotation matrix, including scaling factors for voxel sizes */
-
-   xd = (dx > 0.0) ? dx : 1.0l ;       /* make sure are positive */
-   yd = (dy > 0.0) ? dy : 1.0l ;
-   zd = (dz > 0.0) ? dz : 1.0l ;
-
-   if( qfac < 0.0 ) zd = -zd ;         /* left handedness? */
-
-   R.m[0][0] =        (a*a+b*b-c*c-d*d) * xd ;
-   R.m[0][1] = 2.0l * (b*c-a*d        ) * yd ;
-   R.m[0][2] = 2.0l * (b*d+a*c        ) * zd ;
-   R.m[1][0] = 2.0l * (b*c+a*d        ) * xd ;
-   R.m[1][1] =        (a*a+c*c-b*b-d*d) * yd ;
-   R.m[1][2] = 2.0l * (c*d-a*b        ) * zd ;
-   R.m[2][0] = 2.0l * (b*d-a*c        ) * xd ;
-   R.m[2][1] = 2.0l * (c*d+a*b        ) * yd ;
-   R.m[2][2] =        (a*a+d*d-c*c-b*b) * zd ;
-
-   /* load offsets */
-
-   R.m[0][3] = qx ; R.m[1][3] = qy ; R.m[2][3] = qz ;
-
-   return R ;
-}
-
 /*---------------------------------------------------------------------------*/
 /*! Given the 3x4 upper corner of the matrix R, compute the quaternion
    parameters that fit it.
@@ -2294,60 +2777,7 @@ void grf_nifti_mat44_to_quatern( mat44 R ,
    return ;
 }
 
-/*---------------------------------------------------------------------------*/
-/*! Compute the inverse of a bordered 4x4 matrix.
 
-     <pre>
-   - Some numerical code fragments were generated by Maple 8.
-   - If a singular matrix is input, the output matrix will be all zero.
-   - You can check for this by examining the [3][3] element, which will
-     be 1.0 for the normal case and 0.0 for the bad case.
-
-     The input matrix should have the form:
-        [ r11 r12 r13 v1 ]
-        [ r21 r22 r23 v2 ]
-        [ r31 r32 r33 v3 ]
-        [  0   0   0   1 ]
-     </pre>
-*//*-------------------------------------------------------------------------*/
-mat44 grf_nifti_mat44_inverse( mat44 R )
-{
-   double r11,r12,r13,r21,r22,r23,r31,r32,r33,v1,v2,v3 , deti ;
-   mat44 Q ;
-                                                       /*  INPUT MATRIX IS:  */
-   r11 = R.m[0][0]; r12 = R.m[0][1]; r13 = R.m[0][2];  /* [ r11 r12 r13 v1 ] */
-   r21 = R.m[1][0]; r22 = R.m[1][1]; r23 = R.m[1][2];  /* [ r21 r22 r23 v2 ] */
-   r31 = R.m[2][0]; r32 = R.m[2][1]; r33 = R.m[2][2];  /* [ r31 r32 r33 v3 ] */
-   v1  = R.m[0][3]; v2  = R.m[1][3]; v3  = R.m[2][3];  /* [  0   0   0   1 ] */
-
-   deti = r11*r22*r33-r11*r32*r23-r21*r12*r33
-         +r21*r32*r13+r31*r12*r23-r31*r22*r13 ;
-
-   if( deti != 0.0l ) deti = 1.0l / deti ;
-
-   Q.m[0][0] = deti*( r22*r33-r32*r23) ;
-   Q.m[0][1] = deti*(-r12*r33+r32*r13) ;
-   Q.m[0][2] = deti*( r12*r23-r22*r13) ;
-   Q.m[0][3] = deti*(-r12*r23*v3+r12*v2*r33+r22*r13*v3
-                     -r22*v1*r33-r32*r13*v2+r32*v1*r23) ;
-
-   Q.m[1][0] = deti*(-r21*r33+r31*r23) ;
-   Q.m[1][1] = deti*( r11*r33-r31*r13) ;
-   Q.m[1][2] = deti*(-r11*r23+r21*r13) ;
-   Q.m[1][3] = deti*( r11*r23*v3-r11*v2*r33-r21*r13*v3
-                     +r21*v1*r33+r31*r13*v2-r31*v1*r23) ;
-
-   Q.m[2][0] = deti*( r21*r32-r31*r22) ;
-   Q.m[2][1] = deti*(-r11*r32+r31*r12) ;
-   Q.m[2][2] = deti*( r11*r22-r21*r12) ;
-   Q.m[2][3] = deti*(-r11*r22*v3+r11*r32*v2+r21*r12*v3
-                     -r21*r32*v1-r31*r12*v2+r31*r22*v1) ;
-
-   Q.m[3][0] = Q.m[3][1] = Q.m[3][2] = 0.0l ;
-   Q.m[3][3] = (deti == 0.0l) ? 0.0l : 1.0l ; /* failure flag if deti == 0 */
-
-   return Q ;
-}
 
 /*---------------------------------------------------------------------------*/
 /*! Input 9 floats and make an orthgonal mat44 out of them.
@@ -2796,25 +3226,6 @@ void grf_nifti_swap_2bytes( int n , void *ar )    /* 2 bytes at a time */
 }
 
 /*----------------------------------------------------------------------*/
-/*! swap 4 bytes at a time from the given list of n sets of 4 bytes
-*//*--------------------------------------------------------------------*/
-void grf_nifti_swap_4bytes( int n , void *ar )    /* 4 bytes at a time */
-{
-   register int ii ;
-   unsigned char * cp0 = (unsigned char *)ar, * cp1, * cp2 ;
-   register unsigned char tval ;
-
-   for( ii=0 ; ii < n ; ii++ ){
-       cp1 = cp0; cp2 = cp0+3;
-       tval = *cp1;  *cp1 = *cp2;  *cp2 = tval;
-       cp1++;  cp2--;
-       tval = *cp1;  *cp1 = *cp2;  *cp2 = tval;
-       cp0 += 4;
-   }
-   return ;
-}
-
-/*----------------------------------------------------------------------*/
 /*! swap 8 bytes at a time from the given list of n sets of 8 bytes
  *
  *  perhaps use this style for the general Nbytes, as Yaroslav suggests
@@ -3072,17 +3483,6 @@ int nifti_get_filesize( const char *pathname )
 }
 
 #endif /* USE_STAT */
-
-
-/*----------------------------------------------------------------------*/
-/*! return the total volume size, in bytes
-
-    This is computed as nvox * nbyper.
-*//*--------------------------------------------------------------------*/
-size_t grf_nifti_get_volsize(const GrfNiftiImage *nim)
-{
-   return (size_t)(nim->nbyper) * (size_t)(nim->nvox) ; /* total bytes */
-}
 
 
 /*--------------------------------------------------------------------------*/
@@ -3939,7 +4339,7 @@ GrfNiftiImage* grf_nifti_convert_nhdr2nim(struct GrfNifti1Header nhdr,
 
     nim->qfac = (nhdr.pixdim[0] < 0.0) ? -1.0 : 1.0 ;  /* left-handedness? */
 
-    nim->qto_xyz = grf_nifti_quatern_to_mat44(
+    nim->qto_xyz = grf_nifti_quatern_to_mat4(
                       nim->quatern_b, nim->quatern_c, nim->quatern_d,
                       nim->qoffset_x, nim->qoffset_y, nim->qoffset_z,
                       nim->dx       , nim->dy       , nim->dz       ,
@@ -3953,7 +4353,7 @@ GrfNiftiImage* grf_nifti_convert_nhdr2nim(struct GrfNifti1Header nhdr,
 
   /**- load inverse transformation (x,y,z) -> (i,j,k) */
 
-  nim->qto_ijk = grf_nifti_mat44_inverse( nim->qto_xyz ) ;
+  nim->qto_ijk = grf_nifti_mat4_inverse( nim->qto_xyz ) ;
 
   /**- load sto_xyz affine transformation, if present */
 
@@ -3987,7 +4387,7 @@ GrfNiftiImage* grf_nifti_convert_nhdr2nim(struct GrfNifti1Header nhdr,
     nim->sto_xyz.m[3][0]=nim->sto_xyz.m[3][1]=nim->sto_xyz.m[3][2] = 0.0;
     nim->sto_xyz.m[3][3]= 1.0 ;
 
-    nim->sto_ijk = grf_nifti_mat44_inverse( nim->sto_xyz ) ;
+    nim->sto_ijk = grf_nifti_mat4_inverse( nim->sto_xyz ) ;
 
     nim->sform_code = nhdr.sform_code ;
 
@@ -4333,107 +4733,6 @@ static int need_nhdr_swap( short dim0, int hdrsize )
 
 
 
-/*----------------------------------------------------------------------
- * Read the extensions into the nifti_image struct   08 Dec 2004 [rickr]
- *
- * This function is called just after the header struct is read in, and
- * it is assumed the file pointer has not moved.  The value in remain
- * is assumed to be accurate, reflecting the bytes of space for potential
- * extensions.
- *
- * return the number of extensions read in, or < 0 on error
- *----------------------------------------------------------------------*/
-static int grf_nifti_read_extensions( GrfNiftiImage *nim, GrfZnzFile fp, int remain )
-{
-   GrfNifti1Extender    extdr;      /* defines extension existence  */
-   GrfNifti1Extension   extn;       /* single extension to process  */
-   GrfNifti1Extension * Elist;      /* list of processed extensions */
-   int                posn, count;
-
-   if( !nim || grf_znz_isnull(fp) ) {
-      if( g_opts.debug > 0 )
-         fprintf(stderr,"** nifti_read_extensions: bad inputs (%p,%p)\n",
-                 (void *)nim, (void *)fp);
-      return -1;
-   }
-
-   posn = grf_znztell(fp);
-
-   if( (posn != sizeof(GrfNifti1Header)) &&
-       (nim->nifti_type != GRF_NIFTI_FTYPE_ASCII) )
-      fprintf(stderr,"** WARNING: posn not header size (%d, %d)\n",
-              posn, (int)sizeof(GrfNifti1Header));
-
-   if( g_opts.debug > 2 )
-      fprintf(stderr,"-d nre: posn = %d, offset = %d, type = %d, remain = %d\n",
-              posn, nim->iname_offset, nim->nifti_type, remain);
-
-   if( remain < 16 ){
-      if( g_opts.debug > 2 ){
-         if( g_opts.skip_blank_ext )
-            fprintf(stderr,"-d no extender in '%s' is okay, as "
-                           "skip_blank_ext is set\n",nim->fname);
-         else
-            fprintf(stderr,"-d remain=%d, no space for extensions\n",remain);
-      }
-      return 0;
-   }
-
-   count = (int)grf_znzread( extdr.extension, 1, 4, fp ); /* get extender */
-
-   if( count < 4 ){
-      if( g_opts.debug > 1 )
-         fprintf(stderr,"-d file '%s' is too short for an extender\n",
-                 nim->fname);
-      return 0;
-   }
-
-   if( extdr.extension[0] != 1 ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d extender[0] (%d) shows no extensions for '%s'\n",
-                 extdr.extension[0], nim->fname);
-      return 0;
-   }
-
-   remain -= 4;
-   if( g_opts.debug > 2 )
-      fprintf(stderr,"-d found valid 4-byte extender, remain = %d\n", remain);
-
-   /* so we expect extensions, but have no idea of how many there may be */
-
-   count = 0;
-   Elist = NULL;
-   while (grf_nifti_read_next_extension(&extn, nim, remain, fp) > 0)
-   {
-      if( grf_nifti_add_exten_to_list(&extn, &Elist, count+1) < 0 ){
-         if( g_opts.debug > 0 )
-            fprintf(stderr,"** failed adding ext %d to list\n", count);
-         return -1;
-      }
-
-      /* we have a new extension */
-      if( g_opts.debug > 1 ){
-         fprintf(stderr,"+d found extension #%d, code = 0x%x, size = %d\n",
-                 count, extn.ecode, extn.esize);
-         if( extn.ecode == GRF_NIFTI_ECODE_AFNI && g_opts.debug > 2 ) /* ~XML */
-            fprintf(stderr,"   AFNI extension: %.*s\n",
-                    extn.esize-8,extn.edata);
-         else if( extn.ecode == GRF_NIFTI_ECODE_COMMENT && g_opts.debug > 2 )
-            fprintf(stderr,"   COMMENT extension: %.*s\n",        /* TEXT */
-                    extn.esize-8,extn.edata);
-      }
-      remain -= extn.esize;
-      count++;
-   }
-
-   if( g_opts.debug > 2 ) fprintf(stderr,"+d found %d extension(s)\n", count);
-
-   nim->num_ext = count;
-   nim->ext_list = Elist;
-
-   return count;
-}
-
 
 /*----------------------------------------------------------------------*/
 /*! grf_nifti_add_extension - add an extension, with a copy of the data
@@ -4556,89 +4855,7 @@ static int grf_nifti_fill_extension( GrfNifti1Extension *ext, const char * data,
 }
 
 
-/*----------------------------------------------------------------------
- * nifti_read_next_extension  - read a single extension from the file
- *
- * return (>= 0 is okay):
- *
- *     success      : esize
- *     no extension : 0
- *     error        : -1
- *----------------------------------------------------------------------*/
-static int grf_nifti_read_next_extension( GrfNifti1Extension * nex, GrfNiftiImage *nim,
-                                      int remain, GrfZnzFile fp )
-{
-   int swap = nim->byteorder != grf_nifti_short_order();
-   int count, size, code;
 
-   /* first clear nex */
-   nex->esize = nex->ecode = 0;
-   nex->edata = NULL;
-
-   if( remain < 16 ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d only %d bytes remain, so no extension\n", remain);
-      return 0;
-   }
-
-   /* must start with 4-byte size and code */
-   count = (int)grf_znzread( &size, 4, 1, fp );
-   if( count == 1 ) count += (int)grf_znzread( &code, 4, 1, fp );
-
-   if( count != 2 ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d current extension read failed\n");
-      grf_znzseek(fp, -4*count, SEEK_CUR); /* back up past any read */
-      return 0;                        /* no extension, no error condition */
-   }
-
-   if( swap ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d pre-swap exts: code %d, size %d\n", code, size);
-
-      grf_nifti_swap_4bytes(1, &size);
-      grf_nifti_swap_4bytes(1, &code);
-   }
-
-   if( g_opts.debug > 2 )
-      fprintf(stderr,"-d potential extension: code %d, size %d\n", code, size);
-
-   if( !grf_nifti_check_extension(nim, size, code, remain) ){
-      if( grf_znzseek(fp, -8, SEEK_CUR) < 0 ){      /* back up past any read */
-         fprintf(stderr,"** failure to back out of extension read!\n");
-         return -1;
-      }
-      return 0;
-   }
-
-   /* now get the actual data */
-   nex->esize = size;
-   nex->ecode = code;
-
-   size -= 8;  /* subtract space for size and code in extension */
-   nex->edata = (char *)malloc(size * sizeof(char));
-   if( !nex->edata ){
-      fprintf(stderr,"** failed to allocate %d bytes for extension\n",size);
-      return -1;
-   }
-
-   count = (int)grf_znzread(nex->edata, 1, size, fp);
-   if( count < size ){
-      if( g_opts.debug > 0 )
-         fprintf(stderr,"-d read only %d (of %d) bytes for extension\n",
-                 count, size);
-      free(nex->edata);
-      nex->edata = NULL;
-      return -1;
-   }
-
-   /* success! */
-   if( g_opts.debug > 2 )
-      fprintf(stderr,"+d successfully read extension, code %d, size %d\n",
-              nex->ecode, nex->esize);
-
-   return nex->esize;
-}
 
 
 /*----------------------------------------------------------------------*/
@@ -4695,60 +4912,10 @@ int grf_valid_nifti_extensions(const GrfNiftiImage * nim)
 }
 
 
-/*----------------------------------------------------------------------*/
-/*! check whether the extension code is valid
-
-    \return 1 if valid, 0 otherwise
-*//*--------------------------------------------------------------------*/
-int grf_nifti_is_valid_ecode( int ecode )
-{
-   if( ecode < GRF_NIFTI_ECODE_IGNORE  ||   /* minimum code number (0) */
-       ecode > GRF_NIFTI_MAX_ECODE     ||   /* maximum code number     */
-       ecode & 1 )                      /* cannot be odd           */
-      return 0;
-
-   return 1;
-}
 
 
-/*----------------------------------------------------------------------
- * check for valid size and code, as well as can be done
- *----------------------------------------------------------------------*/
-static int grf_nifti_check_extension(GrfNiftiImage *nim, int size, int code, int rem)
-{
-   /* check for bad code before bad size */
-   if( ! grf_nifti_is_valid_ecode(code) ) {
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d invalid extension code %d\n",code);
-      return 0;
-   }
 
-   if( size < 16 ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d ext size %d, no extension\n",size);
-      return 0;
-   }
 
-   if( size > rem ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d ext size %d, space %d, no extension\n", size, rem);
-      return 0;
-   }
-
-   if( size & 0xf ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d nifti extension size %d not multiple of 16\n",size);
-      return 0;
-   }
-
-   if( nim->nifti_type == GRF_NIFTI_FTYPE_ASCII && size > LNI_MAX_NIA_EXT_LEN ){
-      if( g_opts.debug > 2 )
-         fprintf(stderr,"-d NVE, bad nifti_type 3 size %d\n", size);
-      return 0;
-   }
-
-   return 1;
-}
 
 
 /*----------------------------------------------------------------------
@@ -4779,7 +4946,7 @@ static GrfZnzFile grf_nifti_image_load_prep( GrfNiftiImage *nim )
       return NULL;
    }
 
-   ntot = grf_nifti_get_volsize(nim) ; /* total bytes to read */
+   ntot = grf_nifti_image_get_volsize(nim) ; /* total bytes to read */
 
    /**- open image data file */
 
@@ -4863,7 +5030,7 @@ int grf_nifti_image_load( GrfNiftiImage *nim )
       return -1;
    }
 
-   ntot = grf_nifti_get_volsize(nim);
+   ntot = grf_nifti_image_get_volsize(nim);
 
    /**- if the data pointer is not yet set, get memory space for the image */
 

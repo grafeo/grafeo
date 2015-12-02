@@ -240,6 +240,64 @@ grf_znzfile_rewind(GrfZnzFile* znzfile)
   return 0;
 }
 
+long
+grf_znzfile_seek(GrfZnzFile* znzfile, long offset, int whence)
+{
+  if (znzfile == NULL) { return 0; }
+  GrfZnzFilePrivate* priv = grf_znzfile_get_instance_private(znzfile);
+#ifdef HAVE_ZLIB
+  if (priv->zfptr!=NULL) return (long) gzseek(priv->zfptr,offset,whence);
+#endif
+  return fseek(priv->nzfptr,offset,whence);
+}
+
+long
+grf_znztell(GrfZnzFile* znzfile)
+{
+  if (znzfile==NULL) { return 0; }
+  GrfZnzFilePrivate* priv = grf_znzfile_get_instance_private(znzfile);
+#ifdef HAVE_ZLIB
+  if (priv->zfptr!=NULL) return (long) gztell(priv->zfptr);
+#endif
+  return ftell(priv->nzfptr);
+}
+
+size_t
+grf_znzfile_read(GrfZnzFile* znzfile, void* buf, size_t size, size_t nmemb)
+{
+  size_t     remain = size*nmemb;
+  char     * cbuf = (char *)buf;
+  unsigned   n2read;
+  int        nread;
+
+  if (znzfile==NULL) { return 0; }
+  GrfZnzFilePrivate* priv = grf_znzfile_get_instance_private(znzfile);
+#ifdef HAVE_ZLIB
+  if (priv->zfptr!=NULL) {
+    /* gzread/write take unsigned int length, so maybe read in int pieces
+       (noted by M Hanke, example given by M Adler)   6 July 2010 [rickr] */
+    while( remain > 0 ) {
+       n2read = (remain < ZNZ_MAX_BLOCK_SIZE) ? remain : ZNZ_MAX_BLOCK_SIZE;
+       nread = gzread(priv->zfptr, (void *)cbuf, n2read);
+       if( nread < 0 ) return nread; /* returns -1 on error */
+
+       remain -= nread;
+       cbuf += nread;
+
+       /* require reading n2read bytes, so we don't get stuck */
+       if( nread < (int)n2read ) break;  /* return will be short */
+    }
+
+    /* warn of a short read that will seem complete */
+    if( remain > 0 && remain < size )
+       fprintf(stderr,"** znzread: read short by %u bytes\n",(unsigned)remain);
+
+    return nmemb - remain/size;   /* return number of members processed */
+  }
+#endif
+  return fread(buf,size,nmemb,priv->nzfptr);
+}
+
 //int grf_Xznzclose(GrfZnzFile * file)
 //{
 //  int retval = 0;
@@ -255,39 +313,7 @@ grf_znzfile_rewind(GrfZnzFile* znzfile)
 //  return retval;
 //}
 
-//size_t grf_znzread(void* buf, size_t size, size_t nmemb, GrfZnzFile file)
-//{
-//  size_t     remain = size*nmemb;
-//  char     * cbuf = (char *)buf;
-//  unsigned   n2read;
-//  int        nread;
 
-//  if (file==NULL) { return 0; }
-//#ifdef HAVE_ZLIB
-//  if (file->zfptr!=NULL) {
-//    /* gzread/write take unsigned int length, so maybe read in int pieces
-//       (noted by M Hanke, example given by M Adler)   6 July 2010 [rickr] */
-//    while( remain > 0 ) {
-//       n2read = (remain < ZNZ_MAX_BLOCK_SIZE) ? remain : ZNZ_MAX_BLOCK_SIZE;
-//       nread = gzread(file->zfptr, (void *)cbuf, n2read);
-//       if( nread < 0 ) return nread; /* returns -1 on error */
-
-//       remain -= nread;
-//       cbuf += nread;
-
-//       /* require reading n2read bytes, so we don't get stuck */
-//       if( nread < (int)n2read ) break;  /* return will be short */
-//    }
-
-//    /* warn of a short read that will seem complete */
-//    if( remain > 0 && remain < size )
-//       fprintf(stderr,"** znzread: read short by %u bytes\n",(unsigned)remain);
-
-//    return nmemb - remain/size;   /* return number of members processed */
-//  }
-//#endif
-//  return fread(buf,size,nmemb,file->nzfptr);
-//}
 
 //size_t grf_znzwrite(const void* buf, size_t size, size_t nmemb, GrfZnzFile file)
 //{
@@ -323,14 +349,7 @@ grf_znzfile_rewind(GrfZnzFile* znzfile)
 //  return fwrite(buf,size,nmemb,file->nzfptr);
 //}
 
-//long grf_znzseek(GrfZnzFile file, long offset, int whence)
-//{
-//  if (file==NULL) { return 0; }
-//#ifdef HAVE_ZLIB
-//  if (file->zfptr!=NULL) return (long) gzseek(file->zfptr,offset,whence);
-//#endif
-//  return fseek(file->nzfptr,offset,whence);
-//}
+
 
 //int grf_znzrewind(GrfZnzFile stream)
 //{
@@ -348,14 +367,7 @@ grf_znzfile_rewind(GrfZnzFile* znzfile)
 //  return 0;
 //}
 
-//long grf_znztell(GrfZnzFile file)
-//{
-//  if (file==NULL) { return 0; }
-//#ifdef HAVE_ZLIB
-//  if (file->zfptr!=NULL) return (long) gztell(file->zfptr);
-//#endif
-//  return ftell(file->nzfptr);
-//}
+
 
 //int grf_znzputs(const char * str, GrfZnzFile file)
 //{
