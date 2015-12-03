@@ -32,7 +32,7 @@
 #include <grafeo/imgproc.h>
 static void test_drawing_line(void** state){
   (void) state;
-  GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
+  g_autofree GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
   grf_ndarray_fill(array,0);
 
   // Line Properties
@@ -47,24 +47,23 @@ static void test_drawing_line(void** state){
   grf_ndarray_draw_line(array, p0, p1, &color, thickness, line_type, shift);
 
   uint64_t x,y,c;
+  uint8_t* array_data_uint8 = (uint8_t*)grf_ndarray_get_data(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
   // Print line
   for(y = 0; y < 10; y++){
     for(x = 0; x < 10; x++){
       printf("(");
       for(c = 0; c < 3; c++)
-        printf("%3d ", array->data_uint8[y*array->step[0]+x*array->step[1]+c*array->step[2]]);
+        printf("%3d ", array_data_uint8[y*array_step[0]+x*array_step[1]+c*array_step[2]]);
       printf(")");
     }
     printf("\n");
   }
-
-  // Free Array
-  grf_ndarray_free(array);
 }
 
 static void test_drawing_circle(void** state){
   (void) state;
-  GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
+  g_autofree GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
   grf_ndarray_fill(array,0);
 
   // Circle Properties
@@ -77,21 +76,19 @@ static void test_drawing_circle(void** state){
 
   // Draw Line
   grf_ndarray_draw_circle(array, center, radius, &color, thickness, line_type, shift);
-
+  uint8_t* array_data_uint8 = (uint8_t*)grf_ndarray_get_data(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
   uint64_t x,y,c;
   // Print line
   for(y = 0; y < 10; y++){
     for(x = 0; x < 10; x++){
       printf("(");
       for(c = 0; c < 3; c++)
-        printf("%3d ", array->data_uint8[y*array->step[0]+x*array->step[1]+c*array->step[2]]);
+        printf("%3d ", array_data_uint8[y*array_step[0]+x*array_step[1]+c*array_step[2]]);
       printf(")");
     }
     printf("\n");
   }
-
-  // Free Array
-  grf_ndarray_free(array);
 }
 
 static void test_drawing_polyline(void** state){
@@ -103,7 +100,7 @@ static void test_drawing_line_arrow(void** state){
 }
 static void test_drawing_rectangle(void** state){
   (void) state;
-  GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
+  g_autofree GrfNDArray* array = grf_ndarray_new_3D(10,10,3);
   grf_ndarray_fill(array,0);
 
   // Rectangle Properties
@@ -115,22 +112,19 @@ static void test_drawing_rectangle(void** state){
 
   // Draw Rectangle
   grf_ndarray_draw_rectangle(array,rect, &color, thickness, line_type, shift);
-
+  uint8_t* array_data_uint8 = (uint8_t*)grf_ndarray_get_data(array);
+  uint64_t* array_step = grf_ndarray_get_step(array);
   uint64_t x,y,c;
   // Print line
   for(y = 0; y < 10; y++){
     for(x = 0; x < 10; x++){
       printf("(");
       for(c = 0; c < 3; c++)
-        printf("%3d ", array->data_uint8[y*array->step[0]+x*array->step[1]+c*array->step[2]]);
+        printf("%3d ", array_data_uint8[y*array_step[0]+x*array_step[1]+c*array_step[2]]);
       printf(")");
     }
     printf("\n");
   }
-
-  // Free Array
-  grf_ndarray_free(array);
-
 }
 
 int main(int argc, char** argv){

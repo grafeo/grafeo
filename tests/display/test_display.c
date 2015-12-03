@@ -86,8 +86,8 @@ static void test_display(void** state){
   grf_display_show(image);
   key  = grf_display_waitkey();
 
-  grf_ndarray_free(image);
-  grf_ndarray_free(image2);
+  g_clear_object(&image);
+  g_clear_object(&image2);
 }
 
 int main(int argc, char** argv){

@@ -11,7 +11,7 @@ GrfIFT* grf_ift_new_from_array(GrfNDArray* array, uint8_t map_dimension){
   ift->predecessors = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT64);
   ift->connectivity = grf_ndarray_zeros(map_dimension, array_size, GRF_INT64);
   ift->root         = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT64);
-  ift->original     = array;
+  g_set_object(&ift->original,array);
   return ift;
 }
 
@@ -21,7 +21,7 @@ GrfIFT*   grf_ift_apply_array(GrfNDArray *array, uint16_t map_dimension, GrfAdja
 
   // Auxiliary structures
   uint32_t* array_size = grf_ndarray_get_size(array);
-  GrfNDArray* visited  = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT8);
+  g_autoptr(GrfNDArray) visited  = grf_ndarray_zeros(map_dimension, array_size, GRF_UINT8);
   GrfQueue* queue      = grf_queue_new();
 
 
@@ -162,7 +162,6 @@ GrfIFT*   grf_ift_apply_array(GrfNDArray *array, uint16_t map_dimension, GrfAdja
   free(index_t_nd_u);
   free(index_t_nd);
 
-  grf_ndarray_free(visited);
   grf_queue_free(queue);
 
   return ift;
@@ -264,6 +263,11 @@ double grf_path_connectivity_norm_inf(GrfIFT* ift, uint64_t index_s, uint64_t in
 }
 
 void   grf_ift_free(GrfIFT* ift){
+  if(ift->connectivity) g_clear_object(&ift->connectivity);
+  if(ift->label)        g_clear_object(&ift->label);
+  if(ift->original)     g_clear_object(&ift->original);
+  if(ift->predecessors) g_clear_object(&ift->predecessors);
+  if(ift->root)         g_clear_object(&ift->root);
   free(ift);
 }
 
@@ -298,8 +302,8 @@ GrfNDArray* grf_ift_distance_transform(GrfNDArray* array, GrfNormType norm_type)
   uint32_t i, s = 0;
   for(i = 0; i < array_num_elements; i++)
     if(grf_ndarray_get_long_double_1D(array, i)) seed_indices_data[s++] = i;
-  GrfNDArray* seed_indices = grf_ndarray_from_data(seed_indices_data, 1, &s, GRF_UINT64);
-  GrfNDArray* seed_labels  = grf_ndarray_ones(1, &s, GRF_UINT16);
+  g_autoptr(GrfNDArray) seed_indices = grf_ndarray_from_data(seed_indices_data, 1, &s, GRF_UINT64);
+  g_autoptr(GrfNDArray) seed_labels  = grf_ndarray_ones(1, &s, GRF_UINT16);
 
   GrfIFT*   ift   = grf_ift_apply_array(array,                 // GrfNDArray
                                  2,                     // Map dimension
@@ -312,8 +316,6 @@ GrfNDArray* grf_ift_distance_transform(GrfNDArray* array, GrfNormType norm_type)
                                  );
   // Send results
   GrfNDArray* connectivity = grf_ndarray_as_type(ift->connectivity, GRF_UINT8);
-  grf_ndarray_free(seed_indices);
-  grf_ndarray_free(seed_labels);
   grf_ift_free(ift);
   return connectivity;
 }

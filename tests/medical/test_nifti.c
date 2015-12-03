@@ -40,10 +40,10 @@ int       slice = 0;
 GrfNiftiImage* image;
 
 static void get_data(){
-  dados    = (int16_t*)image->data;
+  dados    = grf_ndarray_get_data(GRF_NDARRAY(image));
   offset   = dados + slice*(256*256);
-  if(array)  grf_ndarray_free(array);
-  if(output) grf_ndarray_free(output);
+  g_clear_object(&array);
+  g_clear_object(&output);
   array    = grf_ndarray_from_data(offset,2,size,GRF_INT16);
   output   = grf_ndarray_as_type(array,GRF_UINT8);
 }
@@ -59,16 +59,23 @@ static void change_event(int pos){
 
 static void test_grf_nifti_open(void** state){
   image = grf_nifti_image_read("../data/MRHead.nii.gz",1);
-  assert_int_equal(image->array.size[0],130);
-  assert_int_equal(image->array.size[1],256);
-  assert_int_equal(image->array.size[2],256);
-  assert_int_equal(image->array.dim, 3);
-  assert_int_equal(image->array.step[0],256*256);
-  assert_int_equal(image->array.step[1],256);
-  assert_int_equal(image->array.step[2],1);
-  assert_int_equal(image->array.owns_data,0);
-  assert_int_equal(image->array.contiguous,1);
-  assert_int_equal(image->array.type,GRF_INT16);
+  GrfNDArray* array2         = GRF_NDARRAY(image);
+  uint32_t* image_size       = grf_ndarray_get_size(array2);
+  uint16_t  image_dim        = grf_ndarray_get_dim(array2);
+  uint64_t* image_step       = grf_ndarray_get_step(array2);
+  gboolean  image_owns_data  = grf_ndarray_get_owns_data(array2);
+  gboolean  image_contiguous = grf_ndarray_get_contiguous(array2);
+  GrfDataType image_type     = grf_ndarray_get_datatype(array2);
+  assert_int_equal(image_size[0],130);
+  assert_int_equal(image_size[1],256);
+  assert_int_equal(image_size[2],256);
+  assert_int_equal(image_dim, 3);
+  assert_int_equal(image_step[0],256*256);
+  assert_int_equal(image_step[1],256);
+  assert_int_equal(image_step[2],1);
+  assert_int_equal(image_owns_data,0);
+  assert_int_equal(image_contiguous,1);
+  assert_int_equal(image_type,GRF_INT16);
 
   size[0] = 256;
   size[1] = 256;
@@ -86,7 +93,7 @@ static void test_grf_nifti_open(void** state){
 #endif
 
   //znzFile file = nifti_image_open("../data/MRHead.nii.gz","w6h",&image);
-  grf_nifti_image_free(image);
+  g_clear_object(&image);
 }
 
 int main(int argc, char** argv){

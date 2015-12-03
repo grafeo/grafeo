@@ -312,7 +312,7 @@ GrfNDArray* grf_image_cvt_color(GrfNDArray* array, GrfColorType origin, GrfColor
   // Creating output array
   output = array;
   uint32_t* array_size = grf_ndarray_get_size(array);
-  GrfDataType array_type = grf_ndarray_get_elemtype(array);
+  GrfDataType array_type = grf_ndarray_get_datatype(array);
   if(destiny == GRF_RGB || destiny == GRF_BGR)
     output = grf_ndarray_new_3D_type(array_size[0], array_size[1], 3, array_type);
   else if(destiny == GRF_GRAY)

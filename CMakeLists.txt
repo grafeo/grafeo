@@ -202,7 +202,7 @@ IF(BUILD_CORE OR BUILD_IMGPROC OR BUILD_IFT OR BUILD_DISPLAY)
   SET(GRF_CORE_SRCS       type.c config.c  range.c slist.c list.c ndarray.c vec3.c
                          vec4.c vec6.c vec7.c mat4.c queue.c bucket.c pqueue.c)
   SET(GRF_CORE_TESTS    ndarray vec3 vec4 vec6 vec7 mat4 list slist queue pqueue hal)
-  SET(GRF_CORE_LIBRARIES grafeo_core m)
+  SET(GRF_CORE_LIBRARIES grafeo_core m ${GOBJECT_LIBRARIES})
   # configure a header file to pass some of the CMake settings
   # to the source code
   CONFIGURE_FILE("${GRF_CORE_INCLUDE_DIR}/config.h.in"
@@ -243,7 +243,7 @@ IF(BUILD_GL)
                    glloader_dae glloader_3ds glloader_x3d glloader_md3
                    glscene glprojection glprojection_perspective
                    glprojection_orthographic glcamera glrenderer)
-  SET(GRF_GL_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_gl ${GOBJECT_LIBRARIES})
+  SET(GRF_GL_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_gl)
   GRF_CREATE_LIBRARY(gl GL)
 ENDIF()
 #=============================================================== DISPLAY MODULE
@@ -272,7 +272,7 @@ IF(BUILD_CHART)
       plotline.c legend.c chartpanel.c chartcontainer.c chart.c)
   SET(GRF_CHART_TESTS fontproperties config chartcomponent axis plot plotline
       legend chartpanel chartcontainer chart)
-  SET(GRF_CHART_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_chart ${GOBJECT_LIBRARIES})
+  SET(GRF_CHART_LIBRARIES ${GRF_CORE_LIBRARIES} grafeo_chart)
   GRF_CREATE_LIBRARY(chart CHART)
 ENDIF()
 #==================================================================== RESOURCES

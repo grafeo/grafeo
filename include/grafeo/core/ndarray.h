@@ -200,6 +200,36 @@ GrfNDArray*    grf_ndarray_circular_indices(uint16_t dim, float radius);
  * @return
  */
 GrfNDArray*    grf_ndarray_copy(GrfNDArray* array);
+/**
+ * @brief grf_ndarray_alloc_by_dim
+ * @param array
+ * @param dim
+ */
+void
+grf_ndarray_alloc_by_dim(GrfNDArray* array, uint16_t dim);
+/**
+ * @brief grf_ndarray_alloc_by_size
+ * @param array
+ * @param dim
+ * @param size
+ */
+void
+grf_ndarray_alloc_by_size(GrfNDArray* array, uint16_t dim, uint32_t* size);
+/**
+ * @brief grf_ndarray_alloc_data
+ * @param array
+ * @param dim
+ * @param size
+ * @param type
+ */
+void
+grf_ndarray_alloc_data(GrfNDArray* array, uint16_t dim, uint32_t* size, GrfDataType type);
+/**
+ * @brief grf_ndarray_dealloc_data
+ * @param array
+ */
+void
+grf_ndarray_dealloc_data(GrfNDArray* array);
 /*-----------------------------------
  *   ARRAY OPERATIONS FUNCTIONS
  *-----------------------------------*/
@@ -218,11 +248,6 @@ void      grf_ndarray_fill_max(GrfNDArray* array);
  * @param array
  */
 void      grf_ndarray_fill_min(GrfNDArray* array);
-/**
- * @brief Free array memory
- * @memberof GrfNDArray
- */
-void      grf_ndarray_free(GrfNDArray* array);
 /**
  * @brief grf_ndarray_sum_scalar
  * @param array
@@ -327,7 +352,7 @@ uint64_t  grf_ndarray_get_num_elements(GrfNDArray* array);
  * @brief Get data type of the array
  * @memberof GrfNDArray
  */
-GrfDataType  grf_ndarray_get_elemtype(GrfNDArray* array);
+GrfDataType  grf_ndarray_get_datatype(GrfNDArray* array);
 /**
  * @brief Get number of dimensions of an array
  * @memberof GrfNDArray
@@ -386,6 +411,20 @@ uint8_t   grf_ndarray_get_bitsize(GrfNDArray* array);
  */
 uint64_t  grf_ndarray_get_num_bytes(GrfNDArray* array);
 /**
+ * @brief grf_ndarray_get_contiguous
+ * @param array
+ * @return
+ */
+gboolean
+grf_ndarray_get_contiguous(GrfNDArray* array);
+/**
+ * @brief grf_ndarray_get_owns_data
+ * @param array
+ * @return
+ */
+gboolean
+grf_ndarray_get_owns_data(GrfNDArray* array);
+/**
  * @brief grf_ndarray_index
  * @param array
  * @param index
@@ -427,6 +466,13 @@ void      grf_ndarray_set_element(GrfNDArray* array, uint32_t* indices, double v
  * @return
  */
 long double grf_ndarray_get_long_double_1D(GrfNDArray* array1, uint64_t i);
+/**
+ * @brief grf_ndarray_data_allocated
+ * @param array
+ * @return
+ */
+gboolean
+grf_ndarray_data_allocated(GrfNDArray* array);
 /**
  * @brief grf_ndarray_set_element_1D
  * @param array

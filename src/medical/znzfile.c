@@ -252,7 +252,7 @@ grf_znzfile_seek(GrfZnzFile* znzfile, long offset, int whence)
 }
 
 long
-grf_znztell(GrfZnzFile* znzfile)
+grf_znzfile_tell(GrfZnzFile* znzfile)
 {
   if (znzfile==NULL) { return 0; }
   GrfZnzFilePrivate* priv = grf_znzfile_get_instance_private(znzfile);

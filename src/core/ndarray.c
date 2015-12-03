@@ -46,8 +46,8 @@ typedef struct _GrfNDArrayPrivate{
     uint8_t   bitsize;      /**< number of bytes of each value*/
     GrfDataType  type;         /**< data type of each element */
     uint64_t* step;         /**< number of elements to increase an axis value */
-    uint8_t   contiguous;   /**< it can be iterated using a common loop */
-    uint8_t   owns_data;    /**< owner of its data */
+    gboolean  contiguous;   /**< it can be iterated using a common loop */
+    gboolean  owns_data;    /**< owner of its data */
     union{
         void*          data;
         unsigned char* data_uint8;
@@ -66,6 +66,21 @@ typedef struct _GrfNDArrayPrivate{
 G_DEFINE_TYPE_WITH_PRIVATE(GrfNDArray, grf_ndarray, G_TYPE_OBJECT)
 
 static void
+grf_ndarray_free(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  if(priv->data && priv->owns_data) free(priv->data);
+  if(priv->size) free(priv->size);
+  if(priv->step) free(priv->step);
+}
+
+static void
+grf_ndarray_finalize(GObject* object){
+  GrfNDArray* ndarray = GRF_NDARRAY(object);
+  grf_ndarray_free(ndarray);
+  G_OBJECT_CLASS(grf_ndarray_parent_class)->finalize(object);
+}
+
+static void
 grf_ndarray_init(GrfNDArray *self){
   GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(self);
   priv->dim          = 0;
@@ -81,7 +96,8 @@ grf_ndarray_init(GrfNDArray *self){
 
 static void
 grf_ndarray_class_init(GrfNDArrayClass *klass){
-
+  GObjectClass* object_class = G_OBJECT_CLASS(klass);
+  object_class->finalize = grf_ndarray_finalize;
 }
 
 static size_t grf_ndarray_calculate_bitsize(GrfDataType type){
@@ -99,6 +115,7 @@ static size_t grf_ndarray_calculate_bitsize(GrfDataType type){
   }
   return 0;
 }
+
 /*===========================================================================
  * PUBLIC API
  *===========================================================================*/
@@ -186,7 +203,7 @@ grf_ndarray_zeros(uint16_t dim, uint32_t* sizes, GrfDataType type){
   return array;
 }
 GrfNDArray*    grf_ndarray_zeros_like(GrfNDArray *array){
-  return grf_ndarray_zeros_like_type(array,grf_ndarray_get_elemtype(array));
+  return grf_ndarray_zeros_like_type(array,grf_ndarray_get_datatype(array));
 }
 
 GrfNDArray*
@@ -201,7 +218,7 @@ grf_ndarray_ones(uint16_t dim, uint32_t* sizes, GrfDataType type){
   return array;
 }
 GrfNDArray*    grf_ndarray_ones_like(GrfNDArray *array){
-  return grf_ndarray_ones_like_type(array, grf_ndarray_get_elemtype(array));
+  return grf_ndarray_ones_like_type(array, grf_ndarray_get_datatype(array));
 }
 
 GrfNDArray*
@@ -215,13 +232,13 @@ static long double max_values[10] = {__UINT8_MAX__,__UINT16_MAX__,__UINT32_MAX__
                                  __INT16_MAX__,__INT32_MAX__ ,__INT64_MAX__ ,__FLT_MAX__   ,__DBL_MAX__};
 void
 grf_ndarray_fill_max(GrfNDArray *array){
-  grf_ndarray_fill(array, max_values[grf_ndarray_get_elemtype(array)]);
+  grf_ndarray_fill(array, max_values[grf_ndarray_get_datatype(array)]);
 }
 
 long double min_values[10] = {0,0,0,0,-__INT8_MAX__-1,-__INT16_MAX__-1,-__INT32_MAX__-1,-__INT64_MAX__-1,__FLT_MIN__,__DBL_MIN__};
 void
 grf_ndarray_fill_min(GrfNDArray *array){  
-  grf_ndarray_fill(array, min_values[grf_ndarray_get_elemtype(array)]);
+  grf_ndarray_fill(array, min_values[grf_ndarray_get_datatype(array)]);
 }
 void
 grf_ndarray_fill(GrfNDArray* array, long double value){
@@ -277,7 +294,7 @@ grf_ndarray_get_num_elements(GrfNDArray* array){
   return priv->num_elements;
 }
 GrfDataType
-grf_ndarray_get_elemtype(GrfNDArray* array){
+grf_ndarray_get_datatype(GrfNDArray* array){
   GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
   return priv->type;
 }
@@ -305,6 +322,16 @@ uint64_t
 grf_ndarray_get_num_bytes(GrfNDArray* array){
   GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
   return priv->num_bytes;
+}
+gboolean
+grf_ndarray_get_contiguous(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->contiguous;
+}
+gboolean
+grf_ndarray_get_owns_data(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->owns_data;
 }
 
 int32_t*
@@ -407,15 +434,6 @@ long double grf_ndarray_get_long_double_1D(GrfNDArray* array, uint64_t i){
     case GRF_DOUBLE: value1 = (long double)priv->data_double[i];break;
   }
   return value1;
-}
-
-void
-grf_ndarray_free(GrfNDArray* array){
-  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
-    if(priv->data && priv->owns_data) free(priv->data);
-    if(priv->size) free(priv->size);
-    if(priv->step) free(priv->step);
-    free(array);
 }
 
 GrfNDArray*
@@ -575,11 +593,11 @@ grf_ndarray_reduce(GrfNDArray* array, int16_t* axes, uint16_t size, GrfNDArrayOp
   switch(operation){
     case GRF_SUM:
     case GRF_STD:
-    case GRF_MEAN: reduced = grf_ndarray_zeros(reduced_dim,reduced_size,grf_ndarray_get_elemtype(array));break;
-    case GRF_MULT: reduced = grf_ndarray_ones(reduced_dim,reduced_size,grf_ndarray_get_elemtype(array));break;
-    case GRF_MAX:  reduced = grf_ndarray_new_with_size_type(reduced_dim, reduced_size, grf_ndarray_get_elemtype(array));
+    case GRF_MEAN: reduced = grf_ndarray_zeros(reduced_dim,reduced_size,grf_ndarray_get_datatype(array));break;
+    case GRF_MULT: reduced = grf_ndarray_ones(reduced_dim,reduced_size,grf_ndarray_get_datatype(array));break;
+    case GRF_MAX:  reduced = grf_ndarray_new_with_size_type(reduced_dim, reduced_size, grf_ndarray_get_datatype(array));
                       grf_ndarray_fill_min(reduced); break;
-    case GRF_MIN:  reduced = grf_ndarray_new_with_size_type(reduced_dim, reduced_size, grf_ndarray_get_elemtype(array));
+    case GRF_MIN:  reduced = grf_ndarray_new_with_size_type(reduced_dim, reduced_size, grf_ndarray_get_datatype(array));
                       grf_ndarray_fill_max(reduced); break;
   }
 
@@ -1471,4 +1489,48 @@ grf_ndarray_lookat_4f(float px,float py,float pz,
   grf_ndarray_free(upa);
 
   return result;
+}
+
+gboolean
+grf_ndarray_data_allocated(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  return priv->data != NULL;
+}
+void
+grf_ndarray_alloc_by_dim(GrfNDArray* array, uint16_t dim){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  priv->dim  = dim;
+  priv->size = g_realloc(priv->size,dim * sizeof(uint32_t));
+  priv->step = g_realloc(priv->step,dim * sizeof(uint64_t));
+}
+void
+grf_ndarray_alloc_by_size(GrfNDArray* array, uint16_t dim, uint32_t* size){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  grf_ndarray_alloc_by_dim(array,dim);
+  memcpy(priv->size,size,dim * sizeof(uint32_t));
+  priv->num_elements = 1;
+  priv->step[priv->dim-1] = 1;
+  uint64_t step = 1;
+  uint16_t i;
+  for(i = 0; i < priv->dim; step*=size[priv->dim-(i++)-1]) {
+    priv->step[priv->dim-i-1] = step;
+    priv->num_elements  *= size[i];
+  }
+}
+void
+grf_ndarray_alloc_data(GrfNDArray* array, uint16_t dim, uint32_t* size, GrfDataType type){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  grf_ndarray_alloc_by_size(array,dim,size);
+  priv->type       = type;
+  priv->contiguous = TRUE;
+  priv->bitsize    = grf_ndarray_calculate_bitsize(type);
+  priv->num_bytes  = priv->bitsize * priv->num_elements;
+  priv->data       = g_realloc(priv->data,priv->num_bytes);
+  priv->owns_data  = TRUE;
+}
+void
+grf_ndarray_dealloc_data(GrfNDArray* array){
+  GrfNDArrayPrivate* priv = grf_ndarray_get_instance_private(array);
+  if(priv->data) g_free(priv->data);
+  priv->data = NULL;
 }
