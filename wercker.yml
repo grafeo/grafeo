@@ -23,10 +23,10 @@ build:
     - script:
         name: updating
         code: |
-          sudo apt-get update -y
-          sudo apt-get install software-properties-common -y
-          sudo add-apt-repository ppa:gnome3-team/gnome3 -y
-          sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
+          #sudo apt-get update -y
+          #sudo apt-get install software-properties-common -y
+          #sudo add-apt-repository ppa:gnome3-team/gnome3 -y
+          #sudo add-apt-repository ppa:gnome3-team/gnome3-staging -y
           sudo apt-get update
     - install-packages:
         packages: "cmake gcc g++ libglib2.0-dev"
